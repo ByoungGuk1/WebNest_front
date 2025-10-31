@@ -2,7 +2,7 @@ import styled, { keyframes } from "styled-components";
 
 // styled.p`
 //   animation: ${fadeIn} 3s forward;
-// `;
+// `
 
 export const fadeIn = keyframes`
   0%{
@@ -14,4 +14,4 @@ export const fadeIn = keyframes`
     opacity: 1;
     transform: translate(0, 0);
   }
-`;
+`

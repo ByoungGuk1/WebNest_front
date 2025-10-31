@@ -1,6 +1,5 @@
 // 공통적인 css를 변수에 담아 사용할 수 있도록 제공하는 파일
 import { css } from "styled-components";
-import theme from "./theme";
 
 export const flexCenter = css`
   display: flex;
@@ -51,4 +50,3 @@ export const h1Medium = css`
 export const primaryColor = css`
   color: ${({ theme }) => theme.PALETTE.primary.purple.main};
 `;
-
