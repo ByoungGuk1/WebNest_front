@@ -37,6 +37,13 @@ import SingleWorkspaceContainer from "../pages/workspace/singleworkspace/SingleW
 // multi workspace
 import RoomListContainer from "../pages/workspace/roomlist/RoomListContainer";
 import MultiWorkspaceContainer from "../pages/workspace/multiworkspace/MultiWorkspaceContainer";
+import CardFlipContainer from "../pages/workspace/cardflip/CardFlipContainer";
+import ConcaveContainer from "../pages/workspace/concave/ConcaveContainer";
+import LastWordContainer from "../pages/workspace/lastword/LastWordContainer";
+import SnakePuzzleContainer from "../pages/workspace/snakepuzzle/SnakePuzzleContainer";
+import TypingPracticeContainer from "../pages/workspace/typingpractice/TypingPracticeContainer";
+import PostWriteContainer from "../pages/community/post/postwrite/PostWriteContainer";
+import QuestionWriteContainer from "../pages/community/question/questionwrite/QuestionWriteContainer";
 
 const router = createBrowserRouter([
   {
@@ -84,12 +91,20 @@ const router = createBrowserRouter([
         element: <PostReadContainer />,
       },
       {
+        path: "/post/write",
+        element: <PostWriteContainer />,
+      },
+      {
         path: "/question",
         element: <QuestionListContainer />,
       },
       {
         path: "/question/:questionId",
         element: <QuestionReadContainer />,
+      },
+      {
+        path: "/question/write",
+        element: <QuestionWriteContainer />,
       },
     ],
   },
@@ -108,6 +123,28 @@ const router = createBrowserRouter([
       {
         path: "rooms/:roomId",
         element: <MultiWorkspaceContainer />,
+        children: [
+          {
+            path: "cardflip",
+            element: <CardFlipContainer />,
+          },
+          {
+            path: "concave",
+            element: <ConcaveContainer />,
+          },
+          {
+            path: "lastword",
+            element: <LastWordContainer />,
+          },
+          {
+            path: "snakepuzzle",
+            element: <SnakePuzzleContainer />,
+          },
+          {
+            path: "typing",
+            element: <TypingPracticeContainer />,
+          },
+        ],
       },
     ],
   },
