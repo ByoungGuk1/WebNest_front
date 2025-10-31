@@ -49,5 +49,6 @@ export const h1Medium = css`
 `;
 
 export const primaryColor = css`
-  color: ${theme.PALLETE.primary.main};
+  color: ${({ theme }) => theme.PALETTE.primary.purple.main};
 `;
+
