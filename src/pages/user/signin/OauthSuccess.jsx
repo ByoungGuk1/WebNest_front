@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { setUserStatus } from "../../modules/user";
+import { setUserStatus } from "../../../modules/user";
 
 const OauthSuccess = () => {
   const [serachParams] = useSearchParams();
