@@ -40,7 +40,7 @@ S.logo_blue = styled.h4`
   ${h4Medium}
 `;
 
-S.LoginForm = styled.div`
+S.LoginForm = styled.form`
   ${flexBeetweenColumn};
   height: 270px;
 `;
@@ -67,12 +67,6 @@ S.Input = styled.input`
   &:focus {
     outline: none;
   }
-`;
-
-S.passwordEye = styled.button`
-  ${flexCenter};
-  margin-right: 20px;
-  background-color: transparent;
 `;
 
 S.CheckBoxLabel = styled.label`
