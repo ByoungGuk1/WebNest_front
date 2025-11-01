@@ -91,11 +91,20 @@ const GlobalStyle = createGlobalStyle`
     font-display: swap;
   }
 
+  @font-face {
+    font-family: 'RomanticGumi';
+    src: url(${process.env.PUBLIC_URL}/assets/font/RomanticGumi/Gumi-Romance.otf) format('opentype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
   body {
     font-family: 'pretendard';
     /* font-weight: 900; */
     box-sizing: border-box;
     text-decoration: none;
+    color: ${({ theme }) => theme.PALETTE.neutral.black.main};
   }
 
   button {
