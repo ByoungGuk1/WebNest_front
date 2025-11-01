@@ -1,9 +1,13 @@
 import React from "react";
+import S from "./style";
+
 
 const SignInContainer = () => {
   return (
     <div>
-      <h1>Sign In Page📝</h1>
+      <S.ContentContainer>
+        <div>Sign In</div>
+      </S.ContentContainer>
     </div>
   );
 };
