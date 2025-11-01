@@ -5,6 +5,7 @@ import useDropDown from "../../hooks/useDropDown";
 
 const QuizContainer = () => {
 
+  const [wordOpen, wordRef, wordHandler] = useDropDown();
   const [langOpen, langRef, langHandler] = useDropDown();
   const [levelOpen, levelRef, levelHandler] = useDropDown();
   const [isClearOpen, isClearRef, isClearHandler] = useDropDown();
@@ -47,79 +48,118 @@ const QuizContainer = () => {
     </li>)
   })
   return (
-    <div>
-      {/* 드롭다운버튼 */}
-      <S.DropConatiner ref={quizRef}>
-        <S.ButtonWrap ref={langRef}>
-          <S.DropDownButton onClick={langHandler}>언어</S.DropDownButton>
-          <S.Menu isDropped={langOpen}>
-            <ul><li>JAVA</li></ul>
-            <ul><li>ORACLE</li></ul>
-            <ul><li>JS</li></ul>
-          </S.Menu>
-        </S.ButtonWrap>
+    <S.Containers>
+      <S.AllContaner>
+        {/* 드롭다운버튼 */}
+        <S.DropConatiner ref={quizRef}>
+          <S.ButtonWrap ref={langRef}>
+            <S.DropDownButton onClick={langHandler}>
+              언어
+              <S.DropDownIconWrap>
+                <S.DropDownIcon />
+              </S.DropDownIconWrap>
 
-        <S.ButtonWrap ref={levelRef}>
-          <S.DropDownButton onClick={levelHandler}>난이도</S.DropDownButton>
-          <S.Menu isDropped={levelOpen}>
-            <ul><li>초급</li></ul>
-            <ul><li>중급</li></ul>
-            <ul><li>중상급</li></ul>
-            <ul><li>상급</li></ul>
-            <ul><li>최상급</li></ul>
-          </S.Menu>
-        </S.ButtonWrap>
+            </S.DropDownButton>
+            <S.DropDownMenuWrap isDropped={langOpen}>
+              <S.DropDownMenu>JAVA</S.DropDownMenu>
+              <S.DropDownMenu>JS</S.DropDownMenu>
+              <S.DropDownMenu>ORACLE</S.DropDownMenu>
+            </S.DropDownMenuWrap>
+          </S.ButtonWrap>
 
-        <S.ButtonWrap ref={isClearRef}>
-          <S.DropDownButton onClick={isClearHandler}>해결여부</S.DropDownButton>
-          <S.Menu isDropped={isClearOpen}>
-            <ul><li>미해결</li></ul>
-            <ul><li>해결</li></ul>
-          </S.Menu>
-        </S.ButtonWrap>
+          <S.ButtonWrap ref={levelRef}>
+            <S.DropDownButton onClick={levelHandler}>
+              난이도
+              <S.DropDownIconWrap>
+                <S.DropDownIcon />
+              </S.DropDownIconWrap>
+            </S.DropDownButton>
 
-{/* 문제 리스트 */}
-      </S.DropConatiner>
-      <S.Container>
-        <S.Header>
-          <S.Cell flex={1}>#문제</S.Cell>
-          <S.Cell flex={1}>난이도</S.Cell>
-          <S.Cell flex={1}>언어</S.Cell>
-          <S.Cell flex={3}>제목</S.Cell>
-          <S.Cell flex={2}>유형</S.Cell>
-          <S.Cell flex={1}>해결 여부</S.Cell>
-        </S.Header>
+            <S.DropDownMenuWrap isDropped={levelOpen}>
+              <S.DropDownMenu>초급</S.DropDownMenu>
+              <S.DropDownMenu>중급</S.DropDownMenu>
+              <S.DropDownMenu>중상급</S.DropDownMenu>
+              <S.DropDownMenu>상급</S.DropDownMenu>
+              <S.DropDownMenu>최상급</S.DropDownMenu>
+            </S.DropDownMenuWrap>
+          </S.ButtonWrap>
 
-        {quizs.map((quiz) => (
+          <S.ButtonWrap ref={isClearRef}>
+            <S.DropDownButton onClick={isClearHandler}>
+              해결여부
+              <S.DropDownIconWrap>
+                <S.DropDownIcon />
+              </S.DropDownIconWrap>
+            </S.DropDownButton>
 
-          <S.Row key={quiz.quizId}>
-            <S.BookMark onClick={() => clickBookmark(quiz.quizId)}>
-              <S.BookMarkIcon active={bookMarkId.includes(quiz.quizId)} />
-            </S.BookMark>
-            <S.Cell flex={1}>{quiz.quizId}</S.Cell>
-            <S.Cell flex={1}>
-              <S.Difficulty level={quiz.quizDefficult}>
-                {quiz.quizDefficult || "L1"}
-              </S.Difficulty>
-            </S.Cell>
-            <S.Cell flex={1}>{quiz.language}</S.Cell>
-            <S.Cell flex={3}>
-              <S.TitleLink to={`/workspace/quiz/${quiz.quizId}`}>
-                {quiz.quizTitle}
-              </S.TitleLink>
-            </S.Cell>
-            <S.Cell flex={2}>{quiz.quizCategory}</S.Cell>
-            <S.Cell flex={1}>
-              <S.Status isClear={quiz.isClear}>
-                {quiz.isClear ? "해결됨" : "미해결"}
-              </S.Status>
-            </S.Cell>
-          </S.Row>
-        ))}
-      </S.Container>
+            <S.DropDownMenuWrap isDropped={isClearOpen}>
+              <S.DropDownMenu>미해결</S.DropDownMenu>
+              <S.DropDownMenu>해결</S.DropDownMenu>
+            </S.DropDownMenuWrap>
+          </S.ButtonWrap>
+
+          <S.ButtonWrap ref={wordRef}>
+            <S.DropDownButton onClick={wordHandler}>
+              키워드
+              <S.DropDownIconWrap>
+                <S.DropDownIcon />
+              </S.DropDownIconWrap>
+            </S.DropDownButton>
+
+            <S.DropDownMenuWrap isDropped={wordOpen}>
+              <S.DropDownMenu>반복문</S.DropDownMenu>
+              <S.DropDownMenu>배열</S.DropDownMenu>
+              <S.DropDownMenu>조건식</S.DropDownMenu>
+              <S.DropDownMenu>함수</S.DropDownMenu>
+            </S.DropDownMenuWrap>
+          </S.ButtonWrap>
+
+        </S.DropConatiner>
 
 
-    </div>
+
+        {/* 문제 리스트 */}
+        <S.Container>
+          <S.Header>
+            <S.Cell flex={0.6}>#문제</S.Cell>
+            <S.Cell flex={1}>난이도</S.Cell>
+            <S.Cell flex={1}>언어</S.Cell>
+            <S.Cell flex={3.5}>제목</S.Cell>
+            <S.Cell flex={2}>유형</S.Cell>
+            <S.Cell flex={1}>해결 여부</S.Cell>
+          </S.Header>
+
+          {quizs.map((quiz) => (
+
+            <S.Row key={quiz.quizId}>
+              <S.BookMark onClick={() => clickBookmark(quiz.quizId)}>
+                <S.BookMarkIcon active={bookMarkId.includes(quiz.quizId)} />
+              </S.BookMark>
+              <S.Cell flex={0.6}>{quiz.quizId}</S.Cell>
+              <S.Cell flex={1}>
+                <S.Difficulty level={quiz.quizDefficult}>
+                  {quiz.quizDefficult || "L1"}
+                </S.Difficulty>
+              </S.Cell>
+              <S.Cell flex={1}>{quiz.language}</S.Cell>
+              <S.Cell flex={3.5}>
+                <S.TitleLink to={`/workspace/quiz/${quiz.quizId}`}>
+                  {quiz.quizTitle}
+                </S.TitleLink>
+              </S.Cell>
+              <S.Cell flex={2}>{quiz.quizCategory}</S.Cell>
+              <S.Cell flex={1}>
+                <S.Status isClear={quiz.isClear}>
+                  {quiz.isClear ? "해결됨" : "미해결"}
+                </S.Status>
+              </S.Cell>
+            </S.Row>
+          ))}
+        </S.Container>
+
+
+      </S.AllContaner>
+    </S.Containers>
   );
 };
 
