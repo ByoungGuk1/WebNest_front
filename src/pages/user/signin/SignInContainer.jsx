@@ -1,4 +1,5 @@
 import S from "./style";
+import Su from "../style";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
@@ -46,15 +47,15 @@ const SignInContainer = () => {
 
   return (
     <div>
-      <S.ContentContainer>
-        <S.LogoWrapper>
-          <S.logo_grean>Web</S.logo_grean>
-          <S.logo_blue>Nest</S.logo_blue>
-        </S.LogoWrapper>
+      <Su.ContentContainer>
+        <Su.LogoWrapper>
+          <Su.LogoGrean>Web</Su.LogoGrean>
+          <Su.LogoBlue>Nest</Su.LogoBlue>
+        </Su.LogoWrapper>
 
         <S.LoginForm onSubmit={handleSumbmitForm}>
-          <S.InputWrapper>
-            <S.Input
+          <Su.InputWrapper>
+            <Su.Input
               type="text"
               placeholder="아이디를 입력하세요"
               name="memberEmail"
@@ -65,9 +66,9 @@ const SignInContainer = () => {
                 },
               })}
             />
-          </S.InputWrapper>
-          <S.InputWrapper>
-            <S.Input
+          </Su.InputWrapper>
+          <Su.InputWrapper>
+            <Su.Input
               type={isEyeOpen ? "text" : "password"}
               placeholder="비밀번호를 입력하세요"
               name="memberPassword"
@@ -87,15 +88,17 @@ const SignInContainer = () => {
                 cursor: "pointer",
               }}
             />
-          </S.InputWrapper>
-          <S.CheckBoxLabel>
-            <S.CheckBox type="checkbox" />
-            로그인 상태 유지
-          </S.CheckBoxLabel>
-          <S.Button disabled={isSubmitting}>
+          </Su.InputWrapper>
+          <Su.Div>
+            <Su.CheckBoxLabel>
+              <Su.CheckBox type="checkbox" />
+              로그인 상태 유지
+            </Su.CheckBoxLabel>
+          </Su.Div>
+          <Su.Button disabled={isSubmitting}>
             <img src="/assets/icons/loginIcon.png" />
             <span>로그인</span>
-          </S.Button>
+          </Su.Button>
         </S.LoginForm>
 
         <S.UserPageLINK>
@@ -118,7 +121,7 @@ const SignInContainer = () => {
             </S.OAuthLink>
           </S.OAuthLinkWrapper>
         </S.OAuthLinkContainer>
-      </S.ContentContainer>
+      </Su.ContentContainer>
     </div>
   );
 };
