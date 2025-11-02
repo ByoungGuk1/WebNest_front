@@ -76,7 +76,7 @@ const S = {}
       font-size: ${({ theme }) => theme.FONT_SIZE.h6};
     }
     & button {
-      background-image: url('/assets/header/search.png');
+      background-image: url('/assets/images/header/search.png');
       width: 16px;
       height: 16px;
       background-color: #fff;
@@ -130,7 +130,7 @@ const S = {}
     background-color: #fff;
     width: 16px;
     height: 18px;
-    background-image: url('assets/header/bell.png');
+    background-image: url('assets/images/header/bell.png');
   `
   S.notification_wrap = styled.div`
     width: 16px;
