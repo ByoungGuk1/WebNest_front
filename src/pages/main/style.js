@@ -67,6 +67,13 @@ S.textWrap = styled.div`
   justify-content: center;
   align-items: center;
   gap: 22px;
+  & a {
+    text-decoration: none;
+    color: #000;
+    & div {
+      color: #000;
+    }
+  }
 `
 
 S.vectorWrap = styled.div`
@@ -124,111 +131,448 @@ S.KeepGoing = styled.div`
     color: #fff;
   }
 `
-S.IntroWrap = styled.div`
-  width: 100vm;
+// ---------------------------------------------
+// Intro Style
+S.IntroFullWrapper = styled.div`
+  width: 100%;
   height: 2600px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  & {
+  & * {
     white-space: nowrap;
+    text-decoration: none;
+  }
+  & * a{
+    :visited {
+      text-decoration: none;
+    };
+  }
+  & .puzzle{
+    width: 161px;
+    height: 154px;
+    margin-top: 120px;
   }
 `
-S.IntroTitle = styled.div`
+S.IntroTextWrap = styled.div`
+  
+`
+S.IntroText = styled.div`
   display: flex;
-  flex-direction: row;
-  & {
-    font-size: ${({ theme }) => theme.FONT_SIZE.h1};
-    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  font-size: ${({ theme }) => theme.FONT_SIZE.h1};
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  flex-direction: column;
+  align-items: center;
+  & div{
+    display: flex;
+    margin: 12px 0px;
   }
   & .purple{
     color: ${({ theme }) => theme.PALETTE.primary.purple.main};
   }
-`
-S.TitleWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  gap: 16px;
-  & p {
-    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
-    font-weight: ${({ theme }) => theme.FONT_WEIGHT.light}; 
-  }
-`
-S.StepWrap = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  & img {
-    border-radius: 10px;
-  }
-`
-S.Textwrap = styled.div`
-  /* align-items: center; */
-  position: relative;
-  width: 440px;
-  height: 330px;
-  display: flex;
-  flex-direction: column;
-  font-family: 'pretendard';
+  & .light {
   font-size: ${({ theme }) => theme.FONT_SIZE.h2};
-  background-color: #fff;
-  box-shadow: 0px 1px 20px 0px #9A9A9A1F;
-  border-radius: 10px;
-
-  & button {
-    width: 150px;
-    height: 50px;
-    border : 1px solid #E3E6E4;
-    border-radius: 10px;
-    font-size: ${({ theme }) => theme.FONT_SIZE.h7};
-    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
-    position: absolute;
-    bottom: 40px;
-    left: calc(40px + 12px);
-    background-color: #fff;
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.light};
   }
 `
-S.TextIcon = styled.div`
-  position: absolute;
-  top: 40px;
-  left: calc(40px + 15px);
+
+S.StepBox = styled.div`
   width: 68px;
   height: 36px;
-  background-color: #FFC600;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: none;
+  background-color: #FFC600;
   border-radius: 10px;
-  &{
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  & * {
     font-size: ${({ theme }) => theme.FONT_SIZE.h7};
-    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold}; 
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  }
+`
+S.TextArea = styled.div`
+  position: absolute;
+  top: 80px;
+  left: 25px;
+  margin: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  & span {
+    font-size: ${({ theme }) => theme.FONT_SIZE.h2};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  }
+  & p {
+    margin-top: 8px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h7};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  }
+`
+S.TextWrap = styled.div`
+  position: relative;
+  width: 440px;
+  height: 330px;
+  box-shadow: 0px 1px 20px 0px #9A9A9A1F; 
+`
+
+S.StepWrap = styled.div`
+  margin-top: 16px;
+  margin-bottom: calc(150px - 16px);
+  height: 330px;
+  display: flex;
+  flex-direction: row;
+  width: 1160px;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  /* box-shadow: 0px 1px 20px 0px #9A9A9A1F;  */
+  background-color: #fff;
+  & * {
+    border-radius: 10px;
+    
+  }
+  
+`
+S.ButtonBox = styled.div`
+  border: 1px solid #E3E6E4;
+  width: 150px;
+  height: 50px;
+  position: absolute;
+  bottom: 40px;
+  left: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & {
+    font-size: ${({ theme }) => theme.FONT_SIZE.h7};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    text-decoration: none;
+    :visited {
+      text-decoration: none;
+    };
+  }
+`
+// ------------------------- 레벨 레이아웃 -----------
+S.lvWrap =styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  & .position {
+    position: relative;
+    width: 100%;
+    & {
+    }
+    & .lv8 {
+      position: absolute;
+      top: -86px;
+      left: 23px;
+    }
+    & .lv9 {
+      position: absolute;
+      left: 26px;
+      top : -68px;
+    }
+    & .lv10 {
+      position: absolute;
+      top: -72px;
+      left: 18px;
+    }
   }
 `
 
-S.TextArial = styled.div`
+S.Lv1Box =styled.div`
+  width: 115px;
+  height: 90px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.red.main};
+  display: flex;
+  justify-content: center;
+  & span {
+    margin-top: 8px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    color: #fff;
+  }
+`
+
+S.Lv2Box =styled.div`
+  width: 115px;
+  height: 105px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.red.main};
+  display: flex;
+  justify-content: center;
+  & span {
+    margin-top: 8px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    color: #fff;
+  }
+`
+S.Lv3Box =styled.div`
+  width: 115px;
+  height: 134px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.yellow.main};
+  display: flex;
+  justify-content: center;
+  & span {
+    margin-top: 8px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    color: #fff;
+  }
+`
+S.Lv4Box =styled.div`
+  width: 115px;
+  height: 149px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.yellow.main};
+  display: flex;
+  justify-content: center;
+  & span {
+    margin-top: 8px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    color: #fff;
+  }
+`
+S.Lv5Box =styled.div`
+  width: 115px;
+  height: 178px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.green.main};
+  display: flex;
+  justify-content: center;
+  & span {
+    margin-top: 8px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    color: #fff;
+  }
+`
+S.Lv6Box =styled.div`
+  width: 115px;
+  height: 193px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.green.main};
+  display: flex;
+  justify-content: center;
+  & span {
+    margin-top: 8px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    color: #fff;
+  }
+`
+
+S.Lv7Box =styled.div`
+  width: 115px;
+  height: 224px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.blue.main};
+  display: flex;
+  justify-content: center;
+  & span {
+    margin-top: 8px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    color: #fff;
+  }
+`
+
+S.Lv8Box =styled.div`
+  width: 115px;
+  height: 239px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.blue.main};
+  display: flex;
+  justify-content: center;
+  & span {
+    margin-top: 8px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    color: #fff;
+  }
+`
+
+S.Lv9Box =styled.div`
+  width: 115px;
+  height: 268px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+  display: flex;
+  justify-content: center;
+  & span {
+    margin-top: 8px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    color: #fff;
+  }
+`
+
+S.Lv10Box =styled.div`
+  width: 115px;
+  height: 283px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+  display: flex;
+  justify-content: center;
+  & span {
+    margin-top: 8px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    color: #fff;
+  }
+`
+S.LvRowWrap = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 1px;
+  height: 400px;
+  align-items: end;
+`
+S.LvText = styled.div`
+  margin-top: 42px;
+  margin-bottom: 150px;
+  font-family: 'pretendard';
+  font-size: ${({ theme }) => theme.FONT_SIZE.h1};
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  & .blue {
+    font-family: 'RomanticGumi';
+    color: ${({ theme }) => theme.PALETTE.primary.blue.main};
+  }
+  & .green {
+    font-family: 'RomanticGumi';
+    color: ${({ theme }) => theme.PALETTE.primary.green.main};
+  }
+`
+// -------------background------------------
+
+S.BackWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+`
+S.CardWrap = styled.div`
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  left: 120px;
+`
+
+S.SelfCard =styled.div`
+  width: 580px;
+  height: 625px;
+  border-radius: 10px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  & * {
+    font-family: 'pretendard';
+    font-size: ${({ theme }) => theme.FONT_SIZE.h7};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  }
+  & a {
+    text-decoration: none;
+    color: #000;
+  }
+  & .title {
+    font-family: 'pretendard';
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  }
+`
+S.TogetherCard =styled.div`
+ background-color: #FFC600;
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ gap: 40px;
+    & p {
+      color : #fff
+    }
+  width: 580px;
+  height: 625px;
+  border-radius: 10px;
+  & * {
+    font-family: 'pretendard';
+    font-size: ${({ theme }) => theme.FONT_SIZE.h7};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  }
+  & .title {
+    font-family: 'pretendard';
+    font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  }
+`
+S.CardText = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  position: absolute;
-  left: 55px;
-  & p {
-    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold}; 
-    margin-top: 108px;
-  }
-  & strong {
-    font-size: ${({ theme }) => theme.FONT_SIZE.h7};
-    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold}; 
+  justify-content: center;
+  align-items: center;
+`
+S.CardThumSelf = styled.div`
+  width: 220px;
+  height: 220px;
+  border: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+  background-color: #E8E3E3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & .cardImage{
+    width: 80%;
+    height: 80%;
   }
 `
-S.StepColWrap = styled.div`
+S.CardThumTogether = styled.div`
+  width: 220px;
+  height: 220px;
+  border: 100%;
+  border-radius: 100%;
+  background-color: #F8F4E3;
   display: flex;
-  flex-direction: column;
-  gap: 150px;
-  margin: 120px auto;
+  justify-content: center;
+  align-items: center;
+  & .cardImage{
+    width: 80%;
+    height: 80%;
+  }
+`
+S.CardButtonWrap = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  & * > a {
+    text-decoration: none;
+    color: #000;
+  }
+`
+S.CardButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #CC9E00;
+  border-radius: 10px;
+  width: 150px;
+  height: 50px;
+  font-size: ${({ theme }) => theme.FONT_SIZE.h7};
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+`
+S.SelfButton = styled.div`
+  width: 310px;
+  height: 50px;
+  border: 1px solid #E3E6E4;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: ${({ theme }) => theme.FONT_SIZE.h7};
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  color: black;
 `
 
 export default S;
