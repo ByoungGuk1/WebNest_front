@@ -5,8 +5,11 @@ import {
   flexCenterRow,
   h4Medium,
   h5Bold,
+  h6Bold,
   h6Medium,
   h7Medium,
+  h8Medium,
+  h9Medium,
 } from "../../styles/common";
 
 const Su = {};
@@ -74,6 +77,33 @@ Su.Input = styled.input`
   }
 `;
 
+Su.InputNameWrapper = styled.div`
+  display: flex;
+  justify-content: start;
+  align-items: end;
+  gap: 3px;
+  width: 100%;
+  height: auto;
+  margin-top: 40px;
+`;
+
+Su.InputName = styled.div`
+  ${h6Bold};
+  padding-left: 3px;
+`;
+
+Su.InputEssential = styled.div`
+  ${h9Medium};
+  color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+`;
+
+Su.InputExplanation = styled.div`
+  ${h8Medium};
+  padding-left: 3px;
+  color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
+  width: 100%;
+`;
+
 Su.CheckBoxLabel = styled.label`
   ${flexBeetweenRow};
   justify-content: start;
@@ -94,6 +124,7 @@ Su.Button = styled.button`
   gap: 16px;
   width: 100%;
   height: 58px;
+  margin-top: 12px;
   background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
   color: ${({ theme }) => theme.PALETTE.neutral.white.main};
   ${h5Bold}
