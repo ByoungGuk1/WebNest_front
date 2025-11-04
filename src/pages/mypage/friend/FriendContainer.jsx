@@ -1,9 +1,12 @@
 import React from 'react';
+import S from "./style";
 
 const FriendContainer = () => {
+
+
   return (
     <div>
-      친구 목록 컨테이너
+      친구
     </div>
   );
 };
