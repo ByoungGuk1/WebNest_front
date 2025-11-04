@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {} from '../../../styles/common'
+import { h1Light } from '../../../styles/common'
 
 const S = {}
   S.wrap = styled.div`
@@ -20,7 +20,7 @@ const S = {}
     gap: 168px;
   `
   S.innerwrap = styled.div`
-    width : 1400px;
+    width : 1160px;
     white-space: nowrap;
     max-width: 1400px;
     min-width: 1400px;
@@ -168,6 +168,8 @@ const S = {}
     & .alarm {
       width: 16px;
       height: 16px;
+      ${h1Light}
+      
     }
   `
 
@@ -177,8 +179,9 @@ const S = {}
     border: solid 1px #121212;
     border-radius: 10px;
     position: absolute;
-    top:85px;
-    right: 215px;
+    background-color: #fff;
+    top: 55px;
+    right: -212px;
     display: flex;
     justify-content: center;
   `

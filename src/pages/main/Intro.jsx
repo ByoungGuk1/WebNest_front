@@ -63,7 +63,9 @@ const Intro = () => {
           </S.TextArea>
           <Link to={"/"}>
             <S.ButtonBox>
-              게임장 바로가기
+              <span>
+                게임장 바로가기
+              </span>
             </S.ButtonBox>
           </Link>
         </S.TextWrap>

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 const S = {};
@@ -50,7 +51,9 @@ S.Banner = styled.div`
     letter-spacing: 3%;
     font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
   }
-  
+  :hover {
+    cursor: pointer;
+  }
 `
 S.fstLing = styled.div`
   width: 100vw;
@@ -69,9 +72,9 @@ S.textWrap = styled.div`
   gap: 22px;
   & a {
     text-decoration: none;
-    color: #000;
+    color: blue;
     & div {
-      color: #000;
+      color: red;
     }
   }
 `
@@ -118,6 +121,9 @@ S.trdLine = styled.div`
   }
 `
 S.KeepGoing = styled.div`
+  :hover {
+    cursor: pointer;
+  }
   width: 100%;
   height: 120px;
   display: flex;
@@ -171,7 +177,9 @@ S.IntroText = styled.div`
     color: ${({ theme }) => theme.PALETTE.primary.purple.main};
   }
   & .light {
-  font-size: ${({ theme }) => theme.FONT_SIZE.h2};
+  margin-bottom: 24px;
+  margin-top: 12px;
+  font-size: ${({ theme }) => theme.FONT_SIZE.h3};
   font-weight: ${({ theme }) => theme.FONT_WEIGHT.light};
   }
 `
@@ -248,10 +256,7 @@ S.ButtonBox = styled.div`
   & {
     font-size: ${({ theme }) => theme.FONT_SIZE.h7};
     font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
-    text-decoration: none;
-    :visited {
-      text-decoration: none;
-    };
+    color: #000;
   }
 `
 // ------------------------- 레벨 레이아웃 -----------
@@ -451,7 +456,7 @@ S.CardWrap = styled.div`
   display: flex;
   flex-direction: row;
   position: absolute;
-  left: 120px;
+  /* left: 120px; */
 `
 
 S.SelfCard =styled.div`

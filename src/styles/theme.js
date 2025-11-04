@@ -1,5 +1,4 @@
 const theme = {};
-
 theme.PALETTE = {
   primary: {
     green: {

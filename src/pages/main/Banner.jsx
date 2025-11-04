@@ -1,10 +1,15 @@
 import React from "react";
 import S from "./style";
+import { useNavigate } from 'react-router-dom';
 
 const Banner = () => {
+  const navigate = useNavigate();
+  const moveToWorkSpace = () => {
+    navigate("/quiz");
+  }
   return (
     <S.BannerWrap>
-      <S.Banner>
+      <S.Banner onClick={moveToWorkSpace}>
         <div>
           <S.textWrap>
             <span class ="purple">모두를 위한 코딩</span>
@@ -30,7 +35,7 @@ const Banner = () => {
           <img src="/assets/images/main-page/charactor.png" class = "charactor"></img>
         </S.trdLine>
       </S.Banner>
-      <S.KeepGoing>
+      <S.KeepGoing onClick={moveToWorkSpace}>
         <span>계속 도전 해보세요</span>
       </S.KeepGoing>
     </S.BannerWrap>

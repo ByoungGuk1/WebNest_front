@@ -9,6 +9,7 @@ const Header = () => {
 
   const [openNotice, setOpenNotice] = useState(false);
   const [queryString, setQuery] = useState("");
+  const [ user, setUser ] = useState();
   const navigate = useNavigate();
   // const token = localStorage.getItem("access_token");
   const token = 123;
@@ -18,18 +19,13 @@ const Header = () => {
   };
   const onSubmit = (e) => {
     navigate(`/search?search=${(queryString.trim())}`);
-    useEffect = async () => {
-      await fetch (BACKURL, {
-        method : "GET",
-        body : JSON.stringify(queryString)
-      })
-    }
   }
+  
   const goSearch = () => {
     const search = queryString.trim();
     navigate(`/search?search=${encodeURIComponent(search)}`);
   };
-
+  
   const enterTomove = (e) => {
     if (e.key === "Enter"){
       goSearch()
