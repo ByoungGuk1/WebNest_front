@@ -118,11 +118,11 @@ const QuizContainer = () => {
 
 
 
-        {/* 문제 리스트 */}
+        {/* 문제 리스트 헤더*/}
         <S.Container>
           <S.Header>
             <S.Cell flex={0.6}>#문제</S.Cell>
-            <S.Cell flex={1}>난이도</S.Cell>
+            <S.Cell flex={1} paddingLeft>난이도</S.Cell>
             <S.Cell flex={1}>언어</S.Cell>
             <S.Cell flex={3.5}>제목</S.Cell>
             <S.Cell flex={2}>유형</S.Cell>
