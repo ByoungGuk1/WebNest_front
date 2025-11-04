@@ -4,8 +4,6 @@ import {
   h6Bold,
   h7Light,
   h7Medium,
-  h8Medium,
-  h9Medium,
 } from "../../../styles/common";
 import { Link } from "react-router-dom";
 
@@ -32,33 +30,6 @@ S.FindLink = styled(Link)`
 S.FindPwForm = styled.form`
   ${flexCenterColumn};
   width: 520px;
-`;
-
-S.InputNameWrapper = styled.div`
-  display: flex;
-  justify-content: start;
-  align-items: end;
-  gap: 3px;
-  width: 100%;
-  height: auto;
-  margin-top: 40px;
-`;
-
-S.InputName = styled.div`
-  ${h6Bold};
-  padding-left: 3px;
-`;
-
-S.InputEssential = styled.div`
-  ${h9Medium};
-  color: ${({ theme }) => theme.PALETTE.primary.purple.main};
-`;
-
-S.InputExplanation = styled.div`
-  ${h8Medium};
-  padding-left: 3px;
-  color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
-  width: 100%;
 `;
 
 S.SendEmailWrapper = styled.div`
