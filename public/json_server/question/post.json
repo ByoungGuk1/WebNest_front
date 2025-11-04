@@ -1,0 +1,345 @@
+{
+  "posts": [
+    {
+      "postId": 1,
+      "postTitle": "JavaScript async/await이 너무 헷갈려요",
+      "postContent": "await를 써도 결과가 Promise로 나와요. 어떻게 동기처럼 만들 수 있나요?",
+      "postLangTag": "JS",
+      "createdAt": "2025.01.02",
+      "likes": 42,
+      "views": 305,
+      "author": {
+        "name": "코린이",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": [
+        {
+          "responder": {
+            "userName": "비동기마스터",
+            "profileImg": "/assets/images/imgimg.svg"
+          },
+          "userLevel": 8,
+          "followers": 221,
+          "createdAt": "2025.01.03",
+          "likes": 17,
+          "comment": "async 함수 안에서만 await 사용 가능해요. 함수 선언 앞에 async 붙여보세요!"
+        }
+      ]
+    },
+    {
+      "postId": 2,
+      "postTitle": "Java에서 NullPointerException이 너무 자주 발생합니다",
+      "postContent": "Optional을 써도 오류가 계속 나와요. 혹시 잘못 쓴 걸까요?",
+      "postLangTag": "JAVA",
+      "createdAt": "2025.01.04",
+      "likes": 5,
+      "views": 102,
+      "author": {
+        "name": "백엔드초보",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": [
+        {
+          "responder": {
+            "userName": "스프링고수",
+            "profileImg": "/assets/images/imgimg.svg"
+          },
+          "userLevel": 9,
+          "followers": 312,
+          "createdAt": "2025.01.05",
+          "likes": 28,
+          "comment": "Optional을 써도 내부 값이 null이면 예외가 납니다. orElseThrow()를 써보세요."
+        }
+      ]
+    },
+    {
+      "postId": 3,
+      "postTitle": "Oracle JOIN문 결과가 중복돼요",
+      "postContent": "INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요?",
+      "postLangTag": "ORACLE",
+      "createdAt": "2025.01.06",
+      "likes": 0,
+      "views": 77,
+      "author": {
+        "name": "쿼리왕초보",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": []
+    },
+    {
+      "postId": 4,
+      "postTitle": "JavaScript에서 reduce 문법 이해가 안 돼요",
+      "postContent": "누적값이 어떻게 전달되는지 감이 안 옵니다.",
+      "postLangTag": "JS",
+      "createdAt": "2025.01.07",
+      "likes": 9,
+      "views": 188,
+      "author": {
+        "name": "프론트입문러",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": []
+    },
+    {
+      "postId": 5,
+      "postTitle": "JAVA에서 static을 남발하면 안 되는 이유?",
+      "postContent": "static 변수를 자주 쓰면 안 좋다는데 이유가 궁금해요.",
+      "postLangTag": "JAVA",
+      "createdAt": "2025.01.08",
+      "likes": 23,
+      "views": 209,
+      "author": {
+        "name": "정적러",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": [
+        {
+          "responder": {
+            "userName": "객체지향장인",
+            "profileImg": "/assets/images/imgimg.svg"
+          },
+          "userLevel": 10,
+          "followers": 451,
+          "createdAt": "2025.01.09",
+          "likes": 33,
+          "comment": "static은 객체 간 공유되어 예기치 못한 값 변경이 일어날 수 있어요."
+        }
+      ]
+    },
+    {
+      "postId": 6,
+      "postTitle": "Oracle에서 날짜 비교 시 결과가 안 나와요",
+      "postContent": "WHERE절에 SYSDATE 쓰면 데이터가 안 잡혀요.",
+      "postLangTag": "ORACLE",
+      "createdAt": "2025.01.09",
+      "likes": 1,
+      "views": 98,
+      "author": {
+        "name": "SQL고민러",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": [
+        {
+          "responder": {
+            "userName": "DB도사",
+            "profileImg": "/assets/images/imgimg.svg"
+          },
+          "userLevel": 7,
+          "followers": 188,
+          "createdAt": "2025.01.10",
+          "likes": 11,
+          "comment": "DATE에는 시분초까지 들어가요. TRUNC로 자르고 비교해보세요."
+        }
+      ]
+    },
+    {
+      "postId": 7,
+      "postTitle": "JS fetch 결과가 undefined로 나와요",
+      "postContent": "데이터는 분명 있는데 console.log하면 undefined가 찍혀요.",
+      "postLangTag": "JS",
+      "createdAt": "2025.01.11",
+      "likes": 0,
+      "views": 60,
+      "author": {
+        "name": "비동기초보",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": []
+    },
+    {
+      "postId": 8,
+      "postTitle": "Oracle DISTINCT가 적용이 안돼요",
+      "postContent": "중복 제거하려고 DISTINCT를 썼는데 결과가 그대로예요.",
+      "postLangTag": "ORACLE",
+      "createdAt": "2025.01.12",
+      "likes": 4,
+      "views": 103,
+      "author": {
+        "name": "DB입문자",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": []
+    },
+    {
+      "postId": 9,
+      "postTitle": "JS에서 map 결과를 콘솔에 찍었는데 undefined가 떠요",
+      "postContent": "return을 안 해줘서 그런가요?",
+      "postLangTag": "JS",
+      "createdAt": "2025.01.13",
+      "likes": 17,
+      "views": 149,
+      "author": {
+        "name": "코드초보",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": [
+        {
+          "responder": {
+            "userName": "JS고수",
+            "profileImg": "/assets/images/imgimg.svg"
+          },
+          "userLevel": 9,
+          "followers": 320,
+          "createdAt": "2025.01.14",
+          "likes": 27,
+          "comment": "map 안에서 반드시 return 해야 결과가 배열에 담깁니다!"
+        }
+      ]
+    },
+    {
+      "postId": 10,
+      "postTitle": "JAVA List와 ArrayList 차이가 뭐예요?",
+      "postContent": "둘 다 비슷하게 보이는데 언제 어떤 걸 써야 하나요?",
+      "postLangTag": "JAVA",
+      "createdAt": "2025.01.14",
+      "likes": 32,
+      "views": 271,
+      "author": {
+        "name": "자바러버",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": [
+        {
+          "responder": {
+            "userName": "객체지향전문가",
+            "profileImg": "/assets/images/imgimg.svg"
+          },
+          "userLevel": 9,
+          "followers": 402,
+          "createdAt": "2025.01.15",
+          "likes": 41,
+          "comment": "List는 인터페이스고 ArrayList는 그 구현체입니다!"
+        }
+      ]
+    },
+    {
+      "postId": 11,
+      "postTitle": "Oracle LIKE 검색이 대소문자 구분돼요",
+      "postContent": "같은 단어인데 대문자만 검색돼요.",
+      "postLangTag": "ORACLE",
+      "createdAt": "2025.01.16",
+      "likes": 8,
+      "views": 125,
+      "author": {
+        "name": "쿼리연습생",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": [
+        {
+          "responder": {
+            "userName": "DB전문가",
+            "profileImg": "/assets/images/imgimg.svg"
+          },
+          "userLevel": 10,
+          "followers": 530,
+          "createdAt": "2025.01.17",
+          "likes": 13,
+          "comment": "NLS_SORT 설정이 BINARY로 되어 있으면 대소문자 구분됩니다. 변경해보세요."
+        }
+      ]
+    },
+    {
+      "postId": 12,
+      "postTitle": "JS에서 localStorage 값이 사라져요",
+      "postContent": "새로고침하면 데이터가 없어져요. 왜 이런 거죠?",
+      "postLangTag": "JS",
+      "createdAt": "2025.01.18",
+      "likes": 0,
+      "views": 74,
+      "author": {
+        "name": "웹초보",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": [
+        {
+          "responder": {
+            "userName": "프론트고수",
+            "profileImg": "/assets/images/imgimg.svg"
+          },
+          "userLevel": 6,
+          "followers": 159,
+          "createdAt": "2025.01.19",
+          "likes": 6,
+          "comment": "sessionStorage랑 헷갈리신 것 같아요. localStorage는 브라우저 닫아도 남습니다."
+        }
+      ]
+    },
+    {
+      "postId": 13,
+      "postTitle": "JAVA HashMap 순서가 유지되지 않아요",
+      "postContent": "넣은 순서대로 출력이 안 됩니다.",
+      "postLangTag": "JAVA",
+      "createdAt": "2025.01.19",
+      "likes": 14,
+      "views": 189,
+      "author": {
+        "name": "자료구조초보",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": [
+        {
+          "responder": {
+            "userName": "컬렉션전문가",
+            "profileImg": "/assets/images/imgimg.svg"
+          },
+          "userLevel": 7,
+          "followers": 240,
+          "createdAt": "2025.01.20",
+          "likes": 22,
+          "comment": "HashMap은 순서를 보장하지 않아요. LinkedHashMap을 사용하세요."
+        }
+      ]
+    },
+    {
+      "postId": 14,
+      "postTitle": "Oracle COUNT(*)가 너무 느려요",
+      "postContent": "테이블이 커서 그런가요?",
+      "postLangTag": "ORACLE",
+      "createdAt": "2025.01.21",
+      "likes": 2,
+      "views": 93,
+      "author": {
+        "name": "성능고민러",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": []
+    },
+    {
+      "postId": 15,
+      "postTitle": "JS에서 for...in과 for...of의 차이점이 궁금해요",
+      "postContent": "둘 다 반복문인데 뭐가 다른가요?",
+      "postLangTag": "JS",
+      "createdAt": "2025.01.22",
+      "likes": 27,
+      "views": 230,
+      "author": {
+        "name": "자바스크립트연습생",
+        "profileImg": "/assets/images/imgimg.svg"
+      },
+      "answers": [
+        {
+          "responder": {
+            "userName": "프론트엔드장인",
+            "profileImg": "/assets/images/imgimg.svg"
+          },
+          "userLevel": 9,
+          "followers": 418,
+          "createdAt": "2025.01.23",
+          "likes": 33,
+          "comment": "for...in은 key 반복, for...of는 value 반복이에요!"
+        },
+        {
+          "responder": {
+            "userName": "신입개발자",
+            "profileImg": "/assets/images/imgimg.svg"
+          },
+          "userLevel": 3,
+          "followers": 45,
+          "createdAt": "2025.01.24",
+          "likes": 5,
+          "comment": "맞아요! for...of는 배열에 자주 쓰고, for...in은 객체에 써요."
+        }
+      ]
+    }
+  ]
+}
