@@ -62,6 +62,7 @@ S.Cell = styled.div`
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    padding-left: ${({ paddingLeft}) => (paddingLeft ? '8px' : 'paddingLeft')};
 
 `;
 
