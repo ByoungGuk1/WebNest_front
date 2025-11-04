@@ -1,5 +1,4 @@
 const theme = {};
-
 theme.PALETTE = {
   primary: {
     green: {
@@ -106,6 +105,18 @@ theme.FONT_LINE = {
   h7: "28px",
   h8: "26px",
   h9: "24px",
+};
+
+theme.FONT_SPACE = {
+  h1: "-0.5px",
+  h2: "-0.5px",
+  h3: "-0.5px",
+  h4: "-0.5px",
+  h5: "-0.5px",
+  h6: "-0.5px",
+  h7: "-0.5px",
+  h8: "-0.5px",
+  h9: "-0.5px",
 };
 
 export default theme;

@@ -18,6 +18,7 @@ import SignInContainer from "../pages/user/signin/SignInContainer";
 import SignUpContainer from "../pages/user/signup/SignUpContainer";
 import FindIdContainer from "../pages/user/findid/FindIdContainer";
 import FindPasswordContainer from "../pages/user/findpassword/FindPasswordContainer";
+import OauthSuccess from "../pages/user/signin/OauthSuccess";
 
 // Quiz Page
 import QuizContainer from "../pages/quiz/QuizContainer";
@@ -105,6 +106,10 @@ const router = createBrowserRouter([
       {
         path: "/question/write",
         element: <QuestionWriteContainer />,
+      },
+      {
+        path: "oauth2/success",
+        element: <OauthSuccess />,
       },
     ],
   },

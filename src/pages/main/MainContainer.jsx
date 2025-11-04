@@ -1,11 +1,16 @@
 import React from "react";
 import S from "./style";
+import Banner from "./Banner"
+import Intro from "./Intro";
+import BackGround from "./BackGround";
 
 const MainContainer = () => {
   return (
-    <S.Div>
-      <h1>메인 페이지😎</h1>
-    </S.Div>
+    <div>
+      <Banner></Banner>
+      <Intro></Intro>
+      <BackGround></BackGround>
+    </div>
   );
 };
 
