@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { h6Bold, h6Medium } from "../../../styles/common";
+import { h6Bold, h6Medium, h9Bold, h9Light, h9Medium } from "../../../styles/common";
 import theme from "../../../styles/theme";
 
 const S = {};
@@ -160,27 +160,90 @@ S.IconCircle = styled.div`
 S.SearchWrap = styled.div`
     width: 1160px;
     height: 33px;
-    border: 1px solid;
+    display: flex;
+    justify-content: space-between;
 `;
+S.IconBox = styled.div`
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+        background-color: #FFFFFF;
+    box-shadow: 0px 0px 5px 0px #00000011;
+    border-radius: 8px;
+    img {
+        width: 10px;
+        height: 10px;
+    }
+`;
+
+S.RightWrap = styled.div`
+    width: 321px;
+    height: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .lastImg {
+        position: relative;
+        right: 8%;
+    }
+
+`
+
+S.RightArrayWrap = styled.div`
+    width: fit-content;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font: ${h9Light};
+    font-size: 10px;
+
+`
+S.RightRefreshWrap = styled.div`
+    width: 81px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font: ${h9Light};
+    font-size: 10px;
+`
+
+S.RightInput = styled.input`
+    width: 160px;
+    height: -webkit-fill-available;
+    border: none;
+    background-color: #FFFFFF;
+    box-shadow: 0px 0px 5px 0px #00000011;
+    border-radius: 8px;
+    font-size: 10px;
+    position: relative;
+    font: ${h9Medium};
+`
+
+
 S.LeftWrap = styled.div`
     width: 240px;
     height: 33px;
     position: relative;
-
-    img {
+        img {
         position: absolute;
         bottom: 35%;
-        right: 1%;
-
-    }
-`
-
+        right: 4%;
+    };
+`;
 S.LeftInput = styled.input`
     width: 240px;
     height: -webkit-fill-available;
     border: none;
     background-color: #FFFFFF;
-    box-shadow: 0px 0px 20px 0px #00000033;
+    box-shadow: 0px 0px 5px 0px #00000011;
+    border-radius: 8px;
+    font: ${h9Medium};
+    font-size: 12px;
+    
 `
 
 
