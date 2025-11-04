@@ -90,6 +90,13 @@ const GlobalStyle = createGlobalStyle`
     font-style: normal;
     font-display: swap;
   }
+  @font-face {
+    font-family: 'RomanticGumi';
+    src: url(${process.env.PUBLIC_URL}/assets/font/RomanticGumi/Gumi-romance.otf) format('opentype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+  }
 
   @font-face {
     font-family: 'RomanticGumi';
