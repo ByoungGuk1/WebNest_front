@@ -7,6 +7,7 @@ import {
   h5Bold,
   h6Bold,
   h6Medium,
+  h7Light,
   h7Medium,
   h8Medium,
   h9Medium,
@@ -59,7 +60,7 @@ Su.InputWrapper = styled.div`
   margin-top: 12px;
   border: 1px solid ${({ theme }) => theme.PALETTE.neutral.black.disable};
   border-radius: 8px;
-  background-color: ${({ theme }) => theme.PALETTE.neutral.white.secondary};
+  background-color: #ffffff;
 `;
 
 Su.Input = styled.input`
@@ -68,12 +69,24 @@ Su.Input = styled.input`
   padding: 0 20px;
   font-size: 16px;
   ${h6Medium}
-  background-color: ${({ theme }) => theme.PALETTE.neutral.white.secondary};
+  background-color: #FFFFFF;
   &::placeholder {
     color: ${({ theme }) => theme.PALETTE.neutral.black.disable};
   }
   &:focus {
     outline: none;
+  }
+
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox  */
+  &[type="number"] {
+    -moz-appearance: textfield;
   }
 `;
 
@@ -133,6 +146,14 @@ Su.Button = styled.button`
   :hover {
     background-color: ${({ theme }) => theme.PALETTE.primary.purple.dark};
   }
+`;
+
+Su.AlertText = styled.div`
+  ${h7Light};
+  color: ${({ theme }) => theme.PALETTE.primary.red.main};
+  margin-top: 4px;
+  margin-left: 3px;
+  width: 100%;
 `;
 
 export default Su;

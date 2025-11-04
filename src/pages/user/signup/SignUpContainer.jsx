@@ -21,6 +21,37 @@ const SignUp = () => {
     });
   });
 
+  const checkEmail = () => {
+    if (errors?.email?.type === "required") {
+      return <Su.AlertText>이메일을 입력하세요.</Su.AlertText>;
+    }
+    if (errors?.email?.type === "pattern") {
+      return <Su.AlertText>이메일 양식에 맞게 입력해주세요.</Su.AlertText>;
+    }
+    return null;
+  };
+
+  const checkPassword = () => {
+    if (errors?.password?.type === "required") {
+      return <Su.AlertText>비밀번호를 입력하세요.</Su.AlertText>;
+    }
+    if (errors?.password?.type === "pattern") {
+      return (
+        <Su.AlertText>
+          소문자, 숫자, 특수문자를 각 하나 포함한 8자리 이상이여야 합니다.
+        </Su.AlertText>
+      );
+    }
+    return null;
+  };
+
+  const confirmPassword = () => {
+    if (errors?.passwordConfirm?.type === "matchPassword") {
+      return <Su.AlertText>비밀번호가 일치하지 않습니다.</Su.AlertText>;
+    }
+    return null;
+  };
+
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[!@#])[\da-zA-Z!@#]{8,}$/;
 
@@ -45,21 +76,31 @@ const SignUp = () => {
             <Su.InputEssential>(필수)</Su.InputEssential>
           </Su.InputNameWrapper>
           <Su.InputWrapper>
-            <Su.Input type="select" placeholder="전화번호" />
+            <Su.Input type="disable" placeholder="전화번호" value={"010"} />
             -
-            <Su.Input type="text" placeholder="전화번호" />
+            <Su.Input type="number" placeholder="1234" />
             -
-            <Su.Input type="text" placeholder="전화번호" />
+            <Su.Input type="number" placeholder="5678" />
           </Su.InputWrapper>
           <Su.InputNameWrapper>
             <Su.InputName>이메일</Su.InputName>
             <Su.InputEssential>(필수)</Su.InputEssential>
           </Su.InputNameWrapper>
           <Su.InputWrapper>
-            <Su.Input type="text" placeholder="이메일" />
+            <Su.Input
+              type="text"
+              placeholder="이메일"
+              name="email"
+              {...register("email", {
+                required: true,
+                pattern: {
+                  value: emailRegex,
+                },
+              })}
+            />
           </Su.InputWrapper>
-
-          <S.SendEmailWrapper style={{ display: "block" }}>
+          {checkEmail()}
+          <S.SendEmailWrapper style={{ display: "none" }}>
             <Su.InputNameWrapper>
               <Su.InputName>이메일 인증</Su.InputName>
               <Su.InputEssential>(필수)</Su.InputEssential>
@@ -92,7 +133,17 @@ const SignUp = () => {
             <Su.InputEssential>(필수)</Su.InputEssential>
           </Su.InputNameWrapper>
           <Su.InputWrapper>
-            <Su.Input type="text" placeholder="비밀번호" />
+            <Su.Input
+              type={isEyeOpen ? "text" : "password"}
+              placeholder="비밀번호"
+              name="password"
+              {...register("password", {
+                required: true,
+                pattern: {
+                  value: passwordRegex,
+                },
+              })}
+            />
             <FontAwesomeIcon
               onClick={() => setIsEyeOpen(!isEyeOpen)}
               icon={isEyeOpen ? faEye : faEyeSlash}
@@ -103,15 +154,10 @@ const SignUp = () => {
               }}
             />
           </Su.InputWrapper>
-          <S.LiPasswordException>
-            알파벳을 포함해야 합니다.
-          </S.LiPasswordException>
+          {checkPassword()}
           <S.LiPasswordException>숫자를 포함해야 합니다.</S.LiPasswordException>
           <S.LiPasswordException>
             특수문자를 포함해야 합니다. (!@#$%^&*)
-          </S.LiPasswordException>
-          <S.LiPasswordException>
-            비밀번호의 형식의 오류가 있습니다.
           </S.LiPasswordException>
           <S.LiPasswordException>
             비밀번호가 너무 짧습니다. 비밀번호는 8글자 이상이어야 합니다.
@@ -121,8 +167,29 @@ const SignUp = () => {
             <Su.InputEssential>(필수)</Su.InputEssential>
           </Su.InputNameWrapper>
           <Su.InputWrapper>
-            <Su.Input type="text" placeholder="비밀번호 확인" />
+            <Su.Input
+              type="password"
+              placeholder="비밀번호 확인"
+              name="passwordConfirm"
+              {...register("passwordConfirm", {
+                required: true,
+                validate: {
+                  matchPassword: (passwordConfirm) => {
+                    const { password } = getValues();
+                    console.log(
+                      password,
+                      passwordConfirm,
+                      password === passwordConfirm
+                    );
+                    return password === passwordConfirm;
+                  },
+                },
+              })}
+            />
           </Su.InputWrapper>
+
+          {confirmPassword()}
+
           <Su.InputNameWrapper>
             <Su.InputName>생일</Su.InputName>
             <Su.InputEssential>(필수)</Su.InputEssential>
