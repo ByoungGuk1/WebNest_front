@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import theme from "../../styles/theme";
-import { h6Bold, h6Medium, h7Medium } from "../../styles/common";
+import { flexCenter, h3Bold, h6Bold, h6Medium, h7Medium } from "../../styles/common";
 
 const S = {};
 
@@ -12,6 +12,45 @@ const difficultyColors = {
     "상급": `${theme.PALETTE.primary.yellow.main}`,    // 노랑
     "최상급": `${theme.PALETTE.primary.red.main}`,  // 빨강
 };
+
+
+S.BannerWrap = styled.div`
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+`;
+S.Banner = styled.div`
+    width: 100%;
+    height: 188px;
+    background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+    color: ${({theme}) => theme.PALETTE.neutral.white.main};
+    /* display: flex; align-items: center; */ 
+    ${flexCenter}
+`;
+
+S.BannerInner = styled.div`
+    width: 1160px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    `;
+    
+S.PageTitle = styled.div`
+    ${h3Bold}
+`;
+
+S.PageDesc = styled.div`
+    ${h6Medium} 
+`;
+
+S.Illust = styled.img`
+width: 180px;
+height: auto;
+`;
 
 S.AllContaner = styled.div`
     width: 1160px;
@@ -26,7 +65,6 @@ S.Container = styled.div`
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-top: 24px;
 `;
 
 S.Header = styled.div`
@@ -121,7 +159,7 @@ S.BookMarkIcon = ({ active }) => (
 S.DropConatiner = styled.div`
     display: flex;
     gap: 19px;
-    padding: 46px;
+    padding: 46px 12px 34px 12px;
     `
 S.ButtonWrap = styled.div`
     
@@ -134,14 +172,11 @@ S.DropDownButton = styled.button`
     padding: 0px 40px 0px 16px;
     border: 1px solid #DDDFE0;
     border-radius: 12px;
-    width: 113px;
+    width: 113px;   
     height: 40px;
     font: ${h6Medium};
-    background-color: white;
-        &:hover {
-        background-color: ${theme.PALETTE.neutral.white.main};
-        
-    }
+    background-color: ${({select}) => select ? "#924EFF" : "white"};
+    color: ${({select}) => select ? "#FFFFFF" : "000000"};
     `
 S.DropDownIconWrap = styled.svg`
     position: absolute;
