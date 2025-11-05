@@ -2,6 +2,7 @@ import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import S from "./style";
 import Header from "../headerandfooterlayout/Header";
+import CommunityBannerLayout from "../communitybanner/CommunityBannerLayout";
 
 const OnlyHeaderLayout = () => {
   return (

@@ -138,7 +138,7 @@ const QuestionListContainer = () => {
         <S.WriteButton>글쓰기</S.WriteButton>
       </S.SortWrap>
 
-       {/* 🟢 질문 리스트 */}
+      {/* 🟢 질문 리스트 */}
       <S.ListWrap>
         {posts.length > 0 ? (
           posts.map(({ postId, postTitle, postContent, postLangTag }) => (
