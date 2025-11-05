@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import theme from "../../styles/theme";
-import { flexCenter, h3Bold, h6Bold, h6Medium, h7Medium } from "../../styles/common";
+import { flexCenter, h3Bold, h5Medium, h6Bold, h6Medium, h7Medium } from "../../styles/common";
 
 const S = {};
 
@@ -52,7 +52,7 @@ width: 180px;
 height: auto;
 `;
 
-S.AllContaner = styled.div`
+S.AllContainer = styled.div`
     width: 1160px;
 `
 S.Containers = styled.div`
@@ -70,7 +70,6 @@ S.Container = styled.div`
 S.Header = styled.div`
     display: flex;
     padding: 12px 16px 12px;
-    border-radius: 6px;
     border-bottom: 1px solid #141216;
     gap: 10px;
     ${h6Bold}
@@ -87,14 +86,14 @@ S.Row = styled.div`
     transition: background-color 0.2s;
 
     &:hover {
-        background-color: #f0f8ff;
+        background-color: #f6f6ff;
     }
 `;
 
 S.Cell = styled.div`
     flex: ${({ flex }) => flex || 1};
     text-align: ${({ align }) => align || "center"};
-    font-size: 14px;
+    font-size: 16px;
     color: ${({ dim }) => (dim ? "#888" : "#333")};
     padding: 8px 4px;
     overflow: hidden;
@@ -156,14 +155,15 @@ S.BookMarkIcon = ({ active }) => (
 
 
 
-S.DropConatiner = styled.div`
+S.DropContainer = styled.div`
     display: flex;
     gap: 19px;
-    padding: 46px 12px 34px 12px;
+    padding: 46px 0 34px 0;
     `
 S.ButtonWrap = styled.div`
-    
-    `
+    position: relative;
+`
+
 S.DropDownButton = styled.button`
     position: relative;
     display: flex;
@@ -174,9 +174,10 @@ S.DropDownButton = styled.button`
     border-radius: 12px;
     width: 113px;   
     height: 40px;
-    font: ${h6Medium};
+    white-space: nowrap;
     background-color: ${({select}) => select ? "#924EFF" : "white"};
     color: ${({select}) => select ? "#FFFFFF" : "000000"};
+    ${h7Medium};
     `
 S.DropDownIconWrap = styled.svg`
     position: absolute;
@@ -207,24 +208,25 @@ S.DropDownMenuWrap = styled.div`
     display: ${({ isDropped }) => (isDropped ? "flex" : "none")};
     flex-direction: column;
     gap: 10px;
-    padding: 10px 0px;
-    align-items: center;
+    padding: 10px 0px 10px 8px;
     position: absolute;
     background-color: white;
     border: 1px solid #DDDFE0;
     border-radius: 12px;
-    width: 113px;
+    width: 102px;
     height: fit-content;
+    top: 45px;
 `
 S.DropDownMenu = styled.span`
-    width: fit-content;
+    width: 78px;
     padding: 4px 8px;
     background-color: transparent;
     transition: background-color 0.2s ease;
     &:hover{
-        background-color: ${theme.PALETTE.neutral.white.main};
+        background-color: #f6f6ff;
     }
     cursor: pointer;
+    ${h6Medium};
 `
 S.QuizIdHeader = styled.div`
     width: 98px;

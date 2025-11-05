@@ -42,9 +42,10 @@ const S = {}
   S.logo = styled.span`
     font-family: 'RomanticGumi';
     text-decoration: none;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h4};
     color : ${({ theme }) => theme.PALETTE.neutral.black.main};
   `
-  S.category = styled.div`
+  S.Category = styled.div`
     display: flex;
     flex-direction: row;
     margin-left: 168px;
@@ -52,6 +53,11 @@ const S = {}
     :hover{
       color : ${({ theme }) => theme.PALETTE.primary.purple.main};
     }
+
+    & a {
+      font-size: ${({ theme }) => theme.FONT_SIZE.h5};
+    }
+
   `
   S.search = styled.div`
     display: flex;
@@ -61,12 +67,14 @@ const S = {}
     flex-direction: row;
     justify-content: end;
     align-items: center;
-    border-block-end: 2px solid black;
+    border-block-end: 1px solid black;
     margin-left: 301px;
+
     & img {
       width: 16px;
       height: 16px;
     }
+
     & input {
       border: none;
       width: calc(185-16)px;
@@ -75,6 +83,7 @@ const S = {}
       font-family: 'pretendard';
       font-size: ${({ theme }) => theme.FONT_SIZE.h6};
     }
+    
     & button {
       background-image: url('/assets/images/header/search.png');
       width: 16px;
@@ -117,7 +126,7 @@ const S = {}
     height: 34px;
     border-bottom: 1px solid;
   `
-  S.right_wrap = styled.div`
+  S.RightWrap = styled.div`
     display: flex;
     align-items: center;
     gap: 49px;

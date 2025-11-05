@@ -65,13 +65,13 @@ const Header = () => {
             WebNest
           </S.logo>
         </Link>
-        <S.category>
+        <S.Category>
           <Link to={"/quiz"}>훈련장</Link> 
           <Link to={"/workspace/rooms"}>게임장</Link> 
           <Link to={"/post"}>열린둥지</Link> 
           <Link to={"/question"}>문제둥지</Link>
-        </S.category>
-        <S.right_wrap>
+        </S.Category>
+        <S.RightWrap>
           <S.search>
               <input 
                 name='search' id="search" onChange={getSearch} onKeyDown={enterTomove}>
@@ -114,7 +114,7 @@ const Header = () => {
               <Link to={"sign-in"}>로그인</Link>
             </S.log_out_layout>
           )}
-        </S.right_wrap>
+        </S.RightWrap>
       </S.innerwrap>
       
     </S.wrap>

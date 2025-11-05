@@ -28,6 +28,11 @@ S.Banner = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  & > div {
+    width: 100%;
+  }
+
   & span {
     font-family: 'pretendard';
     font-size: 90px;
@@ -56,7 +61,7 @@ S.Banner = styled.div`
   }
 `
 S.fstLing = styled.div`
-  width: 100vw;
+  width: 100%;
   height: 128px;
   display: flex;
   flex-direction: row;
@@ -141,10 +146,11 @@ S.KeepGoing = styled.div`
 // Intro Style
 S.IntroFullWrapper = styled.div`
   width: 100%;
-  height: 2600px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0 0 130px 0;
+
   & * {
     white-space: nowrap;
     text-decoration: none;
@@ -160,7 +166,18 @@ S.IntroFullWrapper = styled.div`
     margin-top: 120px;
   }
 `
+
+S.IntroStepWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 0 100px 0;
+`
+
+
 S.IntroTextWrap = styled.div`
+  margin: 0 0 60px 0;
   
 `
 S.IntroText = styled.div`
@@ -169,19 +186,26 @@ S.IntroText = styled.div`
   font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
   flex-direction: column;
   align-items: center;
+  gap: 12px;
+
   & div{
     display: flex;
-    margin: 12px 0px;
+    margin: 20px 0px 12px 0;
   }
+
   & .purple{
     color: ${({ theme }) => theme.PALETTE.primary.purple.main};
   }
+
   & .light {
-  margin-bottom: 24px;
-  margin-top: 12px;
-  font-size: ${({ theme }) => theme.FONT_SIZE.h3};
-  font-weight: ${({ theme }) => theme.FONT_WEIGHT.light};
+    font-size: ${({ theme }) => theme.FONT_SIZE.h4};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.light};
   }
+
+`
+
+S.SubP = styled.p`
+  padding: 0 10px 0 0;
 `
 
 S.StepBox = styled.div`
@@ -192,18 +216,12 @@ S.StepBox = styled.div`
   align-items: center;
   background-color: #FFC600;
   border-radius: 10px;
-  position: absolute;
-  top: 40px;
-  left: 40px;
   & * {
     font-size: ${({ theme }) => theme.FONT_SIZE.h7};
     font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
   }
 `
 S.TextArea = styled.div`
-  position: absolute;
-  top: 80px;
-  left: 25px;
   margin: 16px;
   display: flex;
   flex-direction: column;
@@ -219,16 +237,19 @@ S.TextArea = styled.div`
   }
 `
 S.TextWrap = styled.div`
-  position: relative;
+  display: flex;
+  align-items: center;
   width: 440px;
   height: 330px;
   box-shadow: 0px 1px 20px 0px #9A9A9A1F; 
+
+  & > div {
+    padding: 0 0 0 40px;
+  }
 `
 
 S.StepWrap = styled.div`
   margin-top: 16px;
-  margin-bottom: calc(150px - 16px);
-  height: 330px;
   display: flex;
   flex-direction: row;
   width: 1160px;
@@ -247,9 +268,6 @@ S.ButtonBox = styled.div`
   border: 1px solid #E3E6E4;
   width: 150px;
   height: 50px;
-  position: absolute;
-  bottom: 40px;
-  left: 40px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -284,6 +302,7 @@ S.lvWrap =styled.div`
       top: -72px;
       left: 18px;
     }
+
   }
 `
 
@@ -430,9 +449,10 @@ S.LvRowWrap = styled.div`
   align-items: end;
 `
 S.LvText = styled.div`
-  margin-top: 42px;
-  margin-bottom: 150px;
   font-family: 'pretendard';
+  display: flex;
+  justify-content: center;
+  margin: 0 0 40px 0;
   font-size: ${({ theme }) => theme.FONT_SIZE.h1};
   font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
   & .blue {
@@ -450,7 +470,11 @@ S.BackWrap = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
+
+  & > img {
+    width: 100%;
+  }
+
 `
 S.CardWrap = styled.div`
   display: flex;
