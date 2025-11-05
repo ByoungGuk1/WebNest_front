@@ -54,7 +54,7 @@ const QuizContainer = () => {
     getQuiz()
       .then((quiz) => {
         setQuizs(quiz.quizs)
-      })
+    })
 
   }, [])
 
