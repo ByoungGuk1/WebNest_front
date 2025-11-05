@@ -1,9 +1,10 @@
-import React from 'react';
+import React from "react";
+import WriteContainer from "../../write/WriteContainer";
 
 const PostWriteContainer = () => {
   return (
     <div>
-      PostWriteContainer
+      <WriteContainer />
     </div>
   );
 };
