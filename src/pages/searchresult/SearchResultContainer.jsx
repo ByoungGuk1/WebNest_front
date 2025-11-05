@@ -5,17 +5,19 @@ import QuestionPostResult from "./Components/QuestionPostResult";
 import QuizResult from "./Components/QuizResult";
 import UserResult from "./Components/UserResult";
 import OpenPostResult from "./Components/OpenPostResult";
-import { genQuestionPosts } from "./mock-up/mock-up";
+import S from './style'
 
 const SearchResultContainer = () => {
   const BACKURL = "qwer"
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   // 검색 결과의 쿼리스트링 밸류 값
-  const search = queryParams.get('search');
+  let search = queryParams.get('search');
 
-  const [ searchLi, setSearchLi ] = useState();
-
+  const [ searchLi, setSearchLi ] = useState([]);
+  const [ newQuery, setNewQuery ] = useState("");
+  const [ targetId , setTargetId ] = useState(1);
+  // console.log(search)
     // 1. 백엔드에 검색 총 결과 리절트를 받는다.
     // 2. 결과 리절트에 예상 값 : 검색데이터, responseDTO
     // 3. 검색 결과 총 카운트
@@ -26,26 +28,47 @@ const SearchResultContainer = () => {
     // 4.4 List를 반복 돌아서 최신순으로 정렬 시킨 후 3개가 넘을 경우 3개만 보여준다.
     // 5. 원하는 탭(토론) 을 눌렀을 때 기본 정렬로 10개만 보여주고 페이지 네이션 처리
     // 6. 
+  const onSubmit = ((e) => {
+    search = newQuery;
+  })
 
+  const changeBorder = ((e) => {
+    // console.log(e.target.id)
+    // console.log(e.target)
+    setTargetId(e.target.id)
+    // setTarget()
+  })
 
+  const onChange = ((e) => {
+    setNewQuery(e.target.value)
+  })
   //   const data = await resp.json();
   //   setPosts(data)
   // }
   // fetchList()
   useEffect(() => {
 
-    const searchList = async () => {
-      const resp = await fetch(`${BACKURL}`, {
-        headers: {
-        "Content-Type" : "application/json"
-        },
-        method: "POST",
-        body: JSON.stringify(search)
-      })
-      .then((res) => res.json())
-      .then((res) => setSearchLi(res))
+    const getSearchLists = async () => {
+      const resp = await fetch("json_server/searchResponse/searchResponse.json")
+      //   , {
+      //   headers: {
+      //   "Content-Type" : "application/json"
+      //   },
+      //   method: "POST",
+      //   body: JSON.stringify(search)
+      // })
+      if(!resp.ok){ throw new Error("에러")}
+      const searchResults = await resp.json();
+      return searchResults
+      // .then((res) => res.json())
+      // .then((res) => setSearchLi(res))
     }
+    getSearchLists()
+      .then((resp) => setSearchLi(resp))
+    // searchList().then((res) => res.json())
+    // .then(console.log)
   },[])
+  // console.log("JSON 파싱값" +searchLi)
 
   //  널 병합 연산자로 안전하게 처리 렝쓰나 이런 거 계산 삽가능
   const {
@@ -80,17 +103,6 @@ const SearchResultContainer = () => {
 //     quiz = [{id : "", difficult : "", lang : "", title : "", type : "", isPass : T/F }, {}, ...],
 //   }
 
-  useEffect(() => {
-    const mock = {
-      total: 10,                 // 네 로직에서 total 쓰니 넣어줌
-      questionPost: genQuestionPosts(10), // ⬅️ 여기!
-      openPost: [],
-      quiz: [],
-      users: [],
-    };
-    setSearchLi(mock);
-  }, []);
-
   const totalCount = total;
 
   const members = users;
@@ -106,14 +118,51 @@ const SearchResultContainer = () => {
   const quizCount = quizs.length;
 
 
-
     return (
-    <div>
+    <S.ResultWrap>
+      <S.InputWrap>
+        <input placeholder={search} onChange={onChange} onSubmit={""}></input>
+        <img src="/assets/images/header/search.png" alt="" />
+      </S.InputWrap>
+      <S.TextWrap>
+        <S.Text 
+          className="select" 
+          id="1"
+          onClick={changeBorder}
+          $active={targetId === 1}
+        >
+            전체 &nbsp; <span>{total === 0 ? "" : total}</span>
+        </S.Text>
+        <S.Text 
+          className="select" 
+          id="2" 
+          onClick={changeBorder}
+          $active={targetId === 2}
+        >문제둥지<span>{questionPostCount === 0 ? "" : questionPostCount}</span> </S.Text>
+        <S.Text 
+          className="select" 
+          id="3"
+          onClick={changeBorder}
+          $active={targetId === 3}
+        >훈련장 <span>{quizCount === 0 ? "" : quizCount}</span></S.Text>
+        <S.Text 
+          className="select"
+          id="4"
+          onClick={changeBorder}
+          $active={targetId === 4}
+        >열린둥지<span>{openPostCount === 0 ? "" : openPostCount}</span> </S.Text>
+        <S.Text 
+          className="select"
+          id="5"
+          onClick={changeBorder}
+          $active={targetId === 5}
+        >친구 <span>{membersCount === 0 ? "" : membersCount}</span></S.Text>
+      </S.TextWrap>
       <h1>검색 결과 페이지😎</h1>
       {/* 삼항으로 검색한 전체 결과 없을 때만 결과없음 페이지 검색결과가 하나라도 존재하면 내부 컴포넌트에서 처리 */}
       {totalCount === 0 ? <NoResult></NoResult> : (
         // question -> quiz -> open -> member
-        <>
+        <S.ResultWrap>
           {questionPostCount === 0 ? <></> : (
             <QuestionPostResult
               datas = {questionPosts}
@@ -145,9 +194,9 @@ const SearchResultContainer = () => {
               search = {search}
             ></UserResult>
           )}
-        </>
+        </S.ResultWrap>
       )}
-    </div>
+    </S.ResultWrap>
   );
 };
 

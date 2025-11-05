@@ -5,8 +5,12 @@ import {
   flexCenterRow,
   h4Medium,
   h5Bold,
+  h6Bold,
   h6Medium,
+  h7Light,
   h7Medium,
+  h8Medium,
+  h9Medium,
 } from "../../styles/common";
 
 const Su = {};
@@ -56,7 +60,7 @@ Su.InputWrapper = styled.div`
   margin-top: 12px;
   border: 1px solid ${({ theme }) => theme.PALETTE.neutral.black.disable};
   border-radius: 8px;
-  background-color: ${({ theme }) => theme.PALETTE.neutral.white.secondary};
+  background-color: #ffffff;
 `;
 
 Su.Input = styled.input`
@@ -65,13 +69,52 @@ Su.Input = styled.input`
   padding: 0 20px;
   font-size: 16px;
   ${h6Medium}
-  background-color: ${({ theme }) => theme.PALETTE.neutral.white.secondary};
+  background-color: #FFFFFF;
   &::placeholder {
     color: ${({ theme }) => theme.PALETTE.neutral.black.disable};
   }
   &:focus {
     outline: none;
   }
+
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox  */
+  &[type="number"] {
+    -moz-appearance: textfield;
+  }
+`;
+
+Su.InputNameWrapper = styled.div`
+  display: flex;
+  justify-content: start;
+  align-items: end;
+  gap: 3px;
+  width: 100%;
+  height: auto;
+  margin-top: 40px;
+`;
+
+Su.InputName = styled.div`
+  ${h6Bold};
+  padding-left: 3px;
+`;
+
+Su.InputEssential = styled.div`
+  ${h9Medium};
+  color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+`;
+
+Su.InputExplanation = styled.div`
+  ${h8Medium};
+  padding-left: 3px;
+  color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
+  width: 100%;
 `;
 
 Su.CheckBoxLabel = styled.label`
@@ -94,6 +137,7 @@ Su.Button = styled.button`
   gap: 16px;
   width: 100%;
   height: 58px;
+  margin-top: 12px;
   background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
   color: ${({ theme }) => theme.PALETTE.neutral.white.main};
   ${h5Bold}
@@ -102,6 +146,14 @@ Su.Button = styled.button`
   :hover {
     background-color: ${({ theme }) => theme.PALETTE.primary.purple.dark};
   }
+`;
+
+Su.AlertText = styled.div`
+  ${h7Light};
+  color: ${({ theme }) => theme.PALETTE.primary.red.main};
+  margin-top: 4px;
+  margin-left: 3px;
+  width: 100%;
 `;
 
 export default Su;

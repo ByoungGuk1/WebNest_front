@@ -45,6 +45,10 @@ import SnakePuzzleContainer from "../pages/workspace/snakepuzzle/SnakePuzzleCont
 import TypingPracticeContainer from "../pages/workspace/typingpractice/TypingPracticeContainer";
 import PostWriteContainer from "../pages/community/post/postwrite/PostWriteContainer";
 import QuestionWriteContainer from "../pages/community/question/questionwrite/QuestionWriteContainer";
+import QuestionPost from "../pages/searchresult/search-detail/QuestionPost";
+import OpenPost from "../pages/searchresult/search-detail/OpenPost";
+import QuizSearchDetail from "../pages/searchresult/search-detail/QuizSearchDetail";
+import FollowSearchDetail from "../pages/searchresult/search-detail/FollowSearchDetail";
 
 const router = createBrowserRouter([
   {
@@ -80,8 +84,29 @@ const router = createBrowserRouter([
         element: <MyPageContainer />,
       },
       {
-        path: "/search",
+        path: "search",
         element: <SearchResultContainer />,
+      },
+      {
+        path: "search-detail",
+        children: [
+          {
+            path: "question-post",
+            element: <QuestionPost></QuestionPost>
+          },
+          {
+            path: "open-post",
+            element: <OpenPost></OpenPost>
+          },
+          {
+            path: "quiz",
+            element: <QuizSearchDetail></QuizSearchDetail>
+          },
+          {
+            path: "follow",
+            element: <FollowSearchDetail></FollowSearchDetail>
+          }
+        ]
       },
       {
         path: "/post",

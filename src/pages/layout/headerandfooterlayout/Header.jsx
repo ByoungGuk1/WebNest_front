@@ -9,7 +9,6 @@ const Header = () => {
 
   const [openNotice, setOpenNotice] = useState(false);
   const [queryString, setQuery] = useState("");
-  const [ user, setUser ] = useState();
   const navigate = useNavigate();
   // const token = localStorage.getItem("access_token");
   const token = 123;
@@ -87,7 +86,7 @@ const Header = () => {
               <S.notification_wrap>
                <S.notification onClick={readNotice}></S.notification>
                {alarmCount > 0 ? (<S.notification_new></S.notification_new>) : (<></>)}
-               {openNotice == true ? (
+               {openNotice === true ? (
                 <S.notice_wrap>
                   <S.notice_header>
                     <span>알람</span>

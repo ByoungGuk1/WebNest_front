@@ -1,148 +1,478 @@
+// ./style.js
 import styled from "styled-components";
-import { h5Medium, h6Bold, h7Bold, h7Light, h8Bold } from '../../../styles/common'
+import { Link } from "react-router-dom";
+import { h4Bold, h5Medium, h6Bold, h6Medium, h7Bold, h7Light, h7Medium, h9Bold } from "../../../styles/common";
+import theme from "../../../styles/theme";
 
-const S = {}
-// 리스트하나당 192 px height;
-// 리스트 감싼 전체 컨테이너  192*3
-S.postWraper = styled.div`
-  width: 100%;
-  height: 500px;
+const S = {};
+
+/* ====================== 공통 레이아웃 ====================== */
+S.Container = styled.div`
+  width: 1160px;
+  margin: 0 auto;
+`;
+
+S.HeaderRow = styled.div`
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.5px solid #2F96FD;
+  ${h5Medium}
+  .blue { color:#2F96FD; }
+`;
+
+S.CleanLinkPlus = styled(Link)`
+  color: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  &:hover { opacity:.8; }
+  img { width:12px; height:12px; margin-right:6px; }
+`;
+
+S.List = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  /* 완성 후 보더 없애기 */
-  border: 1px solid black;
-`
-S.postListContainer = styled.div`
-  height: calc(120px * 3);
-  width: 1160px;
-  display: flex;
-  flex-direction: column;
-  & {
-    ${h7Bold}
-  }
-`
-S.postListWrap = styled.div`
+`;
+
+/* ===== 카드(아이템) 한 장: 192px 고정, 여러 장 세로 스택 ===== */
+S.Item = styled.div`
   width: 100%;
-  height: 200px;
-  border-bottom: 1px solid #EEE;
+  height: 192px;
+  border-bottom: 1px solid #eee;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  display: block;      /* flex 여분 간격 제거 */
+  overflow: hidden;    /* 내용 넘침 방지 */
+`;
+
+/* 카드 전체 클릭 가능하게 – 3행(grid)로 고정 배치 */
+S.CleanLink = styled(Link)`
+  color: inherit;
+  text-decoration: none;
+  display: grid;
+  /* grid-template-rows: 20px 28px 1fr;  배지 / 타이틀 / 본문 */
+  row-gap: 8px;
+  align-content: center;              /* 192px 내 세로 중앙 */
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 8px;
+  &:hover { background:#f0f8ff; }
+`;
+
+/* ===== 상단 배지 줄 (배지만 위로 올림) ===== */
+S.BadgeCol = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 20px;       /* grid 1행 채움 */
+  margin-bottom: 4px;
+`;
+
+/* ===== 텍스트 영역 ===== */
+S.TextCol = styled.div`
+  display: contents;  /* 불필요 래퍼 여백 제거, ellipsis 정상화 */
+  min-width: 0;
+`;
+
+S.Title = styled.h3`
+  margin: 0;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+S.Body = styled.p`
+  margin: 0;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;    /* 2줄 말줄임 */
+  overflow: hidden;
+
+  .target {
+    color: #00D674;
+    font-weight: 600;
+  }
+`;
+
+/* ===== 언어 배지 3종 (건들지 말자!) ===== */
+S.javaBox = styled.div`
+  width: 43px; height: 20px; border-radius: 3px;
+  display:flex; align-items:center; justify-content:center;
+  background:#00D674; color:#fff; font-weight:700; font-size:12px;
+`;
+
+S.jsBox = styled.div`
+  width: 24px; height: 20px; border-radius: 3px;
+  display:flex; align-items:center; justify-content:center;
+  background:#FFC600; color:#fff; font-weight:700; font-size:12px;
+`;
+
+S.oracleBox = styled.div`
+  width: 58px; height: 20px; border-radius: 3px;
+  display:flex; align-items:center; justify-content:center;
+  background:#7255EE; color:#fff; font-weight:700; font-size:12px;
+`;
+
+/* ====================== 문제 리스트(테이블) 레이아웃 ====================== */
+/* ⚠️ 여기서 예전엔 S.Container 를 다시 선언해서 위 컨테이너를 덮어썼음 → 이름 변경 */
+const difficultyColors = {
+  "초급": `${theme.PALETTE.primary.purple.main}`,
+  "중급": `${theme.PALETTE.primary.blue.main}`,
+  "중상급": `${theme.PALETTE.primary.green.main}`,
+  "상급": `${theme.PALETTE.primary.yellow.main}`,
+  "최상급": `${theme.PALETTE.primary.red.main}`,
+};
+
+S.AllContaner = styled.div`   /* (원래 오타 유지: 사용처 맞춤) */
+  width: 1160px;
+`;
+
+S.Containers = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+/* 🔄 중복이던 이름을 변경 */
+S.QuizContainer = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
-`
-S.postTextWrap = styled.div`
-  background-color: white;
-  height: 100;
-  & .target{
-    color: #00D674;
-  }
-`
-S.resultWrap = styled.div`
-  ${h5Medium}
+  gap: 8px;
+  margin-top: 24px;
+`;
+
+S.Header = styled.div`
   display: flex;
-  justify-content: space-between;
+  padding: 12px 16px 12px;
+  border-radius: 6px;
+  border-bottom: 1px solid #141216;
+  gap: 10px;
+  ${h6Bold}
+`;
+
+S.Row = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: background-color 0.2s;
+  &:hover { background-color: #f0f8ff; }
+`;
+S.RowWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`
+
+S.Cell = styled.div`
+  flex: ${({ flex }) => flex || 1};
+  text-align: ${({ align }) => align || "center"};
+  font-size: 14px;
+  color: ${({ dim }) => (dim ? "#888" : "#333")};
+  padding: 8px 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`;
+
+S.TitleLink = styled(Link)`
+  color: ${theme.PALETTE.neutral.black.main};
+  font: ${h6Bold};
+  cursor: pointer;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+`;
+
+S.Status = styled.div`
+  font-weight: bold;
+  color: ${({ isClear }) => (isClear ? "#2e7d32" : "#d32f2f")};
+`;
+
+S.Difficulty = styled.div`
+  width: 40px;
+  height: auto;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: ${theme.FONT_WEIGHT.bold};
+  font-size: ${theme.FONT_SIZE.h7};
+  background-color: ${({ level }) => difficultyColors[level] || "#e0e0e0"};
+  color: #fff;
+  display: inline-block;
+`;
+
+S.BookMark = styled.div`
+  width: 12px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  svg { transition: fill 0.2s; }
+`;
+
+S.BookMarkIcon = ({ active }) => (
+  <svg
+    width="12" height="14" viewBox="0 0 12 14"
+    xmlns="http://www.w3.org/2000/svg"
+    fill={active ? `${theme.PALETTE.primary.yellow.main}` : `${theme.PALETTE.neutral.gray.light}`}
+  >
+    <path d="M2 0C1.44772 0 1 0.447715 1 1V13.5C1 13.7761 1.22386 14 1.5 14C1.63261 14 1.75979 13.9473 1.85355 13.8536L6 9.70711L10.1464 13.8536C10.2402 13.9473 10.3674 14 10.5 14C10.7761 14 11 13.7761 11 13.5V1C11 0.447715 10.5523 0 10 0H2Z" />
+  </svg>
+);
+S.UserCard = styled.div`
   width: 1160px;
-  & img{
-    width: 12px;
-    margin-right: 8px;
-  }
-  & .blue {
-    color:#2F96FD ;
-  }
-  & a {
-    text-decoration-line: none;
-    color: #000;
-    ${h5Medium}
-  }
-`
-S.postTitleWrap = styled.div`
-  display: row;
-  & span {
-    ${h6Bold}
-  }
-  & .target{
-    color: #00D674;
-  }
-`
-S.postUserWrap = styled.div`
-  background-color: green;
+  height: 153px;
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   align-items: center;
 `
-S.questionLayOut = styled.div`
-  width: 100%;
-  height: calc(192px * 3 + 120px);
-  background-color: orange;
+S.UserLevelCard = styled.div`
+  width: 35px;
+  height: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  background-color: #fff;
+  position: absolute;
+  bottom: 0px;
+  right: -8px;
+  & span {
+    ${h9Bold}
+    color: #2F96FD;
+  }
+  & .lv {
+    ${h9Bold}
+    color: #2F96FD;
+  }
+  & .lvImg {
+    width: calc(61px * 0.1);
+    height: calc(74px * 0.1);
+    background-color: #fff;
+    margin-right: 3px;
+  }
+  
+`
+S.UserLeftWrap = styled.div`
+  width: 320px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  & .lv {
+    ${h9Bold}
+    color: #2F96FD;
+  }
+  & img {
+    width: 66px;
+    height: 66px;
+    border-radius: 100%;
+    background-color: gray;
+  }
+  & p{
+    ${h4Bold}
+  }
+  & .follower {
+    ${h7Light}
+    color: #555;
+  }
+  & .count {
+    color: #4d4d4d;
+    ${h7Medium}
+  }
+`
+S.UserProfile = styled.div` 
+  position: relative;
+`
+S.AlreadyFollowingBox = styled.div`
+  width: 86px;
+  height: 34px;
+  background-color: #00D674;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & span{
+    ${h7Bold}
+    color : #fff;
+  }
+`
+S.HopeFollowingBox = styled.div`
+  width: 86px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #2F96FD;
+  & span{
+    ${h7Bold}
+    color: #fff;
+  }
+`
+
+
+// 검색결과 없음 페이지 레이아웃
+const PURPLE = "#7255EE";
+const BLUE = "#2F96FD";
+const LINE = "#D9D9D9";
+
+S.Wrap = styled.div`
+  width: 1160px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`
-S.postUserBackground = styled.div`
-  width: 24px;
-  height: 24px;
-  border-radius: 100%;
-`
-S.javaBox = styled.div`
-  width: 43px;
-  height: 20px;
-  background-color: #00D674;
-  border-radius: 3px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 4px;
-  & {
-    ${h8Bold}
-    color: #fff;
-  }
-`
-S.oracleBox = styled.div`
-  width: 58px;
-  height: 20px;
-  background-color: #7255EE;
-  border-radius: 3px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 4px;
-  & {
-    ${h8Bold}
-    color: #fff;
-  }
-`
-S.jsBox = styled.div`
-  width: 24px;
-  height: 20px;
-  display: flex;
-  margin-bottom: 4px;
-  background-color: #FFC600;
-  border-radius: 3px;
-  justify-content: center;
-  align-items: center;
-  & {
-    ${h8Bold}
-    color: #fff;
-  }
-`
-S.contentWrap = styled.div`
-  & span{
-    ${h7Light}
-  }
-  & .target{
-    color: #00D674;
-  }
-`
-S.resultBorder = styled.div`
-  width: 100%;
-  border-bottom: 2px solid #2F96FD;
-  height: 60px;
-`
-S.plustButton = styled.div`
-  background-color: #fff;
-  border: none;
+  gap: 40px;
+  padding-top: 108px;
+`;
 
-`
-  export default S;
+/* 상단 검색 인풋 라인 */
+S.InputRow = styled.div`
+  width: 920px;
+  height: 74px;
+  margin: 0 auto;
+  border-bottom: 1px solid ${PURPLE};
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  input {
+    flex: 1;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    font-size: 18px;
+  }
+
+  img {
+    width: 18px;
+    height: 18px;
+  }
+`;
+
+/* 탭 라인 */
+S.Tabs = styled.div`
+  width: 1160px;
+  display: flex;
+  justify-content: space-between;
+`;
+
+S.Tab = styled.div`
+  width: calc(1160px / 6);
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid ${LINE};
+  position: relative;
+
+  .count {
+    color: ${BLUE};
+  }
+
+  /* 활성 탭 하이라이트 */
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: ${({ $active }) => ($active ? "6px" : "0")};
+    border-radius: ${({ $active }) => ($active ? "10px" : "0")};
+    background: ${PURPLE};
+    transition: height 0.15s ease;
+  }
+`;
+
+/* 빈결과 카드 */
+S.EmptyCard = styled.div`
+  width: 100%;
+  min-height: 220px;
+  border-top: 1px solid ${LINE};
+  border-bottom: 1px solid ${LINE};
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 40px 24px;
+`;
+
+S.IconWrap = styled.div`
+  width: 84px;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+  }
+`;
+
+S.EmptyText = styled.div`
+  font-size: 18px;
+  line-height: 1.6;
+
+  .term {
+    color: ${BLUE};
+    font-weight: 700;
+  }
+`;
+
+/* 도움말 2단 */
+S.HelpGrid = styled.div`
+  width: 100%;
+  border-top: 2px solid #cfe3ff;
+  padding-top: 32px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+`;
+
+S.HelpBox = styled.div`
+  padding: 8px 4px;
+
+  ul {
+    margin: 14px 0 0;
+    padding-left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  li {
+    list-style: disc;
+  }
+
+  button {
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 0;
+    font-size: 16px;
+    text-decoration: underline;
+  }
+`;
+
+S.HelpTitle = styled.h3`
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+`;
+export default S;

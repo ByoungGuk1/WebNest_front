@@ -1,0 +1,184 @@
+{
+  "users": [
+    {
+      "userName": "만렙코더",
+      "userLevel": "6",
+      "userExp": "788",
+      "mainSkill": "JAVA",
+      "wins": "27",
+      "streak": "3연승중",
+      "statusMessage": "오늘은 버그 없는 하루가 될 거야!!"
+    },
+    {
+      "userName": "코딩요정",
+      "userLevel": "3",
+      "userExp": "512",
+      "mainSkill": "JS",
+      "wins": "12",
+      "streak": "2연승중",
+      "statusMessage": "디버깅은 나의 친구!"
+    },
+    {
+      "userName": "오라클마스터",
+      "userLevel": "7",
+      "userExp": "512",
+      "mainSkill": "ORACLE",
+      "wins": "34",
+      "streak": "5연승중",
+      "statusMessage": "쿼리 최적화 완료!"
+    },
+    {
+      "userName": "자바전사",
+      "userLevel": "5",
+      "userExp": "512",
+      "mainSkill": "JAVA",
+      "wins": "21",
+      "streak": "1연승중",
+      "statusMessage": "오늘도 객체지향!"
+    },
+    {
+      "userName": "JS닌자",
+      "userLevel": "4",
+      "userExp": "512",
+      "mainSkill": "JS",
+      "wins": "18",
+      "streak": "없음",
+      "statusMessage": "비동기 처리 완벽!"
+    },
+    {
+      "userName": "DB지배자",
+      "userLevel": "8",
+      "userExp": "512",
+      "mainSkill": "ORACLE",
+      "wins": "40",
+      "streak": "6연승중",
+      "statusMessage": "데이터는 나에게 맡겨!"
+    },
+    {
+      "userName": "버그헌터",
+      "userLevel": "2",
+      "userExp": "512",
+      "mainSkill": "JAVA",
+      "wins": "9",
+      "streak": "없음",
+      "statusMessage": "버그는 못 참지!"
+    },
+    {
+      "userName": "프론트요술사",
+      "userLevel": "6",
+      "userExp": "512",
+      "mainSkill": "JS",
+      "wins": "25",
+      "streak": "2연승중",
+      "statusMessage": "UI는 예술이다!"
+    },
+    {
+      "userName": "쿼리왕",
+      "userLevel": "9",
+      "userExp": "512",
+      "mainSkill": "ORACLE",
+      "wins": "52",
+      "streak": "7연승중",
+      "statusMessage": "SELECT의 신!"
+    },
+    {
+      "userName": "자바초보",
+      "userLevel": "1",
+      "userExp": "512",
+      "mainSkill": "JAVA",
+      "wins": "3",
+      "streak": "없음",
+      "statusMessage": "오늘은 클래스부터!"
+    },
+    {
+      "userName": "JS마법사",
+      "userLevel": "10",
+      "userExp": "512",
+      "mainSkill": "JS",
+      "wins": "60",
+      "streak": "10연승중",
+      "statusMessage": "React는 내 손안에!"
+    },
+    {
+      "userName": "오라클초보",
+      "userLevel": "2",
+      "userExp": "512",
+      "mainSkill": "ORACLE",
+      "wins": "6",
+      "streak": "없음",
+      "statusMessage": "데이터베이스 입문중!"
+    },
+    {
+      "userName": "코딩천재",
+      "userLevel": "10",
+      "userExp": "512",
+      "mainSkill": "JAVA",
+      "wins": "70",
+      "streak": "12연승중",
+      "statusMessage": "오늘도 완벽한 코드!"
+    },
+    {
+      "userName": "JS러버",
+      "userLevel": "5",
+      "userExp": "512",
+      "mainSkill": "JS",
+      "wins": "22",
+      "streak": "3연승중",
+      "statusMessage": "DOM 조작은 식은 죽 먹기!"
+    },
+    {
+      "userName": "DB초보",
+      "userLevel": "1",
+      "userExp": "512",
+      "mainSkill": "ORACLE",
+      "wins": "2",
+      "streak": "없음",
+      "statusMessage": "INSERT부터 시작!"
+    },
+    {
+      "userName": "자바마스터",
+      "userLevel": "9",
+      "userExp": "512",
+      "mainSkill": "JAVA",
+      "wins": "55",
+      "streak": "8연승중",
+      "statusMessage": "JVM까지 정복!"
+    },
+    {
+      "userName": "JS디버거",
+      "userLevel": "4",
+      "userExp": "512",
+      "mainSkill": "JS",
+      "wins": "17",
+      "streak": "1연승중",
+      "statusMessage": "콘솔로그는 나의 무기!"
+    },
+    {
+      "userName": "오라클전사",
+      "userLevel": "6",
+      "userExp": "512",
+      "mainSkill": "ORACLE",
+      "wins": "29",
+      "streak": "4연승중",
+      "statusMessage": "데이터 정복 중!"
+    },
+    {
+      "userName": "코딩중독자",
+      "userLevel": "7",
+      "userExp": "512",
+      "mainSkill": "JAVA",
+      "wins": "38",
+      "streak": "5연승중",
+      "statusMessage": "코딩이 나의 삶!"
+    },
+    {
+      "userName": "JS탐험가",
+      "userLevel": "3",
+      "userExp": "512",
+      "mainSkill": "JS",
+      "wins": "13",
+      "streak": "2연승중",
+      "statusMessage": "이벤트 핸들링 완전정복!"
+    }
+  ]
+}
