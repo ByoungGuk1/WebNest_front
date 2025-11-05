@@ -68,7 +68,7 @@ S.Cell = styled.div`
 
 S.TitleLink = styled(Link)`
     color: ${theme.PALETTE.neutral.black.main};
-    font: ${h6Bold};
+    ${h6Bold}
     cursor: pointer;
     text-decoration: none;
     &:hover {
@@ -137,7 +137,7 @@ S.DropDownButton = styled.button`
     border-radius: 12px;
     width: 113px;
     height: 40px;
-    font: ${h6Medium};
+    ${h7Medium}
     background-color: white;
         &:hover {
         background-color: ${theme.PALETTE.neutral.white.main};

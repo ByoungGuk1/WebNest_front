@@ -125,8 +125,9 @@ const QuestionBookmarkContainer = () => {
             </S.DropDownButton>
 
             <S.DropDownMenuWrap isDropped={bookMarkOpen}>
-              <S.DropDownMenu>체크</S.DropDownMenu>
-              <S.DropDownMenu>빈</S.DropDownMenu>
+              <S.DropDownMenu>북마크</S.DropDownMenu>
+              <S.DropDownMenu>없음</S.DropDownMenu>
+              <S.DropDownMenu>전체</S.DropDownMenu>
             </S.DropDownMenuWrap>
           </S.ButtonWrap>
 
