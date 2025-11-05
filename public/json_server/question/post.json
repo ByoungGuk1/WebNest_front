@@ -3,14 +3,14 @@
     {
       "postId": 1,
       "postTitle": "JavaScript async/await이 너무 헷갈려요",
-      "postContent": "await를 써도 결과가 Promise로 나와요. 어떻게 동기처럼 만들 수 있나요?",
+      "postContent": "await를 써도 결과가 Promise로 나와요. 어떻게 동기처럼 만들 수 있나요?ㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹ",
       "postLangTag": "JS",
       "createdAt": "2025.01.02",
       "likes": 42,
-      "views": 305,
+      "views": 505,
       "author": {
         "name": "코린이",
-        "profileImg": "/assets/images/imgimg.svg"
+        "profileImg": ""
       },
       "answers": [
         {
@@ -30,7 +30,7 @@
       "postId": 2,
       "postTitle": "Java에서 NullPointerException이 너무 자주 발생합니다",
       "postContent": "Optional을 써도 오류가 계속 나와요. 혹시 잘못 쓴 걸까요?",
-      "postLangTag": "JAVA",
+      "postLangTag": "CSS",
       "createdAt": "2025.01.04",
       "likes": 5,
       "views": 102,
@@ -55,8 +55,8 @@
     {
       "postId": 3,
       "postTitle": "Oracle JOIN문 결과가 중복돼요",
-      "postContent": "INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요?",
-      "postLangTag": "ORACLE",
+      "postContent": "INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요? INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요? INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요? INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요? INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요? INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요?INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요?INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요?INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요? INNER JOIN 했는데 행이 두 배로 나옵니다. 왜일까요?",
+      "postLangTag": "HTML",
       "createdAt": "2025.01.06",
       "likes": 0,
       "views": 77,
@@ -70,7 +70,7 @@
       "postId": 4,
       "postTitle": "JavaScript에서 reduce 문법 이해가 안 돼요",
       "postContent": "누적값이 어떻게 전달되는지 감이 안 옵니다.",
-      "postLangTag": "JS",
+      "postLangTag": "JAVA",
       "createdAt": "2025.01.07",
       "likes": 9,
       "views": 188,
@@ -84,7 +84,7 @@
       "postId": 5,
       "postTitle": "JAVA에서 static을 남발하면 안 되는 이유?",
       "postContent": "static 변수를 자주 쓰면 안 좋다는데 이유가 궁금해요.",
-      "postLangTag": "JAVA",
+      "postLangTag": "ORACLE",
       "createdAt": "2025.01.08",
       "likes": 23,
       "views": 209,

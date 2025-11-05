@@ -1,51 +1,20 @@
-// import React from "react";
-// import { Link, Outlet } from "react-router-dom";
-
-// const QuestionListContainer = () => {
-//   return (
-//     <div>
-//       <h1>QuestionListContainer</h1>
-//       <Link to={`/question/${1}`}>문제 질문 게시글1</Link>
-//       <Link to={`/question/${2}`}>문제 질문 게시글2</Link>
-//       <Link to={`/question/${3}`}>문제 질문 게시글3</Link>
-//       <Link to={`/question/${4}`}>문제 질문 게시글4</Link>
-//       <Link to={`/question/${5}`}>문제 질문 게시글5</Link>
-//     </div>
-//   );
-// };
-
-// export default QuestionListContainer;
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import S from "./style";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 
 const QuestionListContainer = () => {
-  // const [posts, setPosts] = useState([]);
-
-  // useEffect(() => {
-  //   const getPosts = async () => {
-  //     const response = await fetch("/json_server/question/post.json");
-  //     if (!response.ok) throw new Error("문제둥지에러");
-  //     const post = await response.json();
-  //     return post;
-  //   };
-  //   getPosts().then((data) => {
-  //     setPosts(data.posts);
-  //   });
-  // }, []);
-
-  // console.log(posts);
-  // const postList = posts.map(({ postId, postTitle, postContent }, i) => {
-  //   <li key={i}>
-  //     <span>게시글 번호 : {postId}</span>
-  //     <span>제목 : {postTitle}</span>
-  //     <span>내용 : {postContent}</span>
-  //   </li>;
-  // });
   const [posts, setPosts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 7;
 
-  // 🟣 JSON 데이터 불러오기
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
+
+  // ✅ 게시글 데이터 가져오기
   useEffect(() => {
     const getPosts = async () => {
       const response = await fetch("/json_server/question/post.json");
@@ -53,15 +22,33 @@ const QuestionListContainer = () => {
       const post = await response.json();
       return post;
     };
-
-    getPosts().then((data) => {
-      setPosts(data.posts);
-    });
+    getPosts().then((data) => setPosts(data.posts));
   }, []);
 
-  // 🟣 데이터 확인용 콘솔
-  console.log(posts);
+  // ✅ 조회수 기준 상위 8개
+  const popularPosts = [...posts]
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 8);
 
+  // ✅ 페이지네이션 계산
+  const totalPages = Math.ceil(posts.length / postsPerPage);
+  const indexOfLast = currentPage * postsPerPage;
+  const indexOfFirst = indexOfLast - postsPerPage;
+  const currentPosts = posts.slice(indexOfFirst, indexOfLast);
+
+  // ✅ 페이지 이동
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+  const handlePageClick = (num) => setCurrentPage(num);
+
+  // ✅ 페이지 바뀔 때 스크롤
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [currentPage]);
 
   return (
     <>
@@ -71,9 +58,7 @@ const QuestionListContainer = () => {
           <S.BannerInner>
             <div>
               <S.PageTitle>문제 둥지</S.PageTitle>
-              <S.PageDesc>
-                모르는 문제를 함께 올리고 답변을 받아보세요.
-              </S.PageDesc>
+              <S.PageDesc>모르는 문제를 함께 올리고 답변을 받아보세요.</S.PageDesc>
             </div>
             <S.Illust
               src="/assets/images/chickens.png"
@@ -83,49 +68,73 @@ const QuestionListContainer = () => {
         </S.Banner>
       </S.BannerWrap>
 
-      {/* ⚪ 전체 컨테이너 */}
+      {/* ⚪ 인기 질문 Swiper */}
       <S.Container>
-        {/* 인기 질문 카드 */}
-        <S.ArrowBtn className="left">
-          <img src="/assets/icons/leftarrow.svg" />
+        {/* 왼쪽 화살표 */}
+        <S.ArrowBtn ref={prevRef} className="left">
+          <img src="/assets/icons/leftarrow.svg" alt="왼쪽" />
         </S.ArrowBtn>
+
         <S.PopularWrap>
-          <S.PopularCard>
-            <S.PopularTitle>이 코드 어떻게 짜나요!!</S.PopularTitle>
-            <S.PopularPreview>내일3123 123123 123</S.PopularPreview>
-            <S.Info>
-              <S.MetaWrap>
-                <img src="/assets/images/imgimg.svg" />
-                코린이1<b>·</b>조회 117
-              </S.MetaWrap>
-              <S.Response>
-                <img src="/assets/icons/talktalk.svg" />1
-              </S.Response>
-            </S.Info>
-          </S.PopularCard>
+          <Swiper
+            modules={[Navigation]}
+            slidesPerView={4}
+            spaceBetween={12}
+            loop={true}                     // ✅ 무한 스와이프 활성화
+            slidesPerGroup={1}              // ✅ 한 번에 카드 1개 이동
+            centeredSlides={false}
+            slidesOffsetBefore={0}
+            slidesOffsetAfter={0}
+            navigation={{
+              prevEl: prevRef.current,
+              nextEl: nextRef.current,
+            }}
+            onSwiper={(swiper) => {
+              setTimeout(() => {
+                swiper.params.navigation.prevEl = prevRef.current;
+                swiper.params.navigation.nextEl = nextRef.current;
+                swiper.navigation.init();
+                swiper.navigation.update();
+              });
+            }}
+            className="popularSwiper"
+          >
+            {popularPosts.map((post) => (
+              <SwiperSlide key={post.postId}>
+                <S.PopularCard>
+                  <S.PopularTitle>{post.postTitle}</S.PopularTitle>
+                  <S.PopularPreview>{post.postContent}</S.PopularPreview>
+                  <S.Info>
+                    <S.MetaWrap>
+                      <S.ProfileImg
+                        src={post.author?.profileImg || "/assets/images/defaultpro.svg"}
+                        alt={post.author?.name || "익명"}
+                      />
+                      <span>{post.author?.name || "익명"}</span>
+                      <b>·</b>
+                      <span>조회 {post.views || 0}</span>
+                    </S.MetaWrap>
+                    <S.Response>
+                      <img src="/assets/icons/talktalk.svg" alt="댓글" />
+                      {post.answers?.length || 0}
+                    </S.Response>
+                  </S.Info>
+                </S.PopularCard>
+              </SwiperSlide>
+            ))}
+          </Swiper>
 
-          <S.PopularCard>
-            <S.PopularTitle>도와주세요ㅠㅠ</S.PopularTitle>
-            <S.PopularPreview>어제 문제인데 너무 어려워요ㅠ</S.PopularPreview>
-            <S.MetaWrap>자바초보 · 조회 69</S.MetaWrap>
-          </S.PopularCard>
 
-          <S.PopularCard>
-            <S.PopularTitle>제발 도와주세요</S.PopularTitle>
-            <S.PopularPreview>오류가 안 잡혀요…</S.PopularPreview>
-            <S.MetaWrap>디버거 · 조회 225</S.MetaWrap>
-          </S.PopularCard>
-
-          <S.PopularCard>
-            <S.PopularTitle>문제 추천해줘요~</S.PopularTitle>
-            <S.PopularPreview>쉬운 문제 없을까요?</S.PopularPreview>
-            <S.MetaWrap>sky.zip · 조회 188</S.MetaWrap>
-          </S.PopularCard>
+          {/* ✅ 오른쪽 흐릿한 효과 유지 */}
+          <S.GradientRight />
         </S.PopularWrap>
-        <S.ArrowBtn className="right">
-          <img src="/assets/icons/rightarrow.svg" />
+
+        {/* 오른쪽 화살표 */}
+        <S.ArrowBtn ref={nextRef} className="right">
+          <img src="/assets/icons/rightarrow.svg" alt="오른쪽" />
         </S.ArrowBtn>
       </S.Container>
+
       {/* 정렬 + 글쓰기 버튼 */}
       <S.SortWrap>
         <S.Select>
@@ -140,20 +149,51 @@ const QuestionListContainer = () => {
 
       {/* 🟢 질문 리스트 */}
       <S.ListWrap>
-        {posts.length > 0 ? (
-          posts.map(({ postId, postTitle, postContent, postLangTag }) => (
-            <S.Row key={postId}>
-              <S.Tag lang={postLangTag}>{postLangTag}</S.Tag>
-              <S.QuestionInfo>
-                <S.QuestionTitle>{postTitle}</S.QuestionTitle>
-                <S.QuestionPreview>{postContent}</S.QuestionPreview>
-              </S.QuestionInfo>
-            </S.Row>
+        {currentPosts.length > 0 ? (
+          currentPosts.map(({ postId, postTitle, postContent, postLangTag }) => (
+            <S.Link to={`/question/${postId}`} key={postId}>
+              <S.Row>
+                <S.Tag lang={postLangTag}>{postLangTag}</S.Tag>
+                <S.QuestionInfo>
+                  <S.QuestionTitle>{postTitle}</S.QuestionTitle>
+                  <S.QuestionPreview>{postContent}</S.QuestionPreview>
+                </S.QuestionInfo>
+              </S.Row>
+            </S.Link>
           ))
         ) : (
           <p>불러오는 중...</p>
         )}
       </S.ListWrap>
+
+      {/* 페이지네이션 */}
+      <S.Pagination>
+        <S.PageArrow
+          className="left"
+          onClick={handlePrev}
+          disabled={currentPage === 1}
+        >
+          <img src="/assets/icons/pnleftarrow.svg" alt="이전 페이지" />
+        </S.PageArrow>
+
+        {Array.from({ length: totalPages }, (_, i) => (
+          <S.PageButton
+            key={i + 1}
+            $active={currentPage === i + 1}
+            onClick={() => handlePageClick(i + 1)}
+          >
+            {i + 1}
+          </S.PageButton>
+        ))}
+
+        <S.PageArrow
+          className="right"
+          onClick={handleNext}
+          disabled={currentPage === totalPages}
+        >
+          <img src="/assets/icons/pnrightarrow.svg" alt="다음 페이지" />
+        </S.PageArrow>
+      </S.Pagination>
     </>
   );
 };
