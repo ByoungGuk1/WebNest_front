@@ -89,9 +89,9 @@ const QuizContainer = () => {
       </S.BannerWrap>
 
       <S.Containers>
-        <S.AllContaner>
+        <S.AllContainer>
           {/* 드롭다운버튼 */}
-          <S.DropConatiner ref={quizRef}>
+          <S.DropContainer ref={quizRef}>
             <S.ButtonWrap ref={langRef}>
               <S.DropDownButton onClick={langHandler} select={!!selectLang}>
                 {selectLang || "언어"}
@@ -153,7 +153,7 @@ const QuizContainer = () => {
               </S.DropDownMenuWrap>
             </S.ButtonWrap>
 
-          </S.DropConatiner>
+          </S.DropContainer>
 
 
 
@@ -197,7 +197,7 @@ const QuizContainer = () => {
           </S.Container>
 
 
-        </S.AllContaner>
+        </S.AllContainer>
       </S.Containers>
     </>
   );

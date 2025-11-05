@@ -2,9 +2,13 @@ import styled from "styled-components";
 import {
   flexCenter,
   h3Bold,
+  h5Bold,
+  h5Medium,
   h6Bold,
   h6Light,
   h6Medium,
+  h7Bold,
+  h7Medium,
   h8Bold,
   h8Medium,
 } from "../../../../styles/common";
@@ -120,7 +124,6 @@ S.PopularWrap = styled.div`
   }
 
   .swiper-slide {
-    width: 308px !important;
     height: auto !important;
     display: flex;
     justify-content: center;
@@ -148,7 +151,7 @@ S.PopularCard = styled.div`
 
 /* 제목 — 한 줄만, 초과 시 말줄임 */
 S.PopularTitle = styled.div`
-  ${h6Bold}
+  ${h5Bold}
   margin: 21px 21px 6px;
   white-space: nowrap;
   overflow: hidden;
@@ -182,7 +185,7 @@ S.MetaWrap = styled.div`
   align-items: center;
   gap: 6px;
   color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
-  ${h8Medium}
+  ${h7Medium}
 
   b {
     font-weight: normal;
@@ -191,8 +194,8 @@ S.MetaWrap = styled.div`
 `;
 
 S.ProfileImg = styled.img`
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   object-fit: cover;
   background-color: #f5f5f5;
@@ -287,7 +290,7 @@ S.ListWrap = styled.div`
   margin: 50px auto 0;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 60px;
 `;
 
 S.Link = styled(Link)`
@@ -302,7 +305,7 @@ S.Row = styled.div`
   flex-direction: column;
   gap: 12px;
   border-bottom: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
-  padding-bottom: 35px;
+  padding-bottom: 60px;
 `;
 
 S.Tag = styled.div`
@@ -343,14 +346,14 @@ S.Tag = styled.div`
 S.QuestionInfo = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
 `;
 
 S.QuestionTitle = styled.div`
-  ${h6Bold}
+  ${h5Bold}
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin: 0 0 12px 0;
 `;
 
 S.QuestionPreview = styled.div`
@@ -362,6 +365,7 @@ S.QuestionPreview = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-word;
+  margin: 0 0 20px 0;
 `;
 
 /* 메타+인기댓글 통합 래퍼 */
@@ -375,8 +379,8 @@ S.MetaBlock = styled.div`
 /* 메타 한 줄 */
 S.ListMetaRow = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 8px;
 `;
 
 /* 인기 댓글 한 줄 */
@@ -384,15 +388,16 @@ S.TopCommentRow = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+  padding: 0 0 0 20px;
 `;
 
 S.TopCmtName = styled.span`
-  ${h8Bold}
+  ${h7Bold}
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
 `;
 
 S.TopCmtContent = styled.span`
-  ${h8Medium}
+  ${h7Medium}
   color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
   flex: 1;
   min-width: 0;
