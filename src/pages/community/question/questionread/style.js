@@ -6,6 +6,10 @@ import {
   h6Bold,
   h7Medium,
   h8Medium,
+  h7Bold,
+  h4Bold,
+  h7Light,
+  h5Bold,
 } from "../../../../styles/common";
 
 const S = {};
@@ -52,70 +56,76 @@ S.Illust = styled.img`
 /* 🟡 본문 영역 */
 S.ContentWrap = styled.div`
   width: 1160px;
-  margin: 60px auto 120px;
+  margin: 60px auto;
   display: flex;
   flex-direction: column;
-  gap: 40px;
 `;
 
 S.QuestionWrap = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 18px;
 `;
 
-S.QuestionTitle = styled.h2`
-  ${h6Bold}
-  font-size: 26px;
+S.QuestionTitle = styled.div`
+  ${h4Bold}
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+  margin-bottom: 8px; /* ✅ 제목 아래 간격 */
 `;
 
 S.QuestionerInfo = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 24px; /* ✅ 프로필 아래 간격 */
 `;
 
 S.LeftBox = styled.div`
+  ${h7Bold}
   display: flex;
   align-items: center;
   gap: 10px;
 `;
 
 S.ProfileImg = styled.img`
-  width: 46px;
-  height: 46px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   object-fit: cover;
 `;
 
-S.FollowButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 92px;
-  height: 36px;
-  background-color: ${({ theme }) => theme.PALETTE.primary.blue.main};
-  color: ${({ theme }) => theme.PALETTE.neutral.white.main};
-  border: none;
-  border-radius: 6px;
+// S.FollowButton = styled.button`
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   gap: 6px;
+//   width: 86px;
+//   height: 34px;
+//   background-color: ${({ theme }) => theme.PALETTE.primary.blue.main};
+//   color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+//   border: none;
+//   border-radius: 8px;
+//   cursor: pointer;
+//   ${h7Bold}
+// `;
+S.FollowButton = styled.div`
   cursor: pointer;
-  ${h7Medium}
+  ${h7Bold}
+  color: ${({ theme }) => theme.PALETTE.primary.blue.main};
 `;
 
-S.QuestionContent = styled.p`
+S.QuestionContent = styled.div`
   ${h6Medium}
-  line-height: 1.7;
   word-break: break-word;
+  margin-bottom: 20px; /* ✅ 본문 아래 간격 */
 `;
 
 S.QuestionInfo = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  ${h8Medium}
-  color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
+  ${h7Medium}
+  /* color: ${({ theme }) => theme.PALETTE.neutral.black.secondary}; */
+  color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
 `;
 
 S.QuestionMetaWrap = styled.div`
@@ -133,6 +143,32 @@ S.ReportBtn = styled.div`
     text-decoration: underline;
   }
 `;
+
+// 답변갯수, 좋아요, 알림받는 창
+S.AlarmBox = styled.div`
+  display: flex;
+  /* flex-direction: column; */
+`;
+
+S.AnswerCn = styled.div`
+`;
+
+S.LikeAndAlarm = styled.div`
+`;
+
+S.Like = styled.div`
+`;
+
+S.Alarm = styled.div`
+`;
+
+S.ToggleSwitch = styled.div`
+`;
+
+S.ToggleCircle = styled.div`
+`;
+
+
 
 /* 🟢 답변 섹션 */
 S.AnswerSection = styled.div`
