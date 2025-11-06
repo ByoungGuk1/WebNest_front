@@ -1,4 +1,6 @@
+
 /* PostListContainer */
+import Pagination from "./components/Pagination";   // 분리한 페이지네이션 불러오기
 import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import S from "./style";
@@ -109,7 +111,7 @@ const PostListContainer = () => {
         <S.PopularWrap>
           <Swiper
             modules={[Navigation]}
-            slidesPerView={3.6}
+            slidesPerView={3.6} ///------------------------------------
             spaceBetween={12}
             loop={true}
             slidesPerGroup={1}
@@ -271,8 +273,16 @@ const PostListContainer = () => {
           <p>불러오는 중...</p>
         )}
       </S.ListWrap>
+        {/* 🔽 기존의 <S.Pagination> ... </S.Pagination> 블록 전체를 아래 한 줄로 교체 */}
+          <Pagination
+            current={currentPage}                // 현재 페이지
+            total={totalPages}                   // 전체 페이지 수
+            onPrev={handlePrev}                  // 이전 페이지 이동
+            onNext={handleNext}                  // 다음 페이지 이동
+            onPage={handlePageClick}             // 특정 페이지 이동
+          />
 
-      {/* 페이지네이션 */}
+      {/* 페이지네이션
       <S.Pagination>
         <S.PageArrow
           className="left"
@@ -299,7 +309,7 @@ const PostListContainer = () => {
         >
           <img src="/assets/icons/pnrightarrow.svg" alt="다음 페이지" />
         </S.PageArrow>
-      </S.Pagination>
+      </S.Pagination> */}
     </>
   );
 };
