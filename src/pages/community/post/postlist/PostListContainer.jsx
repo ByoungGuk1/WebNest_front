@@ -49,7 +49,6 @@ const PostListContainer = () => {
 
   const prevRef = useRef(null);
   const nextRef = useRef(null);
-
   // ✅ 게시글 데이터 가져오기
   useEffect(() => {
     const getPosts = async () => {
