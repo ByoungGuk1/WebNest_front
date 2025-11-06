@@ -109,7 +109,7 @@ const PostListContainer = () => {
         <S.PopularWrap>
           <Swiper
             modules={[Navigation]}
-            slidesPerView={3.6}
+            slidesPerView={3.6} 
             spaceBetween={12}
             loop={true}
             slidesPerGroup={1}
