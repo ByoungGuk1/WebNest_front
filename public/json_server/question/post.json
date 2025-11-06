@@ -2,10 +2,10 @@
   "posts": [
     {
       "postId": 1,
-      "postTitle": "JavaScript async/await이 너무 헷갈려요",
+      "postTitle": "JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요 ",
       "postContent": "await를 써도 결과가 Promise로 나와요. 어떻게 동기처럼 만들 수 있나요?ㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹ",
       "postLangTag": "JS",
-      "createdAt": "2025.01.02",
+      "createdAt": "2025.11.6",
       "likes": 42,
       "views": 505,
       "author": {

@@ -35,24 +35,24 @@ const RoomListContainer = () => {
       <div>
         {/* 게임방 상단 토글 */}
         <S.GameRoomToggleWrap>
-          <S.GameRoomToggle><span><S.IconCircle><img src="/assets/icons/plus2.png" /></S.IconCircle>방 만들기</span></S.GameRoomToggle>
-          <S.GameRoomToggle><span><S.IconCircle><img src="/assets/icons/flash.png" /></S.IconCircle>빠른 입장</span></S.GameRoomToggle>
+          <S.GameRoomToggle><S.IconCircle><img src="/assets/icons/plus2.png" /></S.IconCircle><span spanWrap>방 만들기</span></S.GameRoomToggle>
+          <S.GameRoomToggle><S.IconCircle><img src="/assets/icons/flash.png" /></S.IconCircle><span>빠른 입장</span></S.GameRoomToggle>
           <S.DropConatiner ref={defficultRef}>
             <S.ButtonWrap>
-              <S.GameRoomToggle onClick={defficultHandler}><span><S.IconCircle><img src="/assets/icons/star.png" /></S.IconCircle>중급</span></S.GameRoomToggle>
+              <S.GameRoomToggle onClick={defficultHandler}><S.IconCircle><img src="/assets/icons/star.png" /></S.IconCircle><span>중급</span></S.GameRoomToggle>
               {defficultOpen && (
                 <S.DropDownMenu>
                   <span><S.IconCircle><img src="/assets/icons/star.png" /></S.IconCircle>초급</span>
                   <span><S.IconCircle><img src="/assets/icons/star.png" /></S.IconCircle>중급</span>
                   <span><S.IconCircle><img src="/assets/icons/star.png" /></S.IconCircle>중상급</span>
-                  <span ><S.IconCircle ><img src="/assets/icons/star.png" /></S.IconCircle>상급</span>
-                  <span ><S.IconCircle><img src="/assets/icons/star.png" /></S.IconCircle>최상급</span>
+                  <span><S.IconCircle ><img src="/assets/icons/star.png" /></S.IconCircle>상급</span>
+                  <span><S.IconCircle><img src="/assets/icons/star.png" /></S.IconCircle>최상급</span>
                 </S.DropDownMenu>
               )}
             </S.ButtonWrap>
           </S.DropConatiner>
-          <S.GameRoomToggle><span><S.IconCircle><img src="/assets/icons/people.png" /></S.IconCircle>개인전</span></S.GameRoomToggle>
-          <S.GameRoomToggle><span><S.IconCircle><img src="/assets/icons/computer.png" /></S.IconCircle>게임방</span></S.GameRoomToggle>
+          <S.GameRoomToggle><S.IconCircle><img src="/assets/icons/people.png" /></S.IconCircle><span>개인전</span></S.GameRoomToggle>
+          <S.GameRoomToggle><S.IconCircle><img src="/assets/icons/computer.png" /></S.IconCircle><span>게임방</span></S.GameRoomToggle>
         </S.GameRoomToggleWrap>
         {/* <Link to={`/workspace/rooms/${1}`}>방1</Link>
         <Link to={`/workspace/rooms/${2}`}>방2</Link>

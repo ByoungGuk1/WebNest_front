@@ -14,6 +14,24 @@ const QuestionListContainer = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
+  // ✅ 날짜 포맷 함수 (상대적 표현)
+  const formatDate = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diff = (now - date) / 1000; // 초 단위 차이
+
+    if (isNaN(date)) return dateString;
+
+    if (diff < 60) return "방금 전";
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    if (diff < 2592000) return `${Math.floor(diff / 86400)}일 전`;
+
+    return `${date.getFullYear()}.${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}.${date.getDate().toString().padStart(2, "0")}`;
+  };
+
   // ✅ 게시글 데이터 가져오기
   useEffect(() => {
     const getPosts = async () => {
@@ -78,7 +96,7 @@ const QuestionListContainer = () => {
         <S.PopularWrap>
           <Swiper
             modules={[Navigation]}
-            slidesPerView={4}
+            slidesPerView={3.6}
             spaceBetween={12}
             loop={true}                     // ✅ 무한 스와이프 활성화
             slidesPerGroup={1}              // ✅ 한 번에 카드 1개 이동
@@ -107,7 +125,7 @@ const QuestionListContainer = () => {
                   <S.Info>
                     <S.MetaWrap>
                       <S.ProfileImg
-                        src={post.author?.profileImg || "/assets/images/defaultpro.svg"}
+                        src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
                         alt={post.author?.name || "익명"}
                       />
                       <span>{post.author?.name || "익명"}</span>
@@ -147,16 +165,68 @@ const QuestionListContainer = () => {
         <S.WriteButton>글쓰기</S.WriteButton>
       </S.SortWrap>
 
-      {/* 🟢 질문 리스트 */}
+      {/* 🟢 질문 리스트
       <S.ListWrap>
         {currentPosts.length > 0 ? (
-          currentPosts.map(({ postId, postTitle, postContent, postLangTag }) => (
+          currentPosts.map(({ postId, postTitle, postContent, postLangTag}) => (
             <S.Link to={`/question/${postId}`} key={postId}>
               <S.Row>
                 <S.Tag lang={postLangTag}>{postLangTag}</S.Tag>
                 <S.QuestionInfo>
                   <S.QuestionTitle>{postTitle}</S.QuestionTitle>
                   <S.QuestionPreview>{postContent}</S.QuestionPreview>
+                </S.QuestionInfo>
+                {/* <S.QuestionMetaWrap>
+                  <S.QuestionProfileImg
+                    src={post.author?.profileImg || "/assets/images/defaultpro.svg"}
+                    alt={post.author?.name || "익명"}
+                  />
+                  <span>{post.author?.name || "익명"}</span>
+                  <b>·</b>
+                  <span>조회 {post.views || 0}</span>
+                  <b>·</b>
+                  <img src="/assets/icons/talktalk.svg" alt="댓글" />
+                  <span>{post.answers?.length || 0}</span>
+                      
+                </S.QuestionMetaWrap> 
+              </S.Row>
+            </S.Link>
+          ))
+        ) : (
+          <p>불러오는 중...</p>
+        )}
+      </S.ListWrap> */}
+
+      {/* 🟢 질문 리스트 */}
+      <S.ListWrap>
+        {currentPosts.length > 0 ? (
+          currentPosts.map((post) => (
+            <S.Link to={`/question/${post.postId}`} key={post.postId}>
+              <S.Row>
+                <S.Tag lang={post.postLangTag}>{post.postLangTag}</S.Tag>
+
+                {/* 게시글 내용 */}
+                <S.QuestionInfo>
+                  <S.QuestionTitle>{post.postTitle}</S.QuestionTitle>
+                  <S.QuestionPreview>{post.postContent}</S.QuestionPreview>
+
+                  {/* ✅ 메타정보 줄 */}
+                  <S.QuestionMetaWrap>
+                    <S.QuestionProfileImg
+                      src={
+                        post.author?.profileImg || "/assets/images/defalutpro.svg"
+                      }
+                      alt={post.author?.name || "익명"}
+                    />
+                    <span>{post.author?.name || "익명"}</span>
+                    <b>·</b>
+                    <span>{formatDate(post.createdAt)}</span>
+                    <b>·</b>
+                    <span>조회 {post.views || 0}</span>
+                    <b>·</b>
+                    <img src="/assets/icons/talktalk.svg" alt="댓글" />
+                    <span>{post.answers?.length || 0}</span>
+                  </S.QuestionMetaWrap>
                 </S.QuestionInfo>
               </S.Row>
             </S.Link>
@@ -165,6 +235,7 @@ const QuestionListContainer = () => {
           <p>불러오는 중...</p>
         )}
       </S.ListWrap>
+
 
       {/* 페이지네이션 */}
       <S.Pagination>

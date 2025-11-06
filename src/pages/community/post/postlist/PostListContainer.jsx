@@ -51,7 +51,6 @@ const PostListContainer = () => {
 
   const prevRef = useRef(null);
   const nextRef = useRef(null);
-
   // ✅ 게시글 데이터 가져오기
   useEffect(() => {
     const getPosts = async () => {
@@ -111,7 +110,7 @@ const PostListContainer = () => {
         <S.PopularWrap>
           <Swiper
             modules={[Navigation]}
-            slidesPerView={3.6} ///------------------------------------
+            slidesPerView={3.6} 
             spaceBetween={12}
             loop={true}
             slidesPerGroup={1}

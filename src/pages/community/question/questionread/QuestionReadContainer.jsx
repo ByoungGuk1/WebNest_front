@@ -7,6 +7,12 @@ const QuestionReadContainer = () => {
   const [posts, setPosts] = useState(null);
   const [currentPost, setCurrentPost] = useState(null);
 
+    // ✅ 알림버튼 상태 추가
+  const [isAlarmOn, setIsAlarmOn] = useState(false);
+  const toggleAlarm = () => setIsAlarmOn((prev) => !prev);
+
+
+  //원래 있던애
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -68,7 +74,7 @@ const QuestionReadContainer = () => {
               <span>{author?.name || "익명"}</span>
             </S.LeftBox>
             <S.FollowButton>
-              <img src="/assets/icons/plus_white.svg" alt="plus" />
+              {/* <img src="/assets/icons/plus_white.svg" alt="plus" /> */}
               팔로우
             </S.FollowButton>
           </S.QuestionerInfo>
@@ -86,6 +92,22 @@ const QuestionReadContainer = () => {
             <S.ReportBtn>신고하기</S.ReportBtn>
           </S.QuestionInfo>
         </S.QuestionWrap>
+
+        {/* 답변갯수, 좋아요, 알림받는 창 */}
+        <S.AlarmBox>
+          <S.AnswerCn>
+            <span>답변</span>
+            <span>{currentPost?.answers?.length || 0}</span>
+          </S.AnswerCn>
+          <S.LikeAndAlarm>
+            <S.Like src="/assets/images/heart.svg" alt="하트">좋아요</S.Like>
+            <S.Alarm src="/assets/images/header/bell.svg" alt="종">새 답변알림</S.Alarm>
+            {/* ✅ 토글 버튼 */}
+            <S.ToggleSwitch onClick={toggleAlarm} $on={isAlarmOn}>
+              <S.ToggleCircle $on={isAlarmOn} />
+            </S.ToggleSwitch>
+          </S.LikeAndAlarm>
+        </S.AlarmBox>
 
         {/* 🟢 답변 리스트 */}
         {answers && answers.length > 0 ? (
