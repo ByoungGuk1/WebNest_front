@@ -6,7 +6,7 @@ const S = {};
 
 
 S.GameRoomBackGround = styled.div`
-    width: 1920px;
+    width: 100%;
     height: 1080px;
     background-image: url("/assets/background/workspacebackground.png");
     background-position: center;
@@ -40,10 +40,22 @@ S.GameRoomToggle = styled.div`
     cursor: pointer;
     transition: all 0.3s ease;
     z-index: 1;
-
+    span {
+        font: ${h6Bold};
+        background: linear-gradient(to right, #AB4BFF, #7255EE, #2F58FD);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
     &:hover {
         background: linear-gradient(to right, #2F58FD99, #7255EE44, #AB4BFF88);
+        background-image: ${({ spanWrap }) => ( spanWrap ? "none" : "#000000")};
+        color: #FFFFFF;
     }
+    
 
     &::before {
         content: "";
@@ -61,16 +73,6 @@ S.GameRoomToggle = styled.div`
         z-index: -1;
     }
 
-    span {
-        font: ${h6Bold};
-        background: linear-gradient(to right, #AB4BFF, #7255EE, #2F58FD);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-                display: flex;
-        align-items: center;
-        gap: 12px;
-    }
 `;
 
 
