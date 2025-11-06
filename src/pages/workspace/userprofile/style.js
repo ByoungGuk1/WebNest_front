@@ -1,0 +1,76 @@
+import styled from "styled-components";
+import {
+  flexCenterColumn,
+  flexCenterRow,
+  h8Medium,
+  h9Bold,
+} from "../../../styles/common";
+import theme from "../../../styles/theme";
+
+const S = {};
+
+S.UserProfileWrapper = styled.div`
+  width: 120px;
+  height: 160px;
+  border-radius: 10px;
+  border: 1px solid #000;
+  position: relative;
+  ${flexCenterColumn}
+  gap: 3px;
+`;
+
+S.ResignButton = styled.div`
+  position: absolute;
+  right: 12.5px;
+  top: 5.5px;
+  width: 10px;
+  height: 10px;
+  ${flexCenterColumn}
+`;
+
+S.ProfileImageWrap = styled.div`
+  ${flexCenterColumn}
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  flex-flow: hidden;
+  background-color: ${theme.PALETTE.neutral.gray.light};
+  position: relative;
+`;
+
+S.CrownIcon = styled.img`
+  position: absolute;
+  z-index: 1;
+  top: -10px;
+`;
+
+S.UserNameWrap = styled.div`
+  ${h8Medium}
+`;
+
+S.UserGradeWrap = styled.div`
+  ${flexCenterRow}
+  ${h9Bold}
+  width: 31px;
+  height: 15px;
+  border-radius: 12px;
+  background-color: #fff;
+  gap: 4px;
+  padding-left: 3px;
+  padding-right: 2px;
+  & img {
+    width: 6px;
+    height: 7px;
+  }
+`;
+
+S.UserTextWrap = styled.div`
+  border-radius: 8px;
+  width: 80px;
+  height: 28px;
+  ${flexCenterColumn}
+  ${h9Bold}
+  background: ${theme.PALETTE.background.ready};
+`;
+
+export default S;
