@@ -6,7 +6,6 @@ import Pagination from '../pagination/Pagination';
 
 const parseFiltersFromSearch = (search) => {
     const params = new URLSearchParams(search);
-    console.log("파람:", params.toString())
     return {
         quizLanguage: params.get('quizLanguage') || null,
         quizDifficult: params.get('quizDifficult') || null,
@@ -16,7 +15,6 @@ const parseFiltersFromSearch = (search) => {
     };
 };
 
-const pageCount = 100
 
 const QuizList = () => {
     const location = useLocation();
@@ -66,7 +64,6 @@ const QuizList = () => {
                 }
 
                 const json = await res.json();
-                console.log('POST 응답 전체:', json.data); // 디버그용: 구조 확인
                 setQuizs(Array.isArray(json.data.findQuizList) ? json.data.findQuizList : []);
                 setQuizTotalCount(json.data.quizTotalCount)
             } catch (err) {
@@ -78,8 +75,6 @@ const QuizList = () => {
         };
         fetchByFilters();
     }, [location.search]); // 쿼리스트링에 값이 추가될 때마다 == 토글 선택마다 or 페이지 넘어갈때마다
-    console.log("응답 : ", quizs)
-    console.log("응답 : ", quizTotalCount)
     return (
         <S.ListContainer>
             <S.Header>
