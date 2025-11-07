@@ -133,6 +133,10 @@ const router = createBrowserRouter([
         element: <QuestionWriteContainer />,
       },
       {
+        path: "/question/:questionId/write",
+        element: <QuestionWriteContainer />, // 이게 핵심
+      },
+      {
         path: "oauth2/success",
         element: <OauthSuccess />,
       },
