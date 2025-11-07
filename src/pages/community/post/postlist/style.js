@@ -1,4 +1,5 @@
-import styled from "styled-components";
+// ./style.js
+import styled, { createGlobalStyle } from "styled-components";
 import {
   flexCenter,
   h3Bold,
@@ -16,7 +17,20 @@ import { Link } from "react-router-dom";
 
 const S = {};
 
-/* 배너 */
+/* ✅ 헤더 알람 팝오버를 항상 최상단으로 */
+export const HeaderAlarmLayerFix = createGlobalStyle`
+  #header-alarm-popover,
+  .header-alarm-popover,
+  [data-layer="alarm-popover"] {
+    position: fixed !important;
+    z-index: 2147483646 !important; /* 최상위 */
+    top: var(--header-height, 64px);
+    right: max(16px, calc(50% - 580px)); /* 1160 컨테이너 우측 정렬 */
+    pointer-events: auto;
+  }
+`;
+
+/* ===================== 상단 배너 ===================== */
 S.BannerWrap = styled.div`
   width: 100vw;
   position: relative;
@@ -24,6 +38,7 @@ S.BannerWrap = styled.div`
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
+  z-index: -2; /* 보라 배너가 알람을 덮지 않도록 뒤로 */
 `;
 
 S.Banner = styled.div`
@@ -55,7 +70,7 @@ S.Illust = styled.img`
   height: auto;
 `;
 
-/* 전체 큰 틀 */
+/* ===================== 인기 질문 Swiper 영역 ===================== */
 S.Container = styled.div`
   position: relative;
   width: 1160px;
@@ -65,7 +80,6 @@ S.Container = styled.div`
   align-items: center;
 `;
 
-/* 좌우 버튼 */
 S.ArrowBtn = styled.button`
   position: absolute;
   top: calc(50% + 23px);
@@ -75,34 +89,24 @@ S.ArrowBtn = styled.button`
   border: none;
   border-radius: 50%;
   background-color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all 0.2s ease;
-  z-index: 10;
+  transition: transform .2s ease, background-color .2s ease;
+  z-index: 4; /* 카드/그라데이션 위로 */
 
-  &:hover {
-    transform: translateY(-55%);
-  }
+  &:hover { transform: translateY(-55%); }
 
   img {
-    width: 11px;
-    height: 18px;
-    display: block;
+    width: 11px; height: 18px; display: block;
   }
 
-  &.left {
-    left: -75px;
-  }
-
-  &.right {
-    right: -75px;
-  }
+  &.left { left: -75px; }
+  &.right { right: -75px; }
 `;
 
-/* 인기글 래퍼 */
 S.PopularWrap = styled.div`
   position: relative;
   display: flex;
@@ -111,31 +115,25 @@ S.PopularWrap = styled.div`
   flex-wrap: nowrap;
   width: 1160px;
   overflow: hidden;
+  z-index: 1;
 
-  .swiper {
-    width: 100%;
-    overflow: visible;
-  }
-
+  .swiper { width: 100%; overflow: visible; }
   .swiper-wrapper {
     display: flex !important;
     flex-direction: row !important;
     align-items: stretch;
   }
-
   .swiper-slide {
     height: auto !important;
     display: flex;
     justify-content: center;
   }
-
   .swiper-button-prev,
   .swiper-button-next {
-    display: none !important;
+    display: none !important; /* 커스텀 화살표 사용 */
   }
 `;
 
-/* 카드 */
 S.PopularCard = styled.div`
   width: 308px;
   height: 198px;
@@ -149,7 +147,6 @@ S.PopularCard = styled.div`
   justify-content: space-between;
 `;
 
-/* 제목 — 한 줄만, 초과 시 말줄임 */
 S.PopularTitle = styled.div`
   ${h5Bold}
   margin: 21px 21px 6px;
@@ -159,7 +156,6 @@ S.PopularTitle = styled.div`
   max-width: calc(100% - 42px);
 `;
 
-/* 내용 — 최대 3줄까지만, 초과 시 ... */
 S.PopularPreview = styled.div`
   ${h6Light}
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
@@ -194,44 +190,36 @@ S.MetaWrap = styled.div`
 `;
 
 S.ProfileImg = styled.img`
-  width: 20px;
-  height: 20px;
+  width: 20px; height: 20px;
   border-radius: 50%;
   object-fit: cover;
   background-color: #f5f5f5;
 `;
 
 S.Response = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  display: flex; align-items: center; gap: 5px;
   ${h8Medium}
   color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
 
-  img {
-    width: 13px;
-    height: 13px;
-  }
+  img { width: 13px; height: 13px; }
 `;
 
-/* 오른쪽 그라데이션 */
+/* 오른쪽 페이드 */
 S.GradientRight = styled.div`
   position: absolute;
-  right: 0;
-  top: 0;
-  width: 120px;
-  height: 100%;
+  right: 0; top: 0;
+  width: 120px; height: 100%;
   pointer-events: none;
   background: linear-gradient(
     to left,
     white 20%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(255,255,255,0.8) 50%,
+    rgba(255,255,255,0) 100%
   );
-  z-index: 5;
+  z-index: 3;
 `;
 
-/* 정렬 + 글쓰기 */
+/* ===================== 정렬/글쓰기 영역 ===================== */
 S.SortWrap = styled.div`
   width: 1160px;
   margin: 46px auto 0;
@@ -242,22 +230,21 @@ S.SortWrap = styled.div`
 
 S.Select = styled.div`
   position: relative;
+
   select {
-    width: 120px;
-    height: 44px;
+    width: 120px; height: 44px;
     border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
     border-radius: 10px;
     color: ${({ theme }) => theme.PALETTE.neutral.black.main};
     ${h6Medium}
     cursor: pointer;
     padding: 0 40px 0 14px;
-    outline: none;
-    appearance: none;
+    outline: none; appearance: none;
     background-image: url("/assets/icons/downarrow.svg");
     background-repeat: no-repeat;
     background-size: 14px;
     background-position: calc(100% - 14px) center;
-    transition: all 0.2s ease;
+    transition: all .2s ease;
   }
 
   select option {
@@ -267,15 +254,12 @@ S.Select = styled.div`
 `;
 
 S.WriteButton = styled.div`
-  width: 113px;
-  height: 40px;
+  width: 113px; height: 40px;
   background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
   color: ${({ theme }) => theme.PALETTE.neutral.white.main};
   ${h6Bold}
   border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex; justify-content: center; align-items: center;
   margin: auto 0;
   cursor: pointer;
 
@@ -284,7 +268,7 @@ S.WriteButton = styled.div`
   }
 `;
 
-/* 리스트 */
+/* ===================== 리스트 ===================== */
 S.ListWrap = styled.div`
   width: 1160px;
   margin: 50px auto 0;
@@ -318,29 +302,17 @@ S.Tag = styled.div`
   justify-content: center;
   white-space: nowrap;
   width: ${({ lang }) =>
-    lang === "JS"
-      ? "24px"
-      : lang === "JAVA"
-      ? "40px"
-      : lang === "CSS"
-      ? "33px"
-      : lang === "HTML"
-      ? "43px"
-      : lang === "ORACLE"
-      ? "54px"
-      : "auto"};
+    lang === "JS" ? "24px" :
+    lang === "JAVA" ? "40px" :
+    lang === "CSS" ? "33px" :
+    lang === "HTML" ? "43px" :
+    lang === "ORACLE" ? "54px" : "auto"};
   background-color: ${({ lang }) =>
-    lang === "JAVA"
-      ? "#2ECC71"
-      : lang === "JS"
-      ? "#F7DF1E"
-      : lang === "CSS"
-      ? "#E74C3C"
-      : lang === "ORACLE"
-      ? "#9B59B6"
-      : lang === "HTML"
-      ? "#3498DB"
-      : "#aaa"};
+    lang === "JAVA" ? "#2ECC71" :
+    lang === "JS" ? "#F7DF1E" :
+    lang === "CSS" ? "#E74C3C" :
+    lang === "ORACLE" ? "#9B59B6" :
+    lang === "HTML" ? "#3498DB" : "#aaa"};
 `;
 
 S.QuestionInfo = styled.div`
@@ -368,22 +340,20 @@ S.QuestionPreview = styled.div`
   margin: 0 0 20px 0;
 `;
 
-/* 메타+인기댓글 통합 래퍼 */
+/* 메타 + 인기댓글 래퍼 */
 S.MetaBlock = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;           /* 메타줄과 인기댓글 사이 간격 */
-  margin-top: 6px;    /* 본문 미리보기와의 간격 */
+  gap: 8px;      /* 메타줄 ↔ 인기댓글 간격 */
+  margin-top: 6px;
 `;
 
-/* 메타 한 줄 */
 S.ListMetaRow = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
 `;
 
-/* 인기 댓글 한 줄 */
 S.TopCommentRow = styled.div`
   display: flex;
   align-items: center;
@@ -417,63 +387,46 @@ S.BestBadge = styled.span`
   ${h8Bold}
 `;
 
-/* 페이지네이션 */
+/* ===================== 페이지네이션 ===================== */
 S.Pagination = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 6px;
-  margin: 100px 0 100px;
+  margin: 100px 0;
   position: relative;
 `;
 
 S.PageArrow = styled.button`
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
+  width: 32px; height: 32px;
+  border: none; border-radius: 50%;
   background-color: ${({ disabled }) =>
     disabled ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.05)"};
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex; justify-content: center; align-items: center;
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
-  transition: all 0.2s ease;
-
-  img {
-    width: 6px;
-    height: 12px;
-    opacity: ${({ disabled }) => (disabled ? 0.3 : 1)};
-  }
+  transition: background-color .2s ease;
+  
+  img { width: 6px; height: 12px; opacity: ${({ disabled }) => (disabled ? 0.3 : 1)}; }
 
   &:hover {
     background-color: ${({ disabled }) =>
       disabled ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.1)"};
   }
 
-  &.left {
-    margin-right: 45px;
-  }
-
-  &.right {
-    margin-left: 45px;
-  }
+  &.left { margin-right: 45px; }
+  &.right { margin-left: 45px; }
 `;
 
 S.PageButton = styled.button`
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background-color: ${({ $active }) =>
-    $active ? "#FFC107" : "transparent"};
+  width: 32px; height: 32px;
+  border: none; border-radius: 50%;
+  background-color: ${({ $active }) => ($active ? "#FFC107" : "transparent")};
   color: ${({ $active }) => ($active ? "#fff" : "#000")};
   ${h6Medium}
   cursor: pointer;
 
   &:hover {
-    background-color: ${({ $active }) =>
-      !$active ? "rgba(0,0,0,0.05)" : "#FFC107"};
+    background-color: ${({ $active }) => (!$active ? "rgba(0,0,0,0.05)" : "#FFC107")};
   }
 `;
 

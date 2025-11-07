@@ -1,55 +1,76 @@
-import React, { useState } from 'react';              
-import S from "./style";                             
+// src/pages/mypage/friend/FriendContainer.jsx
+import React, { useEffect, useState } from "react";
+import S from "./style";
 
-const FriendContainer = () => {                       
-  const [activeTab, setActiveTab] = useState("followers"); // 현재 탭 상태(기본: 팔로우)
+// ✅ UserResult: default export만 존재 → default import로 가져오기
+import UserResult from "../../searchresult/Components/UserResult";
 
-  const followers = [                                 // 더미 데이터: 나를 팔로잉한 사용자들
-    { id: 1, nickname: "부카기", meta: "팔로워 2.3K" },
-    { id: 2, nickname: "코딩새", meta: "팔로워 1.1K" },
-  ];
-  const followings = [                                // 더미 데이터: 내가 팔로잉하는 사용자들
-    { id: 3, nickname: "웹네스트", meta: "문제 120" },
-    { id: 4, nickname: "JS토끼", meta: "문제 42"   },
-  ];
 
-  const list = activeTab === "followers" ? followers : followings; // 탭에 맞게 목록 선택
-  
-  return (                                       
-    <div>                                           
-      <S.Wrap>                                        {/* 가운데 정렬된 탭 영역 */}
-        <S.btn onClick={() => setActiveTab("followers")} aria-pressed={activeTab === "followers"}>
-          <span>팔로워</span>                          {/* 팔로워 탭 */}
-        </S.btn>
-        <S.btn onClick={() => setActiveTab("following")} aria-pressed={activeTab === "following"}>
-          <span>팔로잉</span>                          {/* 팔로잉 탭 */}
-        </S.btn>
-      </S.Wrap>
 
-      <S.List>                                        {/* 목록 컨테이너 */}
-        {list.map(u => (                              // 사용자별 아이템 렌더
-          <S.Item key={u.id}>                         {/* 한 줄 아이템 */}
-            <S.User>                                  {/* 좌측: 프로필 + 텍스트 */}
-              <S.Profile />                           {/* Profile로 변경된 원형 프로필 */}
-              <div>                                  
-                <span>{u.nickname}</span>         {/* 닉네임 */}
-                <span><b>팔로워</b> 10</span>
-              </div>
-            </S.User>
 
-            <S.ActionBtn                              
-              $positive={activeTab === "following"}   /* 팔로잉 탭이면 초록 버튼 */
-              onClick={() => {                        /* 추후 API 연동 자리 */
-                console.log("click user:", u.id);
-              }}
-            >
-              {activeTab === "followers" ? "팔로우" : "팔로잉"} {/* 라벨 분기 */}
-            </S.ActionBtn>
-          </S.Item>
+// ✅ 3개 단위로 잘라주는 유틸 (UserResult가 내부에서 top3만 그려도 우회)
+const chunkBy = (arr, size) => {
+  if (!Array.isArray(arr) || size <= 0) return [arr];
+  const res = [];
+  for (let i = 0; i < arr.length; i += size) res.push(arr.slice(i, i + size));
+  return res;
+};
+
+// ✅ 더미 데이터
+const genDummyUsers = (n = 57) => {
+  const arr = [];
+  for (let i = 1; i <= n; i++) {
+    const level = ((i - 1) % 10) + 1;
+    arr.push({
+      id: i,
+      profileUrl: `/assets/profiles/p${((i - 1) % 6) + 1}.png`,
+      levelImageUrl: `/assets/images/level/${level}.svg`, // 퍼블릭 경로 기준 권장
+      level,
+      nickname: `사용자_${i.toString().padStart(2, "0")}`,
+      followCount: (i * 13) % 5000,
+      isFollow: i % 2 === 0,
+    });
+  }
+  return arr;
+};
+
+const FriendContainer = () => {
+  const [users, setUsers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10; // 한 페이지 10명
+
+  useEffect(() => {
+    setUsers(genDummyUsers(57));
+  }, []);
+
+  // ✅ 페이징
+  const totalPages = Math.max(1, Math.ceil(users.length / pageSize));
+  const start = (currentPage - 1) * pageSize;
+  const pageData = users.slice(start, start + pageSize);
+
+  // ✅ 3개씩 묶어서 UserResult 여러 번 호출 (각 호출은 내부적으로 top3만 그림)
+  const rows = chunkBy(pageData, 3);
+
+  const goPage = (p) => {
+    if (p < 1 || p > totalPages) return;
+    setCurrentPage(p);
+  };
+
+  return (
+    <S.Page>
+      {/* 레이아웃과 UserResult 묶음 사이 여백 */}
+      <S.Section>
+        {/* UserResult의 상단 파란 strip은 스타일로 숨김 */}
+        {rows.map((row, idx) => (
+          <S.StripHeader key={`row-${idx}`}>
+            <UserResult datas={row} search="" count={users.length} />
+          </S.StripHeader>
         ))}
-      </S.List>
-    </div>
+      </S.Section>
+
+ 
+    </S.Page>
   );
 };
 
-export default FriendContainer;                      
+export default FriendContainer;

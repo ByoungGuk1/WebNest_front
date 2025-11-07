@@ -1,75 +1,75 @@
-import styled from "styled-components";                           // styled-components 임포트
-import theme from "../../../styles/theme";                        // 프로젝트 테마 임포트
-import { h6Bold, h6Medium, h7Medium } from "../../../styles/common"; // (예비) 타이포 스타일
+// src/pages/mypage/friend/style.js
+import styled from "styled-components";
 
-const S = {};                                                     // 네임스페이스 객체
+const S = {};
 
-S.Wrap = styled.div`
-  padding: 45px 0 0 0;                                            /* 위 여백 */
-  display: flex;                                                  /* 가로 배치 */
-  align-items: center;                                            /* 세로 중앙 정렬 */
-  justify-content: center;                                        /* 가로 중앙 정렬 */
-  width: 100%;                                                    /* 전체 폭 */
-  gap: 12px;                                                      /* 버튼 간격 */
+/** 마이페이지 최상위 컨테이너 (레이아웃이 따로 잡혀 있으면 width:100% 유지) */
+S.Page = styled.div`
+  width: 100%;
 `;
 
-S.btn = styled.button`
-  width: 86px;                                                    /* 탭 버튼 가로 */
-  height: 40px;                                                   /* 탭 버튼 높이 */
-  border-radius: 4px;                                             /* 둥근 모서리 */
-  background-color: ${theme.PALETTE.primary.green.lightGray};           /* 기본 파랑 */
-  color: ${theme.PALETTE.primary.green.gray};                                                 /* 텍스트 흰색 */
-  border: none;                                                   /* 테두리 제거 */
-  font-weight: 600;                                               /* 굵게 */
-  cursor: pointer;                                                /* 포인터 */
-  &[aria-pressed="true"] {
-    color: ${theme.PALETTE.neutral.white.secondary};   /* 활성 탭 */
-    background-color: ${theme.PALETTE.primary.blue.main};       /* 보라 강조 */
+/** UserResult 묶음을 쌓아 올리는 섹션 */
+S.Section = styled.section`
+  padding-top: 20px;
+  /* 화면 크기에 따라 자연스러운 상/하 여백 */
+  margin: clamp(16px, 2vw, 28px) 0 clamp(20px, 3vw, 40px);
+`;
+
+/**
+ * ✅ 검색 컴포넌트(UserResult)를 감싸는 래퍼
+ *  - UserResult 내부의 "상단 파란 줄 영역(헤더)"을 숨김
+ *  - 내부에서 첫 섹션이 헤더인 케이스와, 클래스/데이터 속성으로 구분한 케이스 모두 대응
+ */
+S.StripHeader = styled.div`
+  /* 1) 명시적 헤더 패턴 숨김 (여러 구현 대응) */
+  & [data-strip="header"],
+  & .strip-header,
+  & .blue-strip,
+  & .header {
+    display: none !important;
+  }
+
+  /* 2) 구조적(첫 섹션이 헤더)인 경우도 안전망으로 숨김 */
+  & > *:first-child > *:first-child {
+    display: none !important;
+  }
+
+  /* 헤더 제거 후 위쪽 들뜸 방지 */
+  & > *:first-child {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    border-top: 0 !important;
+  }
+
+  /* 여러 묶음이 연달아 렌더될 때 간격 */
+  & + & {
+    margin-top: 16px;
   }
 `;
 
-S.List = styled.ul`
-  max-width: 1080px;                                              /* 본문 최대 폭 */
-  margin: 24px auto 0;                                            /* 가운데 정렬 */
-  padding: 0;                                                     /* 패딩 제거 */
-  list-style: none;                                               /* 불릿 제거 */
+/** 하단 페이지네이션 바 (FriendContainer에서 사용) */
+S.PaginationBar = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
 `;
 
-S.Item = styled.li`
-  display: flex;                                                  /* 좌/우 배치 */
-  align-items: center;                                            /* 세로 중앙 */
-  justify-content: space-between;                                 /* 정보/버튼 분리 */
-  padding: 16px 8px;                                              /* 패딩 */
-  border-bottom: 1px solid rgba(0,0,0,0.08);                      /* 구분선 */
+/** 가드 메시지용 간단한 에러 박스 (import 실패 시 표시) */
+S.ErrorBox = styled.div`
+  border: 1px dashed #ccc;
+  border-radius: 12px;
+  padding: 20px;
+  background: #fafafa;
+  line-height: 1.6;
+
+  code {
+    display: block;
+    background: #f3f3f3;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin: 8px 0 4px;
+    overflow-x: auto;
+  }
 `;
 
-S.User = styled.div`
-  display: flex;                                                  /* 프로필/텍스트 가로 배치 */
-  align-items: center;                                            /* 세로 중앙 */
-  gap: 12px;                                                      /* 간격 */
-`;
-
-S.Profile = styled.div`                                           /* ✅ Avatar → Profile로 명칭 변경 */
-  width: 40px;                                                    /* 크기 */
-  height: 40px;                                                   /* 크기 */
-  border-radius: 50%;                                             /* 원형 */
-  background: #eee;                                               /* 임시 배경 (이미지 대신) */
-`;
-
-S.Meta = styled.small`
-  display: block;                                                 /* 줄바꿈 */
-  opacity: 0.6;                                                   /* 희미하게 */
-`;
-
-S.ActionBtn = styled.button`
-  padding: 8px 12px;                                              /* 버튼 패딩 */
-  border-radius: 8px;                                             /* 둥근 모서리 */
-  border: 1px solid rgba(0,0,0,0.12);                             /* 연한 테두리 */
-  background: ${({ $positive }) =>                                /* 탭에 따른 배경색 */
-    $positive ? theme.PALETTE.primary.green.main : "#fff"};       
-  color: ${({ $positive }) => ($positive ? "#fff" : "#333")};     /* 글자색 */
-  font-weight: 600;                                               /* 굵게 */
-  cursor: pointer;                                                /* 포인터 */
-`;
-
-export default S;                                                 // 기본 export
+export default S;

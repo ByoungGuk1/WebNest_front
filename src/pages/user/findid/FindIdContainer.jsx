@@ -3,15 +3,18 @@ import Su from "../style";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../../../modules/user";
 
 const FindIdContainer = () => {
-  const name = "홍길동";
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [showEmailSendForm, setShowEmailSendForm] = useState(true);
   const [showEmailSend, setShowEmailSend] = useState(false);
   const [showEmailVerify, setShowEmailVerify] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [foundName, setFoundName] = useState("");
 
   const {
     register,
@@ -23,9 +26,16 @@ const FindIdContainer = () => {
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
   const handleSumbmitForm = handleSubmit(async (data) => {
-    fetch("url", {
+    console.log(data);
+    fetch(``, {
       body: JSON.stringify(data),
-    });
+    })
+      .then((res) => {
+        setFoundName(res.userName);
+      })
+      .catch(() => {
+        redirect("/find-id");
+      });
   });
 
   const checkEmail = () => {
@@ -151,7 +161,7 @@ const FindIdContainer = () => {
               <Su.InputWrapper>
                 <Su.Input type="text" placeholder="인증 키" />
               </Su.InputWrapper>
-              <Su.Button type="button" onClick={stepThree}>
+              <Su.Button type="submit" onClick={stepThree}>
                 인증 메일 확인
               </Su.Button>
               <S.EmailVerification>
@@ -168,7 +178,7 @@ const FindIdContainer = () => {
 
         <div style={{ display: showResult ? "block" : "none" }}>
           <S.FoundResult>
-            회원님의 아이디는 '{name}'입니다.
+            회원님의 아이디는 '{foundName}'입니다.
             <Su.Button type="button" onClick={() => navigate("/sign-in")}>
               로그인하러 가기
             </Su.Button>
