@@ -1,10 +1,9 @@
-import React from "react";
-import WriteContainer from "../../write/WriteContainer";
+import React from 'react';
 
 const QuestionWriteContainer = () => {
   return (
     <div>
-      <WriteContainer />
+      
     </div>
   );
 };
