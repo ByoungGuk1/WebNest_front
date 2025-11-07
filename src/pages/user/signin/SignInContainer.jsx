@@ -52,8 +52,15 @@ const SignInContainer = () => {
     await trigger("email");
   };
 
+  const alreadyLogin = () => {
+    if (isLogin) {
+      navigate("/");
+    }
+  };
+
   return (
     <div>
+      {alreadyLogin()}
       <Su.ContentContainer>
         <Su.LogoWrapper>
           <Su.LogoGrean>Web</Su.LogoGrean>

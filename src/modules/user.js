@@ -12,10 +12,17 @@ export const setUserStatus = createAction(SET_USER_STATUS);
 
 const UserInitialValue = {
   currentUser: {
-    memberEmail: "",
-    memberName: "",
-    memberNickname: "",
-    // ...
+    id: 1,
+    userName: "홍길동",
+    userBirthday: "2020-05-05",
+    userEmail: "test123@test.com",
+    userPhone: "01012341234",
+    userExp: "0",
+    userLevel: "1",
+    userThumbnailName: "default",
+    userThumbnailUrl: "/default",
+    userNickname: "홍길동",
+    userProvider: "local",
   },
   isLogin: false,
   previousUrl: "",
@@ -25,7 +32,7 @@ const UserInitialValue = {
 const user = handleActions(
   {
     [SET_PREVIOUS_URL]: (state, action) => ({
-      ...state, 
+      ...state,
       previousUrl: action.payload,
     }),
     [SET_USER]: (state, action) => ({ ...state, currentUser: action.payload }),
