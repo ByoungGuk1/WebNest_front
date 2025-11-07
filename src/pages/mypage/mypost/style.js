@@ -95,4 +95,30 @@ S.StripHeader = styled.div`
   }
 `;
 
+S.BoardToggle = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+/* [ADD] 토글 버튼: width/height로 크기 제어 */
+S.BoardButton = styled.button`
+  width: ${({ $w }) => $w || "108px"};
+  height: ${({ $h }) => $h || "36px"};
+  border-radius: 8px;
+  border: 1px solid
+    ${({ theme, $active }) =>
+      $active ? (theme?.PALETTE?.primary?.blue?.main || "#2F6BFF") : (theme?.PALETTE?.neutral?.gray?.[300] || "#E5E7EB")};
+  background:
+    ${({ theme, $active }) =>
+      $active ? (theme?.PALETTE?.primary?.blue?.tinted || "#EAF2FF") : (theme?.PALETTE?.neutral?.white || "#FFFFFF")};
+  color:
+    ${({ theme, $active }) =>
+      $active ? (theme?.PALETTE?.primary?.blue?.main || "#2F6BFF") : (theme?.PALETTE?.neutral?.black?.primary || "#111827")};
+  font-weight: 600;
+  padding: 0;                /* 크기 고정을 위해 내부 패딩 제거 */
+  cursor: pointer;
+  line-height: 1;
+`;
+
+
 export default S;
