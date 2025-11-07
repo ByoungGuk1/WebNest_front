@@ -22,7 +22,8 @@ S.ListContainer = styled.div`
 S.Header = styled.div`
     display: flex;
     padding: 12px 16px 12px;
-    border-bottom: 1px solid #141216;
+    border-bottom: 1px solid ${theme.PALETTE.primary.purple.light};
+
     gap: 10px;
     ${h6Bold}
     
@@ -51,7 +52,7 @@ S.Cell = styled.div`
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    padding-left: ${({ paddingLeft}) => (paddingLeft ? '8px' : 'paddingLeft')};
+    padding-left: ${({ paddingLeft}) => (paddingLeft ? '8px' : 0)};
 
 `;
 
@@ -90,6 +91,7 @@ S.BookMark = styled.div`
     cursor: pointer;
     svg{
         transition: fill 0.2s;
+        cursor: pointer;
     }
 `
 S.BookMarkIcon = ({ active }) => (

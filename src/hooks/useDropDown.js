@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const useDropDown = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +19,6 @@ const useDropDown = () => {
             window.removeEventListener("click", drop)
         };
     }, []);
-
     return [isOpen, ref, removeHandler];
 };
 
