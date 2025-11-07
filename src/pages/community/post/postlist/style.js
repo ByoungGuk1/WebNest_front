@@ -1,10 +1,10 @@
+// src/pages/community/post/postlist/style.js
 // ./style.js
 import styled, { createGlobalStyle } from "styled-components";
 import {
   flexCenter,
   h3Bold,
-  h5Bold,
-  h5Medium,
+  h9Bold,
   h6Bold,
   h6Light,
   h6Medium,
@@ -14,7 +14,7 @@ import {
   h8Medium,
 } from "../../../../styles/common";
 import { Link } from "react-router-dom";
-
+import theme from "../../../../styles/theme";
 const S = {};
 
 /* ✅ 헤더 알람 팝오버를 항상 최상단으로 */
@@ -38,7 +38,6 @@ S.BannerWrap = styled.div`
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  z-index: -2; /* 보라 배너가 알람을 덮지 않도록 뒤로 */
 `;
 
 S.Banner = styled.div`
@@ -148,7 +147,9 @@ S.PopularCard = styled.div`
 `;
 
 S.PopularTitle = styled.div`
-  ${h5Bold}
+  ${h6Bold}
+  width: 266px;
+  height: 38px;
   margin: 21px 21px 6px;
   white-space: nowrap;
   overflow: hidden;
@@ -159,13 +160,14 @@ S.PopularTitle = styled.div`
 S.PopularPreview = styled.div`
   ${h6Light}
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+  width: 266px;
+  height: 96px;
   margin: 0 21px 6px;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  line-height: 1.4;
   word-break: break-word;
 `;
 
@@ -181,7 +183,7 @@ S.MetaWrap = styled.div`
   align-items: center;
   gap: 6px;
   color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
-  ${h7Medium}
+  ${h8Medium}
 
   b {
     font-weight: normal;
@@ -190,7 +192,8 @@ S.MetaWrap = styled.div`
 `;
 
 S.ProfileImg = styled.img`
-  width: 20px; height: 20px;
+  width: 18px; 
+  height: 18px;
   border-radius: 50%;
   object-fit: cover;
   background-color: #f5f5f5;
@@ -226,6 +229,13 @@ S.SortWrap = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 40px;
+
+  /* [ADD] 드롭다운 루트 클래스 높이 강제 */
+  & .dd-ctrl {
+    margin: -6px 0 6px 0;
+  }
+
 `;
 
 S.Select = styled.div`
@@ -259,7 +269,9 @@ S.WriteButton = styled.div`
   color: ${({ theme }) => theme.PALETTE.neutral.white.main};
   ${h6Bold}
   border-radius: 10px;
-  display: flex; justify-content: center; align-items: center;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
   margin: auto 0;
   cursor: pointer;
 
@@ -274,7 +286,7 @@ S.ListWrap = styled.div`
   margin: 50px auto 0;
   display: flex;
   flex-direction: column;
-  gap: 60px;
+  gap: 35px; ///---------------35px---------------------------------------------------
 `;
 
 S.Link = styled(Link)`
@@ -285,11 +297,12 @@ S.Link = styled(Link)`
 `;
 
 S.Row = styled.div`
+  height: 209px //--------------------------------------add
   display: flex;
   flex-direction: column;
   gap: 12px;
-  border-bottom: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
-  padding-bottom: 60px;
+  border-bottom: 1px solid ${({ theme }) => theme.PALETTE.neutral.white.dark};
+
 `;
 
 S.Tag = styled.div`
@@ -308,24 +321,25 @@ S.Tag = styled.div`
     lang === "HTML" ? "43px" :
     lang === "ORACLE" ? "54px" : "auto"};
   background-color: ${({ lang }) =>
-    lang === "JAVA" ? "#2ECC71" :
-    lang === "JS" ? "#F7DF1E" :
-    lang === "CSS" ? "#E74C3C" :
-    lang === "ORACLE" ? "#9B59B6" :
-    lang === "HTML" ? "#3498DB" : "#aaa"};
+    lang === "JAVA"  ? theme.PALETTE.primary.green.main :
+    lang === "JS" ? theme.PALETTE.primary.yellow.main :
+    lang === "CSS"  ? theme.PALETTE.primary.red.main :
+    lang === "ORACLE"  ? theme.PALETTE.primary.purple.main :
+    lang === "HTML" ? theme.PALETTE.primary.blue.main : "#aaa"};
 `;
 
 S.QuestionInfo = styled.div`
   display: flex;
   flex-direction: column;
+  gap:12 px //---------------------add
 `;
 
 S.QuestionTitle = styled.div`
-  ${h5Bold}
+  ${h6Bold}
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  margin: 0 0 12px 0;
+  white-space: nowrap; 
+  margin: 12px 0 12px 0;  ///////--------------none
 `;
 
 S.QuestionPreview = styled.div`
@@ -344,7 +358,7 @@ S.QuestionPreview = styled.div`
 S.MetaBlock = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;      /* 메타줄 ↔ 인기댓글 간격 */
+  gap: 20px;      /* 메타줄 ↔ 인기댓글 간격 */
   margin-top: 6px;
 `;
 
@@ -357,8 +371,8 @@ S.ListMetaRow = styled.div`
 S.TopCommentRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 0 0 20px;
+  gap: 6px;
+  padding: 0 0 30px 20px;
 `;
 
 S.TopCmtName = styled.span`
@@ -367,9 +381,10 @@ S.TopCmtName = styled.span`
 `;
 
 S.TopCmtContent = styled.span`
-  ${h7Medium}
+  ${h7Bold}
   color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
-  flex: 1;
+  gap: 12px; 
+  padding-top: 12px;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -379,12 +394,12 @@ S.TopCmtContent = styled.span`
 S.BestBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  height: 20px;
+  height: 18px;
   padding: 0 8px;
   border-radius: 999px;
   background-color: ${({ theme }) => theme.PALETTE.primary.green.main};
   color: #fff;
-  ${h8Bold}
+  ${h9Bold}
 `;
 
 /* ===================== 페이지네이션 ===================== */
