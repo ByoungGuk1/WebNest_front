@@ -7,9 +7,9 @@ import { useNavigate } from 'react-router-dom';
 const Modal = ({ toggleModal }) => {
 
     // 리덕스에서 있는 유저 아이디 가져오기
-    const customerId = useSelector(state => state.user.currentUser?.id)
+    const customerEmail = useSelector(state => state.user.currentUser.memberEmail)
     const naviagate = useNavigate()
-    console.log("customerId", customerId)
+    console.log("customerEmail", customerEmail)
     const {
         register, handleSubmit, getValues, watch, formState: { isSubmitting, isSubmitted, errors }
     } = useForm({
@@ -18,14 +18,14 @@ const Modal = ({ toggleModal }) => {
             myGameRoomType: 'PUBLIC',
         },
     })
-
     // watch hookform의 상태 변경 감지
     const roomType = watch("myChatRoomType");
 
     const handleSumbmitForm = handleSubmit(async (data) => {
         // 리덕스에 아이디 추가
-        data.customerId = customerId
-        await fetch(`${process.env.REACT_APP_BACKEND_URL}/chat-rooms/create-rooms`, {
+        console.log("data : ", data)
+        data.customerId = customerEmail
+        await fetch(`${process.env.REACT_APP_BACKEND_URL}/game-rooms/create-rooms`, {
             headers: {
                 "Content-Type": "application/json"
             },
@@ -60,10 +60,10 @@ const Modal = ({ toggleModal }) => {
                     </S.LeftTitle>
                     <S.RightInputWrap>
                         <S.RightInput
-                            type="text" placeholder='방제목 입력' name='myChatRoomName'
-                            {...register("myChatRoomName")}
+                            type="text" placeholder='방제목 입력' name='gameRoomTitle' 
+                            {...register("gameRoomTitle")}
                         />
-                        {errors && errors?.myChatRoomName?.type === "required" && (
+                        {errors && errors?.gameRoomTitle?.type === "required" && (
                             <p>방제목 입력하세요.</p>
                         )}
                         <S.RightInput type="password" placeholder='선택사랑 (20글자 내외)' />
@@ -71,8 +71,7 @@ const Modal = ({ toggleModal }) => {
                             <label>
                                 <p>방 비밀번호</p>
                                 <S.RightInput
-                                    type="text" placeholder='비밀번호 입력' name='myChatRoomPassword'
-                                    {...register("myChatRoomPassword")}
+                                    type="text" placeholder='비밀번호 입력'
                                 />
                             </label>
                         )}
