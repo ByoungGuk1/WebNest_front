@@ -11,19 +11,7 @@ export const setUser = createAction(SET_USER);
 export const setUserStatus = createAction(SET_USER_STATUS);
 
 const UserInitialValue = {
-  currentUser: {
-    id: 1,
-    userName: "홍길동",
-    userBirthday: "2020-05-05",
-    userEmail: "test123@test.com",
-    userPhone: "01012341234",
-    userExp: "0",
-    userLevel: "1",
-    userThumbnailName: "default",
-    userThumbnailUrl: "/default",
-    userNickname: "홍길동",
-    userProvider: "local",
-  },
+  currentUser: null,
   isLogin: false,
   previousUrl: "",
 };

@@ -5,14 +5,13 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import { setUserStatus } from "../../../modules/user";
 import { useState } from "react";
+
+import useGetUserData from "../../../hooks/useGetUserData";
 
 const SignInContainer = () => {
   const navigate = useNavigate();
-  const { isLogin } = useSelector((state) => state.user);
-  const dispatch = useDispatch();
+  const { currentUser, isLogin } = useGetUserData();
   const [isEyeOpen, setIsEyeOpen] = useState(false);
   const [showEmailSend, setShowEmailSend] = useState(false);
   const [showEmailVerify, setShowEmailVerify] = useState(false);
@@ -40,7 +39,6 @@ const SignInContainer = () => {
       .then(({ message, data }) => {
         let accessToken = data.accessToken;
         localStorage.setItem("accessToken", accessToken);
-        dispatch(setUserStatus(true));
         navigate("/");
       });
   });

@@ -132,18 +132,18 @@ const SignUp = () => {
 
           <Su.InputNameWrapper>
             <Su.InputName>전화번호</Su.InputName>
-            <Su.InputEssential>(필수)</Su.InputEssential>
+            <Su.InputEssential>(선택)</Su.InputEssential>
           </Su.InputNameWrapper>
           <Su.InputWrapper>
             <Su.Input
               type="tel"
               placeholder="01012345678"
               {...register("userPhone", {
-                required: "전화번호를 입력해주세요.",
-                pattern: {
-                  value: /^010\d{8}$/,
-                  message: "전화번호 형식이 올바르지 않습니다.",
-                },
+                validate: (value) =>
+                  !value ||
+                  /^010\d{8}$/.test(value) ||
+                  "전화번호 형식이 올바르지 않습니다.",
+                setValueAs: (v) => (v ? v.replace(/\D/g, "") : ""),
               })}
             />
           </Su.InputWrapper>
@@ -276,13 +276,13 @@ const SignUp = () => {
 
               <Su.InputNameWrapper>
                 <Su.InputName>생일</Su.InputName>
-                <Su.InputEssential>(필수)</Su.InputEssential>
+                <Su.InputEssential>(선택)</Su.InputEssential>
               </Su.InputNameWrapper>
               <Su.InputWrapper>
                 <Su.Input
                   type="date"
                   {...register("userBirthday", {
-                    required: "생일을 선택해주세요.",
+                    setValueAs: (v) => (v === "" ? null : v),
                   })}
                 />
               </Su.InputWrapper>
