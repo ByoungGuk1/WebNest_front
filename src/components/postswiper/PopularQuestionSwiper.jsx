@@ -5,7 +5,6 @@ import "swiper/css";
 import "swiper/css/navigation";
 import S from "pages/community/question/questionlist/style";
 
-
 const PopularQuestionSwiper = ({ popularPosts, prevRef, nextRef }) => {
   useEffect(() => {
     // Swiper navigation 버튼 참조 연결
@@ -44,24 +43,25 @@ const PopularQuestionSwiper = ({ popularPosts, prevRef, nextRef }) => {
           className="popularSwiper"
         >
           {popularPosts.map((post) => (
-            <SwiperSlide key={post.postId}>
-              <S.Link to={`/question/${post.postId}`}>
+            <SwiperSlide key={post.id}>
+              <S.Link to={`/question/${post.id}`}>
                 <S.PopularCard>
                   <S.PopularTitle>{post.postTitle}</S.PopularTitle>
                   <S.PopularPreview>{post.postContent}</S.PopularPreview>
                   <S.Info>
                     <S.MetaWrap>
                       <S.ProfileImg
-                        src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
-                        alt={post.author?.name || "익명"}
+                        src="/assets/images/defalutpro.svg"
+                        alt="익명"
                       />
-                      <span>{post.author?.name || "익명"}</span>
+                      <span>사용자 #{post.userId}</span>
                       <b>·</b>
-                      <span>조회 {post.views || 0}</span>
+                      <span>조회 {post.postViewCount || 0}</span>
                     </S.MetaWrap>
                     <S.Response>
                       <img src="/assets/icons/talktalk.svg" alt="댓글" />
-                      {post.answers?.length || 0}
+                      {/* 백엔드에서 댓글 수 포함되면 교체 */}
+                      0
                     </S.Response>
                   </S.Info>
                 </S.PopularCard>
