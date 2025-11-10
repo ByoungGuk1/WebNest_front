@@ -4,26 +4,42 @@ import { useNavigate } from "react-router-dom";
 
 const WriteContainer = () => {
   const [category1, setCategory1] = useState("");
-  const [category2, setCategory2] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
       alert("제목과 내용을 모두 입력해주세요!");
       return;
     }
 
-    console.log({
-      category1,
-      category2,
-      title,
-      content,
-    });
+    const postData = {
+      postType: "QUESTION", // 🔹 문제둥지 구분 (필요시 OPEN 등)
+      postTitle: title,
+      postContent: content,
+      postViewCount: 0,
+      userId: 1, // 🔹 로그인 기능 붙으면 실제 userId로 교체
+      postCreateAt: new Date().toISOString(),
+    };
 
-    alert("글이 등록되었습니다!");
-    navigate("/question");
+    try {
+      const response = await fetch("http://localhost:10000/post/write", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(postData),
+      });
+
+      if (!response.ok) throw new Error("서버 응답 실패");
+
+      alert("글이 성공적으로 등록되었습니다!");
+      navigate("/question");
+    } catch (error) {
+      console.error("❌ 글 등록 실패:", error);
+      alert("글 등록 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -43,17 +59,9 @@ const WriteContainer = () => {
         </S.PurpleBanner>
       </S.PurpleBannerWrap>
 
-
       <S.Container>
-        {/* 🟣 상단 제목 */}
-        {/* <S.TitleWrap>
-          <S.PageTitle>질문 작성</S.PageTitle>
-          <S.PageDesc>궁금한 문제를 올리고 함께 해결해보세요.</S.PageDesc>
-        </S.TitleWrap> */}
-
         {/* 🟢 카테고리 선택 */}
         <S.CategoryWrap>
-          {/* ✅ 주제 선택 */}
           <S.Select>
             <select value={category1} onChange={(e) => setCategory1(e.target.value)}>
               <option value="">주제 선택</option>
@@ -62,7 +70,7 @@ const WriteContainer = () => {
               <option value="html">HTML</option>
               <option value="css">CSS</option>
               <option value="oracle">Oracle</option>
-              <option value="선택없음">선택없음</option>
+              <option value="none">선택없음</option>
             </select>
           </S.Select>
         </S.CategoryWrap>
@@ -89,7 +97,6 @@ const WriteContainer = () => {
         </S.ButtonWrap>
       </S.Container>
     </>
-    
   );
 };
 
