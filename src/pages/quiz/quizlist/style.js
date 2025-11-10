@@ -58,7 +58,7 @@ S.Cell = styled.div`
 
 S.TitleLink = styled(Link)`
     color: ${theme.PALETTE.neutral.black.main};
-    font: ${h6Bold};
+    font-size: ${h6Bold};
     cursor: pointer;
     text-decoration: none;
     &:hover {

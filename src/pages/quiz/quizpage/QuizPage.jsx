@@ -91,15 +91,6 @@ const QuizPage = () => {
                 bookMarkId={bookMarkId}
                 quizTotalCount={quizTotalCount}
             />
-            {quizs.map((quiz, i) => (
-                <Link
-                    key={quiz.id}
-                    to={`/workspace/quiz/${quiz.id}`}
-                    state={{ quizs }}
-                >
-                    {quiz.quizTitle}
-                </Link>
-            ))}
         </div>
     );
 };

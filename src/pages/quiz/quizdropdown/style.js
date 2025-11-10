@@ -6,7 +6,7 @@ const S = {};
 
 S.DropContainer = styled.div`
     display: flex;
-    gap: 19px;
+    gap: 12px;
     padding: 46px 0 34px 0;
     `
 S.ButtonWrap = styled.div`
@@ -26,7 +26,8 @@ S.DropDownButton = styled.button`
     white-space: nowrap;
     background-color: ${({select}) => select ? "#924EFF" : "white"};
     color: ${({select}) => select ? "#FFFFFF" : "000000"};
-    ${h7Medium};
+    font-size: 15.5px;
+    font-weight: 600;
     `
 S.DropDownIconWrap = styled.svg`
     position: absolute;

@@ -297,12 +297,11 @@ S.Link = styled(Link)`
 `;
 
 S.Row = styled.div`
-  height: 209px //--------------------------------------add
+  height: 209px; //--------------------------------------add
   display: flex;
   flex-direction: column;
   gap: 12px;
   border-bottom: 1px solid ${({ theme }) => theme.PALETTE.neutral.white.dark};
-
 `;
 
 S.Tag = styled.div`

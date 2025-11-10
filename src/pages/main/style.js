@@ -209,8 +209,8 @@ S.SubP = styled.p`
 `
 
 S.StepBox = styled.div`
-  width: 68px;
-  height: 36px;
+  width: 58px;
+  height: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -222,18 +222,19 @@ S.StepBox = styled.div`
   }
 `
 S.TextArea = styled.div`
-  margin: 16px;
+  margin: 16px 0 24px 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+
   & span {
     font-size: ${({ theme }) => theme.FONT_SIZE.h2};
     font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    margin : 0 0 10px 0;
   }
   & p {
-    margin-top: 8px;
-    font-size: ${({ theme }) => theme.FONT_SIZE.h7};
-    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    margin-top: 6px;
+    font-size: ${({ theme }) => theme.FONT_SIZE.h6};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.medium};
   }
 `
 S.TextWrap = styled.div`
