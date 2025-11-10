@@ -22,7 +22,7 @@ const CodeEditor = ({ quizLanguage, id }) => {
     }
 
     const language = addEditorLanguage(quizLanguage);
-    const [code, setCode] = useState(''); // 코드입력칸
+    const [code, setCode] = useState(); // 코드입력칸
     const [output, setOutput] = useState('');
     const [data, setData] = useState(false);
 
@@ -35,43 +35,42 @@ const CodeEditor = ({ quizLanguage, id }) => {
     // 컨트롤러로 실행결과 보낼요청 그 결과값이나 에러메세지 보내주면됨 백엔드에서
     // 코드를 받고 컨트롤러에서 받은 코드와 DB에 저장된 기댓값이랑 다르면 ERROR, 가트면 SUCCESS
     const handleRun = async () => {
-        try {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/expectation`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    "quizId": id,
-                    "code": code,
-                    "language": quizLanguage
-                })
-            });
-            const json = await res.json();
-            console.log("json", json)
-            setOutput(json.message || "false")
-            setData(json.data)
-        } catch (err) {
-            setOutput("에러발생: " + err.message);
+
+        if (language === "javascript") {
+            let logs = [];
+
+            const originalLog = console.log;
+
+            console.log = (...args) => {
+                logs.push(args.join(' '));
+            };
+            try {
+                eval(code);
+                setOutput(logs.join('\n') || '결과 없음');
+            } catch (err) {
+                setOutput("에러 발생: " + err.message);
+            }
+            console.log = originalLog;
+        }else{
+            setOutput('')
+            setCode('')
         }
     }
-
     return (
         <div>
-            <S.Editor
+            <S.StyledEditor
+                height="600px"
                 defaultLanguage={language}
                 value={code}
                 onChange={(value) => setCode(value)}
-                theme='vs-light'
+                theme='vs-dark'
                 options={{
                     fontSize: 18,
-                    lineHeight: 30,         
-                    minimap: { enabled: false }, 
-                    wordWrap: 'on',         
+                    lineHeight: 30,
+                    minimap: { enabled: false },
+                    wordWrap: 'on',
                     scrollBeyondLastLine: false,
-                    
                 }}
-
             />
             <S.OutputBox>
                 <S.OutputTitle>실행 결과</S.OutputTitle>

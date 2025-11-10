@@ -1,14 +1,26 @@
-import { Editor } from "@monaco-editor/react";
 import styled from "styled-components";
 import { h6Medium } from "../../../../styles/common";
 import theme from "../../../../styles/theme";
+import { Editor, useMonaco } from "@monaco-editor/react";
+
 
 const S = {};
 
-S.Editor = styled(Editor)`
-    height: 800px;
-    border-bottom: 1px solid black;
+S.StyledEditor = styled(Editor)`
+    height: 600px;
+    .monaco-editor .view-lines{
+        width: 1100px;
+    }
+    .monaco-editor .scrollbar {
+        color: black;
+    }
+    .invisible .scrollbar .vertical .fade{
+        background-color: black;
+    }
+    
 `
+
+
 S.OutputBox = styled.div`
     position: relative;
     height: 158px;
