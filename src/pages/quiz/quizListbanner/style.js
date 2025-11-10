@@ -1,15 +1,10 @@
 import styled from "styled-components";
-import { flexCenter, h3Bold, h6Medium } from "../../../styles/common";
+import { flexCenter, h3Bold, h5Light, h6Light, h6Medium } from "../../../styles/common";
 
 const S = {};
 
 S.BannerWrap = styled.div`
-    width: 100vw;
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    margin-right: -50vw;
+    width: 100%;
 `;
 S.Banner = styled.div`
     width: 100%;
@@ -33,7 +28,7 @@ S.PageTitle = styled.div`
 `;
 
 S.PageDesc = styled.div`
-    ${h6Medium} 
+    ${h5Light} 
 `;
 
 S.Illust = styled.img`
