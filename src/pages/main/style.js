@@ -150,6 +150,7 @@ S.IntroFullWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 0 0 130px 0;
+  position: relative;
 
   & * {
     white-space: nowrap;
@@ -175,6 +176,13 @@ S.IntroStepWrap = styled.div`
   margin: 0 0 100px 0;
 `
 
+S.LevelBg = styled.img`
+  position: absolute;
+  width: 100%;
+  left: 0;
+  bottom: 0;
+  z-index: -1;
+`
 
 S.IntroTextWrap = styled.div`
   margin: 0 0 60px 0;

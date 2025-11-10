@@ -49,6 +49,7 @@ import QuestionPost from "../pages/searchresult/search-detail/QuestionPost";
 import OpenPost from "../pages/searchresult/search-detail/OpenPost";
 import QuizSearchDetail from "../pages/searchresult/search-detail/QuizSearchDetail";
 import FollowSearchDetail from "../pages/searchresult/search-detail/FollowSearchDetail";
+import SearchResult from "pages/searchresult/SearchResult";
 
 const router = createBrowserRouter([
   {
@@ -86,25 +87,26 @@ const router = createBrowserRouter([
       {
         path: "search",
         element: <SearchResultContainer />,
-      },
-      {
-        path: "search-detail",
         children: [
           {
+            index: true,
+            element: <SearchResult />
+          },
+          {
             path: "question-post",
-            element: <QuestionPost></QuestionPost>
+            element: <QuestionPost />
           },
           {
             path: "open-post",
-            element: <OpenPost></OpenPost>
+            element: <OpenPost />
           },
           {
             path: "quiz",
-            element: <QuizSearchDetail></QuizSearchDetail>
+            element: <QuizSearchDetail />
           },
           {
             path: "follow",
-            element: <FollowSearchDetail></FollowSearchDetail>
+            element: <FollowSearchDetail />
           }
         ]
       },

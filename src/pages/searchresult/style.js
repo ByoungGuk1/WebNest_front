@@ -36,9 +36,6 @@ S.InputWrap = styled.div`
 S.Text = styled.div`
   width: calc(1160px / 6);
   height: 92px;
-  border-bottom: 1px solid #D9d9d9;
-  border-bottom: ${({ $active }) => 
-    $active ? "10px solid #7255EE" : "1px solid #D9d9d9" };
   display: flex;
   justify-content: center;
   align-items: center;
@@ -56,5 +53,18 @@ S.TextWrap = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
+
+  & > a {
+    text-decoration: none;
+    color: #121212;
+  }
+
+  .border-bottom {
+    border-bottom: 1px solid #D9d9d9;
+  }
+
+  .active {
+    border-bottom: 3px solid #7255EE;
+  }
 `
   export default S;
