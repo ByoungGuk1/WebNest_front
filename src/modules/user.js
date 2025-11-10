@@ -12,9 +12,9 @@ export const setUserStatus = createAction(SET_USER_STATUS);
 
 const UserInitialValue = {
   currentUser: {
-    memberEmail: "test123@gmail.com",
-    memberName: "홍길동",
-    memberNickname: "만렙코더더",
+    userEmail: "test123@gmail.com",
+    userName: "홍길동",
+    userNickname: "만렙코더더",
     // ...
   },
   isLogin: false,
