@@ -400,13 +400,16 @@ S.Tab = styled.div`
 
 /* 빈결과 카드 */
 S.EmptyCard = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   min-height: 220px;
   border-top: 1px solid ${LINE};
   border-bottom: 1px solid ${LINE};
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 36px;
   padding: 40px 24px;
 `;
 
@@ -438,41 +441,46 @@ S.EmptyText = styled.div`
 S.HelpGrid = styled.div`
   width: 100%;
   border-top: 2px solid #cfe3ff;
-  padding-top: 32px;
-
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  border-bottom: 2px solid #cfe3ff;
+  display: flex;
+  height: 360px;
+  flex-direction: column;
+  justify-content: center;
+`;
+S.HelpTitle = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+`
+S.HelpContent =styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+`
+S.HelpToWrite = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 36px;
   gap: 24px;
-`;
+`
 
-S.HelpBox = styled.div`
-  padding: 8px 4px;
-
-  ul {
-    margin: 14px 0 0;
-    padding-left: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  li {
-    list-style: disc;
-  }
-
-  button {
-    background: transparent;
-    border: 0;
+S.CleanLinkTag = styled.a`
+  color: inherit;
+  text-decoration: none;
+  justify-content: center;
+  :hover{
     cursor: pointer;
-    padding: 0;
-    font-size: 16px;
-    text-decoration: underline;
   }
-`;
-
-S.HelpTitle = styled.h3`
-  margin: 0;
-  font-size: 20px;
-  font-weight: 800;
-`;
+`
+S.HelpLinkWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+`
+S.HelpTitleSpan = styled.span`
+  ${h4Bold}
+`
+S.HelpContentSpan = styled.span`
+  ${h6Medium}
+`
 export default S;

@@ -34,7 +34,7 @@ S.InputWrap = styled.div`
   }
 `
 S.Text = styled.div`
-  width: calc(1160px / 6);
+  width: calc(920px / 5);
   height: 92px;
   display: flex;
   justify-content: center;
