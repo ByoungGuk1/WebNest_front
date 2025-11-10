@@ -49,6 +49,7 @@ import QuestionPost from "../pages/searchresult/search-detail/QuestionPost";
 import OpenPost from "../pages/searchresult/search-detail/OpenPost";
 import QuizSearchDetail from "../pages/searchresult/search-detail/QuizSearchDetail";
 import FollowSearchDetail from "../pages/searchresult/search-detail/FollowSearchDetail";
+import WriteContainer from "pages/community/write/WriteContainer";
 
 const router = createBrowserRouter([
   {
@@ -130,7 +131,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/question/write",
-        element: <QuestionWriteContainer />,
+        element: <WriteContainer />,
       },
       {
         path: "/question/:questionId/write",
