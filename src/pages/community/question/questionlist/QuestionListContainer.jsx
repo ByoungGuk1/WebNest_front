@@ -36,7 +36,7 @@ const QuestionListContainer = () => {
   useEffect(() => {
     const getPosts = async () => {
       try {
-        const response = await fetch("http://localhost:10000/post/question");
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/post/question`);
         if (!response.ok) throw new Error("서버 통신 실패");
         const data = await response.json();
         setPosts(data);
