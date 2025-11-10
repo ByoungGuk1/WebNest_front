@@ -1,7 +1,7 @@
 import S from "./style";
 import QiuzDropDown from "./quizdropdown/QiuzDropDown";
-import QuizList from "./quizlist/QuizList";
 import QuizListBanner from "./quizListbanner/QuizListBanner";
+import QuizPage from "./quizpage/QuizPage";
 
 const QuizContainer = () => {
 
@@ -16,7 +16,7 @@ const QuizContainer = () => {
           {/* 드롭다운버튼 */}
           <QiuzDropDown />
           {/* 문제 리스트*/}
-          <QuizList />
+          <QuizPage />
         </S.InnerContainer>
       </S.AllContainer>
 
