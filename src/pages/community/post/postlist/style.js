@@ -1,9 +1,10 @@
-import styled from "styled-components";
+// src/pages/community/post/postlist/style.js
+// ./style.js
+import styled, { createGlobalStyle } from "styled-components";
 import {
   flexCenter,
   h3Bold,
-  h5Bold,
-  h5Medium,
+  h9Bold,
   h6Bold,
   h6Light,
   h6Medium,
@@ -13,10 +14,23 @@ import {
   h8Medium,
 } from "../../../../styles/common";
 import { Link } from "react-router-dom";
-
+import theme from "../../../../styles/theme";
 const S = {};
 
-/* 배너 */
+/* ✅ 헤더 알람 팝오버를 항상 최상단으로 */
+export const HeaderAlarmLayerFix = createGlobalStyle`
+  #header-alarm-popover,
+  .header-alarm-popover,
+  [data-layer="alarm-popover"] {
+    position: fixed !important;
+    z-index: 2147483646 !important; /* 최상위 */
+    top: var(--header-height, 64px);
+    right: max(16px, calc(50% - 580px)); /* 1160 컨테이너 우측 정렬 */
+    pointer-events: auto;
+  }
+`;
+
+/* ===================== 상단 배너 ===================== */
 S.BannerWrap = styled.div`
   width: 100vw;
   position: relative;
@@ -55,7 +69,7 @@ S.Illust = styled.img`
   height: auto;
 `;
 
-/* 전체 큰 틀 */
+/* ===================== 인기 질문 Swiper 영역 ===================== */
 S.Container = styled.div`
   position: relative;
   width: 1160px;
@@ -65,7 +79,6 @@ S.Container = styled.div`
   align-items: center;
 `;
 
-/* 좌우 버튼 */
 S.ArrowBtn = styled.button`
   position: absolute;
   top: calc(50% + 23px);
@@ -75,34 +88,24 @@ S.ArrowBtn = styled.button`
   border: none;
   border-radius: 50%;
   background-color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all 0.2s ease;
-  z-index: 10;
+  transition: transform .2s ease, background-color .2s ease;
+  z-index: 4; /* 카드/그라데이션 위로 */
 
-  &:hover {
-    transform: translateY(-55%);
-  }
+  &:hover { transform: translateY(-55%); }
 
   img {
-    width: 11px;
-    height: 18px;
-    display: block;
+    width: 11px; height: 18px; display: block;
   }
 
-  &.left {
-    left: -75px;
-  }
-
-  &.right {
-    right: -75px;
-  }
+  &.left { left: -75px; }
+  &.right { right: -75px; }
 `;
 
-/* 인기글 래퍼 */
 S.PopularWrap = styled.div`
   position: relative;
   display: flex;
@@ -111,31 +114,25 @@ S.PopularWrap = styled.div`
   flex-wrap: nowrap;
   width: 1160px;
   overflow: hidden;
+  z-index: 1;
 
-  .swiper {
-    width: 100%;
-    overflow: visible;
-  }
-
+  .swiper { width: 100%; overflow: visible; }
   .swiper-wrapper {
     display: flex !important;
     flex-direction: row !important;
     align-items: stretch;
   }
-
   .swiper-slide {
     height: auto !important;
     display: flex;
     justify-content: center;
   }
-
   .swiper-button-prev,
   .swiper-button-next {
-    display: none !important;
+    display: none !important; /* 커스텀 화살표 사용 */
   }
 `;
 
-/* 카드 */
 S.PopularCard = styled.div`
   width: 308px;
   height: 198px;
@@ -149,9 +146,10 @@ S.PopularCard = styled.div`
   justify-content: space-between;
 `;
 
-/* 제목 — 한 줄만, 초과 시 말줄임 */
 S.PopularTitle = styled.div`
-  ${h5Bold}
+  ${h6Bold}
+  width: 266px;
+  height: 38px;
   margin: 21px 21px 6px;
   white-space: nowrap;
   overflow: hidden;
@@ -159,17 +157,17 @@ S.PopularTitle = styled.div`
   max-width: calc(100% - 42px);
 `;
 
-/* 내용 — 최대 3줄까지만, 초과 시 ... */
 S.PopularPreview = styled.div`
   ${h6Light}
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+  width: 266px;
+  height: 96px;
   margin: 0 21px 6px;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
-  line-height: 1.4;
   word-break: break-word;
 `;
 
@@ -185,7 +183,7 @@ S.MetaWrap = styled.div`
   align-items: center;
   gap: 6px;
   color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
-  ${h7Medium}
+  ${h8Medium}
 
   b {
     font-weight: normal;
@@ -194,70 +192,69 @@ S.MetaWrap = styled.div`
 `;
 
 S.ProfileImg = styled.img`
-  width: 20px;
-  height: 20px;
+  width: 18px; 
+  height: 18px;
   border-radius: 50%;
   object-fit: cover;
   background-color: #f5f5f5;
 `;
 
 S.Response = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  display: flex; align-items: center; gap: 5px;
   ${h8Medium}
   color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
 
-  img {
-    width: 13px;
-    height: 13px;
-  }
+  img { width: 13px; height: 13px; }
 `;
 
-/* 오른쪽 그라데이션 */
+/* 오른쪽 페이드 */
 S.GradientRight = styled.div`
   position: absolute;
-  right: 0;
-  top: 0;
-  width: 120px;
-  height: 100%;
+  right: 0; top: 0;
+  width: 120px; height: 100%;
   pointer-events: none;
   background: linear-gradient(
     to left,
     white 20%,
-    rgba(255, 255, 255, 0.8) 50%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(255,255,255,0.8) 50%,
+    rgba(255,255,255,0) 100%
   );
-  z-index: 5;
+  z-index: 3;
 `;
 
-/* 정렬 + 글쓰기 */
+/* ===================== 정렬/글쓰기 영역 ===================== */
 S.SortWrap = styled.div`
   width: 1160px;
   margin: 46px auto 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 40px;
+
+  /* [ADD] 드롭다운 루트 클래스 높이 강제 */
+  & .dd-ctrl {
+    margin: -6px 0 6px 0;
+  }
+
 `;
 
 S.Select = styled.div`
   position: relative;
+
   select {
-    width: 120px;
-    height: 44px;
+    width: 120px; height: 44px;
     border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
     border-radius: 10px;
     color: ${({ theme }) => theme.PALETTE.neutral.black.main};
     ${h6Medium}
     cursor: pointer;
     padding: 0 40px 0 14px;
-    outline: none;
-    appearance: none;
+    outline: none; appearance: none;
     background-image: url("/assets/icons/downarrow.svg");
     background-repeat: no-repeat;
     background-size: 14px;
     background-position: calc(100% - 14px) center;
-    transition: all 0.2s ease;
+    transition: all .2s ease;
   }
 
   select option {
@@ -267,14 +264,13 @@ S.Select = styled.div`
 `;
 
 S.WriteButton = styled.div`
-  width: 113px;
-  height: 40px;
+  width: 113px; height: 40px;
   background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
   color: ${({ theme }) => theme.PALETTE.neutral.white.main};
   ${h6Bold}
   border-radius: 10px;
-  display: flex;
-  justify-content: center;
+  display: flex; 
+  justify-content: center; 
   align-items: center;
   margin: auto 0;
   cursor: pointer;
@@ -284,13 +280,13 @@ S.WriteButton = styled.div`
   }
 `;
 
-/* 리스트 */
+/* ===================== 리스트 ===================== */
 S.ListWrap = styled.div`
   width: 1160px;
   margin: 50px auto 0;
   display: flex;
   flex-direction: column;
-  gap: 60px;
+  gap: 35px; ///---------------35px---------------------------------------------------
 `;
 
 S.Link = styled(Link)`
@@ -301,11 +297,12 @@ S.Link = styled(Link)`
 `;
 
 S.Row = styled.div`
+  height: 209px //--------------------------------------add
   display: flex;
   flex-direction: column;
   gap: 12px;
-  border-bottom: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
-  padding-bottom: 60px;
+  border-bottom: 1px solid ${({ theme }) => theme.PALETTE.neutral.white.dark};
+
 `;
 
 S.Tag = styled.div`
@@ -318,42 +315,31 @@ S.Tag = styled.div`
   justify-content: center;
   white-space: nowrap;
   width: ${({ lang }) =>
-    lang === "JS"
-      ? "24px"
-      : lang === "JAVA"
-      ? "40px"
-      : lang === "CSS"
-      ? "33px"
-      : lang === "HTML"
-      ? "43px"
-      : lang === "ORACLE"
-      ? "54px"
-      : "auto"};
+    lang === "JS" ? "24px" :
+    lang === "JAVA" ? "40px" :
+    lang === "CSS" ? "33px" :
+    lang === "HTML" ? "43px" :
+    lang === "ORACLE" ? "54px" : "auto"};
   background-color: ${({ lang }) =>
-    lang === "JAVA"
-      ? "#2ECC71"
-      : lang === "JS"
-      ? "#F7DF1E"
-      : lang === "CSS"
-      ? "#E74C3C"
-      : lang === "ORACLE"
-      ? "#9B59B6"
-      : lang === "HTML"
-      ? "#3498DB"
-      : "#aaa"};
+    lang === "JAVA"  ? theme.PALETTE.primary.green.main :
+    lang === "JS" ? theme.PALETTE.primary.yellow.main :
+    lang === "CSS"  ? theme.PALETTE.primary.red.main :
+    lang === "ORACLE"  ? theme.PALETTE.primary.purple.main :
+    lang === "HTML" ? theme.PALETTE.primary.blue.main : "#aaa"};
 `;
 
 S.QuestionInfo = styled.div`
   display: flex;
   flex-direction: column;
+  gap:12 px //---------------------add
 `;
 
 S.QuestionTitle = styled.div`
-  ${h5Bold}
+  ${h6Bold}
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  margin: 0 0 12px 0;
+  white-space: nowrap; 
+  margin: 12px 0 12px 0;  ///////--------------none
 `;
 
 S.QuestionPreview = styled.div`
@@ -368,27 +354,25 @@ S.QuestionPreview = styled.div`
   margin: 0 0 20px 0;
 `;
 
-/* 메타+인기댓글 통합 래퍼 */
+/* 메타 + 인기댓글 래퍼 */
 S.MetaBlock = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;           /* 메타줄과 인기댓글 사이 간격 */
-  margin-top: 6px;    /* 본문 미리보기와의 간격 */
+  gap: 20px;      /* 메타줄 ↔ 인기댓글 간격 */
+  margin-top: 6px;
 `;
 
-/* 메타 한 줄 */
 S.ListMetaRow = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
 `;
 
-/* 인기 댓글 한 줄 */
 S.TopCommentRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 0 0 20px;
+  gap: 6px;
+  padding: 0 0 30px 20px;
 `;
 
 S.TopCmtName = styled.span`
@@ -397,9 +381,10 @@ S.TopCmtName = styled.span`
 `;
 
 S.TopCmtContent = styled.span`
-  ${h7Medium}
+  ${h7Bold}
   color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
-  flex: 1;
+  gap: 12px; 
+  padding-top: 12px;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -409,71 +394,54 @@ S.TopCmtContent = styled.span`
 S.BestBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  height: 20px;
+  height: 18px;
   padding: 0 8px;
   border-radius: 999px;
   background-color: ${({ theme }) => theme.PALETTE.primary.green.main};
   color: #fff;
-  ${h8Bold}
+  ${h9Bold}
 `;
 
-/* 페이지네이션 */
+/* ===================== 페이지네이션 ===================== */
 S.Pagination = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 6px;
-  margin: 100px 0 100px;
+  margin: 100px 0;
   position: relative;
 `;
 
 S.PageArrow = styled.button`
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
+  width: 32px; height: 32px;
+  border: none; border-radius: 50%;
   background-color: ${({ disabled }) =>
     disabled ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.05)"};
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: flex; justify-content: center; align-items: center;
   cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
-  transition: all 0.2s ease;
-
-  img {
-    width: 6px;
-    height: 12px;
-    opacity: ${({ disabled }) => (disabled ? 0.3 : 1)};
-  }
+  transition: background-color .2s ease;
+  
+  img { width: 6px; height: 12px; opacity: ${({ disabled }) => (disabled ? 0.3 : 1)}; }
 
   &:hover {
     background-color: ${({ disabled }) =>
       disabled ? "rgba(0,0,0,0.05)" : "rgba(0,0,0,0.1)"};
   }
 
-  &.left {
-    margin-right: 45px;
-  }
-
-  &.right {
-    margin-left: 45px;
-  }
+  &.left { margin-right: 45px; }
+  &.right { margin-left: 45px; }
 `;
 
 S.PageButton = styled.button`
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 50%;
-  background-color: ${({ $active }) =>
-    $active ? "#FFC107" : "transparent"};
+  width: 32px; height: 32px;
+  border: none; border-radius: 50%;
+  background-color: ${({ $active }) => ($active ? "#FFC107" : "transparent")};
   color: ${({ $active }) => ($active ? "#fff" : "#000")};
   ${h6Medium}
   cursor: pointer;
 
   &:hover {
-    background-color: ${({ $active }) =>
-      !$active ? "rgba(0,0,0,0.05)" : "#FFC107"};
+    background-color: ${({ $active }) => (!$active ? "rgba(0,0,0,0.05)" : "#FFC107")};
   }
 `;
 

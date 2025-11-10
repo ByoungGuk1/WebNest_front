@@ -2,12 +2,12 @@
   "posts": [
     {
       "postId": 1,
-      "postTitle": "JavaScript async/await이 너무 헷갈려요",
+      "postTitle": "JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요JavaScript async/await이 너무 헷갈려요 ",
       "postContent": "await를 써도 결과가 Promise로 나와요. 어떻게 동기처럼 만들 수 있나요?ㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄱㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄷㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹㄹ",
       "postLangTag": "JS",
-      "createdAt": "2025.01.02",
-      "likes": 42,
-      "views": 505,
+      "createdAt": "2025.11.6",
+      "likes": 15,
+      "views": 15,
       "author": {
         "name": "코린이",
         "profileImg": ""
@@ -33,7 +33,7 @@
       "postLangTag": "CSS",
       "createdAt": "2025.01.04",
       "likes": 5,
-      "views": 102,
+      "views": 14,
       "author": {
         "name": "백엔드초보",
         "profileImg": "/assets/images/imgimg.svg"
@@ -59,7 +59,7 @@
       "postLangTag": "HTML",
       "createdAt": "2025.01.06",
       "likes": 0,
-      "views": 77,
+      "views": 13,
       "author": {
         "name": "쿼리왕초보",
         "profileImg": "/assets/images/imgimg.svg"
@@ -73,7 +73,7 @@
       "postLangTag": "JAVA",
       "createdAt": "2025.01.07",
       "likes": 9,
-      "views": 188,
+      "views": 12,
       "author": {
         "name": "프론트입문러",
         "profileImg": "/assets/images/imgimg.svg"
@@ -87,7 +87,7 @@
       "postLangTag": "ORACLE",
       "createdAt": "2025.01.08",
       "likes": 23,
-      "views": 209,
+      "views": 11,
       "author": {
         "name": "정적러",
         "profileImg": "/assets/images/imgimg.svg"
@@ -113,7 +113,7 @@
       "postLangTag": "ORACLE",
       "createdAt": "2025.01.09",
       "likes": 1,
-      "views": 98,
+      "views": 11,
       "author": {
         "name": "SQL고민러",
         "profileImg": "/assets/images/imgimg.svg"
@@ -139,7 +139,7 @@
       "postLangTag": "JS",
       "createdAt": "2025.01.11",
       "likes": 0,
-      "views": 60,
+      "views": 10,
       "author": {
         "name": "비동기초보",
         "profileImg": "/assets/images/imgimg.svg"
@@ -153,7 +153,7 @@
       "postLangTag": "ORACLE",
       "createdAt": "2025.01.12",
       "likes": 4,
-      "views": 103,
+      "views": 9,
       "author": {
         "name": "DB입문자",
         "profileImg": "/assets/images/imgimg.svg"
@@ -167,7 +167,7 @@
       "postLangTag": "JS",
       "createdAt": "2025.01.13",
       "likes": 17,
-      "views": 149,
+      "views": 8,
       "author": {
         "name": "코드초보",
         "profileImg": "/assets/images/imgimg.svg"
@@ -193,7 +193,7 @@
       "postLangTag": "JAVA",
       "createdAt": "2025.01.14",
       "likes": 32,
-      "views": 271,
+      "views": 7,
       "author": {
         "name": "자바러버",
         "profileImg": "/assets/images/imgimg.svg"
@@ -219,7 +219,7 @@
       "postLangTag": "ORACLE",
       "createdAt": "2025.01.16",
       "likes": 8,
-      "views": 125,
+      "views": 6,
       "author": {
         "name": "쿼리연습생",
         "profileImg": "/assets/images/imgimg.svg"
@@ -245,7 +245,7 @@
       "postLangTag": "JS",
       "createdAt": "2025.01.18",
       "likes": 0,
-      "views": 74,
+      "views": 5,
       "author": {
         "name": "웹초보",
         "profileImg": "/assets/images/imgimg.svg"
@@ -271,7 +271,7 @@
       "postLangTag": "JAVA",
       "createdAt": "2025.01.19",
       "likes": 14,
-      "views": 189,
+      "views": 4,
       "author": {
         "name": "자료구조초보",
         "profileImg": "/assets/images/imgimg.svg"
@@ -297,7 +297,7 @@
       "postLangTag": "ORACLE",
       "createdAt": "2025.01.21",
       "likes": 2,
-      "views": 93,
+      "views": 3,
       "author": {
         "name": "성능고민러",
         "profileImg": "/assets/images/imgimg.svg"
@@ -311,7 +311,7 @@
       "postLangTag": "JS",
       "createdAt": "2025.01.22",
       "likes": 27,
-      "views": 230,
+      "views": 2,
       "author": {
         "name": "자바스크립트연습생",
         "profileImg": "/assets/images/imgimg.svg"
@@ -325,8 +325,8 @@
           "userLevel": 9,
           "followers": 418,
           "createdAt": "2025.01.23",
-          "likes": 33,
-          "comment": "for...in은 key 반복, for...of는 value 반복이에요!"
+          "likes": 0,
+          "comment": "for...in은 key 반복, for...of는 value 반복이에요!ashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedHashMap은 순서를 보장하지 않아요. LinkedH"
         },
         {
           "responder": {

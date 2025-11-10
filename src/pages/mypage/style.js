@@ -35,8 +35,7 @@ S.BannerInner = styled.div`
 
 /* ---------- 본문 공통 컨테이너 ---------- */
 S.Wrapper = styled.div`
-  width: 100%;
-  max-width: 1080px;
+  width: 1160px;
   margin: 0 auto;
   padding: 24px 16px;
 `;
