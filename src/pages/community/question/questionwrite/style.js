@@ -1,22 +1,10 @@
 import styled from "styled-components";
-import {
-  flexCenter,
-  h3Bold,
-  h6Medium,
-  h6Bold,
-  h7Medium,
-  h8Medium,
-  h7Bold,
-  h4Bold,
-  h7Light,
-  h5Bold,
-  h9Medium,
-} from "../../../../styles/common";
+import { flexCenter, h3Bold, h6Medium, h6Bold } from "../../../../styles/common";
 
 const S = {};
 
-/* 🟣 배너 */
-S.BannerWrap = styled.div`
+/* 🟣 상단 배너 */
+S.PurpleBannerWrap = styled.div`
   width: 100vw;
   position: relative;
   left: 50%;
@@ -25,15 +13,15 @@ S.BannerWrap = styled.div`
   margin-right: -50vw;
 `;
 
-S.Banner = styled.div`
+S.PurpleBanner = styled.div`
   width: 100%;
   height: 188px;
   background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
-  color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+  color: #ffffff;
   ${flexCenter}
 `;
 
-S.BannerInner = styled.div`
+S.PurpleBannerInner = styled.div`
   width: 1160px;
   margin: 0 auto;
   display: flex;
@@ -41,75 +29,136 @@ S.BannerInner = styled.div`
   align-items: center;
 `;
 
-S.PageTitle = styled.div`
+S.PurplePageTitle = styled.div`
   ${h3Bold}
 `;
 
-S.PageDesc = styled.div`
+S.PurplePageDesc = styled.div`
   ${h6Medium}
 `;
 
-S.Illust = styled.img`
+S.PurpleIllust = styled.img`
   width: 180px;
   height: auto;
 `;
 
-/* 🟡 본문 영역 */
-S.ContentWrap = styled.div`
+/* 전체 컨테이너 */
+S.Container = styled.div`
   width: 1160px;
-  margin: 60px auto;
+  margin: 50px auto 120px;
   display: flex;
   flex-direction: column;
-
-  /* ✅ 답변하기 버튼에 가리지 않게 여백 추가 */
-  padding-bottom: 100px;
-`;
-
-S.QuestionWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-S.QuestionTitle = styled.div`
-  ${h4Bold}
-  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
-  margin-bottom: 8px; /* ✅ 제목 아래 간격 */
-`;
-
-S.QuestionerInfo = styled.div`
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px; /* ✅ 프로필 아래 간격 */
 `;
 
-S.LeftBox = styled.div`
-  ${h7Bold}
+/* 답변 박스 (하얀 카드) */
+S.ResponseCard = styled.div`
+  width: 100%;
+  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
+  border-radius: 14px;
+  background-color: #fff;
+  /* box-shadow: 0 2px 5px rgba(0,0,0,0.05); */
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+/* 프로필 */
+S.ResponserInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+  font-size: 16px;
+  ${h6Bold};
 `;
 
 S.ProfileImg = styled.img`
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  object-fit: cover;
 `;
 
-S.FollowButton = styled.div`
+/* {} 코드 영역 */
+S.CodeBox = styled.div`
+  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: ${({ theme }) => theme.PALETTE.neutral.white.secondary};
+
+  .code-label {
+    background-color: ${({ theme }) => theme.PALETTE.neutral.gray.light};
+    color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    padding: 8px 12px;
+  }
+`;
+
+S.CodeInput = styled.textarea`
+  border: none;
+  outline: none;
+  resize: none;
+  min-height: 100px;
+  padding: 12px;
+  font-family: "Courier New", monospace;
+  ${h6Medium};
+  background-color: transparent;
+`;
+
+/* 답변 입력 textarea */
+S.InputResponse = styled.textarea`
+  width: 100%;
+  height: 200px;
+  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
+  border-radius: 10px;
+  padding: 16px;
+  ${h6Medium};
+  resize: none;
+  outline: none;
+  line-height: 1.6;
+  background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+
+  &:focus {
+    border-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+  }
+`;
+
+/* 버튼 */
+S.ButtonWrap = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+`;
+
+S.TempSaveBtn = styled.button`
+  padding: 10px 24px;
+  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.main};
+  border-radius: 10px;
+  background-color: white;
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
   cursor: pointer;
-  ${h7Bold}
-  color: ${({ theme }) => theme.PALETTE.primary.blue.main};
+  ${h6Medium};
+
+  &:hover {
+    background-color: ${({ theme }) => theme.PALETTE.neutral.white.secondary};
+  }
 `;
 
-S.QuestionContent = styled.div`
-  ${h6Medium}
-  word-break: break-word;
-  margin-bottom: 20px; /* ✅ 본문 아래 간격 */
+S.SubmitBtn = styled.button`
+  padding: 10px 24px;
+  border: none;
+  border-radius: 10px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+  color: white;
+  cursor: pointer;
+  ${h6Bold};
+
+  &:hover {
+    background-color: ${({ theme }) => theme.PALETTE.primary.purple.dark};
+  }
 `;
-
-
-
 
 export default S;

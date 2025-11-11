@@ -60,8 +60,7 @@ const PopularQuestionSwiper = ({ popularPosts, prevRef, nextRef }) => {
                     </S.MetaWrap>
                     <S.Response>
                       <img src="/assets/icons/talktalk.svg" alt="댓글" />
-                      {/* 백엔드에서 댓글 수 포함되면 교체 */}
-                      0
+                      {post.commentCount || 0}
                     </S.Response>
                   </S.Info>
                 </S.PopularCard>

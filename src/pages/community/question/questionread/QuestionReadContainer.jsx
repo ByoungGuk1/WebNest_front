@@ -7,6 +7,7 @@ const QuestionReadContainer = () => {
   const { questionId } = useParams();
   const [posts, setPosts] = useState(null);
   const [currentPost, setCurrentPost] = useState(null);
+  const [comments, setComments] = useState([]); // ✅ 백엔드 댓글 데이터
   const navigate = useNavigate();
 
   // 신고 관련 state
@@ -124,24 +125,31 @@ const QuestionReadContainer = () => {
     return `${y}년`;
   };
 
-  /* 데이터 로드 (백엔드 연동) */
+  /* ✅ 데이터 로드 (백엔드 연동) */
   useEffect(() => {
-    const fetchPost = async () => {
+    const loadData = async () => {
       try {
-        const response = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
-        if (!response.ok) throw new Error("서버 응답 실패");
-        const data = await response.json();
-        const postData = data.data || data;
+        // 🟣 게시글 데이터 불러오기
+        const postRes = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
+        if (!postRes.ok) throw new Error("게시글 불러오기 실패");
+        const postData = await postRes.json();
 
-        setCurrentPost(postData);
-        setPosts([postData]);
-        setPostLikeCount(postData.postViewCount || 0);
+        // 🟢 댓글(답변) 데이터 불러오기
+        const commentRes = await fetch(`http://localhost:10000/comment/${questionId}`);
+        if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
+        const commentData = await commentRes.json();
+
+        setCurrentPost(postData.data || postData);
+        setPosts([postData.data || postData]);
+        setComments(commentData.data || []);
+        setPostLikeCount(postData.data?.postViewCount || 0);
       } catch (err) {
-        console.error(" 게시글 불러오기 에러:", err);
+        console.error("❌ 데이터 로드 에러:", err);
         setCurrentPost(null);
+        setComments([]);
       }
     };
-    fetchPost();
+    loadData();
   }, [questionId]);
 
   if (!posts)
@@ -157,8 +165,6 @@ const QuestionReadContainer = () => {
     postCreateAt,
     postViewCount,
     userNickname,
-    postType,
-    answers,
   } = currentPost;
 
   return (
@@ -213,7 +219,7 @@ const QuestionReadContainer = () => {
         <S.AlarmBox>
           <S.AnswerCn>
             <span>답변</span>
-            <span>{answers?.length || 0}</span>
+            <span>{comments?.length || 0}</span>
           </S.AnswerCn>
 
           <S.LikeAndAlarm>
@@ -243,25 +249,23 @@ const QuestionReadContainer = () => {
           </S.LikeAndAlarm>
         </S.AlarmBox>
 
-        {/* 답변 리스트 */}
-        {answers && answers.length > 0 ? (
+        {/* ✅ 백엔드 댓글 매핑 */}
+        {comments && comments.length > 0 ? (
           <S.AnswerSection>
-            {answers.map((ans) => (
+            {comments.map((ans) => (
               <S.AnswerCard key={ans.id}>
                 <S.AnswerTop>
                   <S.UserInfo>
                     <S.AnswerProfile
-                      src={ans.responder?.profileImg || "/assets/images/defalutpro.svg"}
-                      alt={ans.responder?.userName || "익명"}
+                      src={"/assets/images/defalutpro.svg"}
+                      alt={ans.userNickname || "익명"}
                     />
                     <S.AnswerInnerBox>
                       <S.AnswerUser>
-                        <span>{ans.responder?.userName || "익명"}</span>
-                        <span>Lv.{ans.userLevel}</span>
+                        <span>{ans.userNickname || "익명"}</span>
                       </S.AnswerUser>
                       <S.AnswerMeta>
-                        <span>팔로워</span>
-                        <span>{ans.followers}명</span>
+                        <span>{toRelativeTime(ans.commentCreateAt)}</span>
                       </S.AnswerMeta>
                     </S.AnswerInnerBox>
                   </S.UserInfo>
@@ -271,14 +275,12 @@ const QuestionReadContainer = () => {
                   </S.ChooseAnswer>
                 </S.AnswerTop>
 
-                <S.AnswerContent>{ans.comment}</S.AnswerContent>
+                <S.AnswerContent>{ans.commentDescription}</S.AnswerContent>
 
                 <S.AnswerDate>
-                  <span>{toRelativeTime(ans.createAt)}</span>
-                  <b>·</b>
                   <AnswerLikeButton
                     isLiked={likedAnswers[ans.id]}
-                    likeCount={ans.likes + (likedAnswers[ans.id] ? 1 : 0)}
+                    likeCount={likedAnswers[ans.id] ? 1 : 0}
                     onToggleLike={() => handleAnswerLike(ans.id)}
                   />
                   <b>·</b>
@@ -306,6 +308,72 @@ const QuestionReadContainer = () => {
       <S.AnswerWriteButton onClick={handleWriteAnswer}>
         답변하기
       </S.AnswerWriteButton>
+      
+      {/* ⚠️ 신고 모달 */}
+      {isReportOpen && (
+        <S.ReportOverlay>
+          <S.ReportBox>
+            <S.ReportTitle>
+              신고하기
+              <S.CloseBtn onClick={handleCloseReport}>
+                <img src="/assets/icons/x.svg" alt="닫기" />
+              </S.CloseBtn>
+            </S.ReportTitle>
+
+            <S.ReportDesc>
+              신고 사유를 선택해주세요. <br />
+              <span>* 부적절한 내용은 관리자가 확인 후 조치합니다.</span>
+            </S.ReportDesc>
+
+            <S.ReportSelect
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+            >
+              <option value="">신고 사유를 선택하세요</option>
+              <option value="부적절한 언어 사용">부적절한 언어 사용</option>
+              <option value="스팸/홍보성 글">스팸/홍보성 글</option>
+              <option value="개인정보 노출">개인정보 노출</option>
+              <option value="허위 정보">허위 정보</option>
+              <option value="기타">기타</option>
+            </S.ReportSelect>
+
+            <S.ReportSubmit onClick={handleReportSubmit}>
+              신고하기
+            </S.ReportSubmit>
+          </S.ReportBox>
+        </S.ReportOverlay>
+      )}
+
+      {/* 💙 채택 모달 */}
+      {isChooseModalOpen && (
+        <S.ModalOverlay>
+          <S.ModalBox>
+            <S.ModalTitle>답변을 채택하시겠습니까?</S.ModalTitle>
+            <S.ModalDesc>
+              채택된 답변은 수정/삭제가 불가하며<br />
+              다른 답변을 채택할 수 없습니다.
+            </S.ModalDesc>
+            <S.ModalButtons>
+              <S.CancelBtn onClick={handleCancelChoose}>취소</S.CancelBtn>
+              <S.ConfirmBtn onClick={handleConfirmChoose}>채택하기</S.ConfirmBtn>
+            </S.ModalButtons>
+          </S.ModalBox>
+        </S.ModalOverlay>
+      )}
+
+      {/* 삭제 */}
+      {isDeleteModalOpen && (
+        <S.HamModalOverlay>
+          <S.HamModalBox>
+            <S.HamModalTitle>정말로 삭제하시겠습니까?</S.HamModalTitle>
+            <S.HamModalButtons>
+              <S.HamCancelBtn onClick={handleCancelDelete}>취소</S.HamCancelBtn>
+              <S.HamConfirmBtn onClick={handleConfirmDelete}>확인</S.HamConfirmBtn>
+            </S.HamModalButtons>
+          </S.HamModalBox>
+        </S.HamModalOverlay>
+      )}
+
     </>
   );
 };

@@ -5,19 +5,20 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import PopularQuestionSwiper from "components/postswiper/PopularQuestionSwiper";
-import { useNavigate } from "react-router-dom"; // ✅ 추가
+import { useNavigate } from "react-router-dom";
 
 const QuestionListContainer = () => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 7;
-  const [sortOption, setSortOption] = useState("최신글"); // ✅ 정렬 상태 유지
+  const [sortOption, setSortOption] = useState("최신글");
+  const [loading, setLoading] = useState(true); // ✅ 로딩 상태 추가
 
   const prevRef = useRef(null);
   const nextRef = useRef(null);
-  const navigate = useNavigate(); // ✅ 추가
+  const navigate = useNavigate();
 
-  // ✅ 날짜 포맷 함수 (상대적 표현)
+  // ✅ 날짜 포맷 함수
   const formatDate = (dateString) => {
     const now = new Date();
     const date = new Date(dateString);
@@ -34,29 +35,50 @@ const QuestionListContainer = () => {
       .padStart(2, "0")}.${date.getDate().toString().padStart(2, "0")}`;
   };
 
-  // ✅ 게시글 데이터 가져오기 (백엔드 연결)
+  // ✅ 게시글 데이터 가져오기 + 댓글 수 병합
   useEffect(() => {
     const getPosts = async () => {
       try {
-        const response = await fetch("http://localhost:10000/post/question"); // ✅ 백엔드 API
+        setLoading(true);
+        const response = await fetch("http://localhost:10000/post/question");
         if (!response.ok) throw new Error("문제둥지 데이터 불러오기 실패");
         const data = await response.json();
-        setPosts(data); // ✅ 백엔드에서 바로 배열 반환
+
+        // ✅ 게시글별 댓글 수 불러오기
+        const postsWithComments = await Promise.all(
+          data.map(async (post) => {
+            try {
+              const commentRes = await fetch(`http://localhost:10000/comment/${post.id}`);
+              if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
+              const commentData = await commentRes.json();
+              return {
+                ...post,
+                commentCount: commentData.data ? commentData.data.length : 0,
+              };
+            } catch (e) {
+              console.error(`❌ 댓글 로드 실패 (postId: ${post.id})`, e);
+              return { ...post, commentCount: 0 };
+            }
+          })
+        );
+
+        setPosts(postsWithComments);
       } catch (error) {
         console.error("❌ 데이터 로드 실패:", error);
+      } finally {
+        setLoading(false);
       }
     };
     getPosts();
   }, []);
 
-  // ✅ 정렬된 게시글 목록 (댓글순 포함)
+  // ✅ 정렬 로직
   const sortedPosts = [...posts].sort((a, b) => {
     if (sortOption === "조회순") {
       if (b.postViewCount !== a.postViewCount)
         return b.postViewCount - a.postViewCount;
       return new Date(b.postCreateAt) - new Date(a.postCreateAt);
     } else if (sortOption === "댓글순") {
-      // ⚠️ 댓글 수 필드가 없으므로 일단 임시 0으로 처리
       const diff = (b.commentCount || 0) - (a.commentCount || 0);
       if (diff !== 0) return diff;
       return new Date(b.postCreateAt) - new Date(a.postCreateAt);
@@ -65,18 +87,17 @@ const QuestionListContainer = () => {
     }
   });
 
-  // ✅ 인기 게시글 (조회수 기준 상위 8개)
+  // ✅ 인기 게시글 (조회수 상위 8개)
   const popularPosts = [...posts]
     .sort((a, b) => b.postViewCount - a.postViewCount)
     .slice(0, 8);
 
-  // ✅ 페이지네이션 계산
+  // ✅ 페이지네이션
   const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
   const indexOfLast = currentPage * postsPerPage;
   const indexOfFirst = indexOfLast - postsPerPage;
   const currentPosts = sortedPosts.slice(indexOfFirst, indexOfLast);
 
-  // ✅ 페이지 이동
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
@@ -84,14 +105,11 @@ const QuestionListContainer = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
   const handlePageClick = (num) => setCurrentPage(num);
-
-  // ✅ 정렬 변경 시 첫 페이지로 이동
   const handleSortChange = (e) => {
     setSortOption(e.target.value);
     setCurrentPage(1);
   };
 
-  // ✅ 페이지 바뀔 때 스크롤 맨 위로
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [currentPage]);
@@ -136,7 +154,9 @@ const QuestionListContainer = () => {
 
       {/* 🟢 질문 리스트 */}
       <S.ListWrap>
-        {currentPosts.length > 0 ? (
+        {loading ? (
+          <p>불러오는 중...</p>
+        ) : currentPosts.length > 0 ? (
           currentPosts.map((post) => (
             <S.Link to={`/question/${post.id}`} key={post.id}>
               <S.Row>
@@ -163,7 +183,7 @@ const QuestionListContainer = () => {
             </S.Link>
           ))
         ) : (
-          <p>불러오는 중...</p>
+          <p>게시글이 없습니다.</p>
         )}
       </S.ListWrap>
 
