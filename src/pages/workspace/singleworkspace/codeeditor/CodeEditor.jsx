@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 import S from './style';
 
 const CodeEditor = ({ quizLanguage, id }) => {
-    console.log("quizLanguage", quizLanguage)
-    console.log("quizId", id)
 
     const addEditorLanguage = (lang) => {
         switch (lang?.toUpperCase()) {

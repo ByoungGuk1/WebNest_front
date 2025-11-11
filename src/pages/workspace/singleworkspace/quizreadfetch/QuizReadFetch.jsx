@@ -26,7 +26,6 @@ const QuizReadFetch = () => {
                         body: JSON.stringify({}) // 토글이나 페이져가 없기떄문에 필터링없이 조회
                     });
                     const json = await res.json();
-                    console.log("json",json)
                     quizList = json.data;
                 }
 
@@ -46,14 +45,10 @@ const QuizReadFetch = () => {
         fetchQuizListAndCurrent();
     }, [quizid]);
 
-    console.log("quizs", quizs)
 
     const currentIndex = quizs.findIndex(q => q.id === Number(quizid))
     const prevQuiz = quizs[currentIndex - 1];
     const nextQuiz = quizs[currentIndex + 1];
-    console.log("현재 인덱스",currentIndex)
-    console.log("다음 인덱스",nextQuiz)
-    console.log("이전 인덱스",prevQuiz)
 
     useEffect(() => {
 
@@ -68,7 +63,6 @@ const QuizReadFetch = () => {
                 })
                 if (!response.ok) throw new Error("퀴즈 요청 실패")
                 const data = await response.json()
-                console.log("요청데이터:", data)
                 setQuiz(data.data)
             } catch (err) {
                 console.error(err)

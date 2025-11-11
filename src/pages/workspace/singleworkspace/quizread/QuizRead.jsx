@@ -1,9 +1,9 @@
 import React from 'react';
 import S from './style';
-import { Link } from 'react-router-dom';
 import CodeEditor from '../codeeditor/CodeEditor';
 
 const QuizRead = ({ quiz = {}, prevQuiz = {}, nextQuiz = {} }) => {
+
 
     const {
         id,
@@ -32,9 +32,6 @@ const QuizRead = ({ quiz = {}, prevQuiz = {}, nextQuiz = {} }) => {
         quizQuizExp: nextQuizExp,
     } = nextQuiz;
 
-    console.log("prev:", prevQuiz)
-    console.log("next:", nextQuiz)
-    console.log("props:", quiz)
     return (
         <S.QuizReadWrap>
             {/* 좌측 헤더 */}

@@ -5,7 +5,6 @@ console.log("QuizPage 렌더링됨");
 
 const parseFiltersFromSearch = (search) => {
     const params = new URLSearchParams(search);
-    console.log("search", search)
     return {
         quizLanguage: params.get('quizLanguage') || null,
         quizDifficult: params.get('quizDifficult') || null,
@@ -35,7 +34,6 @@ const QuizPage = () => {
         }
     }, []);
     const clickBookmark = (bookMarkId) => {
-        console.log("bookMarkId: ", bookMarkId)
         const id = Number(bookMarkId);
         setBookMarkId((prev) => {
             const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
@@ -58,18 +56,16 @@ const QuizPage = () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(filters) // RequestBody로 filters값들을 보냄
                 });
+                console.log("응답 :", res.status)
                 if (!res.ok) {
                     setQuizs([]);
                     setQuizTotalCount(0);
                     return;
                 }
-
                 const json = await res.json();
                 console.log("json:", json)
                 setQuizs(Array.isArray(json.data.findQuizList) ? json.data.findQuizList : []);
                 setQuizTotalCount(json.data.quizTotalCount)
-                console.log("json.data.findQuizList:", json.data.findQuizList);
-                console.log("첫 번째 퀴즈 객체:", json.data.findQuizList?.[0]);
 
             } catch (err) {
                 setQuizs([]);
@@ -80,8 +76,8 @@ const QuizPage = () => {
         };
         fetchByFilters();
     }, [location.search]); // 쿼리스트링에 값이 추가될 때마다 == 토글 선택마다 or 페이지 넘어갈때마다
-    console.log("QuizRead/ quizs:", quizs)
 
+    console.log("data:" , quizs)
     return (
         <div>
             <QuizList
