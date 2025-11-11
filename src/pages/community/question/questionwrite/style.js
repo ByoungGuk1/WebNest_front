@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { flexCenter, h3Bold, h6Medium, h6Bold } from "../../../../styles/common";
+import { flexCenter, h3Bold, h6Medium, h6Bold, h7Bold, h5Bold, h7Medium } from "../../../../styles/common";
 
 const S = {};
 
@@ -54,49 +54,95 @@ S.Container = styled.div`
 /* 답변 박스 (하얀 카드) */
 S.ResponseCard = styled.div`
   width: 100%;
+  height: 1000px;
   border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
   border-radius: 14px;
   background-color: #fff;
-  /* box-shadow: 0 2px 5px rgba(0,0,0,0.05); */
   padding: 30px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 `;
 
+
+/* 프로필 + 작성 버튼 감싸는 영역 */
+S.InfoAndWrite = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+S.ResponseBanner = styled.div`
+  display: flex;
+  gap: 15px;
+  align-items: center;
+`;
 /* 프로필 */
 S.ResponserInfo = styled.div`
   display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 16px;
-  ${h6Bold};
-`;
-
-S.ProfileImg = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-`;
-
-/* {} 코드 영역 */
-S.CodeBox = styled.div`
-  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
-  border-radius: 10px;
-  overflow: hidden;
-  display: flex;
   flex-direction: column;
-  background-color: ${({ theme }) => theme.PALETTE.neutral.white.secondary};
+  padding: 7px 0 0 0;
+  
 
-  .code-label {
-    background-color: ${({ theme }) => theme.PALETTE.neutral.gray.light};
+  /* 첫 번째 div (닉네임) */
+  & > div:first-child {
+    ${h7Bold}
+    color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+    line-height: 1.2;
+  }
+
+  /* 두 번째 div (안내 문구) */
+  & > div:last-child {
+    ${h5Bold}
     color: ${({ theme }) => theme.PALETTE.neutral.black.main};
-    font-family: "Courier New", monospace;
-    font-weight: bold;
-    padding: 8px 12px;
   }
 `;
 
+S.ProfileImg = styled.img`
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+`;
+
+/* 버튼 */
+S.ButtonWrap = styled.div`
+  display: flex;
+  justify-content: center;  /* ✅ 가로 가운데 */
+  align-items: center;      /* ✅ 세로 가운데 */
+  width: 113px;
+  height: 39px;
+  color: #FFFFFF;
+  ${h6Medium}
+  border-radius: 8px;
+  background-color: ${({ theme }) => theme.PALETTE.primary.blue.light};
+
+  &:hover {
+    background-color: ${({ theme }) => theme.PALETTE.primary.blue.main};
+  }
+`;
+
+
+/* {} 코드 영역 */
+S.CodeBox = styled.div`
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* 가로 기준 왼쪽 정렬 */
+  justify-content: flex-start; /* ✅ 세로 기준 위쪽 정렬 */
+  padding: 5px 0 0 0;
+  gap: 3px;
+`;
+
+S.CodeImg = styled.div`
+  padding: 0 0 0 15px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+`;
+S.SorceCode = styled.div`
+  ${h6Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+`;
 S.CodeInput = styled.textarea`
   border: none;
   outline: none;
@@ -110,55 +156,21 @@ S.CodeInput = styled.textarea`
 
 /* 답변 입력 textarea */
 S.InputResponse = styled.textarea`
-  width: 100%;
-  height: 200px;
+  /* width: 100%; */
+  height: 800px;
   border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
   border-radius: 10px;
   padding: 16px;
-  ${h6Medium};
+  ${h6Medium}
   resize: none;
   outline: none;
   line-height: 1.6;
-  background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+  background-color: ${({ theme }) => theme.PALETTE.neutral.white.secondary};
 
   &:focus {
     border-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
   }
 `;
 
-/* 버튼 */
-S.ButtonWrap = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-`;
-
-S.TempSaveBtn = styled.button`
-  padding: 10px 24px;
-  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.main};
-  border-radius: 10px;
-  background-color: white;
-  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
-  cursor: pointer;
-  ${h6Medium};
-
-  &:hover {
-    background-color: ${({ theme }) => theme.PALETTE.neutral.white.secondary};
-  }
-`;
-
-S.SubmitBtn = styled.button`
-  padding: 10px 24px;
-  border: none;
-  border-radius: 10px;
-  background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
-  color: white;
-  cursor: pointer;
-  ${h6Bold};
-
-  &:hover {
-    background-color: ${({ theme }) => theme.PALETTE.primary.purple.dark};
-  }
-`;
 
 export default S;

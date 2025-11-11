@@ -5,14 +5,14 @@ import { useNavigate } from "react-router-dom";
 
 const QuestionListContainer = () => {
   const [posts, setPosts] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 7;
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const postsPerPage = 7;
   const [sortOption, setSortOption] = useState("최신글");
   const [loading, setLoading] = useState(true); // ✅ 로딩 상태 추가
 
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
-  const navigate = useNavigate();
+  // const prevRef = useRef(null);
+  // const nextRef = useRef(null);
+  // const navigate = useNavigate();
 
   // ✅ 날짜 포맷 함수
   const formatDate = (dateString) => {
@@ -90,26 +90,26 @@ const QuestionListContainer = () => {
     .slice(0, 8);
 
   // ✅ 페이지네이션
-  const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
-  const indexOfLast = currentPage * postsPerPage;
-  const indexOfFirst = indexOfLast - postsPerPage;
-  const currentPosts = sortedPosts.slice(indexOfFirst, indexOfLast);
+  // const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
+  // const indexOfLast = currentPage * postsPerPage;
+  // const indexOfFirst = indexOfLast - postsPerPage;
+  // const currentPosts = sortedPosts.slice(indexOfFirst, indexOfLast);
 
-  const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
-  const handlePageClick = (num) => setCurrentPage(num);
-  const handleSortChange = (e) => {
-    setSortOption(e.target.value);
-    setCurrentPage(1);
-  };
+  // const handlePrev = () => {
+  //   if (currentPage > 1) setCurrentPage(currentPage - 1);
+  // };
+  // const handleNext = () => {
+  //   if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  // };
+  // const handlePageClick = (num) => setCurrentPage(num);
+  // const handleSortChange = (e) => {
+  //   setSortOption(e.target.value);
+  //   setCurrentPage(1);
+  // };
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "auto" });
-  }, [currentPage]);
+  // useEffect(() => {
+  //   window.scrollTo({ top: 0, behavior: "auto" });
+  // }, [currentPage]);
 
   return (
     <>
@@ -185,7 +185,7 @@ const QuestionListContainer = () => {
       </S.ListWrap>
 
       {/* 페이지네이션 */}
-      <S.Pagination>
+      {/* <S.Pagination>
         <S.PageArrow
           className="left"
           onClick={handlePrev}
@@ -211,7 +211,7 @@ const QuestionListContainer = () => {
         >
           <img src="/assets/icons/pnrightarrow.svg" alt="다음 페이지" />
         </S.PageArrow>
-      </S.Pagination>
+      </S.Pagination> */}
     </>
   );
 };
