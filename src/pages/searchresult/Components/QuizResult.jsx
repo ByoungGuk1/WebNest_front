@@ -1,78 +1,69 @@
-import React, { useMemo, useState } from 'react';
-import S from './style'
-const QuizResult = ({datas = [], search = "", count}) => {
-  const quizs = datas;
-  const counts = count;
-  const [bookMarkId, setBookMarkId] = useState([]);
-  const top10 = useMemo(() => {
-      return [...datas]
-        .sort((a, b) => (b.quizId ?? b.quizId ?? 0) - (a.quizId ?? a.quizId ?? 0))
-        .slice(0, 10);
-    }, [datas]);
-  const clickBookmark = (id) => {
-  setBookMarkId((prev) =>
-    prev.includes(id)
-      ? prev.filter((item) => item != id)
-      : [...prev, id]
-  )}
-  console.log(top10)
+// QuizList.jsx
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import S from './style';
+import Pagination from '../pagination/Pagination';
 
-  const replaceTag = top10.map((quiz) => {
-    let id = quiz.quizId
-    let quizDifficult = quiz.quizDefficult
-    let language = quiz.language
-    let title = quiz.quizTitle
-    let category = quiz.quizCategory
-    let isClear = quiz.isClear
-    let isLike = quiz.isLike
 
-    function fillBookMark(isLike){
-      if(isLike === true){ return <img src='/assets/icons/book-mark.png'></img>}
-      return <img src='/assets/icons/book-mark-nonLike.png'></img>
-    }
-    return(
-      <S.Row key={id}>
-        <S.BookMark onClick={() => clickBookmark(id)}>
-          <S.BookMarkIcon active={bookMarkId.includes(id)} />
-        </S.BookMark>
-        <S.Cell flex={0.6}>{id}</S.Cell>
-        <S.Cell flex={1}>
-          <S.Difficulty level={quizDifficult}>
-            {quizDifficult || "L1"}
-          </S.Difficulty>
-        </S.Cell>
-        <S.Cell flex={1}>{language}</S.Cell>
-        <S.Cell flex={3.5}>
-          <S.TitleLink to={`/workspace/quiz/${id}`}>
-            {title}
-          </S.TitleLink>
-        </S.Cell>
-        <S.Cell flex={2}>{category}</S.Cell>
-        <S.Cell flex={1}>
-          <S.Status isClear={isClear}>
-            {isClear ? "해결됨" : "미해결"}
-          </S.Status>
-        </S.Cell>
-      </S.Row>
-    )
-  })
+const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = [], quizTotalCount = 0 }) => {
 
-  return (
-    <S.AllContaner>
-      <S.Container>
-        <S.HeaderRow>
-          <div>훈련장 <span className="blue">{datas.length}</span></div>
-          <S.CleanLinkPlus to={`/search-detail/quiz?search=${encodeURIComponent(search)}`}>
-            <img src="/assets/icons/plus-black.png" alt="" />
-            더보기
-          </S.CleanLinkPlus>
-        </S.HeaderRow>
-        <S.RowWrap>
-          {replaceTag}
-        </S.RowWrap>
-      </S.Container>
-    </S.AllContaner>
-  );
+    const quizList = Array.isArray(quizs) && quizs.map((q, index) => {
+        const quiz = q.quiz || q;
+        const { id, quizDifficult, quizLanguage, quizTitle, quizCategory, solve = false } = quiz
+        if (!id && id == null) return null;
+        const ids = Number(id);
+        return (
+            <S.Row key={id ?? `quiz-${index}`}>
+                <S.BookMark value={sessionStorage.getItem("bookMarkId")} onClick={() => toggleBookmark(ids)}>
+                    <S.BookMarkIcon active={bookMarkId.includes(ids)} />
+                </S.BookMark>
+                <S.Cell flex={0.6} style={{ textAlign: 'left' }}>
+                    {Number.isFinite(ids) && ids > 0 ? `000${ids}` : id}
+                </S.Cell>
+                <S.Cell flex={1}>
+                    <S.Difficulty level={quizDifficult}>
+                        {quizDifficult || 'L1'}
+                    </S.Difficulty>
+                </S.Cell>
+                <S.Cell flex={1}>{quizLanguage}</S.Cell>
+                <S.Cell flex={3.5}>
+                    <S.TitleLink as={Link} to={`/workspace/quiz/${ids}`}>
+                        {quizTitle}
+                    </S.TitleLink>
+                </S.Cell>
+                <S.Cell flex={2}>{quizCategory}</S.Cell>
+                <S.Cell flex={1}>
+                    <S.Status isClear={solve}>
+                        {solve ? '해결됨' : '미해결'}
+                    </S.Status>
+                </S.Cell>
+            </S.Row>
+        );
+    })
+
+
+    return (
+        <S.ListContainer>
+            <S.Header>
+                <S.Cell flex={0.6} style={{ textAlign: 'left' }}>#문제</S.Cell>
+                <S.Cell flex={1} paddingLeft>난이도</S.Cell>
+                <S.Cell flex={1}>언어</S.Cell>
+                <S.Cell flex={3.5}>제목</S.Cell>
+                <S.Cell flex={2}>유형</S.Cell>
+                <S.Cell flex={1}>해결 여부</S.Cell>
+            </S.Header>
+
+            {loading && <div>로딩중...</div>}
+
+            {Array.isArray(quizs) && quizs.length === 0 && !loading && (
+                <div>표시할 문제가 없습니다.</div>
+            )}
+            {quizList}
+
+
+            <Pagination totalCount={quizTotalCount} />
+        </S.ListContainer>
+    );
 };
 
-export default QuizResult;
+export default QuizList;

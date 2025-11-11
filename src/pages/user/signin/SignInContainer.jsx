@@ -15,7 +15,6 @@ const SignInContainer = () => {
   const [isEyeOpen, setIsEyeOpen] = useState(false);
   const [showEmailSend, setShowEmailSend] = useState(false);
   const [showEmailVerify, setShowEmailVerify] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -38,6 +37,7 @@ const SignInContainer = () => {
       .then((res) => {
         if(!res.ok) { 
           throw new Error('로그인 실패');
+          
         }
         return res.json()
       })
@@ -48,6 +48,7 @@ const SignInContainer = () => {
       })
       .catch((error) => {
         console.log("로그인 실패");
+        console.log("res.ok!!!")
       })
   });
 
