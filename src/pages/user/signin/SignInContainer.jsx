@@ -35,12 +35,20 @@ const SignInContainer = () => {
       credentials: "include",
       body: JSON.stringify(member),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if(!res.ok) { 
+          throw new Error('로그인 실패');
+        }
+        return res.json()
+      })
       .then(({ message, data }) => {
         let accessToken = data.accessToken;
         localStorage.setItem("accessToken", accessToken);
         navigate("/");
-      });
+      })
+      .catch((error) => {
+        console.log("로그인 실패");
+      })
   });
 
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
