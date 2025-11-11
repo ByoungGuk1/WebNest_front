@@ -1,11 +1,7 @@
 import { SearchResultContext } from 'context/SearchResultContext';
 import React, { useContext } from 'react';
-import QuestionPostResult from './Components/QuestionPostResult';
-import UserResult from './Components/UserResult';
 import S from './style';
 import NoResult from './Components/NoResult';
-import QuizResult from './Components/QuizResult';
-import OpenPostResult from './Components/OpenPostResult';
 
 const SearchResult = () => {
 
