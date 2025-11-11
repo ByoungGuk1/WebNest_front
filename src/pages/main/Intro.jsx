@@ -3,6 +3,7 @@ import S from "./style";
 import { Link } from 'react-router-dom';
 
 const Intro = () => {
+
   return (
     <S.IntroFullWrapper>
       <S.IntroStepWrap>
@@ -75,10 +76,11 @@ const Intro = () => {
         </S.StepWrap>
       </S.IntroStepWrap>
       {/* -----=  level 레이아웃  =----- */}
+      <S.LevelBg className='level-bg' src={`${process.env.PUBLIC_URL}/assets/images/challenge-bg.svg`} alt="배경이미지" />
       <div>
         <S.LvText>
-          <span class='blue'>Web</span>
-          <span class='green'>Nest</span>
+          <span className='blue'>Web</span>
+          <span className='green'>Nest</span>
           <span>&nbsp;&nbsp;레벨 시스템</span>
         </S.LvText>
 

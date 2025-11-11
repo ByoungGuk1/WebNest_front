@@ -48,7 +48,7 @@ S.QuizLeftTextLink = styled(Link)`
 `
 // 왼쪽 퀴즈설명부분
 S.QuizLeftMiddleWrap = styled.div`
-    height: 800px;
+    height: 600px;
     border-right: 1px solid black;
     display: flex;
     flex-direction: column;

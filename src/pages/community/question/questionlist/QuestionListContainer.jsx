@@ -1,21 +1,20 @@
 import { useEffect, useState, useRef } from "react";
 import S from "./style";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
 import PopularQuestionSwiper from "components/postswiper/PopularQuestionSwiper";
+import { useNavigate } from "react-router-dom";
 
 const QuestionListContainer = () => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 7;
   const [sortOption, setSortOption] = useState("최신글");
+  const [loading, setLoading] = useState(true); // ✅ 로딩 상태 추가
 
   const prevRef = useRef(null);
   const nextRef = useRef(null);
+  const navigate = useNavigate();
 
-  // 날짜 포맷 함수 (상대적 표현)
+  // ✅ 날짜 포맷 함수
   const formatDate = (dateString) => {
     const now = new Date();
     const date = new Date(dateString);
@@ -32,31 +31,52 @@ const QuestionListContainer = () => {
       .padStart(2, "0")}.${date.getDate().toString().padStart(2, "0")}`;
   };
 
-  // 게시글 데이터 가져오기
+  // ✅ 게시글 데이터 가져오기 + 댓글 수 병합
   useEffect(() => {
-    const getPosts = async () => {
-      try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/post/question`);
-        if (!response.ok) throw new Error("서버 통신 실패");
-        const data = await response.json();
-        setPosts(data);
-      } catch (err) {
-        console.error("데이터 불러오기 에러:", err);
-        setPosts([]);
-      }
-    };
+  const getPosts = async () => {
+    try {
+      const response = await fetch("http://localhost:10000/post/question");
+      if (!response.ok) throw new Error("문제둥지 데이터 불러오기 실패");
+      const data = await response.json();
+      const rawData = Array.isArray(data.data) ? data.data : data;
 
-    getPosts();
-  }, []);
+      const postsWithComments = await Promise.all(
+        rawData.map(async (post) => {
+          try {
+            const commentRes = await fetch(`http://localhost:10000/comment/${post.id}`);
+            if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
+            const commentData = await commentRes.json();
+            const commentCount = Array.isArray(commentData.data)
+              ? commentData.data.length
+              : 0;
 
-  // 정렬된 게시글 목록
+            return { ...post, commentCount };
+          } catch (e) {
+            console.error(`❌ 댓글 로드 실패 (postId: ${post.id})`, e);
+            return { ...post, commentCount: 0 };
+          }
+        })
+      );
+
+      setPosts(postsWithComments);
+    } catch (error) {
+      console.error("❌ 데이터 로드 실패:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  getPosts();
+}, []);
+
+
+  // ✅ 정렬 로직
   const sortedPosts = [...posts].sort((a, b) => {
     if (sortOption === "조회순") {
       if (b.postViewCount !== a.postViewCount)
         return b.postViewCount - a.postViewCount;
       return new Date(b.postCreateAt) - new Date(a.postCreateAt);
     } else if (sortOption === "댓글순") {
-      const diff = (b.answers?.length || 0) - (a.answers?.length || 0);
+      const diff = (b.commentCount || 0) - (a.commentCount || 0);
       if (diff !== 0) return diff;
       return new Date(b.postCreateAt) - new Date(a.postCreateAt);
     } else {
@@ -64,18 +84,17 @@ const QuestionListContainer = () => {
     }
   });
 
-  // 인기 게시글 (조회수 기준 상위 8개)
+  // ✅ 인기 게시글 (조회수 상위 8개)
   const popularPosts = [...posts]
     .sort((a, b) => b.postViewCount - a.postViewCount)
     .slice(0, 8);
 
-  // 페이지네이션 계산
+  // ✅ 페이지네이션
   const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
   const indexOfLast = currentPage * postsPerPage;
   const indexOfFirst = indexOfLast - postsPerPage;
   const currentPosts = sortedPosts.slice(indexOfFirst, indexOfLast);
 
-  // 페이지 이동
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
@@ -83,21 +102,18 @@ const QuestionListContainer = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
   const handlePageClick = (num) => setCurrentPage(num);
-
-  // 정렬 변경 시 첫 페이지로 이동
   const handleSortChange = (e) => {
     setSortOption(e.target.value);
     setCurrentPage(1);
   };
 
-  // 페이지 바뀔 때 스크롤 맨 위로
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [currentPage]);
 
   return (
     <>
-      {/* 상단 배너 */}
+      {/* 🟣 상단 배너 */}
       <S.BannerWrap>
         <S.Banner>
           <S.BannerInner>
@@ -112,7 +128,7 @@ const QuestionListContainer = () => {
         </S.Banner>
       </S.BannerWrap>
 
-      {/* 인기 질문 Swiper */}
+      {/* ⚪ 인기 질문 Swiper */}
       <PopularQuestionSwiper
         popularPosts={popularPosts}
         prevRef={prevRef}
@@ -128,12 +144,16 @@ const QuestionListContainer = () => {
             <option>댓글순</option>
           </select>
         </S.Select>
-        <S.WriteButton>글쓰기</S.WriteButton>
+        <S.WriteButton onClick={() => navigate("/question/write")}>
+          글쓰기
+        </S.WriteButton>
       </S.SortWrap>
 
-      {/* 질문 리스트 */}
+      {/* 🟢 질문 리스트 */}
       <S.ListWrap>
-        {currentPosts.length > 0 ? (
+        {loading ? (
+          <p>불러오는 중...</p>
+        ) : currentPosts.length > 0 ? (
           currentPosts.map((post) => (
             <S.Link to={`/question/${post.id}`} key={post.id}>
               <S.Row>
@@ -143,24 +163,24 @@ const QuestionListContainer = () => {
                   <S.QuestionPreview>{post.postContent}</S.QuestionPreview>
                   <S.QuestionMetaWrap>
                     <S.QuestionProfileImg
-                      src={"/assets/images/defalutpro.svg"}
-                      alt={post.userNickname || "익명"}
+                      src="/assets/images/defalutpro.svg"
+                      alt="익명"
                     />
-                    <span>{post.userNickname || "익명"}</span>
+                    <span>사용자 #{post.userId}</span>
                     <b>·</b>
                     <span>{formatDate(post.postCreateAt)}</span>
                     <b>·</b>
                     <span>조회 {post.postViewCount || 0}</span>
                     <b>·</b>
                     <img src="/assets/icons/talktalk.svg" alt="댓글" />
-                    <span>{post.answers?.length || 0}</span>
+                    <span>{post.commentCount || 0}</span>
                   </S.QuestionMetaWrap>
                 </S.QuestionInfo>
               </S.Row>
             </S.Link>
           ))
         ) : (
-          <p>불러오는 중...</p>
+          <p>게시글이 없습니다.</p>
         )}
       </S.ListWrap>
 
