@@ -15,6 +15,21 @@ S.GameRoomBackGround = styled.div`
     justify-content: center;
 `
 
+S.LayoutWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+`
+
+S.ListWrapper = styled.div`
+    display: flex;
+    gap: 40px;
+`
+
+S.RoomListWrapper = styled.div`
+    width: 100%;
+`
+
 
 
 export default S;

@@ -9,7 +9,6 @@ S.LeftInterFaceWrap = styled.div`
     height: 633px;
     display: flex;
     flex-direction: column;
-    margin-top: 14px;
     gap: 42px;
 `
 S.LeftFriendWrap = styled.div`
