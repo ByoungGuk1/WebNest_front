@@ -3,7 +3,7 @@ import Su from "../style";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
-import { useNavigate } from "react-router-dom";
+import { replace, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 
@@ -50,15 +50,15 @@ const SignInContainer = () => {
     await trigger("email");
   };
 
-  const alreadyLogin = () => {
-    if (isLogin) {
-      navigate("/");
-    }
-  };
+  if(isLogin){
+    navigate("/", {
+      replace: true // 왔던 기록 삭제
+    })
+    return;
+  }
 
   return (
     <div>
-      {alreadyLogin()}
       <Su.ContentContainer>
         <Su.LogoWrapper>
           <Su.LogoGrean>Web</Su.LogoGrean>

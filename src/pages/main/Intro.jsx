@@ -3,6 +3,7 @@ import S from "./style";
 import { Link } from 'react-router-dom';
 
 const Intro = () => {
+
   return (
     <S.IntroFullWrapper>
       <S.IntroStepWrap>
