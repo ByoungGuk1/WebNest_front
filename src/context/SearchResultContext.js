@@ -10,10 +10,6 @@ export const SearchResultProvider = ({children}) => {
   const [questionPosts, setQuestionPosts] = useState([])
   const [quizzes, setQuizzes] = useState([])
   const [users, setUsers] = useState([])
-  // console.log(search)
-  // console.log(openPosts)
-  // console.log(questionPosts)
-  // console.log(quizzes)
   const value = {
     state: {
       search: search,
@@ -54,7 +50,6 @@ export const SearchResultProvider = ({children}) => {
         })
 
   }, [search, isSearchUpdate])
-  console.log(openPosts + "openPosts")
 
   return (
     <SearchResultContext.Provider value={value}>
