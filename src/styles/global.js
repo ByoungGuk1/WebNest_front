@@ -114,7 +114,12 @@ const GlobalStyle = createGlobalStyle`
     color: ${({ theme }) => theme.PALETTE.neutral.black.main};
   }
 
+  * {
+    font-family: 'pretendard';
+  }
+
   button {
+    font-family: 'pretendard';
     cursor: pointer;
     border: none;
   }

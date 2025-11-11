@@ -1,80 +1,47 @@
 // QuizList.jsx
-import React, { useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import S from './style';
 import Pagination from '../pagination/Pagination';
 
-const parseFiltersFromSearch = (search) => {
-    const params = new URLSearchParams(search);
-    return {
-        quizLanguage: params.get('quizLanguage') || null,
-        quizDifficult: params.get('quizDifficult') || null,
-        solve: params.get('solve') || null,
-        keyword: params.get('keyword') || null,
-        page: Number(params.get('page')) || 1
-    };
-};
+
+const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = [], quizTotalCount = 0 }) => {
+
+    const quizList = Array.isArray(quizs) && quizs.map((q, index) => {
+        const quiz = q.quiz || q;
+        const { id, quizDifficult, quizLanguage, quizTitle, quizCategory, solve = false } = quiz
+        if (!id && id == null) return null;
+        const ids = Number(id);
+        return (
+            <S.Row key={id ?? `quiz-${index}`}>
+                <S.BookMark value={sessionStorage.getItem("bookMarkId")} onClick={() => toggleBookmark(ids)}>
+                    <S.BookMarkIcon active={bookMarkId.includes(ids)} />
+                </S.BookMark>
+                <S.Cell flex={0.6} style={{ textAlign: 'left' }}>
+                    {Number.isFinite(ids) && ids > 0 ? `000${ids}` : id}
+                </S.Cell>
+                <S.Cell flex={1}>
+                    <S.Difficulty level={quizDifficult}>
+                        {quizDifficult || 'L1'}
+                    </S.Difficulty>
+                </S.Cell>
+                <S.Cell flex={1}>{quizLanguage}</S.Cell>
+                <S.Cell flex={3.5}>
+                    <S.TitleLink as={Link} to={`/workspace/quiz/${ids}`}>
+                        {quizTitle}
+                    </S.TitleLink>
+                </S.Cell>
+                <S.Cell flex={2}>{quizCategory}</S.Cell>
+                <S.Cell flex={1}>
+                    <S.Status isClear={solve}>
+                        {solve ? '해결됨' : '미해결'}
+                    </S.Status>
+                </S.Cell>
+            </S.Row>
+        );
+    })
 
 
-const QuizList = () => {
-    const location = useLocation();
-    const [quizs, setQuizs] = useState([]);
-    const [bookMarkId, setBookMarkId] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [quizTotalCount, setQuizTotalCount] = useState();
-
-    // 북마크기능
-    useEffect(() => {
-        const session = sessionStorage.getItem("bookMarkId");
-        if (session != null) {
-            const parse = JSON.parse(session);
-
-            if (Array.isArray(parse)) {
-                setBookMarkId(parse.map((data) => Number(data)))
-            }
-        }
-    }, []);
-    const clickBookmark = (bookMarkId) => {
-        console.log("bookMarkId: ", bookMarkId)
-        const id = Number(bookMarkId);
-        setBookMarkId((prev) => {
-            const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-            sessionStorage.setItem("bookMarkId", JSON.stringify(next));
-
-            return next;
-        })
-    };
-
-    // 문제리스트 요청청
-    useEffect(() => {
-        const filters = parseFiltersFromSearch(location.search);
-
-        const fetchByFilters = async () => {
-            setLoading(true);
-            try {
-                const url = `${process.env.REACT_APP_BACKEND_URL}/quiz`; // POST 엔드포인트
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(filters) // RequestBody로 filters값들을 보냄
-                });
-                if (!res.ok) {
-                    setQuizs([]);
-                    return;
-                }
-
-                const json = await res.json();
-                setQuizs(Array.isArray(json.data.findQuizList) ? json.data.findQuizList : []);
-                setQuizTotalCount(json.data.quizTotalCount)
-            } catch (err) {
-                setQuizs([]);
-                setQuizTotalCount();
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchByFilters();
-    }, [location.search]); // 쿼리스트링에 값이 추가될 때마다 == 토글 선택마다 or 페이지 넘어갈때마다
     return (
         <S.ListContainer>
             <S.Header>
@@ -91,38 +58,9 @@ const QuizList = () => {
             {Array.isArray(quizs) && quizs.length === 0 && !loading && (
                 <div>표시할 문제가 없습니다.</div>
             )}
+            {quizList}
 
-            {Array.isArray(quizs) && quizs.map((quiz, index) => {
-                if (!quiz) return null;
-                const id = Number(quiz.id);
-                return (
-                    <S.Row key={quiz.id ?? `quiz-${index}`}>
-                        <S.BookMark value={sessionStorage.getItem("bookMarkId")} onClick={() => clickBookmark(id)}>
-                            <S.BookMarkIcon active={bookMarkId.includes(id)} />
-                        </S.BookMark>
-                        <S.Cell flex={0.6} style={{ textAlign: 'left' }}>
-                            {Number.isFinite(id) && id > 0 ? `000${id}` : quiz.id}
-                        </S.Cell>
-                        <S.Cell flex={1}>
-                            <S.Difficulty level={quiz.quizDifficult}>
-                                {quiz.quizDifficult || 'L1'}
-                            </S.Difficulty>
-                        </S.Cell>
-                        <S.Cell flex={1}>{quiz.quizLanguage}</S.Cell>
-                        <S.Cell flex={3.5}>
-                            <S.TitleLink as={Link} to={`/workspace/quiz/${id}`}>
-                                {quiz.quizTitle}
-                            </S.TitleLink>
-                        </S.Cell>
-                        <S.Cell flex={2}>{quiz.quizCategory}</S.Cell>
-                        <S.Cell flex={1}>
-                            <S.Status isClear={quiz.solve}>
-                                {quiz.solve ? '해결됨' : '미해결'}
-                            </S.Status>
-                        </S.Cell>
-                    </S.Row>
-                );
-            })}
+
             <Pagination totalCount={quizTotalCount} />
         </S.ListContainer>
     );

@@ -3,16 +3,15 @@ import Su from "../style";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
-import { useNavigate } from "react-router-dom";
+import { replace, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import { setUserStatus } from "../../../modules/user";
 import { useState } from "react";
+
+import useGetUserData from "../../../hooks/useGetUserData";
 
 const SignInContainer = () => {
   const navigate = useNavigate();
-  const { isLogin } = useSelector((state) => state.user);
-  const dispatch = useDispatch();
+  const { currentUser, isLogin } = useGetUserData();
   const [isEyeOpen, setIsEyeOpen] = useState(false);
   const [showEmailSend, setShowEmailSend] = useState(false);
   const [showEmailVerify, setShowEmailVerify] = useState(false);
@@ -36,13 +35,20 @@ const SignInContainer = () => {
       credentials: "include",
       body: JSON.stringify(member),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if(!res.ok) { 
+          throw new Error('로그인 실패');
+        }
+        return res.json()
+      })
       .then(({ message, data }) => {
         let accessToken = data.accessToken;
         localStorage.setItem("accessToken", accessToken);
-        dispatch(setUserStatus(true));
         navigate("/");
-      });
+      })
+      .catch((error) => {
+        console.log("로그인 실패");
+      })
   });
 
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -52,15 +58,15 @@ const SignInContainer = () => {
     await trigger("email");
   };
 
-  const alreadyLogin = () => {
-    if (isLogin) {
-      navigate("/");
-    }
-  };
+  if(isLogin){
+    navigate("/", {
+      replace: true // 왔던 기록 삭제
+    })
+    return;
+  }
 
   return (
     <div>
-      {alreadyLogin()}
       <Su.ContentContainer>
         <Su.LogoWrapper>
           <Su.LogoGrean>Web</Su.LogoGrean>

@@ -297,7 +297,11 @@ S.Link = styled(Link)`
 `;
 
 S.Row = styled.div`
+<<<<<<< HEAD
   height: 209px; /* ✅ 문제둥지와 동일 */
+=======
+  height: 209px; //--------------------------------------add
+>>>>>>> 6c44b281062f198a43238600dcb20fbffbe3614d
   display: flex;
   flex-direction: column;
   gap: 12px;

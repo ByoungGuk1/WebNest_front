@@ -3,7 +3,6 @@ import mytest from "./mytest";
 import user from "./user";
 
 const rootReducer = combineReducers({
-  mytest,
   user,
 });
 
