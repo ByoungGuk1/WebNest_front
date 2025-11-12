@@ -250,7 +250,7 @@ const FindPasswordContainer = () => {
         </S.FindPwForm>
       </div>
 
-      <ChangePasswordContainer
+      {/* <ChangePasswordContainer
         stepFour={stepFour}
         setPasswordValue={setPasswordValue}
         showResult={showResult}
@@ -259,7 +259,7 @@ const FindPasswordContainer = () => {
         trigger={trigger}
         getValues={getValues}
         style={{ display: showChangePassword ? "block" : "none" }}
-      />
+      /> */}
     </Su.ContentContainer>
   );
 };
