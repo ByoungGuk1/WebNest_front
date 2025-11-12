@@ -15,8 +15,8 @@ const FindPasswordContainer = () => {
   const [isEyeOpen, setIsEyeOpen] = useState(false);
   const [passwordValue, setPasswordValue] = useState("");
   const [showPasswordSendForm, setShowPasswordSendForm] = useState(true);
-  const [showEmailSend, setShowEmailSend] = useState(false);
-  const [showEmailVerify, setShowEmailVerify] = useState(false);
+  const [showPhoneSend, setShowPhoneSend] = useState(false);
+  const [showPhoneVerify, setShowPhoneVerify] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showResult, setShowResult] = useState(false);
 
@@ -31,6 +31,7 @@ const FindPasswordContainer = () => {
   const invalidColor = theme.PALETTE.primary.red.main;
   const validColor = theme.PALETTE.primary.green.main;
 
+  const phoneRegex = /^010\d{8}$/;
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[!@#])[\da-zA-Z!@#]{8,}$/;
 
@@ -38,15 +39,33 @@ const FindPasswordContainer = () => {
   const hasSpecial = /[!@#]/.test(passwordValue);
   const hasMinLen = passwordValue.length >= 8;
 
-  const handleSubmitForm = handleSubmit(async (data) => {
-    fetch("url", { body: JSON.stringify(data) });
+  const handleSubmitButton = handleSubmit(async (data) => {
+    console.log("들어오긴 했음");
+    const { passwordConfirm, emailKey, ...formData } = data;
+    console.log(formData);
+    const getTempToken = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/auth/tmp-token`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+        method: "POST",
+      }
+    );
+
+    if (!getTempToken.ok) {
+      return;
+    } else {
+      stepThree();
+    }
   });
 
-  const checkEmail = () => {
-    if (errors?.email?.type === "required")
-      return <Su.AlertText>이메일을 입력하세요.</Su.AlertText>;
-    if (errors?.email?.type === "pattern")
-      return <Su.AlertText>이메일 양식에 맞게 입력해주세요.</Su.AlertText>;
+  const checkPhone = () => {
+    if (errors?.userPhone?.type === "required")
+      return <Su.AlertText>전화번호를 입력하세요.</Su.AlertText>;
+    if (errors?.userPhone?.type === "pattern")
+      return <Su.AlertText>전화번호 양식에 맞게 입력해주세요.</Su.AlertText>;
     return null;
   };
 
@@ -60,13 +79,13 @@ const FindPasswordContainer = () => {
     </S.LiPasswordException>
   );
 
-  const handleEmailBlur = async (e) => {
-    const email = e.target.value;
-    await trigger("email");
-    if (emailRegex.test(email)) setShowEmailSend(true);
+  const handlePhoneBlur = async (e) => {
+    const phone = e.target.value;
+    await trigger("userPhone");
+    if (phoneRegex.test(phone)) setShowPhoneSend(true);
     else {
-      setShowEmailSend(false);
-      setShowEmailVerify(false);
+      setShowPhoneSend(false);
+      setShowPhoneVerify(false);
       setShowChangePassword(false);
       setShowResult(false);
     }
@@ -74,26 +93,26 @@ const FindPasswordContainer = () => {
 
   const stepOne = () => {
     setShowPasswordSendForm(true);
-    setShowEmailSend(false);
-    setShowEmailVerify(false);
+    setShowPhoneSend(false);
+    setShowPhoneVerify(false);
     setShowChangePassword(false);
     setShowResult(false);
   };
 
   const stepTwo = async () => {
-    const validEmail = await trigger("email");
-    if (!validEmail) return;
+    const validPhone = await trigger("userPhone");
+    if (!validPhone) return;
     setShowPasswordSendForm(true);
-    setShowEmailSend(false);
-    setShowEmailVerify(true);
+    setShowPhoneSend(false);
+    setShowPhoneVerify(true);
     setShowChangePassword(false);
     setShowResult(false);
   };
 
   const stepThree = () => {
     setShowPasswordSendForm(false);
-    setShowEmailSend(false);
-    setShowEmailVerify(false);
+    setShowPhoneSend(false);
+    setShowPhoneVerify(false);
     setShowChangePassword(true);
     setShowResult(false);
   };
@@ -108,8 +127,8 @@ const FindPasswordContainer = () => {
     )
       return;
     setShowPasswordSendForm(false);
-    setShowEmailSend(false);
-    setShowEmailVerify(false);
+    setShowPhoneSend(false);
+    setShowPhoneVerify(false);
     setShowChangePassword(false);
     setShowResult(true);
   };
@@ -127,80 +146,108 @@ const FindPasswordContainer = () => {
           <S.FindLink to="/sign-in">로그인하기</S.FindLink>
         </S.FindLinkWrapper>
 
-        <S.FindPwForm onSubmit={handleSubmitForm}>
+        <S.FindPwForm>
           <Su.InputNameWrapper>
             <Su.InputName>이름</Su.InputName>
             <Su.InputEssential>(필수)</Su.InputEssential>
           </Su.InputNameWrapper>
           <Su.InputWrapper>
-            <Su.Input type="text" placeholder="이름" />
+            <Su.Input
+              type="text"
+              placeholder="이름"
+              {...register("userName", {
+                required: "이름을 입력하세요.",
+              })}
+            />
           </Su.InputWrapper>
 
           <Su.InputNameWrapper>
             <Su.InputName>본인 확인 이메일</Su.InputName>
             <Su.InputEssential>(필수)</Su.InputEssential>
           </Su.InputNameWrapper>
-          <Su.InputExplanation>
-            가입 시 작성한 이름과 아이디, 이메일을 정확하게 입력하지 않으면
-            메일이 발송되지 않습니다.
-          </Su.InputExplanation>
           <Su.InputWrapper>
             <Su.Input
               type="text"
               placeholder="이메일"
-              readOnly={showEmailSend || showEmailVerify}
-              {...register("email", {
-                required: true,
-                pattern: { value: emailRegex },
+              {...register("userEmail", {
+                required: "이메일을 입력하세요.",
+                pattern: {
+                  value: emailRegex,
+                  message: "이메일 형식이 올바르지 않습니다.",
+                },
               })}
-              onBlur={handleEmailBlur}
             />
           </Su.InputWrapper>
 
-          {checkEmail()}
+          <Su.InputNameWrapper>
+            <Su.InputName>본인 확인 전화 번호</Su.InputName>
+            <Su.InputEssential>(필수)</Su.InputEssential>
+          </Su.InputNameWrapper>
+          <Su.InputExplanation>
+            가입 시 작성한 이름과 아이디, 전화번호를 정확하게 입력하지 않으면
+            인증번호가 발송되지 않습니다.
+          </Su.InputExplanation>
+          <Su.InputWrapper>
+            <Su.Input
+              type="tel"
+              placeholder="01012345678"
+              readOnly={showPhoneSend || showPhoneVerify}
+              {...register("userPhone", {
+                required: "전화 번호를 입력하세요.",
+                pattern: {
+                  value: phoneRegex,
+                  message: "전화 번호 형식이 올바르지 않습니다.",
+                },
+                setValueAs: (v) => (v ? v.replace(/\D/g, "") : ""),
+              })}
+              onBlur={handlePhoneBlur}
+            />
+          </Su.InputWrapper>
 
-          <S.SendEmailWrapper
-            style={{ display: showEmailSend ? "block" : "none" }}
+          {checkPhone()}
+
+          <S.SendPhoneWrapper
+            style={{ display: showPhoneSend ? "block" : "none" }}
           >
             <Su.InputNameWrapper>
-              <Su.InputName>이메일 인증</Su.InputName>
+              <Su.InputName>휴대폰 인증</Su.InputName>
               <Su.InputEssential>(필수)</Su.InputEssential>
             </Su.InputNameWrapper>
             <Su.InputExplanation>
-              이메일로 전송된 키를 입력해주세요.
+              휴대폰으로 전송된 키를 입력해주세요.
             </Su.InputExplanation>
             <Su.Button type="button" onClick={stepTwo}>
-              인증 메일 발송
+              인증 번호 발송
             </Su.Button>
-            <S.EmailVerification>
+            <S.PhoneVerification>
               <button type="button" onClick={stepOne}>
-                이메일 수정하기
+                전화 번호 수정하기
               </button>
-            </S.EmailVerification>
-          </S.SendEmailWrapper>
+            </S.PhoneVerification>
+          </S.SendPhoneWrapper>
 
-          <div style={{ display: showEmailVerify ? "block" : "none" }}>
+          <div style={{ display: showPhoneVerify ? "block" : "none" }}>
             <Su.InputNameWrapper>
-              <Su.InputName>이메일 인증</Su.InputName>
+              <Su.InputName>휴대폰 인증</Su.InputName>
               <Su.InputEssential>(필수)</Su.InputEssential>
             </Su.InputNameWrapper>
             <Su.InputExplanation>
-              이메일로 전송된 키를 입력해주세요.
+              휴대폰으로 전송된 키를 입력해주세요.
             </Su.InputExplanation>
             <Su.InputWrapper>
               <Su.Input type="text" placeholder="인증 키" />
             </Su.InputWrapper>
-            <Su.Button type="button" onClick={stepThree}>
-              인증 메일 확인
+            <Su.Button type="button" onClick={handleSubmitButton}>
+              인증 번호 확인
             </Su.Button>
-            <S.EmailVerification>
+            <S.PhoneVerification>
               <button type="button" onClick={stepTwo}>
                 인증 키 재전송
               </button>
               <button type="button" onClick={stepOne}>
-                이메일 수정하기
+                전화번호 수정하기
               </button>
-            </S.EmailVerification>
+            </S.PhoneVerification>
           </div>
         </S.FindPwForm>
       </div>
@@ -215,7 +262,6 @@ const FindPasswordContainer = () => {
             type={isEyeOpen ? "text" : "password"}
             placeholder="비밀번호를 입력하세요"
             {...register("password", {
-              required: true,
               pattern: { value: passwordRegex },
             })}
             onChange={(e) => setPasswordValue(e.target.value)}
