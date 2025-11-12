@@ -5,7 +5,8 @@ import CodeEditor from '../codeeditor/CodeEditor';
 const QuizRead = ({ 
     quiz = {}, 
     prevQuiz = {},
-    nextQuiz = {}, 
+    nextQuiz = {},
+    userId,
     userExp,
     isSolve,
     isBookmark
@@ -101,6 +102,7 @@ const QuizRead = ({
                         quizLanguage={quizLanguage} 
                         id={id} 
                         userExp={userExp}
+                        userId={userId}
                         isBookmark={isBookmark}
                         isSolve={isSolve}
                     />
