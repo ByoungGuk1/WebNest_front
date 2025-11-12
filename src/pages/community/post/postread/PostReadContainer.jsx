@@ -5,10 +5,10 @@ import S from "./style";
 
 /** 🔧 백엔드 연동용 상수 */
 const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
-const GET_OPEN_POST      = (id) => `${API_BASE}/post/get-post/${id}`;
-const GET_COMMENTS       = (id) => `${API_BASE}/comment/${id}`;
-const GET_COMMENT_LIKE   = (id) => `${API_BASE}/commentLike/${id}`;
-const GET_SUBCOMMENTS    = (commentId) => `${API_BASE}/subcomment/get-comments/${commentId}`;
+const GET_OPEN_POST    = (id) => `${API_BASE}/post/get-post/${id}`;
+const GET_COMMENTS     = (id) => `${API_BASE}/comment/${id}`;
+const GET_COMMENT_LIKE = (id) => `${API_BASE}/commentLike/${id}`;
+const GET_SUBCOMMENTS  = (commentId) => `${API_BASE}/subcomment/get-comments/${commentId}`;
 
 /** ⏰ 상대 시간 */
 const toRelativeTime = (dateLike) => {
@@ -28,6 +28,7 @@ const toRelativeTime = (dateLike) => {
   const y = Math.floor(mon / 12);
   return `${y}년`;
 };
+
 /* ✅ 게시글 DTO → 화면용 매퍼 */
 const mapPost = (p) => ({
   id: p.id ?? p.postId,
@@ -52,20 +53,17 @@ const mapPost = (p) => ({
 
 /* ✅ 댓글/대댓글 공용 매퍼: 대댓글 필드(subcomment*) 우선 매핑 */
 const mapComment = (c) => ({
-  id:
-    c.id ??
-    c.subcommentId ??   // 대댓글 id
-    c.commentId,        // 댓글 id
+  id: c.id ?? c.subcommentId ?? c.commentId,
   content:
-    c.subcommentDescription ??  // 🔹 대댓글 본문
-    c.commentDescription ??     // 🔹 댓글 본문
+    c.subcommentDescription ??
+    c.commentDescription ??
     c.content ??
     c.text ??
     c.body ??
     "",
   createdAt:
-    c.subcommentCreateAt ??     // 🔹 대댓글 생성일
-    c.commentCreateAt ??        // 🔹 댓글 생성일
+    c.subcommentCreateAt ??
+    c.commentCreateAt ??
     c.createdAt ??
     null,
   likes: c.likes ?? 0,
@@ -121,7 +119,7 @@ const PostReadContainer = () => {
     setPostLikeCount((prev) => (isPostLiked ? prev - 1 : prev + 1));
   };
 
-  /** 댓글 좋아요 */
+  /** 댓글 좋아요(프론트 낙관적 토글) */
   const toggleCommentLike = (cid) => {
     setLikedComments((prev) => {
       const liked = !prev[cid];
@@ -158,7 +156,7 @@ const PostReadContainer = () => {
     const text = (replyTextMap[cid] || "").trim();
     if (!text) return;
 
-    // 프론트 즉시 반영용 더미 대댓글 (백엔드 붙이면 여기서 POST 호출)
+    // 프론트 즉시 반영용 더미 대댓글 (백엔드 연동 시 POST 호출로 교체)
     const newSub = {
       id: Date.now(),
       user: { name: "user", profileImg: "/assets/images/defalutpro.svg", level: 1 },
@@ -251,7 +249,10 @@ const PostReadContainer = () => {
   }, [pid]);
 
   /** 페이지네이션 계산 */
-  const pageCount = useMemo(() => Math.max(1, Math.ceil(comments.length / COMMENTS_PER_PAGE)), [comments.length]);
+  const pageCount = useMemo(
+    () => Math.max(1, Math.ceil(comments.length / COMMENTS_PER_PAGE)),
+    [comments.length]
+  );
   const pageSlice = useMemo(() => {
     const start = (currentPage - 1) * COMMENTS_PER_PAGE;
     return comments.slice(start, start + COMMENTS_PER_PAGE);
@@ -367,7 +368,7 @@ const PostReadContainer = () => {
                       {(c.likes ?? 0) + (likedComments[c.id] ? 1 : 0)}
                     </S.CommentLikeCount>
 
-                    {/* ✅ ‘답글 달기’ 버튼 추가 */}
+                    {/* ✅ ‘답글 달기’ 버튼 */}
                     <b>·</b>
                     <S.CommentAction onClick={() => toggleReplyOpen(c.id)}>답글 달기</S.CommentAction>
 
