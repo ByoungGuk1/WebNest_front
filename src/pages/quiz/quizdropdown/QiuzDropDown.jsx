@@ -22,7 +22,6 @@ const QiuzDropDown = () => {
     // location.search 기반 기존 쿼리 유지/수정 함수
     const buildAndNavigate = (overrides = {}) => {
         const params = new URLSearchParams(location.search);
-        console.log("드롭버튼jsx",overrides)
         // 현재 UI 값 또는 overrides 우선 적용
         const lang = overrides.quizLanguage ?? selectLang;
         const diff = overrides.quizDifficult ?? selectDifficult;

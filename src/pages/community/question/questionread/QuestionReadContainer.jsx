@@ -6,6 +6,7 @@ const QuestionReadContainer = () => {
   const { questionId } = useParams();
   const [posts, setPosts] = useState(null);
   const [currentPost, setCurrentPost] = useState(null);
+  const [comments, setComments] = useState([]); // 백엔드 댓글 데이터
   const navigate = useNavigate();
     // 🟥 신고 관련 state
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -76,7 +77,7 @@ const QuestionReadContainer = () => {
     setIsDeleteModalOpen(false);
   };
 
-  /* 🟣 게시글 좋아요 관련 */
+  /* 게시글 좋아요 관련 */
   const [isPostLiked, setIsPostLiked] = useState(false);
   const [postLikeCount, setPostLikeCount] = useState(0);
 
@@ -141,24 +142,29 @@ const QuestionReadContainer = () => {
 
   /* 📦 데이터 로드 */
   useEffect(() => {
-    const fetchPosts = async () => {
+    const loadData = async () => {
       try {
-        const response = await fetch("/json_server/question/post.json");
-        if (!response.ok) throw new Error("데이터 불러오기 실패");
-        const data = await response.json();
+        // 게시글 데이터 불러오기
+        const postRes = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
+        if (!postRes.ok) throw new Error("게시글 불러오기 실패");
+        const postData = await postRes.json();
 
-        setPosts(data.posts);
+        // 댓글(답변) 데이터 불러오기
+        const commentRes = await fetch(`http://localhost:10000/comment/${questionId}`);
+        if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
+        const commentData = await commentRes.json();
 
-        const foundPost = data.posts.find(
-          (item) => item.postId === Number(questionId)
-        );
-        setCurrentPost(foundPost);
-        if (foundPost) setPostLikeCount(foundPost.likes || 0);
+        setCurrentPost(postData.data || postData);
+        setPosts([postData.data || postData]);
+        setComments(commentData.data || []);
+        setPostLikeCount(postData.data?.postViewCount || 0);
       } catch (err) {
-        console.error("❌ fetch 에러:", err);
+        console.error(" 데이터 로드 에러:", err);
+        setCurrentPost(null);
+        setComments([]);
       }
     };
-    fetchPosts();
+    loadData();
   }, [questionId]);
 
   if (!posts)
@@ -166,8 +172,15 @@ const QuestionReadContainer = () => {
   if (!currentPost)
     return <S.NotFoundMsg>해당 게시글을 찾을 수 없습니다.</S.NotFoundMsg>;
 
-  const { postTitle, postContent, createdAt, views, author, answers } =
-    currentPost;
+  // 백엔드 DTO 필드명에 맞게 수정
+  const {
+    id,
+    postTitle,
+    postContent,
+    postCreateAt,
+    postViewCount,
+    userNickname,
+  } = currentPost;
 
   return (
     <>
@@ -226,7 +239,7 @@ const QuestionReadContainer = () => {
         <S.AlarmBox>
           <S.AnswerCn>
             <span>답변</span>
-            <span>{currentPost?.answers?.length || 0}</span>
+            <span>{comments?.length || 0}</span>
           </S.AnswerCn>
 
           <S.LikeAndAlarm>
@@ -258,25 +271,23 @@ const QuestionReadContainer = () => {
           </S.LikeAndAlarm>
         </S.AlarmBox>
 
-        {/* 🟢 답변 리스트 */}
-        {answers && answers.length > 0 ? (
+        {/* 백엔드 댓글 매핑 */}
+        {comments && comments.length > 0 ? (
           <S.AnswerSection>
-            {answers.map((ans) => (
+            {comments.map((ans) => (
               <S.AnswerCard key={ans.id}>
                 <S.AnswerTop>
                   <S.UserInfo>
                     <S.AnswerProfile
-                      src={ans.responder.profileImg}
-                      alt={ans.responder.userName}
+                      src={"/assets/images/defalutpro.svg"}
+                      alt={ans.userNickname || "익명"}
                     />
                     <S.AnswerInnerBox>
                       <S.AnswerUser>
-                        <span>{ans.responder.userName}</span>
-                        <span>Lv.{ans.userLevel}</span>
+                        <span>{ans.userNickname || "익명"}</span>
                       </S.AnswerUser>
                       <S.AnswerMeta>
-                        <span>팔로워</span>
-                        <span>{ans.followers}명</span>
+                        <span>{toRelativeTime(ans.commentCreateAt)}</span>
                       </S.AnswerMeta>
                     </S.AnswerInnerBox>
                   </S.UserInfo>
@@ -287,27 +298,15 @@ const QuestionReadContainer = () => {
                   </S.ChooseAnswer>
                 </S.AnswerTop>
 
-                <S.AnswerContent>{ans.comment}</S.AnswerContent>
+                <S.AnswerContent>{ans.commentDescription}</S.AnswerContent>
 
                 {/* ✅ 답변 좋아요 + 햄버거 버튼 */}
                 <S.AnswerDate>
-                  <span>{toRelativeTime(createdAt)}</span>
-                  <b>·</b>
-                  <img
-                    src={
-                      likedAnswers[ans.id]
-                        ? "/assets/icons/heartfull.svg"
-                        : "/assets/icons/greyheart.svg"
-                    }
-                    alt="좋아요"
-                    onClick={() => handleAnswerLike(ans.id)}
+                  <AnswerLikeButton
+                    isLiked={likedAnswers[ans.id]}
+                    likeCount={likedAnswers[ans.id] ? 1 : 0}
+                    onToggleLike={() => handleAnswerLike(ans.id)}
                   />
-                  <S.AnswerLikeCount
-                    $liked={likedAnswers[ans.id]}
-                    onClick={() => handleAnswerLike(ans.id)}
-                  >
-                    {ans.likes + (likedAnswers[ans.id] ? 1 : 0)}
-                  </S.AnswerLikeCount>
                   <b>·</b>
                   <span onClick={() => handleReportClick("answer", ans.id)}>신고</span>
                 </S.AnswerDate>
@@ -346,27 +345,60 @@ const QuestionReadContainer = () => {
       <S.AnswerWriteButton onClick={handleWriteAnswer}>
         답변하기
       </S.AnswerWriteButton>
+      
+      {/* 신고 모달 */}
+      {isReportOpen && (
+        <S.ReportOverlay>
+          <S.ReportBox>
+            <S.ReportTitle>
+              신고하기
+              <S.CloseBtn onClick={handleCloseReport}>
+                <img src="/assets/icons/x.svg" alt="닫기" />
+              </S.CloseBtn>
+            </S.ReportTitle>
 
+            <S.ReportDesc>
+              신고 사유를 선택해주세요. <br />
+              <span>* 부적절한 내용은 관리자가 확인 후 조치합니다.</span>
+            </S.ReportDesc>
 
-      {/* ✅ 채택 모달 */}
+            <S.ReportSelect
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+            >
+              <option value="">신고 사유를 선택하세요</option>
+              <option value="부적절한 언어 사용">부적절한 언어 사용</option>
+              <option value="스팸/홍보성 글">스팸/홍보성 글</option>
+              <option value="개인정보 노출">개인정보 노출</option>
+              <option value="허위 정보">허위 정보</option>
+              <option value="기타">기타</option>
+            </S.ReportSelect>
+
+            <S.ReportSubmit onClick={handleReportSubmit}>
+              신고하기
+            </S.ReportSubmit>
+          </S.ReportBox>
+        </S.ReportOverlay>
+      )}
+
+      {/* 채택 모달 */}
       {isChooseModalOpen && (
         <S.ModalOverlay>
           <S.ModalBox>
-            <S.ModalTitle>채택 하시겠습니까?</S.ModalTitle>
+            <S.ModalTitle>답변을 채택하시겠습니까?</S.ModalTitle>
             <S.ModalDesc>
-              채택 후에는 사용자에게 포인트가 지급되며
-              <br />
-              취소가 불가능합니다.
+              채택된 답변은 수정/삭제가 불가하며<br />
+              다른 답변을 채택할 수 없습니다.
             </S.ModalDesc>
             <S.ModalButtons>
               <S.CancelBtn onClick={handleCancelChoose}>취소</S.CancelBtn>
-              <S.ConfirmBtn onClick={handleConfirmChoose}>확인</S.ConfirmBtn>
+              <S.ConfirmBtn onClick={handleConfirmChoose}>채택하기</S.ConfirmBtn>
             </S.ModalButtons>
           </S.ModalBox>
         </S.ModalOverlay>
       )}
 
-    {/* 삭제 */}
+      {/* 삭제 */}
       {isDeleteModalOpen && (
         <S.HamModalOverlay>
           <S.HamModalBox>
@@ -378,39 +410,6 @@ const QuestionReadContainer = () => {
           </S.HamModalBox>
         </S.HamModalOverlay>
       )}
-
-
-      {/* 🟦 신고 모달 */}
-      {isReportOpen && (
-        <S.ReportOverlay>
-          <S.ReportBox>
-            <S.ReportTitle>
-              신고하기
-              <S.CloseBtn onClick={handleCloseReport}><img src="/assets/icons/x.svg" alt="x" /></S.CloseBtn>
-            </S.ReportTitle>
-
-            <S.ReportDesc>
-              해당 게시물을 아래와 같은 사유로 신고합니다. <br />
-              <span>허위 신고 시 운영정책에 따라 조치될 수 있습니다.</span>
-            </S.ReportDesc>
-
-            <S.ReportSelect
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
-            >
-              <option value="">사유 선택</option>
-              <option value="욕설">다른 유저에게 불쾌감을 주는 행위(욕설, 비방, 도배)</option>
-              <option value="운영방해">커뮤니티 이용 및 운영 방해</option>
-              <option value="버그악용">시스템(버그) 악용 및 불법 프로그램 사용/유포</option>
-              <option value="불건전">불건전 명칭 또는 프로필 이미지 사용</option>
-              <option value="기타">기타</option>
-            </S.ReportSelect>
-
-            <S.ReportSubmit onClick={handleReportSubmit}>신고완료</S.ReportSubmit>
-          </S.ReportBox>
-        </S.ReportOverlay>
-      )}
-
 
     </>
   );
