@@ -15,7 +15,7 @@ const QuizReadFetch = () => {
     const [userExp, setUserExp] = useState();
     const [isBookmark, setIsBookmark] = useState();
     const [isSolve, setIsSolve] = useState();
-
+    const [userId, setUserId] = useState();
 
     useEffect(() => {
         const fetchQuizListAndCurrent = async () => {
@@ -66,10 +66,12 @@ const QuizReadFetch = () => {
                 })
                 if (!response.ok) throw new Error("퀴즈 요청 실패")
                     const data = await response.json()
+                console.log("dd",data.data.findQuizPersonalData)
                 setQuiz(data.data)
                 setUserExp(data.data.findQuizPersonalData.userExp)
                 setIsBookmark(data.data.findQuizPersonalData.quizPersonalIsBookmark)
                 setIsSolve(data.data.findQuizPersonalData.quizPersonalIsSolve)
+                setUserId(data.data.findQuizPersonalData.userId)
             } catch (err) {
                 console.error(err)
             } finally {
@@ -78,9 +80,6 @@ const QuizReadFetch = () => {
         }
         readQuiz()
     }, [quizid])
-    console.log("디티오:", userExp)
-    console.log("디티오:", isBookmark)
-    console.log("디티오:", isSolve)
     
     if (loading || !quiz.id) {
         return (
@@ -90,6 +89,7 @@ const QuizReadFetch = () => {
         )
     }
 
+    console.log("userId", userId)
     return (
 
         <QuizRead 
@@ -97,6 +97,7 @@ const QuizReadFetch = () => {
             prevQuiz={prevQuiz}
             nextQuiz={nextQuiz} 
             userExp={userExp}
+            userId={userId}
             isBookmark={isBookmark}
             isSolve={isSolve}
             />
