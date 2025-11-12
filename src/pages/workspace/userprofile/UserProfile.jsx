@@ -17,21 +17,13 @@ const UserProfile = ({ userData, inputText }) => {
     red: "/assets/background/red.png",
   };
 
-  const [user, setUser] = useState({
-    userName: "",
-    userImage: "",
-    userLevel: 0,
-    userColor: "",
-    isHost: false,
-  });
-  const [innerText, setInnerText] = useState("");
+  const [user, setUser] = useState({ userData });
   const [teamColor, setTeamColor] = useState(teamColorUrl[user.userColor]);
 
   useEffect(() => {
     setUser(userData);
-    setInnerText(inputText);
     setTeamColor(teamColorUrl[user.userColor]);
-  }, [user, innerText]);
+  }, [user]);
 
   const hostCrown = () => {
     if (user.isHost) {
@@ -47,8 +39,7 @@ const UserProfile = ({ userData, inputText }) => {
           backgroundImage: `url(${teamColor})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-        }}
-      >
+        }}>
         <S.ResignButton type="button">
           <FontAwesomeIcon
             icon={faX}
@@ -64,7 +55,7 @@ const UserProfile = ({ userData, inputText }) => {
         </S.ProfileImageWrap>
         <S.UserNameWrap>{user.userName}</S.UserNameWrap>
         <UserGrade level={user.userLevel} />
-        <S.UserTextWrap>{innerText}</S.UserTextWrap>
+        <S.UserTextWrap>{user.innerText}</S.UserTextWrap>
       </S.UserProfileWrapper>
     </div>
   );
