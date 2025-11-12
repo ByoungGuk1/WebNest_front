@@ -314,4 +314,154 @@ const S = {}
     justify-content: center;
     align-items: center;
   `
+   // 알림 패널 컨테이너 (스크롤은 내부 ListBody가 담당)// ===== Notification panel (flex version, no duplicates) =====
+S.notice_wrap = styled.div`
+  height: 420px;
+  width: 430px;
+  border: 1px solid #121212;
+  border-radius: 10px;
+  position: absolute;
+  background-color: #fff;
+  top: 55px;
+  right: -212px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+`;
+
+// 상단 탭 (필요 없으면 JSX에서 안 쓰면 됨)
+S.NotificationCategoryWrap = styled.div`
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  padding: 12px 18px 4px;
+  box-sizing: border-box;
+`;
+S.TabBox = styled.div`
+  padding: 6px 10px;
+  background: #f3f3f3;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  ${h8Medium}
+`;
+
+// 헤더
+S.notice_header = styled.div`
+  width: 100%;
+  height: 40px;
+  padding: 0 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #464D4A;
+  box-sizing: border-box;
+  & > span { 
+    ${h7Medium};
+  }
+`
+
+S.notice_handler = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+S.read_all = styled.button`
+  background: #fff;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  ${h8Medium}
+`;
+S.remove_all = styled.button`
+  background: #fff;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  ${h8Medium}
+`;
+
+// 내부 스크롤 (여기에만 overflow)
+S.ListBody = styled.div`
+  width: 100%;
+  max-height: calc(420px - 90px); /* 탭/헤더 제외한 높이 */
+  overflow-y: auto;
+  padding: 6px 0 10px;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar { width: 8px; }
+  &::-webkit-scrollbar-thumb { background: rgba(0,0,0,.25); border-radius: 8px; }
+`;
+
+// 리스트 래퍼
+S.NotificationItemsWrap = styled.div`
+  width: 373px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+`;
+
+// 개별 아이템 (flex row: 시간 | 내용)
+S.NotificationItems = styled.div`
+  width: 100%;
+  padding: 10px 4px;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  &:not(:last-child){ border-bottom: 1px solid #eee; }
+  &:hover { background: #f6f6ff; } /* 너가 지정한 hover 컬러 유지 */
+  ${h8Medium}
+`;
+
+// 왼쪽 시간
+S.TimeText = styled.div`
+  flex: 0 0 56px;         /* 고정폭 */
+  white-space: nowrap;
+  color: #9aa0a6;
+  line-height: 22px;
+  ${h8Medium}
+`;
+
+// 오른쪽 내용 박스
+S.ContentBox = styled.div`
+  flex: 1 1 auto;
+  min-width: 0;           /* 줄어들 수 있게 */
+  color: #2b2b2b;
+  line-height: 22px;
+  overflow: hidden;
+`;
+
+// 한 줄 … 처리 라인 (이름 ↔ 문장 간격 좁게)
+S.OneLine = styled.div`
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 22px;
+
+  .name{
+    ${h8Medium}
+    font-weight: 800;
+    color: #6434B1;       /* 허그 제거하고 보라 텍스트만 */
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  .msg{
+    ${h8Medium}
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;  /* 한 줄 … */
+    overflow-wrap: anywhere;
+  }
+`;
+
+ 
+
   export default S;
