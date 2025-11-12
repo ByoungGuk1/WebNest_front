@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import S from "./style";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const WriteContainer = () => {
   const [category1, setCategory1] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const navigate = useNavigate();
+  const user = useSelector((state) => state.user)
+  const {currentUser, isLogin } = user;
+  const { id } = currentUser
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
@@ -14,14 +18,21 @@ const WriteContainer = () => {
       return;
     }
 
+    // const postData = {
+    //   postType: "QUESTION", // 문제둥지 구분 (필요시 OPEN 등)
+    //   postTitle: title,
+    //   postContent: content,
+    //   userId: id, // 로그인 기능 붙으면 실제 userId로 교체
+    //   postCreateAt: new Date().toISOString(),
+    // };
     const postData = {
-      postType: "QUESTION", // 문제둥지 구분 (필요시 OPEN 등)
+      postType: category1.toUpperCase() || "OPEN",  // ✅ DB에서 허용하는 값 사용
       postTitle: title,
       postContent: content,
-      postViewCount: 0,
-      userId: 1, // 로그인 기능 붙으면 실제 userId로 교체
+      userId: id,
       postCreateAt: new Date().toISOString(),
     };
+
 
     try {
       const response = await fetch("http://localhost:10000/post/write", {
@@ -66,12 +77,11 @@ const WriteContainer = () => {
           <S.Select>
             <select value={category1} onChange={(e) => setCategory1(e.target.value)}>
               <option value="">주제 선택</option>
-              <option value="javascript">JavaScript</option>
-              <option value="java">Java</option>
-              <option value="html">HTML</option>
-              <option value="css">CSS</option>
-              <option value="oracle">Oracle</option>
-              <option value="none">선택없음</option>
+              <option value="JS">JavaScript</option>
+              <option value="JAVA">JAVA</option>
+              <option value="OPEN">HTML</option>
+              <option value="ORACLE">Oracle</option>
+
             </select>
           </S.Select>
         </S.CategoryWrap>
