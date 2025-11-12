@@ -15,6 +15,9 @@ const SignInContainer = () => {
   const [isEyeOpen, setIsEyeOpen] = useState(false);
   const [showEmailSend, setShowEmailSend] = useState(false);
   const [showEmailVerify, setShowEmailVerify] = useState(false);
+  const BACKURL = process.env.REACT_APP_BACKEND_URL;
+
+  console.log(BACKURL)
   const {
     register,
     handleSubmit,
@@ -25,7 +28,6 @@ const SignInContainer = () => {
 
   const handleSumbmitForm = handleSubmit(async (data) => {
     const { ...member } = data;
-    console.log(data);
     await fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/login`, {
       headers: {
         "Content-Type": "application/json",
