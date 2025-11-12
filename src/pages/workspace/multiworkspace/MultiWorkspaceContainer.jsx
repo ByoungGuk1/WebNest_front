@@ -2,27 +2,10 @@ import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import S from "./style";
 import ChattingContainer from "./chatting/ChattingContainer";
-import UserProfile from "../userprofile/UserProfile";
+import CardLayoutContainer from "./cardlayout/CardLayoutContainer";
 
 const MultiWorkspaceRoomContainer = () => {
-  const [user, setUser] = useState([
-    {
-      userName: "홍길동",
-      userImage: "",
-      userLevel: 1,
-      userColor: "red",
-      isHost: true,
-      innerText: "방장",
-    },
-    {
-      userName: "22222",
-      userImage: "",
-      userLevel: 3,
-      userColor: "blue",
-      isHost: false,
-      innerText: "준비 완료",
-    },
-  ]);
+  const { roomStatus, setRoomStatus } = useState("play");
 
   return (
     <S.Wrapper>
@@ -42,14 +25,7 @@ const MultiWorkspaceRoomContainer = () => {
         </S.ChattingLayout>
       </S.MainWrapper>
       <S.CardLayout>
-        <UserProfile userData={user[0]} inputText="text" />
-        <UserProfile userData={user[1]} inputText="text" />
-        <UserProfile userData={user[0]} inputText="text" />
-        <UserProfile userData={user[1]} inputText="text" />
-        <UserProfile userData={user[0]} inputText="text" />
-        <UserProfile userData={user[1]} inputText="text" />
-        <UserProfile userData={user[0]} inputText="text" />
-        <UserProfile userData={user[1]} inputText="text" />
+        <CardLayoutContainer roomStatus={roomStatus} />
       </S.CardLayout>
     </S.Wrapper>
   );
