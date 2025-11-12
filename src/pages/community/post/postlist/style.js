@@ -1,5 +1,5 @@
 // src/pages/community/post/postlist/style.js
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import {
   flexCenter,
   h3Bold,
@@ -9,7 +9,7 @@ import {
   h6Medium,
   h7Bold,
   h7Medium,
-  h7Light,        // ✅ 문제둥지 기준 추가
+  h7Light,
   h8Bold,
   h8Medium,
 } from "../../../../styles/common";
@@ -17,19 +17,6 @@ import { Link } from "react-router-dom";
 import theme from "../../../../styles/theme";
 
 const S = {};
-
-/* ✅ 헤더 알람 팝오버를 항상 최상단으로 */
-export const HeaderAlarmLayerFix = createGlobalStyle`
-  #header-alarm-popover,
-  .header-alarm-popover,
-  [data-layer="alarm-popover"] {
-    position: fixed !important;
-    z-index: 2147483646 !important;
-    top: var(--header-height, 64px);
-    right: max(16px, calc(50% - 580px));
-    pointer-events: auto;
-  }
-`;
 
 /* ===================== 상단 배너 ===================== */
 S.BannerWrap = styled.div`
@@ -95,7 +82,7 @@ S.ArrowBtn = styled.button`
   justify-content: center;
   align-items: center;
   transition: transform .2s ease, background-color .2s ease;
-  z-index: 10; /* ✅ 문제둥지와 통일 */
+  z-index: 10;
 
   &:hover { transform: translateY(-55%); }
 
@@ -115,19 +102,16 @@ S.PopularWrap = styled.div`
   overflow: hidden;
 
   .swiper { width: 100%; overflow: visible; }
-
   .swiper-wrapper {
     display: flex !important;
     flex-direction: row !important;
     align-items: stretch;
   }
-
   .swiper-slide {
     height: auto !important;
     display: flex;
     justify-content: center;
   }
-
   .swiper-button-prev,
   .swiper-button-next {
     display: none !important;
@@ -151,7 +135,7 @@ S.PopularTitle = styled.div`
   ${h6Bold}
   width: 266px;
   height: 38px;
-  margin: 21px 21px 8px; /* ✅ 문제둥지와 동일 */
+  margin: 21px 21px 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -179,12 +163,13 @@ S.Info = styled.div`
   padding: 8px 21px 12px;
 `;
 
+/* 카드·리스트 공통 메타 */
 S.MetaWrap = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
   color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
-  ${h8Medium} /* 카드에서는 h8Medium 유지 */
+  ${h8Medium}
 
   b {
     font-weight: normal;
@@ -223,7 +208,7 @@ S.GradientRight = styled.div`
     rgba(255,255,255,0.8) 50%,
     rgba(255,255,255,0) 100%
   );
-  z-index: 5; /* ✅ 문제둥지와 동일 */
+  z-index: 5;
 `;
 
 /* ===================== 정렬/글쓰기 영역 ===================== */
@@ -286,7 +271,7 @@ S.ListWrap = styled.div`
   margin: 50px auto 0;
   display: flex;
   flex-direction: column;
-  gap: 35px; /* ✅ 문제둥지와 동일 */
+  gap: 35px;
 `;
 
 S.Link = styled(Link)`
@@ -297,11 +282,7 @@ S.Link = styled(Link)`
 `;
 
 S.Row = styled.div`
-<<<<<<< HEAD
-  height: 209px; /* ✅ 문제둥지와 동일 */
-=======
-  height: 209px; //--------------------------------------add
->>>>>>> 6c44b281062f198a43238600dcb20fbffbe3614d
+
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -318,12 +299,14 @@ S.Tag = styled.div`
   justify-content: center;
   white-space: nowrap;
   width: ${({ lang }) =>
-    lang === "JS" ? "24px" :
-    lang === "JAVA" ? "40px" :
-    lang === "CSS" ? "33px" :
-    lang === "HTML" ? "43px" :
-    lang === "ORACLE" ? "54px" : "auto"};
+    lang === "OPEN"  ? "46px" :
+    lang === "JS"    ? "24px" :
+    lang === "JAVA"  ? "40px" :
+    lang === "CSS"   ? "33px" :
+    lang === "HTML"  ? "43px" :
+    lang === "ORACLE"? "54px" : "auto"};
   background-color: ${({ lang }) =>
+    lang === "OPEN"   ? theme.PALETTE.primary.blue.main :
     lang === "JAVA"   ? theme.PALETTE.primary.green.main  :
     lang === "JS"     ? theme.PALETTE.primary.yellow.main :
     lang === "CSS"    ? theme.PALETTE.primary.red.main    :
@@ -334,7 +317,7 @@ S.Tag = styled.div`
 S.QuestionInfo = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px; /* ✅ 문제둥지와 동일 */
+  gap: 12px;
 `;
 
 S.QuestionTitle = styled.div`
@@ -347,7 +330,7 @@ S.QuestionTitle = styled.div`
 S.QuestionPreview = styled.div`
   ${h6Medium}
   color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
-  height: 60px; /* ✅ 문제둥지와 동일(2줄 클램프) */
+  height: 60px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -360,11 +343,10 @@ S.QuestionPreview = styled.div`
 S.MetaBlock = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;      /* 메타줄 ↔ 인기댓글 간격 */
-  margin-top: 6px;
+  gap: 10px;      /* 메타줄 ↔ 인기댓글 간격 */
 `;
 
-/* ✅ 리스트 메타줄: 문제둥지 타이포/컬러와 일치 */
+/* 리스트 메타줄 */
 S.ListMetaRow = styled.div`
   display: flex;
   align-items: center;
@@ -372,7 +354,6 @@ S.ListMetaRow = styled.div`
   ${h7Light}
   color: ${({ theme }) => theme.PALETTE.neutral.black.disabled};
 
-  /* 카드에서 쓰는 MetaWrap을 리스트 상황에선 문제둥지처럼 보이게 오버라이드 */
   ${S.MetaWrap} {
     ${h7Light}
     color: ${({ theme }) => theme.PALETTE.neutral.black.disabled};
@@ -386,7 +367,6 @@ S.ListMetaRow = styled.div`
   ${S.Response} {
     ${h7Light}
     color: ${({ theme }) => theme.PALETTE.neutral.black.disabled};
-
     img { width: 13px; height: 13px; }
   }
 `;
@@ -395,11 +375,11 @@ S.TopCommentRow = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 0 30px 20px;
+  padding: 10px 0 35px 30px; /* 댓글과 하단 구분선 사이 간격 46px */
 `;
 
 S.TopCmtName = styled.span`
-  ${h7Bold}
+  ${h7Medium}
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
 `;
 
@@ -423,7 +403,7 @@ S.BestBadge = styled.span`
   ${h9Bold}
 `;
 
-/* ===================== 페이지네이션 ===================== */
+/* ===================== 페이지네이션(통일 버전) ===================== */
 S.Pagination = styled.div`
   display: flex;
   justify-content: center;
