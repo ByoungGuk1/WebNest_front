@@ -28,6 +28,27 @@ const toRelativeTime = (dateLike) => {
   const y = Math.floor(mon / 12);
   return `${y}년`;
 };
+/* ✅ 게시글 DTO → 화면용 매퍼 */
+const mapPost = (p) => ({
+  id: p.id ?? p.postId,
+  title: p.postTitle ?? p.title ?? "",
+  content: p.postContent ?? p.content ?? "",
+  createdAt:
+    p.postCreateAt ??
+    p.createdAt ??
+    p.created ??
+    p.createdDate ??
+    p.createAt ??
+    null,
+  views: p.postViewCount ?? p.views ?? 0,
+  likes: p.likes ?? 0,
+  postType: p.postType ?? "OPEN",
+  author: {
+    id: p.userId ?? p.authorId ?? null,
+    name: p.userNickname ?? p.userName ?? p.username ?? null,
+    profileImg: p.userThumbnailUrl ?? p.authorProfile ?? null,
+  },
+});
 
 /* ✅ 댓글/대댓글 공용 매퍼: 대댓글 필드(subcomment*) 우선 매핑 */
 const mapComment = (c) => ({

@@ -257,7 +257,7 @@ S.CommentAvatar = styled.img`
 S.CommentUserRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px; /* ✅ 요청하신 간격 6px */
+  gap: 6px; /* 요청하신 간격 6px */
 `;
 
 S.CommentUserName = styled.span`
@@ -289,11 +289,12 @@ S.CommentMetaRow = styled.div`
     cursor: pointer;
     vertical-align: middle;
   }
+`;
 
-  span:last-of-type{
-    cursor: pointer;
-    &:hover{ text-decoration: underline; }
-  }
+/* ✅ 메타 액션(신고/답글 달기 등) */
+S.CommentAction = styled.span`
+  cursor: pointer;
+  &:hover { text-decoration: underline; }
 `;
 
 S.CommentLikeCount = styled.span`
@@ -359,13 +360,42 @@ S.SubcommentMetaRow = styled.div`
   align-items: center;
   gap: 6px;
   color: ${({ theme }) => theme.PALETTE.neutral.black.disable};
+`;
 
-  span:last-of-type {
-    cursor: pointer;
-    &:hover {
-      text-decoration: underline;
-    }
-  }
+/* ✅ 답글 입력 UI */
+S.ReplyBox = styled.div`
+  margin-left: 40px;      /* 부모 댓글과 정렬 */
+  margin-top: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
+  border-radius: 10px;
+  padding: 10px 12px;
+  background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+`;
+
+S.ReplyInput = styled.textarea`
+  flex: 1;
+  min-height: 40px;
+  max-height: 140px;
+  resize: vertical;
+  border: none;
+  outline: none;
+  ${h7Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+`;
+
+S.ReplySubmit = styled.button`
+  flex: none;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: none;
+  ${h7Bold}
+  background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+  color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+  cursor: pointer;
 `;
 
 /* ◀ ▶ 페이지네이션(숫자형) */
