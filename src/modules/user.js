@@ -28,7 +28,6 @@ const UserInitialValue = {
   previousUrl: "",
 };
 
-
 // 리듀서
 const user = handleActions(
   {
