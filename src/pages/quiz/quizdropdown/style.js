@@ -24,8 +24,8 @@ S.DropDownButton = styled.button`
     width: 113px;   
     height: 40px;
     white-space: nowrap;
-    background-color: ${({select}) => select ? "#924EFF" : "white"};
-    color: ${({select}) => select ? "#FFFFFF" : "000000"};
+    background-color: ${({ select }) => select ? "#924EFF" : "white"};
+    color: ${({ select }) => select ? "#FFFFFF" : "000000"};
     font-size: 15.5px;
     font-weight: 600;
     `
@@ -55,7 +55,7 @@ S.DropDownIcon = () => (
 );
 
 S.DropDownMenuWrap = styled.div`
-    display: ${({ isDropped }) => (isDropped ? "flex" : "none")};
+    display: ${({ isDropped }) => isDropped ? "flex" : "none"};
     flex-direction: column;
     gap: 10px;
     padding: 10px 0px 10px 8px;
@@ -72,18 +72,17 @@ S.DropDownMenu = styled.span`
     padding: 4px 8px;
     background-color: transparent;
     transition: background-color 0.2s ease;
+    cursor: pointer;
+    ${h6Medium};
     &:hover{
         background-color: #f6f6ff;
     }
-    cursor: pointer;
-    ${h6Medium};
 `
 S.DropDownRefreshWrap = styled.div`
     display: flex;
     align-items: center;
     gap: 6px;
     cursor: pointer;
-
     & img {
         width: 12px;
         height: 12px;
