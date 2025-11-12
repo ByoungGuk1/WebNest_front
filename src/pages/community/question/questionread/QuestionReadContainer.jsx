@@ -265,7 +265,7 @@ const QuestionReadContainer = () => {
                         <span>{ans.userNickname || "익명"}</span>
                       </S.AnswerUser>
                       <S.AnswerMeta>
-                        <span>{toRelativeTime(ans.commentCreateAt)}</span>
+                        <span>Level</span>
                       </S.AnswerMeta>
                     </S.AnswerInnerBox>
                   </S.UserInfo>
@@ -278,6 +278,8 @@ const QuestionReadContainer = () => {
                 <S.AnswerContent>{ans.commentDescription}</S.AnswerContent>
 
                 <S.AnswerDate>
+                  <span>{toRelativeTime(ans.commentCreateAt)}</span>
+                  <b>·</b>
                   <AnswerLikeButton
                     isLiked={likedAnswers[ans.id]}
                     likeCount={likedAnswers[ans.id] ? 1 : 0}

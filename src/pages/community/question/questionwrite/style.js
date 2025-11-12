@@ -243,6 +243,10 @@ S.InputResponse = styled.textarea`
     color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
   }
 
+  &:focus {
+    border-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+  }
+
 `;
 
 
