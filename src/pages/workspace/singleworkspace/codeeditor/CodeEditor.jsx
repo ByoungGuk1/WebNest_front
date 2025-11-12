@@ -24,28 +24,33 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp }) => {
         "   public static void main(String[] args)" + "{ \n\n" +
         "    } \n" +
         "}"
+    const [result, setResult] = useState(null)
     const [code, setCode] = useState(() => {
         return quizLanguage === "JAVA" ? defaultClassValue : "";
     }); // 코드입력칸
     const [output, setOutput] = useState('');
 
-
+    console.log(code)
     // 자바스크립티티코드 핸들러
     function jsHandleRun(code) {
         let logs = [];
         const originalLog = console.log;
         console.log = (...args) => {
             logs.push(args.join(' '));
+            setResult(args.join(' '))
         };
         try {
-            let result = eval(code)
-            setCode(result)
+            eval(code)
             setOutput(logs.join('\n') || '결과 없음');
         } catch (err) {
             setOutput("에러 발생: " + err.message);
+        } finally {
+            console.log = originalLog;
         }
-        console.log = originalLog;
     }
+
+    console.log(result)
+
     // 자바코드 핸들랑
     async function javaHandleRun(code) {
         try {
