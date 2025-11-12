@@ -205,7 +205,7 @@ const S = {}
     justify-content: space-between;
     align-items: center;
     border-bottom: solid 1px #464D4A;
-    margin-top: 12px;
+    margin-top: 36px;
     margin-bottom: 8px;
     & {
       font-family: 'pretendard';
@@ -238,11 +238,16 @@ const S = {}
   S.NotificationItems = styled.div`
     /* background-color: blue; */
     ${h8Medium}
+     min-width: 0;
     width: 100%;
+    word-break: break-word;
+    display: flex;
+    flex-direction: row;
+    justify-content: baseline;
+    /* justify-content: center; */
   `
   S.NotificationItemsWrap = styled.div`
-    height: 320px;
-    width: 80%;
+    width: 373px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -283,6 +288,9 @@ const S = {}
 
   S.UserNameHug = styled.div`
     background-color: #6434B1;
+    padding-left: 4px;
+    padding-right: 4px;
+    height: 24px;
     color: #ffc600;
     border-radius: 4px;
   `
@@ -295,5 +303,15 @@ const S = {}
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+  `
+  S.OnlyColumn = styled.div`
+    display: flex;
+    flex-direction: column;
+  `
+  S.NotificationItemsRow = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
   `
   export default S;

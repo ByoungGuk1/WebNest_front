@@ -14,6 +14,9 @@ const Header = () => {
   const user = useSelector((state) => state.user)
   const {currentUser, isLogin } = user;
   const { id } = currentUser
+  const [ isOpenPostNotification, setIsOpenNotification ] = useState(false)
+  const [ isOpenCommentNorification, setIsOpenCommentNorification ] = useState(false)
+  const [ isOpenFollowNotification, setIsOpenFollowNotification ] = useState(false)
   // if(notifications){
   //   const { message , data} = notifications
   //   const {comments, posts , follows} = data
@@ -91,6 +94,9 @@ if(notifications.data){
   comment = comments
   follow = follows
 }
+const display = [
+  ...post, ...comment, follow
+]
 const onClickToReadAllNotifications = async() => {
   const accessToken = localStorage.getItem("accessToken");
   const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/private/notification/modify-all`, {
@@ -120,29 +126,63 @@ const onClickToReadAllNotifications = async() => {
       .padStart(2, "0")}.${date.getDate().toString().padStart(2, "0")}`;
   };
 
+const arrangeDisplay = [
+  ...post.map(p => ({ ...p, type: "POST" })),
+  ...comment.map(c => ({ ...c, type: "COMMENT" })),
+  ...follow.map(f => ({ ...f, type: "FOLLOW" })),
+].sort((a,b) => new Date(b.notificationCreateAt) - new Date(a.notificationCreateAt));
 
-const commentNotifications = () => {
-  return (<></>)
-}
-const followNotifications = () => {
-  return (<></>)
-}
-
+console.log(arrangeDisplay)
+const notificationLists = () =>
+  (arrangeDisplay ?? []).map((data, i) => {
+    switch (data.type) {
+      case "POST":
+        return (
+        <S.NotificationItemsWrap key={`post-${data.id ?? i}`}>
+          <S.NotificationItems key={data}>
+                <span>{formatDate(data.notificationCreateAt)}</span>
+            <S.OnlyRow>
+              <S.UserNameHug>{data.userNickname}</S.UserNameHug>
+              <div>
+                <span>님이 </span>
+                <span>회원님이 올린 게시글</span><span>{data.postTitle} 에</span>
+              <S.OnlyRow>
+                {data.postNotificationAction == "New Reply" ? <p>새 댓글을 남겼어요</p> :<p> 좋아요를 남겼어요</p>}
+              </S.OnlyRow>
+              </div>
+            </S.OnlyRow>
+        </S.NotificationItems>
+        </S.NotificationItemsWrap>)
+      case "COMMENT":
+        return (
+        <S.NotificationItemsWrap key={`comment-${data.id ?? i}`}>
+          댓글 알림
+        </S.NotificationItemsWrap>)
+      case "FOLLOW":
+        return (
+        <S.NotificationItemsWrap key={`follow-${data.id ?? i}`}>
+          팔로우 알림
+        </S.NotificationItemsWrap>)
+      default:
+        return null;
+    }
+  });
 
 const postNotifications = () => {
     return post.map((posts)=>{
       return(
         <S.NotificationItems key={posts}>
-          <S.OnlyRow>
-          <S.OnlyRow>
-            <S.UserNameHug>{posts.userNickname}</S.UserNameHug>
-          </S.OnlyRow>
-              <span>님이 회원님이 올린 게시글</span><span>{posts.postTitle} 에</span>
-          </S.OnlyRow>
+                <span>{formatDate(posts.notificationCreateAt)}</span>
+            <S.OnlyRow>
+              <S.UserNameHug>{posts.userNickname}</S.UserNameHug>
+              <div>
+                <span>님이 </span>
+                <span>회원님이 올린 게시글</span><span>{posts.postTitle} 에</span>
+              <S.OnlyRow>
                 {posts.postNotificationAction == "New Reply" ? <p>새 댓글을 남겼어요</p> :<p> 좋아요를 남겼어요</p>}
-              <S.BetweenRow>
-              <span>{formatDate(posts.notificationCreateAt)}</span>
-              </S.BetweenRow>
+              </S.OnlyRow>
+              </div>
+            </S.OnlyRow>
         </S.NotificationItems>
       )
     })
@@ -181,23 +221,6 @@ const postNotifications = () => {
 
                 <S.notice_wrap>
                   <S.NotificationCategoryWrap>
-                    <S.NotificationCategory>
-                      <S.NotificationCategoryBadge>
-
-                        <span>{notifications.data.length}</span>
-
-                      </S.NotificationCategoryBadge>
-                      전체
-                    </S.NotificationCategory>
-                    <S.NotificationCategory>
-                      게시글
-                    </S.NotificationCategory>
-                    <S.NotificationCategory>
-                      팔로우
-                    </S.NotificationCategory>
-                    <S.NotificationCategory>
-                      댓글
-                    </S.NotificationCategory>
                   </S.NotificationCategoryWrap>
                   <S.notice_header>
                     <span>알람</span>
@@ -207,7 +230,7 @@ const postNotifications = () => {
                     </S.notice_handler>
                   </S.notice_header>
                   <S.NotificationItemsWrap>
-                    {postNotifications()}
+                    {notificationLists()}
                   </S.NotificationItemsWrap>
                 </S.notice_wrap>
 
@@ -225,8 +248,8 @@ const postNotifications = () => {
             </S.right_layout>
           ) : (
             <S.log_out_layout>
-              <Link to={"sign-up"}>회원가입</Link>
-              <Link to={"sign-in"}>로그인</Link>
+              <Link to={"/sign-up"}>회원가입</Link>
+              <Link to={"/sign-in"}>로그인</Link>
             </S.log_out_layout>
           )}
         </S.RightWrap>
