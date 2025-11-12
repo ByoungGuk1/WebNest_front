@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import S from './style';
 
-const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp }) => {
-
+const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp, userId }) => {
     const addEditorLanguage = (lang) => {
         switch (lang?.toUpperCase()) {
             case 'JS':
@@ -30,7 +29,6 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp }) => {
     }); // 코드입력칸
     const [output, setOutput] = useState('');
 
-    console.log(code)
     // 자바스크립티티코드 핸들러
     function jsHandleRun(code) {
         let logs = [];
@@ -49,9 +47,8 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp }) => {
         }
     }
 
-    console.log(result)
 
-    // 자바코드 핸들랑
+    // 자바코드 핸들러
     async function javaHandleRun(code) {
         try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/java-expectation`, {
@@ -79,6 +76,8 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp }) => {
         }
     }
     // 자바코드 채점
+
+    console.log("userId", userId)
     async function javaCompleteHandleRun(code) {
         try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/java-success`, {
@@ -89,7 +88,10 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp }) => {
                 body: JSON.stringify({
                     "code": code,
                     "quizId": id,
-                    "className": className
+                    "className": className,
+                    "isSolve": isSolve,
+                    "isBookmark": isBookmark,
+                    "userId": userId,
                 })
             })
             const getExp = await response.json();
