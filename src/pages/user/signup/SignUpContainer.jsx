@@ -84,7 +84,6 @@ const SignUp = () => {
       body: JSON.stringify(formData),
     })
       .then((res) => {
-        console.log(res);
         if (!res.ok) {
           return res.json().then(({ message }) => {
             alert(message);
@@ -95,14 +94,10 @@ const SignUp = () => {
       .then(({ message }) => {
         alert(message);
         navigate("/sign-in");
-      })
-      .catch((e) => {
-        console.log("err : " + e);
       });
   };
 
-  const onError = (errors) => {
-    console.log("유효성 에러:", errors);
+  const onError = () => {
     alert("입력값을 다시 확인해주세요!");
   };
 
