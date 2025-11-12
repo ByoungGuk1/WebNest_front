@@ -1,118 +1,68 @@
 import S from "./style";
 import Su from "../style";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { useTheme } from "styled-components";
 
 const FindPasswordContainer = () => {
-  const theme = useTheme();
-  const navigate = useNavigate();
-  const [isEyeOpen, setIsEyeOpen] = useState(false);
-  const [passwordValue, setPasswordValue] = useState("");
-  const [showPasswordSendForm, setShowPasswordSendForm] = useState(true);
-  const [showEmailSend, setShowEmailSend] = useState(false);
-  const [showEmailVerify, setShowEmailVerify] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false);
-  const [showResult, setShowResult] = useState(false);
+
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
+  const [isSendVerificationCode, setIsSendVerificationCode] = useState(false)
+  const [handleModifyPasswordForm, setHandleModifyPasswordForm] = useState(false);
+  const [errorCount, setErrorCount] = useState(0)
 
   const {
+    watch,
     register,
-    handleSubmit,
-    trigger,
     getValues,
+    handleSubmit,
     formState: { errors },
   } = useForm({ mode: "onChange" });
 
-  const invalidColor = theme.PALETTE.primary.red.main;
-  const validColor = theme.PALETTE.primary.green.main;
-
+  const phoneRegex = /^010\d{8}$/;
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[!@#])[\da-zA-Z!@#]{8,}$/;
+  const userPhoneValue = watch("userPhone", "")
 
-  const hasNumber = /\d/.test(passwordValue);
-  const hasSpecial = /[!@#]/.test(passwordValue);
-  const hasMinLen = passwordValue.length >= 8;
+  // user phone을 감시
+  useEffect(() => {
+    let isTest = phoneRegex.test(userPhoneValue)
+    setIsPhoneValid(isTest)
+    if(!isTest){ setIsSendVerificationCode(false) }
+  }, [userPhoneValue])
+  
+  const sendVerificationCode = () => {
+    console.log("인증번호 발송 로직")
+    // 발송 상태 true 변경
+    setIsSendVerificationCode(true)
+  }
 
-  const handleSubmitForm = handleSubmit(async (data) => {
-    fetch("url", { body: JSON.stringify(data) });
-  });
+  const confirmVerificationCode = () => {
+    const expressionCode = getValues("confirmKey");
+    const authenticationCode = "1234";
 
-  const checkEmail = () => {
-    if (errors?.email?.type === "required")
-      return <Su.AlertText>이메일을 입력하세요.</Su.AlertText>;
-    if (errors?.email?.type === "pattern")
-      return <Su.AlertText>이메일 양식에 맞게 입력해주세요.</Su.AlertText>;
-    return null;
-  };
-
-  const renderPasswordCheck = (condition, text) => (
-    <S.LiPasswordException
-      style={{
-        color: condition ? validColor : invalidColor,
-      }}
-    >
-      {text}
-    </S.LiPasswordException>
-  );
-
-  const handleEmailBlur = async (e) => {
-    const email = e.target.value;
-    await trigger("email");
-    if (emailRegex.test(email)) setShowEmailSend(true);
-    else {
-      setShowEmailSend(false);
-      setShowEmailVerify(false);
-      setShowChangePassword(false);
-      setShowResult(false);
-    }
-  };
-
-  const stepOne = () => {
-    setShowPasswordSendForm(true);
-    setShowEmailSend(false);
-    setShowEmailVerify(false);
-    setShowChangePassword(false);
-    setShowResult(false);
-  };
-
-  const stepTwo = async () => {
-    const validEmail = await trigger("email");
-    if (!validEmail) return;
-    setShowPasswordSendForm(true);
-    setShowEmailSend(false);
-    setShowEmailVerify(true);
-    setShowChangePassword(false);
-    setShowResult(false);
-  };
-
-  const stepThree = () => {
-    setShowPasswordSendForm(false);
-    setShowEmailSend(false);
-    setShowEmailVerify(false);
-    setShowChangePassword(true);
-    setShowResult(false);
-  };
-
-  const stepFour = () => {
-    const passwordConfirm = getValues("passwordConfirm");
-    if (
-      !hasNumber ||
-      !hasSpecial ||
-      !hasMinLen ||
-      passwordConfirm !== getValues("password")
-    )
+    let isValid = expressionCode === authenticationCode;
+    if(!isValid) { 
+      setErrorCount(errorCount + 1)
+      console.log(errorCount)
+      if(errorCount + 1 >= 3){
+        alert("처음부터 다시 인증해주세요.😥")
+        setIsSendVerificationCode(false)
+        setErrorCount(0)
+        return;
+      }
+      alert("인증 코드를 확인해주세요.😎")
       return;
-    setShowPasswordSendForm(false);
-    setShowEmailSend(false);
-    setShowEmailVerify(false);
-    setShowChangePassword(false);
-    setShowResult(true);
-  };
+    }
+
+    // 비밀번호 변경 로직으로 변경
+    setHandleModifyPasswordForm(true)
+    console.log("인증번호 입력 확인 후 입력한 코드와 일치하는지 여부 확인 후 맞으면 true")
+  }
+
+  const handleSubmitButton = handleSubmit(
+    async (data) => {
+      const { password, passwordConfirm, confirmKey, ...formData } = data;
+  });
 
   return (
     <Su.ContentContainer>
@@ -120,155 +70,142 @@ const FindPasswordContainer = () => {
         <Su.LogoGrean>Web</Su.LogoGrean>
         <Su.LogoBlue>Nest</Su.LogoBlue>
       </Su.LogoWrapper>
+      <div>
+        <S.FindPwForm onSubmit={handleSubmitButton}>
+          <S.FindLinkWrapper>
+            <S.FindLink to="/find-id">아이디 찾기</S.FindLink>
+            <S.FindLink to="/sign-in">로그인하기</S.FindLink>
+          </S.FindLinkWrapper>
+          { !handleModifyPasswordForm ? (
+            <>
+              <Su.InputNameWrapper>
+                <Su.InputName>이름</Su.InputName>
+                <Su.InputEssential>(필수)</Su.InputEssential>
+              </Su.InputNameWrapper>
+              <Su.InputWrapper>
+                <Su.Input
+                  type="text"
+                  placeholder="이름"
+                  {...register("userName", {
+                    required: "이름을 입력하세요.",
+                  })}
+                />
+              </Su.InputWrapper>
+              {errors.userName && (
+                <Su.AlertText>{errors.userName.message?.toString()}</Su.AlertText>
+              )}
 
-      <div style={{ display: showPasswordSendForm ? "block" : "none" }}>
-        <S.FindLinkWrapper>
-          <S.FindLink to="/find-id">아이디 찾기</S.FindLink>
-          <S.FindLink to="/sign-in">로그인하기</S.FindLink>
-        </S.FindLinkWrapper>
+              <Su.InputNameWrapper>
+                <Su.InputName>본인 확인 이메일</Su.InputName>
+                <Su.InputEssential>(필수)</Su.InputEssential>
+              </Su.InputNameWrapper>
+              <Su.InputWrapper>
+                <Su.Input
+                  type="text"
+                  placeholder="이메일"
+                  {...register("userEmail", {
+                    required: "이메일을 입력하세요.",
+                    pattern: {
+                      value: emailRegex,
+                      message: "이메일 형식이 올바르지 않습니다.",
+                    },
+                  })}
+                />
+              </Su.InputWrapper>
+              {errors.userEmail && (
+                <Su.AlertText>{errors.userEmail.message?.toString()}</Su.AlertText>
+              )}
 
-        <S.FindPwForm onSubmit={handleSubmitForm}>
-          <Su.InputNameWrapper>
-            <Su.InputName>이름</Su.InputName>
-            <Su.InputEssential>(필수)</Su.InputEssential>
-          </Su.InputNameWrapper>
-          <Su.InputWrapper>
-            <Su.Input type="text" placeholder="이름" />
-          </Su.InputWrapper>
+              <Su.InputNameWrapper>
+                <Su.InputName>본인 확인 전화 번호</Su.InputName>
+                <Su.InputEssential>(필수)</Su.InputEssential>
+              </Su.InputNameWrapper>
+              <Su.InputExplanation>
+                가입 시 작성한 이름과 아이디, 전화번호를 정확하게 입력하지 않으면
+                인증번호가 발송되지 않습니다.
+              </Su.InputExplanation>
+              <Su.InputWrapper>
+                <Su.Input
+                  type="tel"
+                  placeholder="01012345678"
+                  {...register("userPhone", {
+                    required: "전화 번호를 입력하세요.",
+                    pattern: {
+                      value: phoneRegex,
+                      message: "전화 번호 형식이 올바르지 않습니다.",
+                    },
+                    setValueAs: (v) => (v ? v.replace(/\D/g, "") : ""),
+                  })}
+                />
+              </Su.InputWrapper>
+              {errors?.userPhone?.type === "required" && (
+                <Su.AlertText>전화번호를 입력하세요.</Su.AlertText>
+              )}
+              {errors?.userPhone?.type === "pattern" && (
+                <Su.AlertText>전화번호 양식에 맞게 입력해주세요.</Su.AlertText>
+              )}
 
-          <Su.InputNameWrapper>
-            <Su.InputName>본인 확인 이메일</Su.InputName>
-            <Su.InputEssential>(필수)</Su.InputEssential>
-          </Su.InputNameWrapper>
-          <Su.InputExplanation>
-            가입 시 작성한 이름과 아이디, 이메일을 정확하게 입력하지 않으면
-            메일이 발송되지 않습니다.
-          </Su.InputExplanation>
-          <Su.InputWrapper>
-            <Su.Input
-              type="text"
-              placeholder="이메일"
-              readOnly={showEmailSend || showEmailVerify}
-              {...register("email", {
-                required: true,
-                pattern: { value: emailRegex },
-              })}
-              onBlur={handleEmailBlur}
-            />
-          </Su.InputWrapper>
+              { isPhoneValid ? (
+                <S.SendPhoneWrapper>
+                  <Su.InputNameWrapper>
+                    <Su.InputName>휴대폰 인증</Su.InputName>
+                    <Su.InputEssential>(필수)</Su.InputEssential>
+                  </Su.InputNameWrapper>
+                  <Su.InputExplanation>
+                  </Su.InputExplanation>
+                  { !isSendVerificationCode ? (
+                    <>
+                      <Su.Button type="button" onClick={sendVerificationCode}>
+                        인증 번호 발송
+                      </Su.Button>
+                      <S.PhoneVerification>
+                        <button type="button">
+                          전화 번호 수정하기
+                        </button>
+                      </S.PhoneVerification>
+                    </>
+                  ) : (
+                    <>
+                      <Su.InputExplanation>
+                        휴대폰으로 전송된 키를 입력해주세요.
+                      </Su.InputExplanation>
+                      <Su.InputWrapper>
+                        <Su.Input
+                          type="text"
+                          placeholder="인증 키"
+                          {...register("confirmKey")}
+                        />
+                      </Su.InputWrapper>
+                      <Su.Button type="button" onClick={confirmVerificationCode}>인증 번호 확인</Su.Button>
+                      <S.PhoneVerification>
+                        <button type="button">
+                          인증 키 재전송
+                        </button>
+                        <button type="button">
+                          전화번호 수정하기
+                        </button>
+                      </S.PhoneVerification>
+                    </>
+                  )}
+                </S.SendPhoneWrapper>
+              ) : <></>}
+              <div>
+                {errors.confirmKey && (
+                  <Su.AlertText>
+                    {errors.confirmKey.message?.toString()}
+                  </Su.AlertText>
+                )}
+              </div>
+            </>
+          ): (
+            <>
+            
+            {/* 만들려고 했던 비밀번호 변경 폼 */}
 
-          {checkEmail()}
 
-          <S.SendEmailWrapper
-            style={{ display: showEmailSend ? "block" : "none" }}
-          >
-            <Su.InputNameWrapper>
-              <Su.InputName>이메일 인증</Su.InputName>
-              <Su.InputEssential>(필수)</Su.InputEssential>
-            </Su.InputNameWrapper>
-            <Su.InputExplanation>
-              이메일로 전송된 키를 입력해주세요.
-            </Su.InputExplanation>
-            <Su.Button type="button" onClick={stepTwo}>
-              인증 메일 발송
-            </Su.Button>
-            <S.EmailVerification>
-              <button type="button" onClick={stepOne}>
-                이메일 수정하기
-              </button>
-            </S.EmailVerification>
-          </S.SendEmailWrapper>
-
-          <div style={{ display: showEmailVerify ? "block" : "none" }}>
-            <Su.InputNameWrapper>
-              <Su.InputName>이메일 인증</Su.InputName>
-              <Su.InputEssential>(필수)</Su.InputEssential>
-            </Su.InputNameWrapper>
-            <Su.InputExplanation>
-              이메일로 전송된 키를 입력해주세요.
-            </Su.InputExplanation>
-            <Su.InputWrapper>
-              <Su.Input type="text" placeholder="인증 키" />
-            </Su.InputWrapper>
-            <Su.Button type="button" onClick={stepThree}>
-              인증 메일 확인
-            </Su.Button>
-            <S.EmailVerification>
-              <button type="button" onClick={stepTwo}>
-                인증 키 재전송
-              </button>
-              <button type="button" onClick={stepOne}>
-                이메일 수정하기
-              </button>
-            </S.EmailVerification>
-          </div>
+            </>
+          )}
         </S.FindPwForm>
-      </div>
-
-      <div style={{ display: showChangePassword ? "block" : "none" }}>
-        <Su.InputNameWrapper>
-          <Su.InputName>비밀번호 재설정</Su.InputName>
-        </Su.InputNameWrapper>
-
-        <Su.InputWrapper>
-          <Su.Input
-            type={isEyeOpen ? "text" : "password"}
-            placeholder="비밀번호를 입력하세요"
-            {...register("password", {
-              required: true,
-              pattern: { value: passwordRegex },
-            })}
-            onChange={(e) => setPasswordValue(e.target.value)}
-          />
-          <FontAwesomeIcon
-            onClick={() => setIsEyeOpen(!isEyeOpen)}
-            icon={isEyeOpen ? faEye : faEyeSlash}
-            size="lg"
-            style={{ marginRight: "20px", cursor: "pointer" }}
-          />
-        </Su.InputWrapper>
-
-        {renderPasswordCheck(hasNumber, "숫자를 포함해야 합니다.")}
-        {renderPasswordCheck(hasSpecial, "특수문자를 포함해야 합니다. (!@#)")}
-        {renderPasswordCheck(
-          hasMinLen,
-          "비밀번호가 너무 짧습니다. 비밀번호는 8글자 이상이어야 합니다."
-        )}
-
-        <Su.InputNameWrapper>
-          <Su.InputName>비밀번호 확인</Su.InputName>
-          <Su.InputEssential>(필수)</Su.InputEssential>
-        </Su.InputNameWrapper>
-        <Su.InputWrapper>
-          <Su.Input
-            type="password"
-            placeholder="비밀번호 확인"
-            {...register("passwordConfirm", {
-              required: "비밀번호 확인은 필수입니다.",
-              validate: (value) =>
-                value === getValues("password") ||
-                "비밀번호가 일치하지 않습니다.",
-            })}
-          />
-        </Su.InputWrapper>
-
-        {errors.passwordConfirm && (
-          <Su.AlertText>{errors.passwordConfirm.message}</Su.AlertText>
-        )}
-
-        <S.Space60px />
-        <Su.Button type="button" onClick={stepFour}>
-          변경하기
-        </Su.Button>
-      </div>
-
-      <div style={{ display: showResult ? "block" : "none" }}>
-        <S.FoundResult>
-          비밀번호가 변경되었습니다.
-          <Su.Button type="button" onClick={() => navigate("/sign-in")}>
-            로그인하러 가기
-          </Su.Button>
-        </S.FoundResult>
       </div>
     </Su.ContentContainer>
   );

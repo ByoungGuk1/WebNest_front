@@ -1,12 +1,30 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
+import S from "./style";
+import ChattingContainer from "./chatting/ChattingContainer";
 
 const MultiWorkspaceRoomContainer = () => {
   return (
-    <div>
-      <h1>Multi Workspace Room Page😎</h1>
-      <Outlet />
-    </div>
+    <S.Wrapper>
+      <S.MenuLayout>
+        <div>
+          <span>도움말</span>
+          <span>설정</span>
+          <span>나가기</span>
+        </div>
+      </S.MenuLayout>
+      <S.MainWrapper>
+        <S.Content>
+          <Outlet />
+        </S.Content>
+        <S.ChattingLayout>
+          <ChattingContainer />
+        </S.ChattingLayout>
+      </S.MainWrapper>
+      <S.CardLayout>
+        카드 부분
+      </S.CardLayout>
+    </S.Wrapper>
   );
 };
 

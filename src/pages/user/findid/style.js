@@ -27,11 +27,11 @@ S.FindIdForm = styled.form`
   width: 520px;
 `;
 
-S.SendEmailWrapper = styled.div`
+S.SendPhoneWrapper = styled.div`
   width: 100%;
 `;
 
-S.EmailVerification = styled.div`
+S.PhoneVerification = styled.div`
   ${flexCenterColumn};
   justify-content: center;
   align-items: start;
