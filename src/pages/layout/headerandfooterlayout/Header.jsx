@@ -128,6 +128,7 @@ const followNotifications = () => {
   return (<></>)
 }
 
+
 const postNotifications = () => {
     return post.map((posts)=>{
       return(
