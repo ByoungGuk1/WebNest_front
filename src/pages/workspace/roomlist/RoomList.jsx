@@ -23,10 +23,8 @@ const RoomList = () => {
       })
   }, [])
 
-  console.log(rooms)
-
   if(isLoading){
-    return <div>채팅방을 불러오는 중...😅</div>
+    return <div>게임방 목록을 불러오는 중...😅</div>
   }
 
   if(!rooms.length){
@@ -34,8 +32,8 @@ const RoomList = () => {
   }
 
   const roomList = rooms.map(({gameRoomCreateAt, gameRoomCurrentPlayer, gameRoomIsOpen, gameRoomIsStart, gameRoomIsTeam, gameRoomMaxPlayer, gameRoomPassKey, gameRoomTitle, gameRoomType, id, }, i) => (
-    <li>
-      <Link to={`/workspace/rooms/${id}`}>
+    <li key={i}>
+      <Link to={`/workspace/rooms/${id}/${gameRoomType}`}>
         {gameRoomTitle} ({gameRoomCurrentPlayer}/{gameRoomMaxPlayer})
       </Link>
     </li>
