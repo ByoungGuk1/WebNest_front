@@ -5,9 +5,10 @@ import S from "./style";
 
 /** 🔧 백엔드 연동용 상수 */
 const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
-const GET_OPEN_POST   = (id) => `${API_BASE}/post/get-post/${id}`;
-const GET_COMMENTS    = (id) => `${API_BASE}/comment/${id}`;
-const GET_COMMENT_LIKE = (id) => `${API_BASE}/commentLike/${id}`;
+const GET_OPEN_POST      = (id) => `${API_BASE}/post/get-post/${id}`;
+const GET_COMMENTS       = (id) => `${API_BASE}/comment/${id}`;
+const GET_COMMENT_LIKE   = (id) => `${API_BASE}/commentLike/${id}`;
+const GET_SUBCOMMENTS    = (commentId) => `${API_BASE}/subcomment/get-comments/${commentId}`;
 
 /** ⏰ 상대 시간 */
 const toRelativeTime = (dateLike) => {
@@ -28,32 +29,24 @@ const toRelativeTime = (dateLike) => {
   return `${y}년`;
 };
 
-/* ✅ 백엔드 DTO → 화면에서 쓰는 형태로 매핑 */
-const mapPost = (p) => ({
-  id: p.id ?? p.postId,
-  title: p.postTitle ?? p.title ?? "",
-  content: p.postContent ?? p.content ?? "",
-  createdAt:
-    p.postCreateAt ??
-    p.createdAt ??
-    p.created ??
-    p.createdDate ??
-    p.createAt ??
-    null,
-  views: p.postViewCount ?? p.views ?? 0,
-  likes: p.likes ?? 0,
-  postType: p.postType ?? "OPEN",
-  author: {
-    id: p.userId ?? p.authorId ?? null,
-    name: p.userNickname ?? p.userName ?? p.username ?? null,
-    profileImg: p.userThumbnailUrl ?? p.authorProfile ?? null,
-  },
-});
-
+/* ✅ 댓글/대댓글 공용 매퍼: 대댓글 필드(subcomment*) 우선 매핑 */
 const mapComment = (c) => ({
-  id: c.id ?? c.commentId,
-  content: c.commentDescription ?? c.content ?? c.text ?? c.body ?? "",
-  createdAt: c.commentCreateAt ?? c.createdAt ?? null,
+  id:
+    c.id ??
+    c.subcommentId ??   // 대댓글 id
+    c.commentId,        // 댓글 id
+  content:
+    c.subcommentDescription ??  // 🔹 대댓글 본문
+    c.commentDescription ??     // 🔹 댓글 본문
+    c.content ??
+    c.text ??
+    c.body ??
+    "",
+  createdAt:
+    c.subcommentCreateAt ??     // 🔹 대댓글 생성일
+    c.commentCreateAt ??        // 🔹 댓글 생성일
+    c.createdAt ??
+    null,
   likes: c.likes ?? 0,
   user: {
     name: c.userNickname ?? c.userName ?? "user",
@@ -63,7 +56,6 @@ const mapComment = (c) => ({
 });
 
 const PostReadContainer = () => {
-  // ✅ 라우터 파라미터가 :postId 또는 :id 어떤 것이든 대응
   const { postId: postIdParam, id: idParam } = useParams();
   const pid = postIdParam ?? idParam;
 
@@ -84,6 +76,10 @@ const PostReadContainer = () => {
   const [reportReason, setReportReason] = useState("");
   const [reportTarget, setReportTarget] = useState(null); // 'post' | 'comment'
   const [targetId, setTargetId] = useState(null);
+
+  /** ✅ 답글 UI 상태 */
+  const [replyOpenMap, setReplyOpenMap] = useState({});  // { [commentId]: boolean }
+  const [replyTextMap, setReplyTextMap] = useState({});  // { [commentId]: string }
 
   const openReport = (type, id) => {
     setReportTarget(type);
@@ -123,10 +119,40 @@ const PostReadContainer = () => {
       content: text,
       createdAt: new Date().toISOString(),
       likes: 0,
+      subcomments: [],
     };
     setComments((prev) => [newComment, ...prev]);
     setCommentInput("");
     setCurrentPage(1);
+  };
+
+  /** ✅ 답글(대댓글) UI 토글/입력/등록 */
+  const toggleReplyOpen = (cid) =>
+    setReplyOpenMap((prev) => ({ ...prev, [cid]: !prev[cid] }));
+
+  const onChangeReplyText = (cid, value) =>
+    setReplyTextMap((prev) => ({ ...prev, [cid]: value }));
+
+  const submitReply = (cid) => {
+    const text = (replyTextMap[cid] || "").trim();
+    if (!text) return;
+
+    // 프론트 즉시 반영용 더미 대댓글 (백엔드 붙이면 여기서 POST 호출)
+    const newSub = {
+      id: Date.now(),
+      user: { name: "user", profileImg: "/assets/images/defalutpro.svg", level: 1 },
+      content: text,
+      createdAt: new Date().toISOString(),
+      likes: 0,
+    };
+
+    setComments((prev) =>
+      prev.map((c) =>
+        c.id === cid ? { ...c, subcomments: [...(c.subcomments || []), newSub] } : c
+      )
+    );
+    setReplyTextMap((prev) => ({ ...prev, [cid]: "" }));
+    setReplyOpenMap((prev) => ({ ...prev, [cid]: false }));
   };
 
   /** 데이터 로드 */
@@ -139,8 +165,8 @@ const PostReadContainer = () => {
         const resPost = await fetch(GET_OPEN_POST(pid));
         if (!resPost.ok) throw new Error("게시글 불러오기 실패");
         const raw = await resPost.json();
-        const p = raw?.data ?? raw; // 래핑/비래핑 모두 대응
-        const ui = mapPost(p);      // ✅ 화면용으로 매핑
+        const p = raw?.data ?? raw;
+        const ui = mapPost(p);
         setPost(ui);
         setPostLikeCount(ui.likes || 0);
 
@@ -148,29 +174,58 @@ const PostReadContainer = () => {
         const resC = await fetch(GET_COMMENTS(pid));
         if (!resC.ok) throw new Error("댓글 불러오기 실패");
         const r = await resC.json();
-        const list = Array.isArray(r) ? r : (Array.isArray(r?.data) ? r.data : (Array.isArray(r?.result) ? r.result : []));
+        const list = Array.isArray(r)
+          ? r
+          : Array.isArray(r?.data)
+          ? r.data
+          : Array.isArray(r?.result)
+          ? r.result
+          : [];
         const mapped = list.map(mapComment);
 
-        // (옵션) 댓글 좋아요 개수 병합
-        const withLikeCount = await Promise.all(
+        // ✅ 댓글 좋아요 수 + 대댓글 동시 병합
+        const enriched = await Promise.all(
           mapped.map(async (c) => {
-            try {
-              const r2 = await fetch(GET_COMMENT_LIKE(c.id));
-              if (r2.ok) {
-                const cnt = await r2.json();
-                const like = typeof cnt === "number" ? cnt : (cnt?.data ?? 0);
-                return { ...c, likes: like };
-              }
-            } catch {}
-            return c;
+            const [likeCnt, subs] = await Promise.all([
+              (async () => {
+                try {
+                  const r2 = await fetch(GET_COMMENT_LIKE(c.id));
+                  if (!r2.ok) return c.likes ?? 0;
+                  const likeJson = await r2.json();
+                  return typeof likeJson === "number" ? likeJson : (likeJson?.data ?? 0);
+                } catch {
+                  return c.likes ?? 0;
+                }
+              })(),
+              (async () => {
+                try {
+                  const rs = await fetch(GET_SUBCOMMENTS(c.id));
+                  if (!rs.ok) return [];
+                  const sj = await rs.json();
+                  const rawSubs = Array.isArray(sj)
+                    ? sj
+                    : Array.isArray(sj?.data)
+                    ? sj.data
+                    : Array.isArray(sj?.result)
+                    ? sj.result
+                    : [];
+                  return rawSubs.map(mapComment);
+                } catch {
+                  return [];
+                }
+              })(),
+            ]);
+
+            return { ...c, likes: likeCnt, subcomments: subs };
           })
         );
 
-        setComments(withLikeCount);
+        setComments(enriched);
       } catch (e) {
         console.error(e);
       }
     };
+
     fetchAll();
   }, [pid]);
 
@@ -208,7 +263,6 @@ const PostReadContainer = () => {
               <S.ProfileImg src={post.author?.profileImg || "/assets/images/defalutpro.svg"} alt={post.author?.name || "user"} />
               <S.AuthorName>{post.author?.name || "user"}</S.AuthorName>
             </S.AuthorBox>
-            {/* 쪽지 보내기 제거 */}
           </S.PostHeader>
 
           <S.PostBody>{post.content}</S.PostBody>
@@ -275,7 +329,7 @@ const PostReadContainer = () => {
                     <S.CommentUserLevel>Lv.{c.user?.level ?? 1}</S.CommentUserLevel>
                   </S.CommentUserRow>
 
-                    <S.CommentContent>{c.content}</S.CommentContent>
+                  <S.CommentContent>{c.content}</S.CommentContent>
 
                   <S.CommentMetaRow>
                     <span>{toRelativeTime(c.createdAt)}</span>
@@ -291,9 +345,60 @@ const PostReadContainer = () => {
                     >
                       {(c.likes ?? 0) + (likedComments[c.id] ? 1 : 0)}
                     </S.CommentLikeCount>
+
+                    {/* ✅ ‘답글 달기’ 버튼 추가 */}
                     <b>·</b>
-                    <span onClick={() => openReport("comment", c.id)}>신고</span>
+                    <S.CommentAction onClick={() => toggleReplyOpen(c.id)}>답글 달기</S.CommentAction>
+
+                    <b>·</b>
+                    <S.CommentAction onClick={() => openReport("comment", c.id)}>신고</S.CommentAction>
                   </S.CommentMetaRow>
+
+                  {/* ✅ 답글 입력창 (토글) */}
+                  {replyOpenMap[c.id] && (
+                    <S.ReplyBox>
+                      <S.ReplyInput
+                        value={replyTextMap[c.id] || ""}
+                        onChange={(e) => onChangeReplyText(c.id, e.target.value)}
+                        placeholder="이 댓글에 답글을 남겨보세요."
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            submitReply(c.id);
+                          }
+                        }}
+                      />
+                      <S.ReplySubmit onClick={() => submitReply(c.id)}>등록</S.ReplySubmit>
+                    </S.ReplyBox>
+                  )}
+
+                  {/* ✅ 대댓글 리스트 */}
+                  {Array.isArray(c.subcomments) && c.subcomments.length > 0 && (
+                    <S.SubcommentList>
+                      {c.subcomments.map((s) => (
+                        <S.SubcommentItem key={s.id}>
+                          <S.SubcommentLeft>
+                            <S.SubcommentAvatar
+                              src={s.user?.profileImg || "/assets/images/defalutpro.svg"}
+                              alt={s.user?.name || "user"}
+                            />
+                          </S.SubcommentLeft>
+                          <S.SubcommentRight>
+                            <S.SubcommentUserRow>
+                              <S.SubcommentUserName>{s.user?.name || "user"}</S.SubcommentUserName>
+                              <S.SubcommentUserLevel>Lv.{s.user?.level ?? 1}</S.SubcommentUserLevel>
+                            </S.SubcommentUserRow>
+                            <S.SubcommentContent>{s.content}</S.SubcommentContent>
+                            <S.SubcommentMetaRow>
+                              <span>{toRelativeTime(s.createdAt)}</span>
+                              <b>·</b>
+                              <S.CommentAction onClick={() => openReport("comment", s.id)}>신고</S.CommentAction>
+                            </S.SubcommentMetaRow>
+                          </S.SubcommentRight>
+                        </S.SubcommentItem>
+                      ))}
+                    </S.SubcommentList>
+                  )}
                 </S.CommentRight>
               </S.CommentItem>
             ))}

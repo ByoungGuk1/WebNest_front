@@ -1,4 +1,4 @@
-
+// src/pages/community/post/postread/style.js
 import styled from "styled-components";
 import {
   flexCenter,
@@ -301,6 +301,71 @@ S.CommentLikeCount = styled.span`
   transition: color .2s ease;
   color: ${({ $liked, theme }) =>
     $liked ? theme.PALETTE.primary.purple.main : theme.PALETTE.neutral.black.disable};
+`;
+
+/* 🪶 대댓글 */
+S.SubcommentList = styled.div`
+  margin-top: 10px;
+  margin-left: 40px; /* 부모 댓글 아바타 너비만큼 들여쓰기 */
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+`;
+
+S.SubcommentItem = styled.div`
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 8px;
+`;
+
+S.SubcommentLeft = styled.div``;
+
+S.SubcommentRight = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+S.SubcommentAvatar = styled.img`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+`;
+
+S.SubcommentUserRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+S.SubcommentUserName = styled.span`
+  ${h8Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+`;
+
+S.SubcommentUserLevel = styled.span`
+  ${h9Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+`;
+
+S.SubcommentContent = styled.div`
+  ${h8Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+`;
+
+S.SubcommentMetaRow = styled.div`
+  ${h9Medium}
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: ${({ theme }) => theme.PALETTE.neutral.black.disable};
+
+  span:last-of-type {
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 `;
 
 /* ◀ ▶ 페이지네이션(숫자형) */
