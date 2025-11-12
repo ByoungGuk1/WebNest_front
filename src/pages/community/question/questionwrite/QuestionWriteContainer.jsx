@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import S from "./style";
+import { useSelector } from "react-redux"; // ✅ 추가
 
 const QuestionWriteContainer = () => {
-  const { questionId } = useParams(); // URL 파라미터로 게시글 ID 받기
-  const [posts, setPosts] = useState([]);
+  const { questionId } = useParams(); // 게시글 ID
   const [currentPost, setCurrentPost] = useState(null);
-  const [comments, setComments] = useState([]);
+  const [comment, setComment] = useState(""); // ✅ 답변 입력값
   const [postLikeCount, setPostLikeCount] = useState(0);
+  const navigate = useNavigate();
 
+  // ✅ Redux에서 로그인 유저 정보 가져오
+    const user = useSelector((state) => state.user)
+    const {currentUser, isLogin } = user;
+    const { id } = currentUser
+
+  console.log("현재 로그인 유저 정보:", currentUser);
   /* 상대 시간 포맷 */
   const toRelativeTime = (dateLike) => {
     if (!dateLike) return "방금";
@@ -28,118 +35,129 @@ const QuestionWriteContainer = () => {
     return `${y}년`;
   };
 
-  /* 데이터 로드 (백엔드 연동) */
+  /* 게시글 불러오기 */
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 게시글 데이터 불러오기
-        const postRes = await fetch(
-          `http://localhost:10000/post/get-post/${questionId}`
-        );
-        if (!postRes.ok) throw new Error("게시글 불러오기 실패");
-        const postData = await postRes.json();
-
-        // 댓글(답변) 데이터 불러오기
-        const commentRes = await fetch(
-          `http://localhost:10000/comment/${questionId}`
-        );
-        if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
-        const commentData = await commentRes.json();
-
-        setCurrentPost(postData.data || postData);
-        setPosts([postData.data || postData]);
-        setComments(commentData.data || []);
-        setPostLikeCount(postData.data?.postViewCount || 0);
+        const res = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
+        if (!res.ok) throw new Error("게시글 불러오기 실패");
+        const data = await res.json();
+        setCurrentPost(data.data || data);
+        setPostLikeCount(data.data?.postViewCount || 0);
       } catch (err) {
         console.error("데이터 로드 에러:", err);
-        setCurrentPost(null);
-        setComments([]);
       }
     };
     loadData();
   }, [questionId]);
 
-  // 백엔드 DTO 필드명에 맞게 구조 분해   ????  뭔지모름;;
-  const {
-    postTitle,
-    postContent,
-    postCreateAt,
-    postViewCount,
-    userNickname,
-  } = currentPost || {};
+  // ✅ 답변 등록 버튼 클릭
+  const handleSubmitComment = async () => {
+    if (!isLogin) {
+      alert("로그인 후 이용해주세요!");
+      navigate("/login");
+      return;
+    }
+
+    if (!comment.trim()) {
+      alert("답변 내용을 입력해주세요!");
+      return;
+    }
+
+    const commentData = {
+      postId: questionId, // 현재 게시글 ID
+      userId: currentUser.id, // 로그인한 사용자 ID
+      commentDescription: comment, // 입력한 답변 내용
+      commentCreateAt: new Date().toISOString()
+    };
+
+     console.log(commentData);
+    try {
+      const response = await fetch("http://localhost:10000/comment/write", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(commentData),
+      });
+
+      if (!response.ok) throw new Error("서버 응답 실패");
+
+      alert("답변이 성공적으로 등록되었습니다!");
+      setComment(""); // 입력창 초기화
+      navigate(`/question/${questionId}`); 
+    } catch (error) {
+      console.error("답변 등록 실패:", error);
+      alert("답변 등록 중 오류가 발생했습니다.");
+    }
+  };
+
+  const { postTitle, postContent, postCreateAt, postViewCount, userNickname } =
+    currentPost || {};  
+
 
 
   return (
     <>
-      {/* 상단 배너 */}
       <S.PurpleBannerWrap>
         <S.PurpleBanner>
           <S.PurpleBannerInner>
             <div>
               <S.PurplePageTitle>문제 둥지</S.PurplePageTitle>
-              <S.PurplePageDesc>
-                모르는 문제를 함께 올리고 답변을 받아보세요.
-              </S.PurplePageDesc>
+              <S.PurplePageDesc>모르는 문제를 함께 올리고 답변을 받아보세요.</S.PurplePageDesc>
             </div>
-            <S.PurpleIllust
-              src="/assets/images/chickens.png"
-              alt="문제둥지 일러스트"
-            />
+            <S.PurpleIllust src="/assets/images/chickens.png" alt="문제둥지 일러스트" />
           </S.PurpleBannerInner>
         </S.PurpleBanner>
       </S.PurpleBannerWrap>
 
-      {/* 질문 본문 */}
       <S.ContentWrap>
         <S.QuestionWrap>
           <S.QuestionTitle>{postTitle}</S.QuestionTitle>
-
           <S.QuestionerInfo>
             <S.LeftBox>
               <S.ProfileImgA
-                src={"/assets/images/defalutpro.svg"}
-                alt={userNickname || "익명"}
+                src={currentUser.userThumbnailUrl || "/assets/images/defalutpro.svg"} // ✅ 로그인 유저 프로필
+                alt={currentUser.userNickname || "익명"}
               />
-              <span>{userNickname || "익명"}</span>
+              <span>{currentUser.userNickname || "익명"}</span>
             </S.LeftBox>
-            <S.FollowButton>팔로우</S.FollowButton>
           </S.QuestionerInfo>
-
           <S.QuestionContent>{postContent}</S.QuestionContent>
 
-          {/* 게시글 하단 정보 */}
           <S.QuestionInfo>
             <S.QuestionMetaWrap>
               <span>{toRelativeTime(postCreateAt)}</span>
               <b>·</b>
-              <span>좋아요 {postLikeCount}</span>
+              <span>좋아요 0</span>
               <b>·</b>
               <span>조회 {postViewCount || 0}</span>
             </S.QuestionMetaWrap>
           </S.QuestionInfo>
         </S.QuestionWrap>
 
-        {/* 답변 작성 영역 */}
+        {/* ✅ 답변 작성 영역 */}
         <S.Container>
           <S.ResponseCard>
-            {/*  프로필 & 안내 */}
             <S.InfoAndWrite>
               <S.ResponseBanner>
                 <S.ProfileImg
-                  src="/assets/images/defalutpro.svg"
+                  src={currentUser.userThumbnailUrl || "/assets/images/defalutpro.svg"} // ✅ 로그인 프로필
                   alt="프로필"
                 />
                 <S.ResponserInfo>
-                  <div>뚜왈밍3냥님,</div>
+                  <div>{currentUser.userNickname || "익명"}님,</div>
                   <div>정보를 공유해 주세요.</div>
                 </S.ResponserInfo>
               </S.ResponseBanner>
 
-              {/* 버튼 */}
-              <S.ButtonWrap>답변등록</S.ButtonWrap>
+              {/* ✅ 버튼 */}
+              <S.ButtonWrap onClick={handleSubmitComment}>
+                답변등록
+              </S.ButtonWrap>
             </S.InfoAndWrite>
 
-            {/* {} 코드 입력칸 */}
+                 {/* {} 코드 입력칸 */}
             <S.CodeBox>
               <S.CodeBtn>
                 <S.CodeImg>
@@ -150,9 +168,11 @@ const QuestionWriteContainer = () => {
               
             </S.CodeBox>
 
-            {/* 안내문 포함 답변 입력란 */}
+            {/* ✅ 답변 입력창 */}
             <S.InputResponse
-              placeholder={`답변 작성 시 서비스 운영정책을 지켜주세요.\n이상한 말 쓰지 말고 제대로 작성하세요. 매너 지켜요.\n욕 안돼요. 못한다고 잔소리 안됩니다.`}
+              placeholder={`답변 작성 시 서비스 운영정책을 지켜주세요.\n이상한말쓰지말고 제대로 작성하세요. 매너 지켜요. 욕 안돼요.\n못한다고 잔소리 안됩니다. `}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
             />
           </S.ResponseCard>
         </S.Container>

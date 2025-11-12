@@ -4,17 +4,14 @@ import Su from "../style";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { redirect, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { setUser } from "../../../modules/user";
 
 const FindIdContainer = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [showEmailSendForm, setShowEmailSendForm] = useState(true);
-  const [showEmailSend, setShowEmailSend] = useState(false);
-  const [showEmailVerify, setShowEmailVerify] = useState(false);
+  const [showPhoneSendForm, setShowPhoneSendForm] = useState(true);
+  const [showPhoneSend, setShowPhoneSend] = useState(false);
+  const [showPhoneVerify, setShowPhoneVerify] = useState(false);
   const [showResult, setShowResult] = useState(false);
-  const [foundName, setFoundName] = useState("");
+  const [foundEmails, setFoundEmails] = useState([]);
 
   const {
     register,
@@ -23,63 +20,72 @@ const FindIdContainer = () => {
     formState: { errors },
   } = useForm({ mode: "onChange" });
 
-  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const phoneRegex = /^010\d{8}$/;
 
   const handleSumbmitForm = handleSubmit(async (data) => {
-    console.log(data);
-    fetch(``, {
-      body: JSON.stringify(data),
-    })
-      .then((res) => {
-        setFoundName(res.userName);
-      })
-      .catch(() => {
-        redirect("/find-id");
-      });
+    const fetching = await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/users/find-email`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+        method: "POST",
+      }
+    ).catch(() => {
+      redirect("/find-id");
+    });
+
+    if (!fetching.ok) {
+      throw new Error("failed");
+    }
+
+    const result = await fetching.json();
+    setFoundEmails(result.data);
   });
 
-  const checkEmail = () => {
-    if (errors?.email?.type === "required") {
-      return <Su.AlertText>이메일을 입력하세요.</Su.AlertText>;
+  const checkPhone = () => {
+    if (errors?.userPhone?.type === "required") {
+      return <Su.AlertText>전화 번호를 입력하세요.</Su.AlertText>;
     }
-    if (errors?.email?.type === "pattern") {
-      return <Su.AlertText>이메일 양식에 맞게 입력해주세요.</Su.AlertText>;
+    if (errors?.userPhone?.type === "pattern") {
+      return <Su.AlertText>전화 번호 양식에 맞게 입력해주세요.</Su.AlertText>;
     }
     return null;
   };
 
-  const handleEmailBlur = async (e) => {
-    const email = e.target.value;
-    await trigger("email");
-    if (emailRegex.test(email)) {
-      setShowEmailSend(true);
+  const handlePhoneBlur = async (e) => {
+    const phone = e.target.value;
+    await trigger("userPhone");
+    if (phoneRegex.test(phone)) {
+      setShowPhoneSend(true);
     } else {
-      setShowEmailSend(false);
-      setShowEmailVerify(false);
+      setShowPhoneSend(false);
+      setShowPhoneVerify(false);
       setShowResult(false);
     }
   };
 
   const stepOne = () => {
-    setShowEmailSendForm(true);
-    setShowEmailSend(false);
-    setShowEmailVerify(false);
+    setShowPhoneSendForm(true);
+    setShowPhoneSend(false);
+    setShowPhoneVerify(false);
     setShowResult(false);
   };
 
   const stepTwo = async () => {
-    const validEmail = await trigger("email");
-    if (!validEmail) return;
-    setShowEmailSendForm(true);
-    setShowEmailSend(false);
-    setShowEmailVerify(true);
+    const validPhone = await trigger("userPhone");
+    if (!validPhone) return;
+    setShowPhoneSendForm(true);
+    setShowPhoneSend(false);
+    setShowPhoneVerify(true);
     setShowResult(false);
   };
 
   const stepThree = () => {
-    setShowEmailSendForm(false);
-    setShowEmailSend(false);
-    setShowEmailVerify(false);
+    setShowPhoneSendForm(false);
+    setShowPhoneSend(false);
+    setShowPhoneVerify(false);
     setShowResult(true);
   };
 
@@ -91,7 +97,7 @@ const FindIdContainer = () => {
           <Su.LogoBlue>Nest</Su.LogoBlue>
         </Su.LogoWrapper>
 
-        <div style={{ display: showEmailSendForm ? "block" : "none" }}>
+        <div style={{ display: showPhoneSendForm ? "block" : "none" }}>
           <S.FindLinkWrapper>
             <S.FindLink to="/sign-in">로그인하기</S.FindLink>
             <S.FindLink to="/find-password">비밀번호 찾기</S.FindLink>
@@ -103,82 +109,101 @@ const FindIdContainer = () => {
               <Su.InputEssential>(필수)</Su.InputEssential>
             </Su.InputNameWrapper>
             <Su.InputWrapper>
-              <Su.Input type="text" placeholder="이름" />
+              <Su.Input
+                type="text"
+                placeholder="이름"
+                {...register("userName")}
+              />
             </Su.InputWrapper>
 
             <Su.InputNameWrapper>
-              <Su.InputName>본인 확인 이메일</Su.InputName>
+              <Su.InputName>본인 확인 전화 번호</Su.InputName>
               <Su.InputEssential>(필수)</Su.InputEssential>
             </Su.InputNameWrapper>
             <Su.InputExplanation>
-              가입 시 작성한 이름과 아이디, 이메일을 정확하게 입력하지 않으면
-              메일이 발송되지 않습니다.
+              가입 시 작성한 이름과 전화 번호를 정확하게 입력하지 않으면 번호가
+              발송되지 않습니다.
             </Su.InputExplanation>
 
             <Su.InputWrapper>
               <Su.Input
-                type="text"
-                placeholder="이메일"
-                readOnly={showEmailSend || showEmailVerify}
-                {...register("email", {
-                  required: true,
-                  pattern: { value: emailRegex },
+                type="tel"
+                placeholder="01012345678"
+                readOnly={showPhoneSend || showPhoneVerify}
+                {...register("userPhone", {
+                  required: "전화 번호를 입력하세요.",
+                  pattern: {
+                    value: phoneRegex,
+                    message: "전화 번호 형식이 올바르지 않습니다.",
+                  },
+                  setValueAs: (v) => (v ? v.replace(/\D/g, "") : ""),
                 })}
-                onBlur={handleEmailBlur}
+                onBlur={handlePhoneBlur}
               />
             </Su.InputWrapper>
 
-            {checkEmail()}
+            {checkPhone()}
 
-            <S.SendEmailWrapper
-              style={{ display: showEmailSend ? "block" : "none" }}
+            <S.SendPhoneWrapper
+              style={{ display: showPhoneSend ? "block" : "none" }}
             >
               <Su.InputNameWrapper>
-                <Su.InputName>이메일 인증</Su.InputName>
+                <Su.InputName>전화 번호 인증</Su.InputName>
                 <Su.InputEssential>(필수)</Su.InputEssential>
               </Su.InputNameWrapper>
               <Su.InputExplanation>
-                이메일로 전송된 키를 입력해주세요.
+                전화 번호로 전송된 키를 입력해주세요.
               </Su.InputExplanation>
               <Su.Button type="button" onClick={stepTwo}>
-                인증 메일 발송
+                인증 번호 발송
               </Su.Button>
-              <S.EmailVerification>
+              <S.PhoneVerification>
                 <button type="button" onClick={stepOne}>
-                  이메일 수정하기
+                  전화 번호 수정하기
                 </button>
-              </S.EmailVerification>
-            </S.SendEmailWrapper>
+              </S.PhoneVerification>
+            </S.SendPhoneWrapper>
 
-            <div style={{ display: showEmailVerify ? "block" : "none" }}>
+            <div style={{ display: showPhoneVerify ? "block" : "none" }}>
               <Su.InputNameWrapper>
-                <Su.InputName>이메일 인증</Su.InputName>
+                <Su.InputName>전화 번호 인증</Su.InputName>
                 <Su.InputEssential>(필수)</Su.InputEssential>
               </Su.InputNameWrapper>
               <Su.InputExplanation>
-                이메일로 전송된 키를 입력해주세요.
+                전화 번호로 전송된 키를 입력해주세요.
               </Su.InputExplanation>
               <Su.InputWrapper>
                 <Su.Input type="text" placeholder="인증 키" />
               </Su.InputWrapper>
               <Su.Button type="submit" onClick={stepThree}>
-                인증 메일 확인
+                인증 번호 확인
               </Su.Button>
-              <S.EmailVerification>
+              <S.PhoneVerification>
                 <button type="button" onClick={stepTwo}>
                   인증 키 재전송
                 </button>
                 <button type="button" onClick={stepOne}>
-                  이메일 수정하기
+                  전화 번호 수정하기
                 </button>
-              </S.EmailVerification>
+              </S.PhoneVerification>
             </div>
           </S.FindIdForm>
         </div>
 
         <div style={{ display: showResult ? "block" : "none" }}>
           <S.FoundResult>
-            회원님의 아이디는 '{foundName}'입니다.
+            조회된 아이디는
+            {foundEmails && foundEmails.length > 0 ? (
+              foundEmails.map((foundEmail, idx) => (
+                <span key={idx}>
+                  {idx > 0 && ", "}
+                  {foundEmail}
+                </span>
+              ))
+            ) : (
+              <span></span>
+            )}
+            입니다.
             <Su.Button type="button" onClick={() => navigate("/sign-in")}>
               로그인하러 가기
             </Su.Button>

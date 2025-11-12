@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import S from './style';
 import CodeEditor from '../codeeditor/CodeEditor';
 
-const QuizRead = ({ quiz = {}, prevQuiz = {}, nextQuiz = {} }) => {
-
+const QuizRead = ({ 
+    quiz = {}, 
+    prevQuiz = {},
+    nextQuiz = {},
+    userId,
+    userExp,
+    isSolve,
+    isBookmark
+        }) => {
 
     const {
         id,
@@ -54,7 +61,7 @@ const QuizRead = ({ quiz = {}, prevQuiz = {}, nextQuiz = {} }) => {
                         {quizDescription}
                     </S.QuizLeftMiddleDescription>
                     <S.QuizExpectationWrap flex={0.3}>
-                        결과 기댓값:{quizExpectation}
+                        언어 종류:{quizLanguage}
                     </S.QuizExpectationWrap>
                     
                 </S.QuizLeftMiddleWrap>
@@ -91,7 +98,14 @@ const QuizRead = ({ quiz = {}, prevQuiz = {}, nextQuiz = {} }) => {
                     solution
                 </S.QuizRightTextWrap>
                 <S.QuizRightConsoleArea>
-                    <CodeEditor quizLanguage={quizLanguage} id={id} />
+                    <CodeEditor 
+                        quizLanguage={quizLanguage} 
+                        id={id} 
+                        userExp={userExp}
+                        userId={userId}
+                        isBookmark={isBookmark}
+                        isSolve={isSolve}
+                    />
                 </S.QuizRightConsoleArea>
             </S.quizRightWrap>
         </S.QuizReadWrap>

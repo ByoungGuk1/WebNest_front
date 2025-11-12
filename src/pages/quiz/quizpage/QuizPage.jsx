@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import QuizList from '../quizlist/QuizList';
+import { useSelector } from 'react-redux';
+import user from 'modules/user';
 
 const parseFiltersFromSearch = (search) => {
     const params = new URLSearchParams(search);
@@ -14,6 +16,14 @@ const parseFiltersFromSearch = (search) => {
 };
 
 const QuizPage = () => {
+
+
+    const user = useSelector(state => state.user);
+    const {currentUser, isLogined} = user;
+    const {id } = currentUser;
+    console.log("userId: ", id)
+    console.log("currentUser:", currentUser)
+
 
     const location = useLocation();
     const [quizs, setQuizs] = useState([]);

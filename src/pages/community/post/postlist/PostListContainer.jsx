@@ -1,16 +1,38 @@
-/* PostListContainer */
-import Pagination from "./components/Pagination";
-
-import React, { useEffect, useState, useRef, useMemo } from "react";     // [CHANGED] useMemo 추가
+// src/pages/community/post/postlist/PostListContainer.jsx
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import S from "./style";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
-/* [ADD] 공용 드롭다운 임포트 (경로는 상황에 맞게 조정 가능) */
+/* 최신순 드롭다운 */
 import ThreeDropDown from "../../../../components/dropdown/ThreeDropDown";
 
+/* =========================
+   🔧 백엔드 연동용 상수
+   ========================= */
+const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
+const POSTS_ENDPOINT = "/post/open";
+const BUILD_URL = () => `${API_BASE}${POSTS_ENDPOINT}`;
+// 댓글 API
+const COMMENT_URL = (postId) => `${API_BASE}/comment/${postId}`;
+
+/* 댓글 매핑 */
+const mapComment = (c) => ({
+  commentId: c.id ?? c.commentId,
+  content: c.commentDescription ?? c.content ?? c.text ?? "",
+  createdAt: c.commentCreateAt ?? c.createdAt ?? null,
+  selected:
+    (typeof c.commentIsAccept === "boolean" ? c.commentIsAccept : null) ??
+    c.isBest ?? c.best ?? c.selected ?? false,
+  author: {
+    name: c.userNickname ?? c.authorNickname ?? c.userName ?? null,
+    profileImg: c.userThumbnailUrl ?? c.authorProfile ?? null,
+  },
+});
+
+/* 날짜 → 상대시간 */
 const toRelativeTime = (dateLike) => {
   if (!dateLike) return "방금";
   const d = new Date(dateLike);
@@ -29,11 +51,11 @@ const toRelativeTime = (dateLike) => {
   return `${y}년`;
 };
 
+/* 댓글 베스트 선택 */
 const getTopComment = (post) => {
   const comments = post?.comments || post?.answers || [];
   if (!Array.isArray(comments) || comments.length === 0) return null;
-  const byBest =
-    comments.find((c) => c?.isBest || c?.best || c?.selected) || null;
+  const byBest = comments.find((c) => c?.isBest || c?.best || c?.selected) || null;
   if (byBest) return byBest;
   const sorted = [...comments].sort(
     (a, b) => (b?.likes ?? b?.up ?? 0) - (a?.likes ?? a?.up ?? 0)
@@ -41,34 +63,50 @@ const getTopComment = (post) => {
   return sorted[0] || null;
 };
 
-/* 임시 더미 데이터 */
-const DUMMY_POSTS = Array.from({ length: 23 }, (_, i) => {
-  const idx = i + 1;
-  return {
-    postId: idx,
-    postTitle: `더미 제목 너무 어렵다. 너무 어렵다.  ${idx}`,
-    postContent:
-      "코드/오류/디자인/배포 관련 더미 내용입니다. 백엔드 연동 전 임시 데이터.",
-    postLangTag: ["JAVA", "ORACLE", "JS"][idx % 3],
-    views: Math.floor(Math.random() * 5000) + idx * 7,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * (idx * 3)).toISOString(),
-    author: {
-      name: `사용자_${String(idx).padStart(2, "0")}`,
-      profileImg: "/assets/images/defaultpro.svg",
-    },
-    answers: Array.from({ length: idx % 4 }, (_, j) => ({
-      content: `더미 댓글입니다.너무 어렵다.너무 어렵다. 어디까지 길어지는 걸까요어디까지어디까지어디까지`,
-      likes: Math.floor(Math.random() * 50),
-      isBest: j === 0 && idx % 5 === 0,
-    })),
-  };
+/* 백엔드 → 프런트 표준 구조로 매핑 */
+const mapPost = (p) => ({
+  postId: p.id ?? p.postId,
+  postTitle: p.postTitle ?? p.title ?? "",
+  postContent: p.postContent ?? p.content ?? "",
+  postLangTag: p.postType ?? p.lang ?? "OPEN",
+  views: p.postViewCount ?? p.viewCount ?? p.views ?? 0,
+  createdAt:
+    p.postCreateAt ??
+    p.createdAt ??
+    p.created ??
+    p.createdDate ??
+    p.createAt ??
+    null,
+  author: {
+    name:
+      p.userNickname ??
+      p.authorNickname ??
+      p.userName ??
+      p.username ??
+      p.user_email ??
+      null,
+    profileImg: p.userThumbnailUrl ?? p.authorProfile ?? null,
+  },
+  commentsCount: p.commentCount ?? p.commentsCount ?? p.answersCount ?? 0,
+  answers: Array.isArray(p.answers)
+    ? p.answers
+    : Array.isArray(p.comments)
+    ? p.comments
+    : [],
+  comments: Array.isArray(p.comments) ? p.comments : [],
 });
+
+/* 댓글 수 표기 */
+const getReplyCount = (post) =>
+  post?.commentsCount ??
+  (Array.isArray(post?.answers) ? post.answers.length : 0) ??
+  0;
 
 const PostListContainer = () => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  /* [ADD] 정렬 상태: latest | comment | popular */
+  /* 정렬: latest | comment | popular */
   const [sortBy, setSortBy] = useState("latest");
 
   const postsPerPage = 7;
@@ -76,57 +114,157 @@ const PostListContainer = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
+  /* 🔌 실제 백엔드 호출 */
   useEffect(() => {
-    // TODO: 백엔드 연결 시 교체 (지금은 더미 사용)
-    setPosts(DUMMY_POSTS);
+    const ac = new AbortController();
+
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch(BUILD_URL(), {
+          method: "GET",
+          headers: { Accept: "application/json" },
+          signal: ac.signal,
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+
+        const rows = Array.isArray(json)
+          ? json
+          : Array.isArray(json?.data)
+          ? json.data
+          : Array.isArray(json?.result)
+          ? json.result
+          : [];
+
+        const mapped = rows.map(mapPost).filter((p) => p.postId != null);
+        setPosts(mapped);
+      } catch (e) {
+        if (e.name !== "AbortError") {
+          console.error("[PostList] fetch error:", e);
+          setPosts([]);
+        }
+      }
+    };
+
+    fetchPosts();
+    return () => ac.abort();
   }, []);
 
-  /* [ADD] 정렬 로직: sortBy에 따라 정렬한 배열을 메모 */
+  /* 정렬 */
   const sortedPosts = useMemo(() => {
     const copy = [...posts];
     if (sortBy === "popular") {
-      // 조회순
       return copy.sort((a, b) => (b?.views ?? 0) - (a?.views ?? 0));
     }
     if (sortBy === "comment") {
-      // 댓글순 (동일 개수면 최신 우선)
       return copy.sort((a, b) => {
-        const ac = a?.answers?.length ?? 0;
-        const bc = b?.answers?.length ?? 0;
-        if (bc !== ac) return bc - ac;
-        const ad = new Date(a.createdAt ?? a.created ?? 0).getTime();
-        const bd = new Date(b.createdAt ?? b.created ?? 0).getTime();
+        const acnt =
+          a?.commentsCount ??
+          (Array.isArray(a?.answers) ? a.answers.length : 0) ??
+          0;
+        const bcnt =
+          b?.commentsCount ??
+          (Array.isArray(b?.answers) ? b.answers.length : 0) ??
+          0;
+        if (bcnt !== acnt) return bcnt - acnt;
+        const ad = new Date(a.createdAt ?? 0).getTime();
+        const bd = new Date(b.createdAt ?? 0).getTime();
         return bd - ad;
       });
     }
-    // 최신순 (기본)
+    // latest
     return copy.sort((a, b) => {
-      const ad = new Date(a.createdAt ?? a.created ?? 0).getTime();
-      const bd = new Date(b.createdAt ?? b.created ?? 0).getTime();
+      const ad = new Date(a.createdAt ?? 0).getTime();
+      const bd = new Date(b.createdAt ?? 0).getTime();
       return bd - ad;
     });
   }, [posts, sortBy]);
 
-  /* [CHANGED] 페이지 슬라이싱 기준을 정렬된 목록으로 */
-  const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
+  /* 페이지 슬라이싱 */
+  const totalPages = useMemo(
+    () => Math.ceil(sortedPosts.length / postsPerPage),
+    [sortedPosts.length]
+  );
   const indexOfLast = currentPage * postsPerPage;
   const indexOfFirst = indexOfLast - postsPerPage;
   const currentPosts = sortedPosts.slice(indexOfFirst, indexOfLast);
 
-  const popularPosts = [...posts]
-    .sort((a, b) => (b?.views ?? 0) - (a?.views ?? 0))
-    .slice(0, 8);
+  /* 🔁 현재 페이지에 보이는 게시글에만 댓글 주입 */
+  useEffect(() => {
+    if (!currentPosts || currentPosts.length === 0) return;
 
-  const handlePrev = () => { if (currentPage > 1) setCurrentPage(currentPage - 1); };
-  const handleNext = () => { if (currentPage < totalPages) setCurrentPage(currentPage + 1); };
+    const targets = currentPosts.filter(
+      (p) => !Array.isArray(p.comments) || p.comments.length === 0
+    );
+    if (targets.length === 0) return;
+
+    const ac = new AbortController();
+
+    (async () => {
+      try {
+        const tasks = targets.map(async (p) => {
+          const res = await fetch(COMMENT_URL(p.postId), {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            signal: ac.signal,
+          });
+          if (!res.ok) {
+            console.warn("[Comments] HTTP", res.status, "for post", p.postId);
+            return { postId: p.postId, comments: [], count: 0 };
+          }
+
+          const json = await res.json();
+          const rows = Array.isArray(json)
+            ? json
+            : Array.isArray(json?.data)
+            ? json.data
+            : Array.isArray(json?.result)
+            ? json.result
+            : [];
+
+          const mapped = rows.map(mapComment);
+          return { postId: p.postId, comments: mapped, count: mapped.length };
+        });
+
+        const results = await Promise.all(tasks);
+
+        setPosts((prev) =>
+          prev.map((p) => {
+            const r = results.find((x) => x.postId === p.postId);
+            return r
+              ? {
+                  ...p,
+                  comments: r.comments,
+                  answers: r.comments,
+                  commentsCount: r.count,
+                }
+              : p;
+          })
+        );
+      } catch (e) {
+        if (e.name !== "AbortError") console.error("[Comments] fetch error:", e);
+      }
+    })();
+
+    return () => ac.abort();
+  }, [currentPosts]);
+
+  /* 인기 카드(조회수 기준) */
+  const popularPosts = useMemo(
+    () => [...posts].sort((a, b) => (b?.views ?? 0) - (a?.views ?? 0)).slice(0, 8),
+    [posts]
+  );
+
+  // 페이지 이동
+  const handlePrev = () => { if (currentPage > 1) setCurrentPage((p) => p - 1); };
+  const handleNext = () => { if (currentPage < totalPages) setCurrentPage((p) => p + 1); };
   const handlePageClick = (num) => setCurrentPage(num);
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "auto" }); }, [currentPage]);
 
   return (
     <>
-      {/* ...상단 배너/인기 카드 Swiper 그대로... */}
-
+      {/* 배너 */}
       <S.BannerWrap>
         <S.Banner>
           <S.BannerInner>
@@ -134,11 +272,12 @@ const PostListContainer = () => {
               <S.PageTitle>열린 둥지</S.PageTitle>
               <S.PageDesc>자유롭게 이야기를 나누고 소통해보세요.</S.PageDesc>
             </div>
-            <S.Illust src="/assets/images/chicks.png" alt="문제둥지 일러스트" />
+            <S.Illust src="/assets/images/chicks.png" alt="열린둥지 일러스트" />
           </S.BannerInner>
         </S.Banner>
       </S.BannerWrap>
 
+      {/* 인기 카드 Swiper */}
       <S.Container>
         <S.ArrowBtn ref={prevRef} className="left">
           <img src="/assets/icons/leftarrow.svg" alt="왼쪽" />
@@ -170,25 +309,32 @@ const PostListContainer = () => {
           >
             {popularPosts.map((post) => (
               <SwiperSlide key={post.postId}>
-                <S.PopularCard>
-                  <S.PopularTitle>{post.postTitle}</S.PopularTitle>
-                  <S.PopularPreview>{post.postContent}</S.PopularPreview>
-                  <S.Info>
-                    <S.MetaWrap>
-                      <S.ProfileImg
-                        src={post.author?.profileImg || "/assets/images/defaultpro.svg"}
-                        alt={post.author?.name || "익명"}
-                      />
-                      <span>{post.author?.name || "익명"}</span>
-                      <b>·</b>
-                      <span>조회 {post.views || 0}</span>
-                    </S.MetaWrap>
-                    <S.Response>
-                      <img src="/assets/icons/talktalk.svg" alt="댓글" />
-                      {post.answers?.length || 0}
-                    </S.Response>
-                  </S.Info>
-                </S.PopularCard>
+                {/* 인기글 카드 전체 클릭 -> /post/:id */}
+                <S.Link to={`/post/${post.postId}`} aria-label={`${post.postTitle} 상세보기`}>
+                  <S.PopularCard role="button">
+                    <S.PopularTitle>{post.postTitle}</S.PopularTitle>
+                    <S.PopularPreview>{post.postContent}</S.PopularPreview>
+                    <S.Info>
+                      <S.MetaWrap>
+                        <S.ProfileImg
+                          src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
+                          alt={post.author?.name || ""}
+                        />
+                        {post.author?.name && (
+                          <>
+                            <span>{post.author?.name}</span>
+                            <b>·</b>
+                          </>
+                        )}
+                        <span>조회 {post.views || 0}</span>
+                      </S.MetaWrap>
+                      <S.Response>
+                        <img src="/assets/icons/talktalk.svg" alt="댓글" />
+                        {getReplyCount(post)}
+                      </S.Response>
+                    </S.Info>
+                  </S.PopularCard>
+                </S.Link>
               </SwiperSlide>
             ))}
           </Swiper>
@@ -200,35 +346,29 @@ const PostListContainer = () => {
         </S.ArrowBtn>
       </S.Container>
 
+      {/* 정렬 / 글쓰기 */}
       <S.SortWrap>
-        {/* [REMOVE] 기존 네이티브 select */}
-        {/* <S.Select> ... </S.Select> */}
-
-        {/* [ADD] 공용 드롭다운 컴포넌트 삽입 */}
-          <div className="dd-ctrl">
-            <ThreeDropDown
-                value={sortBy}
-                onChange={(v) => { setSortBy(v); setCurrentPage(1); }}
-                color={{
-                  buttonBg: "#ffffff",
-                  buttonFg: "#121212",
-                  buttonBorder: "#DDDFE0",
-                  buttonHoverBg: "#f6f6ff",
-                  menuBg: "#ffffff",
-                  itemFg: "#121212",
-                  itemHoverBg: "#f6f6ff",
-                  itemHoverFg: "#121212",
-                }}
-              />
-          </div>
-
-
-
+        <div className="dd-ctrl">
+          <ThreeDropDown
+            value={sortBy}
+            onChange={(v) => { setSortBy(v); setCurrentPage(1); }}
+            color={{
+              buttonBg: "#ffffff",
+              buttonFg: "#121212",
+              buttonBorder: "#DDDFE0",
+              buttonHoverBg: "#f6f6ff",
+              menuBg: "#ffffff",
+              itemFg: "#121212",
+              itemHoverBg: "#f6f6ff",
+              itemHoverFg: "#121212",
+            }}
+          />
+        </div>
         <S.WriteButton>글쓰기</S.WriteButton>
       </S.SortWrap>
 
-      <div>
-         <S.ListWrap>
+      {/* 리스트 */}
+      <S.ListWrap>
         {currentPosts.length > 0 ? (
           currentPosts.map((post) => {
             const created =
@@ -243,6 +383,7 @@ const PostListContainer = () => {
             return (
               <S.Link to={`/post/${post.postId}`} key={post.postId}>
                 <S.Row>
+                  {/* ✅ 게시글 상단 태그 */}
                   <S.Tag lang={post.postLangTag}>{post.postLangTag}</S.Tag>
 
                   <S.QuestionInfo>
@@ -253,14 +394,15 @@ const PostListContainer = () => {
                       <S.ListMetaRow>
                         <S.MetaWrap>
                           <S.ProfileImg
-                            src={
-                              post.author?.profileImg ||
-                              "/assets/images/chicken.png"
-                            }
-                            alt={post.author?.name || "익명"}
+                            src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
+                            alt={post.author?.name || ""}
                           />
-                          <span>{post.author?.name || "익명"}</span>
-                          <b>·</b>
+                          {post.author?.name && (
+                            <>
+                              <span>{post.author?.name}</span>
+                              <b>·</b>
+                            </>
+                          )}
                           <span>{toRelativeTime(created)}</span>
                           <b>·</b>
                           <span>조회 {post.views ?? 0}</span>
@@ -269,7 +411,7 @@ const PostListContainer = () => {
 
                         <S.Response>
                           <img src="/assets/icons/talktalk.svg" alt="댓글" />
-                          {post.answers?.length ?? 0}
+                          {getReplyCount(post)}
                         </S.Response>
                       </S.ListMetaRow>
 
@@ -279,20 +421,20 @@ const PostListContainer = () => {
                             src={
                               topCmt.author?.profileImg ||
                               topCmt.profileImg ||
-                              "/assets/images/chicks.png"
+                              "/assets/images/defalutpro.svg"
                             }
                             alt={
                               topCmt.author?.name ||
                               topCmt.nickname ||
                               topCmt.userName ||
-                              "병아리"
+                              "user"
                             }
                           />
                           <S.TopCmtName>
                             {topCmt.author?.name ||
                               topCmt.nickname ||
                               topCmt.userName ||
-                              "치킨"}
+                              "user"}
                           </S.TopCmtName>
                           <S.TopCmtContent
                             title={
@@ -324,15 +466,35 @@ const PostListContainer = () => {
           <p>불러오는 중...</p>
         )}
       </S.ListWrap>
-      </div>
 
-      <Pagination
-        current={currentPage}
-        total={totalPages}
-        onPrev={handlePrev}
-        onNext={handleNext}
-        onPage={handlePageClick}
-      />
+      {/* 페이지네이션 */}
+      <S.Pagination>
+        <S.PageArrow
+          className="left"
+          onClick={handlePrev}
+          disabled={currentPage === 1}
+        >
+          <img src="/assets/icons/pnleftarrow.svg" alt="이전 페이지" />
+        </S.PageArrow>
+
+        {Array.from({ length: totalPages }, (_, i) => (
+          <S.PageButton
+            key={i + 1}
+            $active={currentPage === i + 1}
+            onClick={() => handlePageClick(i + 1)}
+          >
+            {i + 1}
+          </S.PageButton>
+        ))}
+
+        <S.PageArrow
+          className="right"
+          onClick={handleNext}
+          disabled={currentPage === totalPages || totalPages === 0}
+        >
+          <img src="/assets/icons/pnrightarrow.svg" alt="다음 페이지" />
+        </S.PageArrow>
+      </S.Pagination>
     </>
   );
 };

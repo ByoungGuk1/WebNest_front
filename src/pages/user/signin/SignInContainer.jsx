@@ -3,7 +3,7 @@ import Su from "../style";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
-import { replace, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 
@@ -15,9 +15,7 @@ const SignInContainer = () => {
   const [isEyeOpen, setIsEyeOpen] = useState(false);
   const [showEmailSend, setShowEmailSend] = useState(false);
   const [showEmailVerify, setShowEmailVerify] = useState(false);
-  const BACKURL = process.env.REACT_APP_BACKEND_URL;
 
-  console.log(BACKURL)
   const {
     register,
     handleSubmit,
@@ -36,22 +34,12 @@ const SignInContainer = () => {
       credentials: "include",
       body: JSON.stringify(member),
     })
-      .then((res) => {
-        if(!res.ok) { 
-          throw new Error('로그인 실패');
-          
-        }
-        return res.json()
-      })
+      .then((res) => res.json())
       .then(({ message, data }) => {
         let accessToken = data.accessToken;
         localStorage.setItem("accessToken", accessToken);
         navigate("/");
-      })
-      .catch((error) => {
-        console.log("로그인 실패");
-        console.log("res.ok!!!")
-      })
+      });
   });
 
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -61,15 +49,15 @@ const SignInContainer = () => {
     await trigger("email");
   };
 
-  if(isLogin){
-    navigate("/", {
-      replace: true // 왔던 기록 삭제
-    })
-    return;
-  }
+  const alreadyLogin = () => {
+    if (isLogin) {
+      navigate("/");
+    }
+  };
 
   return (
     <div>
+      {alreadyLogin()}
       <Su.ContentContainer>
         <Su.LogoWrapper>
           <Su.LogoGrean>Web</Su.LogoGrean>
