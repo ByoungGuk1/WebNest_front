@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import S from './style';
+import { get } from 'react-hook-form';
 
 const CodeEditor = ({ quizLanguage, id }) => {
 
@@ -22,6 +23,13 @@ const CodeEditor = ({ quizLanguage, id }) => {
     const editorLanguage = addEditorLanguage(quizLanguage)
     const [code, setCode] = useState(); // 코드입력칸
     const [output, setOutput] = useState('');
+    const className = "Solution"
+    const defaultClassValue = "public class " + className + "{ \n " +
+        "   public static void main(String[] args)" + "{ \n\n" +
+        "    } \n" +
+        "}"
+
+
 
     // 자바스크립티티코드 핸들러
     function jsHandleRun(code) {
@@ -51,6 +59,7 @@ const CodeEditor = ({ quizLanguage, id }) => {
                     "code": code,
                     "quizId": id,
                     "quizSubmitError": null,
+                    "className": className,
                 })
             }
             )
@@ -62,9 +71,36 @@ const CodeEditor = ({ quizLanguage, id }) => {
             }
             setOutput(javaData.data || "실행 성공")
         } catch (err) {
-            setOutput("실행 실패: " + err.message || "알 수 없는 오류류")
+            setOutput("실행 실패: " + err.message || "알 수 없는 오류")
         }
     }
+    // 자바코드 채점
+    async function javaCompleteHandleRun(code) {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/java-success`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "code": code,
+                    "quizId": id,
+                    "className": className
+                })
+            })
+            const getExp = await response.json();
+            console.log("resMessage", getExp)
+            if (!response.ok) {
+                const resMessage = getExp.message || `서버 오류 : ${response.status}`
+                setOutput(resMessage);
+                return;
+            }
+            setOutput(getExp.message || "실행 성공")
+        } catch (err) {
+            setOutput("실행 실패: " + err.message || "알 수 없는 오류")
+        }
+    }
+
     // SQL코드 핸들러
     async function sqlHandleRun(code) {
         try {
@@ -80,14 +116,39 @@ const CodeEditor = ({ quizLanguage, id }) => {
                 })
             })
             const sqlData = await response.json()
-            if (!response.ok){
+            if (!response.ok) {
                 const resMessage = sqlData?.message || `서버 오류 : ${response.status}`
                 setOutput(resMessage)
                 return;
             }
             setOutput(sqlData.message || "요청 성공")
+        } catch (err) {
+            setOutput("서버 오류 : " + err.message || "알 수 없는 오류")
+        }
+    }
+    // SQL코드 채점
+    async function slqSuccessHandleRun(code){
+        try{
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/sql-success`,{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ 
+                    "code": code,
+                    "quizId": id
+                })
+            })
+            const getExp = await response.json();
+            console.log("getExp", getExp)
+            if(!response.ok) {
+                const resMessage = getExp.message || `서버 오류: ${response.status}`
+                setOutput(resMessage);
+                return;
+            }
+            setOutput(getExp.message || "요청 성공")
         } catch(err){
-            setOutput("서버 오류 : " + err.message || "알 수 없는 오류류")
+            setOutput("서버 오류 : " + err.message || "알 수 없는 오류")
         }
     }
 
@@ -106,6 +167,18 @@ const CodeEditor = ({ quizLanguage, id }) => {
                 setOutput('지원하지 않는 언어입니다')
         }
     }
+    const successHandleRun = async (code, language) => {
+        switch ((language || '').toUpperCase()) {
+            case 'JAVA':
+                javaCompleteHandleRun(code)
+                break;
+            case 'ORACLE':
+                slqSuccessHandleRun(code)
+                break;
+            default:
+                setOutput('잘못된 요청입니다')
+        }
+    }
 
     const addReset = () => {
         setCode('');
@@ -116,6 +189,7 @@ const CodeEditor = ({ quizLanguage, id }) => {
             <S.StyledEditor
                 height="600px"
                 defaultLanguage={editorLanguage}
+                defaultValue={language === "JAVA" ? defaultClassValue : ""}
                 value={code}
                 onChange={(value) => setCode(value)}
                 theme='vs-dark'
@@ -136,7 +210,7 @@ const CodeEditor = ({ quizLanguage, id }) => {
                 <S.ButtonWrap>
                     <S.RunButton onClick={addReset}>초기화</S.RunButton>
                     <S.RunButton onClick={() => handleRun(code, language)}>코드 실행</S.RunButton>
-                    <S.RunButton >제출 후 채점하기</S.RunButton>
+                    <S.RunButton onClick={() => successHandleRun(code, language)}>제출 후 채점하기</S.RunButton>
                 </S.ButtonWrap>
             </S.OutputBox>
 
