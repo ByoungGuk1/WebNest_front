@@ -7,7 +7,7 @@ const QuestionReadContainer = () => {
   const { questionId } = useParams();
   const [posts, setPosts] = useState(null);
   const [currentPost, setCurrentPost] = useState(null);
-  const [comments, setComments] = useState([]); // ✅ 백엔드 댓글 데이터
+  const [comments, setComments] = useState([]); // 백엔드 댓글 데이터
   const navigate = useNavigate();
 
   // 신고 관련 state
@@ -67,7 +67,7 @@ const QuestionReadContainer = () => {
     setIsDeleteModalOpen(false);
   };
 
-  /* 🟣 게시글 좋아요 관련 */
+  /* 게시글 좋아요 관련 */
   const [isPostLiked, setIsPostLiked] = useState(false);
   const [postLikeCount, setPostLikeCount] = useState(0);
 
@@ -125,16 +125,16 @@ const QuestionReadContainer = () => {
     return `${y}년`;
   };
 
-  /* ✅ 데이터 로드 (백엔드 연동) */
+  /* 데이터 로드 (백엔드 연동) */
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 🟣 게시글 데이터 불러오기
+        // 게시글 데이터 불러오기
         const postRes = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
         if (!postRes.ok) throw new Error("게시글 불러오기 실패");
         const postData = await postRes.json();
 
-        // 🟢 댓글(답변) 데이터 불러오기
+        // 댓글(답변) 데이터 불러오기
         const commentRes = await fetch(`http://localhost:10000/comment/${questionId}`);
         if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
         const commentData = await commentRes.json();
@@ -144,7 +144,7 @@ const QuestionReadContainer = () => {
         setComments(commentData.data || []);
         setPostLikeCount(postData.data?.postViewCount || 0);
       } catch (err) {
-        console.error("❌ 데이터 로드 에러:", err);
+        console.error(" 데이터 로드 에러:", err);
         setCurrentPost(null);
         setComments([]);
       }
@@ -249,7 +249,7 @@ const QuestionReadContainer = () => {
           </S.LikeAndAlarm>
         </S.AlarmBox>
 
-        {/* ✅ 백엔드 댓글 매핑 */}
+        {/* 백엔드 댓글 매핑 */}
         {comments && comments.length > 0 ? (
           <S.AnswerSection>
             {comments.map((ans) => (
@@ -309,7 +309,7 @@ const QuestionReadContainer = () => {
         답변하기
       </S.AnswerWriteButton>
       
-      {/* ⚠️ 신고 모달 */}
+      {/* 신고 모달 */}
       {isReportOpen && (
         <S.ReportOverlay>
           <S.ReportBox>
@@ -344,7 +344,7 @@ const QuestionReadContainer = () => {
         </S.ReportOverlay>
       )}
 
-      {/* 💙 채택 모달 */}
+      {/* 채택 모달 */}
       {isChooseModalOpen && (
         <S.ModalOverlay>
           <S.ModalBox>

@@ -15,7 +15,7 @@ import {
 
 const S = {};
 
-/* 🟣 배너 */
+/* 배너 */
 S.BannerWrap = styled.div`
   width: 100vw;
   position: relative;
@@ -54,14 +54,14 @@ S.Illust = styled.img`
   height: auto;
 `;
 
-/* 🟡 본문 영역 */
+/* 본문 영역 */
 S.ContentWrap = styled.div`
   width: 1160px;
-  margin: 60px auto;
+  margin: 40px auto;
   display: flex;
   flex-direction: column;
 
-  /* ✅ 답변하기 버튼에 가리지 않게 여백 추가 */
+  /* 답변하기 버튼에 가리지 않게 여백 추가 */
   padding-bottom: 100px;
 `;
 
@@ -73,14 +73,14 @@ S.QuestionWrap = styled.div`
 S.QuestionTitle = styled.div`
   ${h4Bold}
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
-  margin-bottom: 8px; /* ✅ 제목 아래 간격 */
+  margin-bottom: 8px; 
 `;
 
 S.QuestionerInfo = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px; /* ✅ 프로필 아래 간격 */
+  margin-bottom: 24px; 
 `;
 
 S.LeftBox = styled.div`
@@ -106,7 +106,7 @@ S.FollowButton = styled.div`
 S.QuestionContent = styled.div`
   ${h6Medium}
   word-break: break-word;
-  margin-bottom: 20px; /* ✅ 본문 아래 간격 */
+  margin-bottom: 20px;
 `;
 
 S.QuestionInfo = styled.div`
@@ -183,8 +183,8 @@ S.PostLikeText = styled.span`
   transition: color 0.2s ease;
   color: ${({ $liked, theme }) =>
     $liked
-      ? theme.PALETTE.primary.purple.main   /* 💜 좋아요 누른 상태 */
-      : theme.PALETTE.neutral.black.main};  /* ⚫ 기본 상태 */
+      ? theme.PALETTE.primary.purple.main   /* 좋아요 누른 상태 */
+      : theme.PALETTE.neutral.black.main};  /*  기본 상태 */
 `;
 
 S.Alarm = styled.div`
@@ -204,9 +204,8 @@ S.ToggleSwitch = styled.div`
   height: 30px;
   border-radius: 25px;
   background-color: ${({ $on, theme }) =>
-    $on ? theme.PALETTE.primary.blue.light : theme.PALETTE.neutral.gray.light}; /* ✅ 켜짐/꺼짐 색상 */
+    $on ? theme.PALETTE.primary.blue.light : theme.PALETTE.neutral.gray.light}; 
   cursor: pointer;
-  transition: background-color 0.3s ease; /* ✅ 부드러운 색 전환 */
 `;
 
 S.ToggleCircle = styled.div`
@@ -217,13 +216,10 @@ S.ToggleCircle = styled.div`
   height: 26px;
   border-radius: 50%;
   background-color: #ffff;
-  transition: left 0.3s ease; /* ✅ 부드러운 이동 */
 `;
 
 
-
-
-/* 🟢 답변 섹션 */
+/* 답변 섹션 */
 S.AnswerSection = styled.div`
   margin-top: 30px;
   display: flex;
@@ -234,13 +230,12 @@ S.AnswerSection = styled.div`
 
 
 S.AnswerCard = styled.div`
-  position: relative; /* ✅ 기준 잡기 */
+  position: relative; 
   border: 1px solid ${({ theme }) => theme.PALETTE.neutral.white.dark};
   border-radius: 8px;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  /* gap: 12px; */
 `;
 
 S.AnswerTop = styled.div`
@@ -256,7 +251,7 @@ S.AnswerTop = styled.div`
 
 S.UserInfo = styled.div`
   display: flex;
-  align-items: center; /* ✅ 프로필 기준 세로 중앙 */
+  align-items: center; 
   gap: 10px;
 `;
 
@@ -264,9 +259,9 @@ S.UserInfo = styled.div`
 S.AnswerInnerBox = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;     /* ✅ 텍스트 덩어리를 프로필과 수직 중앙맞춤 */
-  transform: translateY(3px); /* ✅ 살짝 내려서 눈 기준으로 정렬 (핵심!!) */
-  height: 40px;              /* ✅ 프로필과 동일 높이 */         
+  justify-content: center;    
+  transform: translateY(3px); 
+  height: 40px;                    
 `;
 
 S.AnswerProfile = styled.img`
@@ -280,7 +275,7 @@ S.AnswerUser = styled.div`
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
   display: flex;
   gap: 6px;
-  line-height: 1.2;            /* ✅ 줄간격 줄이기 */
+  line-height: 1.2;          
 `;
 
 S.AnswerMeta = styled.div`
@@ -312,7 +307,7 @@ S.AnswerDate = styled.div`
   ${h7Medium}
   color: ${({ theme }) => theme.PALETTE.neutral.black.disable};
   gap: 6px;
-  align-items: center;  /* ✅ 세로 정렬 맞추기 */
+  align-items: center;  
   span:nth-of-type(2) {
     cursor: pointer;
   }
@@ -324,10 +319,10 @@ S.AnswerDate = styled.div`
   }
 
   img {
-    width: 18px;  /* ✅ 기존 12px → 18px */
-    height: 18px; /* ✅ 비율 유지 */
-    cursor: pointer; /* 클릭 가능하게 */
-    vertical-align: middle; /* ✅ 텍스트 기준선과 맞춤 */
+    width: 18px;  
+    height: 18px;
+    cursor: pointer; 
+    vertical-align: middle; 
   }
 `;
 S.AnswerLikeCount = styled.span`
@@ -335,15 +330,15 @@ S.AnswerLikeCount = styled.span`
   transition: color 0.2s ease;
   color: ${({ $liked, theme }) =>
     $liked
-      ? theme.PALETTE.primary.purple.main   /* 💜 좋아요 눌렀을 때 보라색 */
-      : theme.PALETTE.neutral.black.disable};  /* ⚫ 기본 검정색 */
+      ? theme.PALETTE.primary.purple.main   /* 좋아요 눌렀을 때 보라색 */
+      : theme.PALETTE.neutral.black.disable};  /* 기본 검정색 */
 `;
 
 
 S.HamburgerButton = styled.button`
-  position: absolute;  /* ✅ AnswerCard 기준으로 위치 조정 */
-  bottom: 20px;           /* 카드 상단에서 12px 아래 */
-  right: 12px;         /* 카드 오른쪽에서 12px 왼쪽 */
+  position: absolute; 
+  bottom: 20px;          
+  right: 12px;        
   background: none;
   border: none;
   cursor: pointer;
@@ -386,7 +381,7 @@ S.NotFoundMsg = styled.p`
 `;
 
 
-/* 🟦 모달 */
+/* 모달 */
 S.ModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -446,7 +441,7 @@ S.ConfirmBtn = styled.button`
   cursor: pointer;
 `;
 
-/* ⚙️ 수정/삭제 메뉴 */
+/* 수정/삭제 메뉴 */
 S.AnswerMenu = styled.ul`
   position: absolute;
   top: 189px;
@@ -471,7 +466,7 @@ S.AnswerMenu = styled.ul`
   }
 `;
 
-/* ⚙️ 삭제 모달 배경 */
+/* 삭제 모달 배경 */
 S.HamModalOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -483,7 +478,7 @@ S.HamModalOverlay = styled.div`
   z-index: 999;
 `;
 
-/* ⚙️ 삭제 모달 박스 */
+/* 삭제 모달 박스 */
 S.HamModalBox = styled.div`
 background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
   width: 320px;
@@ -493,7 +488,7 @@ background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 `;
 
-/* ⚙️ 모달 제목 */
+/* 모달 제목 */
 S.HamModalTitle = styled.div`
   ${h4Bold}
   margin-bottom: 50px;
@@ -501,7 +496,7 @@ S.HamModalTitle = styled.div`
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
 `;
 
-/* ⚙️ 모달 설명 */
+/* 모달 설명 */
 S.HamModalDesc = styled.div`
   ${h8Medium}
   color: ${({ theme }) => theme.PALETTE.primary.red.main};
@@ -509,14 +504,14 @@ S.HamModalDesc = styled.div`
   margin-bottom: 24px;
 `;
 
-/* ⚙️ 버튼 영역 */
+/* 버튼 영역 */
 S.HamModalButtons = styled.div`
   display: flex;
   justify-content: center;
   gap: 16px;
 `;
 
-/* ⚙️ 취소 버튼 */
+/* 취소 버튼 */
 S.HamCancelBtn = styled.button`
   width: 120px;
   height: 40px;
@@ -527,7 +522,7 @@ S.HamCancelBtn = styled.button`
   cursor: pointer;
 `;
 
-/* ⚙️ 확인 버튼 */
+/* 확인 버튼 */
 S.HamConfirmBtn = styled.button`
   width: 120px;
   height: 40px;
@@ -539,7 +534,7 @@ S.HamConfirmBtn = styled.button`
   cursor: pointer;
 `;
 
-/* ⚠️ 신고 모달 배경 */
+/* 신고 모달 배경 */
 S.ReportOverlay = styled.div`
   position: fixed;
   top: 0;
@@ -551,7 +546,7 @@ S.ReportOverlay = styled.div`
   z-index: 999;
 `;
 
-/* ⚠️ 신고 모달 박스 */
+/* 신고 모달 박스 */
 S.ReportBox = styled.div`
   background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
   width: 320px;
@@ -619,8 +614,8 @@ S.ReportSubmit = styled.button`
 `;
 
 S.AnswerWriteButton = styled.button`
-  position: fixed; /* ✅ 화면 기준으로 고정 */
-  bottom: 40px; /* ✅ 화면 아래로부터 거리 */
+  position: fixed; 
+  bottom: 40px; 
   left: 50%;
   transform: translateX(-50%); /* 가로 중앙 정렬 */
   width: 200px;
@@ -640,7 +635,7 @@ S.AnswerWriteButton = styled.button`
    
   }
 
-  z-index: 998; /* ✅ 다른 요소 위에 보이게 */
+  z-index: 998; 
 `;
 
 

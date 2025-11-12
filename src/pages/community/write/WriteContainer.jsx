@@ -15,11 +15,11 @@ const WriteContainer = () => {
     }
 
     const postData = {
-      postType: "QUESTION", // 🔹 문제둥지 구분 (필요시 OPEN 등)
+      postType: "QUESTION", // 문제둥지 구분 (필요시 OPEN 등)
       postTitle: title,
       postContent: content,
       postViewCount: 0,
-      userId: 1, // 🔹 로그인 기능 붙으면 실제 userId로 교체
+      userId: 1, // 로그인 기능 붙으면 실제 userId로 교체
       postCreateAt: new Date().toISOString(),
     };
 
@@ -37,7 +37,7 @@ const WriteContainer = () => {
       alert("글이 성공적으로 등록되었습니다!");
       navigate("/question");
     } catch (error) {
-      console.error("❌ 글 등록 실패:", error);
+      console.error("글 등록 실패:", error);
       alert("글 등록 중 오류가 발생했습니다.");
     }
   };
@@ -45,7 +45,7 @@ const WriteContainer = () => {
   return (
     <>
 
-      {/* 🟣 상단 배너 */}
+      {/* 상단 배너 */}
       <S.PurpleBannerWrap>
         <S.PurpleBanner>
           <S.PurpleBannerInner>
@@ -61,7 +61,7 @@ const WriteContainer = () => {
       </S.PurpleBannerWrap>
 
       <S.Container>
-        {/* 🟢 카테고리 선택 */}
+        {/* 카테고리 선택 */}
         <S.CategoryWrap>
           <S.Select>
             <select value={category1} onChange={(e) => setCategory1(e.target.value)}>
@@ -76,7 +76,7 @@ const WriteContainer = () => {
           </S.Select>
         </S.CategoryWrap>
 
-        {/* 🟢 제목 입력 */}
+        {/* 제목 입력 */}
         <S.InputTitle
           type="text"
           placeholder="제목을 입력하세요"
@@ -84,14 +84,14 @@ const WriteContainer = () => {
           onChange={(e) => setTitle(e.target.value)}
         />
 
-        {/* 🟢 내용 입력 */}
+        {/* 내용 입력 */}
         <S.InputContent
           placeholder="내용을 입력하세요 (코드나 에러 로그를 포함해도 좋아요)"
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
 
-        {/* 🔵 버튼 */}
+        {/* 버튼 */}
         <S.ButtonWrap>
           <S.CancelBtn onClick={() => navigate("/question")}>취소</S.CancelBtn>
           <S.SubmitBtn onClick={handleSubmit}>등록</S.SubmitBtn>

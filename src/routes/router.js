@@ -126,6 +126,7 @@ const router = createBrowserRouter([
       {
         path: "/question",
         element: <QuestionListContainer />,
+        
       },
       {
         path: "/question/:questionId",

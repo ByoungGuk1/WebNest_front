@@ -1,34 +1,26 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react'; 
+import S from './style'; 
 
-const Questionpagenation = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const postsPerPage = 7;
 
-  const prevRef = useRef(null);
-  const nextRef = useRef(null);
-  const navigate = useNavigate();
-  // ✅ 페이지네이션
-  const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
-  const indexOfLast = currentPage * postsPerPage;
-  const indexOfFirst = indexOfLast - postsPerPage;
-  const currentPosts = sortedPosts.slice(indexOfFirst, indexOfLast);
-
+const Questionpagenation = ({ currentPage, totalPages, onPageChange }) => {
+  //이전페이지
   const handlePrev = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
+    if (currentPage > 1) onPageChange(currentPage - 1);
   };
+  //다음페이지
   const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+    if (currentPage < totalPages) onPageChange(currentPage + 1);
   };
-  const handlePageClick = (num) => setCurrentPage(num);
-  const handleSortChange = (e) => {
-    setSortOption(e.target.value);
-    setCurrentPage(1);
-  };
-
+  //특정페이지클릭
+  const handlePageClick = (num) => onPageChange(num);
+ 
+  // 페이지 이동시 스크롤 맨위
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [currentPage]);
+
+  // 페이지가 하나면 버튼 안 보이게
+  if (totalPages <= 1) return null;
 
   return (
     <>
