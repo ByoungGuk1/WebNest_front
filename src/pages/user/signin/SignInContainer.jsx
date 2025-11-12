@@ -15,7 +15,9 @@ const SignInContainer = () => {
   const [isEyeOpen, setIsEyeOpen] = useState(false);
   const [showEmailSend, setShowEmailSend] = useState(false);
   const [showEmailVerify, setShowEmailVerify] = useState(false);
+  const BACKURL = process.env.REACT_APP_BACKEND_URL;
 
+  console.log(BACKURL)
   const {
     register,
     handleSubmit,
@@ -26,7 +28,6 @@ const SignInContainer = () => {
 
   const handleSumbmitForm = handleSubmit(async (data) => {
     const { ...member } = data;
-    console.log(data);
     await fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/login`, {
       headers: {
         "Content-Type": "application/json",
@@ -38,6 +39,7 @@ const SignInContainer = () => {
       .then((res) => {
         if(!res.ok) { 
           throw new Error('로그인 실패');
+          
         }
         return res.json()
       })
@@ -48,6 +50,7 @@ const SignInContainer = () => {
       })
       .catch((error) => {
         console.log("로그인 실패");
+        console.log("res.ok!!!")
       })
   });
 

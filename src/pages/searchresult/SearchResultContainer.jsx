@@ -13,7 +13,6 @@ const SearchResultContainer = () => {
   const searchKeyword = searchParams.get("search")
   const [keyword, setKeyword] = useState("")
   const navigate = useNavigate()
-  
   const totalCount = openPosts.length + questionPosts.length + quizzes.length + users.length
 
   const handleSearch = (e) => setKeyword(e.target.value)

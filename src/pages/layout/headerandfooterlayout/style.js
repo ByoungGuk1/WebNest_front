@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { h1Light } from '../../../styles/common'
+import { h1Light, h5Medium, h7Medium, h8Medium } from '../../../styles/common'
 
 const S = {}
   S.wrap = styled.div`
@@ -193,6 +193,9 @@ const S = {}
     right: -212px;
     display: flex;
     justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: scroll
   `
   S.notice_header = styled.div`
     width: 373px;
@@ -202,7 +205,7 @@ const S = {}
     justify-content: space-between;
     align-items: center;
     border-bottom: solid 1px #464D4A;
-    margin-top: 48px;
+    margin-top: 12px;
     margin-bottom: 8px;
     & {
       font-family: 'pretendard';
@@ -231,5 +234,66 @@ const S = {}
     font-size: ${({ theme }) => theme.FONT_SIZE.h8};
     font-weight: ${({ theme }) => theme.FONT_WEIGHT.light};
     padding: 0px;
+  `
+  S.NotificationItems = styled.div`
+    /* background-color: blue; */
+    ${h8Medium}
+    width: 100%;
+  `
+  S.NotificationItemsWrap = styled.div`
+    height: 320px;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow-y: scroll;
+  `
+
+  S.NotificationCategory = styled.div`
+    width: 42px;
+    height: 36px;
+    background-color: green;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    ${h8Medium}
+    position: relative;
+    
+  `
+  S.NotificationCategoryWrap = styled.div`
+    display: flex;
+    margin-left: 40px;
+    width: 100%;
+    flex-direction: row;
+    gap: 24px;
+    justify-content: baseline;
+  `
+  S.NotificationCategoryBadge = styled.div`
+    width: 16px;
+    height: 16px;
+    border-radius: 100%;
+    position: absolute;
+    background-color: red;
+    top: -4px;
+    right:-5px;
+    ;
+  `
+
+  S.UserNameHug = styled.div`
+    background-color: #6434B1;
+    color: #ffc600;
+    border-radius: 4px;
+  `
+  S.OnlyRow = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+  `
+  S.BetweenRow = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   `
   export default S;

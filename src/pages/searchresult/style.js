@@ -1,5 +1,7 @@
 import styled from "styled-components";
-import { h4Medium, h5Medium } from "../../styles/common";
+import { h4Medium, h5Medium, h6Bold } from "../../styles/common";
+import theme from "styles/theme";
+import { Link } from "react-router-dom";
 
 const S = {}
 
@@ -34,7 +36,7 @@ S.InputWrap = styled.div`
   }
 `
 S.Text = styled.div`
-  width: calc(1160px / 6);
+  width: calc(920px / 5);
   height: 92px;
   display: flex;
   justify-content: center;
@@ -66,5 +68,40 @@ S.TextWrap = styled.div`
   .active {
     border-bottom: 3px solid #7255EE;
   }
+`
+S.LayOutWrap = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`
+S.LayOut = styled.div`
+  width: 1160px;
+`
+S.SearchResultCategoryLeft = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  ${h5Medium}
+  .blue{
+    color: #2F96FD;
+  }
+`
+S.SearchResultCategoryRight = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  ${h5Medium}
+`
+S.SearchCategoryWrap = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 1160px;
+  border-bottom: 2px solid #2F96FD;
+  padding-bottom: 12px;
+`
+S.CleanLink = styled.a`
+  text-decoration: none;
+  color: #121212;
 `
   export default S;
