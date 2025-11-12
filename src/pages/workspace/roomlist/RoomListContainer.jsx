@@ -10,7 +10,6 @@ import MiddleSearchBar from "./middlesearchbar/MiddleSearchBar";
 import LeftUserInterface from "./leftuserinterface/LeftUserInterface";
 import RoomList from "./RoomList";
 
-console.log('MiddleSearchBar =>', MiddleSearchBar);
 
 const RoomListContainer = () => {
 
