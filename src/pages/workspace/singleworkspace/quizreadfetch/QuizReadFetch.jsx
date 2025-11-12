@@ -43,7 +43,7 @@ const QuizReadFetch = () => {
         };
 
         fetchQuizListAndCurrent();
-    }, [quizid]);
+    }, );
 
 
     const currentIndex = quizs.findIndex(q => q.id === Number(quizid))
@@ -71,7 +71,7 @@ const QuizReadFetch = () => {
             }
         }
         readQuiz()
-    }, [])
+    }, [quizid])
 
     if (loading || !quiz.id) {
         return (

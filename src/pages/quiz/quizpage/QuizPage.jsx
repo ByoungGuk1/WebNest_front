@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import QuizList from '../quizlist/QuizList';
-console.log("QuizPage 렌더링됨");
 
 const parseFiltersFromSearch = (search) => {
     const params = new URLSearchParams(search);
@@ -56,14 +55,12 @@ const QuizPage = () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(filters) // RequestBody로 filters값들을 보냄
                 });
-                console.log("응답 :", res.status)
                 if (!res.ok) {
                     setQuizs([]);
                     setQuizTotalCount(0);
                     return;
                 }
                 const json = await res.json();
-                console.log("json:", json)
                 setQuizs(Array.isArray(json.data.findQuizList) ? json.data.findQuizList : []);
                 setQuizTotalCount(json.data.quizTotalCount)
 
@@ -77,7 +74,6 @@ const QuizPage = () => {
         fetchByFilters();
     }, [location.search]); // 쿼리스트링에 값이 추가될 때마다 == 토글 선택마다 or 페이지 넘어갈때마다
 
-    console.log("data:" , quizs)
     return (
         <div>
             <QuizList

@@ -9,9 +9,7 @@ const QuizRead = ({ quiz = {}, prevQuiz = {}, nextQuiz = {} }) => {
         id,
         quizTitle,
         quizDescription,
-        quizDifficult,
         quizLanguage,
-        quizCategory,
         quizExp,
         quizExpectation
     } = quiz;
@@ -20,16 +18,12 @@ const QuizRead = ({ quiz = {}, prevQuiz = {}, nextQuiz = {} }) => {
         id: prevId,
         quizTitle: prevQuizTitle,
         quizDifficult: prevQuizDifficult,
-        quizCategory: prevQuizCategory,
-        quizQuizExp: prevQuizExp,
     } = prevQuiz;
 
     const {
         id: nextId,
         quizTitle: nextQuizTitle,
         quizDifficult: nextQuizDifficult,
-        quizCategory: nextQuizCategory,
-        quizQuizExp: nextQuizExp,
     } = nextQuiz;
 
     return (
