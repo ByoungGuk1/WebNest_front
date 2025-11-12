@@ -1,5 +1,5 @@
 // QuizList.jsx
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import S from './style';
 import Pagination from '../pagination/Pagination';

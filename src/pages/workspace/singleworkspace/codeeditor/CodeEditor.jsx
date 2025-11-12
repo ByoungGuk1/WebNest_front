@@ -1,10 +1,7 @@
-import { Editor } from '@monaco-editor/react';
 import React, { useState } from 'react';
 import S from './style';
 
 const CodeEditor = ({ quizLanguage, id }) => {
-    console.log("quizLanguage", quizLanguage)
-    console.log("quizId", id)
 
     const addEditorLanguage = (lang) => {
         switch (lang?.toUpperCase()) {
@@ -21,46 +18,104 @@ const CodeEditor = ({ quizLanguage, id }) => {
         }
     }
 
-    const language = addEditorLanguage(quizLanguage);
+    const language = quizLanguage;
+    const editorLanguage = addEditorLanguage(quizLanguage)
     const [code, setCode] = useState(); // 코드입력칸
     const [output, setOutput] = useState('');
-    const [data, setData] = useState(false);
 
+    // 자바스크립티티코드 핸들러
+    function jsHandleRun(code) {
+        console.log("핸들러 진입:", code)
+        let logs = [];
+        const originalLog = console.log;
+        console.log = (...args) => {
+            logs.push(args.join(' '));
+        };
+        try {
+            eval(code);
+            setOutput(logs.join('\n') || '결과 없음');
+        } catch (err) {
+            setOutput("에러 발생: " + err.message);
+        }
+        console.log = originalLog;
+    }
+    // 자바코드 핸들랑
+    async function javaHandleRun(code) {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/java-expectation`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "code": code,
+                    "quizId": id,
+                    "quizSubmitError": null,
+                })
+            }
+            )
+            const javaData = await response.json();
+            if (!response.ok) {
+                const resMessage = javaData.message || `서버 오류 : ${response.status}`
+                setOutput(resMessage);
+                return;
+            }
+            setOutput(javaData.data || "실행 성공")
+        } catch (err) {
+            setOutput("실행 실패: " + err.message || "알 수 없는 오류류")
+        }
+    }
+    // SQL코드 핸들러
+    async function sqlHandleRun(code) {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/sql-expectation`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "quizId": id,
+                    "code": code,
+                    "quizSubmitError": null
+                })
+            })
+            const sqlData = await response.json()
+            if (!response.ok){
+                const resMessage = sqlData?.message || `서버 오류 : ${response.status}`
+                setOutput(resMessage)
+                return;
+            }
+            setOutput(sqlData.message || "요청 성공")
+        } catch(err){
+            setOutput("서버 오류 : " + err.message || "알 수 없는 오류류")
+        }
+    }
 
-    // 초기화버튼
+    const handleRun = async (code, language) => {
+        switch ((language || '').toUpperCase()) {
+            case 'JS':
+                jsHandleRun(code)
+                break;
+            case 'JAVA':
+                javaHandleRun(code)
+                break;
+            case 'ORACLE':
+                sqlHandleRun(code)
+                break;
+            default:
+                setOutput('지원하지 않는 언어입니다')
+        }
+    }
+
     const addReset = () => {
         setCode('');
         setOutput('');
-    }
-    // 컨트롤러로 실행결과 보낼요청 그 결과값이나 에러메세지 보내주면됨 백엔드에서
-    // 코드를 받고 컨트롤러에서 받은 코드와 DB에 저장된 기댓값이랑 다르면 ERROR, 가트면 SUCCESS
-    const handleRun = async () => {
-
-        if (language === "javascript") {
-            let logs = [];
-
-            const originalLog = console.log;
-
-            console.log = (...args) => {
-                logs.push(args.join(' '));
-            };
-            try {
-                eval(code);
-                setOutput(logs.join('\n') || '결과 없음');
-            } catch (err) {
-                setOutput("에러 발생: " + err.message);
-            }
-            console.log = originalLog;
-        }else{
-            setOutput('')
-            setCode('')
-        }
     }
     return (
         <div>
             <S.StyledEditor
                 height="600px"
-                defaultLanguage={language}
+                defaultLanguage={editorLanguage}
                 value={code}
                 onChange={(value) => setCode(value)}
                 theme='vs-dark'
@@ -72,12 +127,15 @@ const CodeEditor = ({ quizLanguage, id }) => {
                     scrollBeyondLastLine: false,
                 }}
             />
+            {/* 조건에따라 맞는 이벤트함수 실행 -> 코드실행 버튼 클릭시 스위치문으로 해당 문제의 언어 전달 
+                ex) "JAVA" -> 패치보내는 이벤트함수 실행, "JS" -> 콘솔값 가로채는 함수 실행, "ORACLE" -> 패치보내는 이벤트함수 실행
+            */}
             <S.OutputBox>
                 <S.OutputTitle>실행 결과</S.OutputTitle>
                 <S.OutputContent>{output}</S.OutputContent>
                 <S.ButtonWrap>
                     <S.RunButton onClick={addReset}>초기화</S.RunButton>
-                    <S.RunButton onClick={handleRun}>코드 실행</S.RunButton>
+                    <S.RunButton onClick={() => handleRun(code, language)}>코드 실행</S.RunButton>
                     <S.RunButton >제출 후 채점하기</S.RunButton>
                 </S.ButtonWrap>
             </S.OutputBox>
