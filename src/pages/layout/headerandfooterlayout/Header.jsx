@@ -219,7 +219,6 @@ const msgFromAction = (action) =>
   action === "New Like" ? "좋아요를 남겼어요" : "새 댓글을 남겼어요";
 
 // 리스트 렌더 (레이아웃만)
-console.log(arrangeDisplay)
 const notificationLists = () =>
   (arrangeDisplay ?? []).map((n, i) => {
     const key = `${n.type}-${n.id ?? i}`;

@@ -3,20 +3,19 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import S from './style'
 
 const ChattingContainer = () => {
   const [message, setMessage] = useState('');       // 입력 중인 메시지
   const [chatList, setChatList] = useState([]);     // 받은 메시지 목록
   const stompClientRef = useRef(null);
-
   // 리덕스에서 로그인한 유저 정보 조회
   const currentUser = useSelector((state) => state.user.currentUser);
   const userSenderId = currentUser?.id;
   const userNickname = currentUser?.userNickname;
-
   // 클릭한 채팅방 ID
+  console.log(chatList.userSenderId)
   const { roomId } = useParams();
-
   useEffect(() => {
     // 최초 한 번: 채팅방 메시지 불러오기
     const getMessages = async () => {
@@ -108,15 +107,28 @@ const ChattingContainer = () => {
   console.log(chatList)
 
   return (
-    <div style={{ padding: '20px', width: '400px', margin: '0 auto' }}>
+    <div style={{ padding: '20px', width: '320px', height:'700px', border: '2px solid blue',margin: '0 auto' }}>
       <h2>채팅</h2>
 
-      <div style={{ minHeight: '300px', border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
-        {chatList.map((chat, idx) => (
-          <div key={idx}>
-            <strong>{chat?.senderNickname}</strong>: {chat.chatMessageContent}
-          </div>
-        ))}
+      <div style={{ minHeight: '300px', border: '2px solid orange', width: "100%",height:'700px' }}>
+
+        <S.ChatList>
+          {chatList.map((chat, idx) => (
+            String(chat?.userSenderId) === String(userSenderId) ? (
+              <S.MyChatWrap key={idx}>
+                <S.MyChatLayout>{chat?.chatMessageContent}</S.MyChatLayout>
+              </S.MyChatWrap>
+            ) : (
+              <S.OthersChatWrap key={idx}>
+                <S.Avatar src="/assets/avatar.png" alt="프사" />
+                <S.OnlyCol>
+                  <S.OthersChatLyaout>{chat?.chatMessageContent}</S.OthersChatLyaout>
+                </S.OnlyCol>
+              </S.OthersChatWrap>
+            )
+          ))}
+        </S.ChatList>
+
       </div>
 
       <input

@@ -35,8 +35,9 @@ const S = {}
   `
 
   S.ChattingLayout = styled.div`
-    border: solid 1px #d9d9d9;
-    width: 30%;
+    border: solid 3px #d9d9d9;
+    width: 320px;
+    height: 700px;
   `
 
   S.MainWrapper = styled.div`
