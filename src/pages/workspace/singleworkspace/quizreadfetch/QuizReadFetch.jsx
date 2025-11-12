@@ -12,6 +12,9 @@ const QuizReadFetch = () => {
     const [quizs, setQuizs] = useState([]);
     const [quiz, setQuiz] = useState({});
     const [loading, setLoading] = useState(false);
+    const [userExp, setUserExp] = useState();
+    const [isBookmark, setIsBookmark] = useState();
+    const [isSolve, setIsSolve] = useState();
 
 
     useEffect(() => {
@@ -28,9 +31,9 @@ const QuizReadFetch = () => {
                     const json = await res.json();
                     quizList = json.data;
                 }
-
+                
                 setQuizs(quizList);
-
+                
                 const current = quizList.find(q => q.id === Number(quizid));
                 if (current) {
                     setQuiz(current);
@@ -43,15 +46,15 @@ const QuizReadFetch = () => {
         };
 
         fetchQuizListAndCurrent();
-    }, );
-
-
+    }, [loading]);
+    
+    
     const currentIndex = quizs.findIndex(q => q.id === Number(quizid))
     const prevQuiz = quizs[currentIndex - 1];
     const nextQuiz = quizs[currentIndex + 1];
-
+    
     useEffect(() => {
-
+        
         const readQuiz = async () => {
             setLoading(true)
             try {
@@ -62,8 +65,11 @@ const QuizReadFetch = () => {
                     }
                 })
                 if (!response.ok) throw new Error("퀴즈 요청 실패")
-                const data = await response.json()
+                    const data = await response.json()
                 setQuiz(data.data)
+                setUserExp(data.data.findQuizPersonalData.userExp)
+                setIsBookmark(data.data.findQuizPersonalData.quizPersonalIsBookmark)
+                setIsSolve(data.data.findQuizPersonalData.quizPersonalIsSolve)
             } catch (err) {
                 console.error(err)
             } finally {
@@ -72,7 +78,10 @@ const QuizReadFetch = () => {
         }
         readQuiz()
     }, [quizid])
-
+    console.log("디티오:", userExp)
+    console.log("디티오:", isBookmark)
+    console.log("디티오:", isSolve)
+    
     if (loading || !quiz.id) {
         return (
             <S.Bg>
@@ -83,7 +92,14 @@ const QuizReadFetch = () => {
 
     return (
 
-        <QuizRead quiz={quiz} prevQuiz={prevQuiz} nextQuiz={nextQuiz} />
+        <QuizRead 
+            quiz={quiz}
+            prevQuiz={prevQuiz}
+            nextQuiz={nextQuiz} 
+            userExp={userExp}
+            isBookmark={isBookmark}
+            isSolve={isSolve}
+            />
 
     );
 };
