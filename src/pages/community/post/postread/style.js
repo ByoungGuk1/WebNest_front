@@ -1,15 +1,16 @@
+// src/pages/community/post/postread/style.js
 import styled from "styled-components";
 import {
   flexCenter,
   h3Bold,
+  h4Bold,
+  h5Bold,
   h6Medium,
   h6Bold,
+  h7Bold,
   h7Medium,
   h8Medium,
-  h7Bold,
-  h4Bold,
-  h7Light,
-  h5Bold,
+  h9Medium,
 } from "../../../../styles/common";
 
 const S = {};
@@ -46,6 +47,7 @@ S.PageTitle = styled.div`
 
 S.PageDesc = styled.div`
   ${h6Medium}
+  opacity: 0.9;
 `;
 
 S.Illust = styled.img`
@@ -53,34 +55,31 @@ S.Illust = styled.img`
   height: auto;
 `;
 
-/* 🟡 본문 영역 */
+/* 🟡 본문 */
 S.ContentWrap = styled.div`
   width: 1160px;
-  margin: 60px auto;
-  display: flex;
-  flex-direction: column;
+  margin: 60px auto 80px;
 `;
 
-/* ✅ question → post 로 변경 */
 S.PostWrap = styled.div`
   display: flex;
   flex-direction: column;
 `;
 
-S.PostTitle = styled.div`
+S.PostTitle = styled.h1`
   ${h4Bold}
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
-  margin-bottom: 8px; /* ✅ 제목 아래 간격 */
+  margin-bottom: 8px;
 `;
 
-S.PosterInfo = styled.div`
+S.PostHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px; /* ✅ 프로필 아래 간격 */
+  margin-bottom: 24px;
 `;
 
-S.LeftBox = styled.div`
+S.AuthorBox = styled.div`
   ${h7Bold}
   display: flex;
   align-items: center;
@@ -94,19 +93,39 @@ S.ProfileImg = styled.img`
   object-fit: cover;
 `;
 
-S.FollowButton = styled.div`
-  cursor: pointer;
+S.AuthorName = styled.span`
   ${h7Bold}
-  color: ${({ theme }) => theme.PALETTE.primary.blue.main};
 `;
 
-S.PostContent = styled.div`
+S.HeaderRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+S.PrimaryBtn = styled.button`
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: none;
+  background-color: ${({ theme }) => theme.PALETTE.primary.blue.main};
+  color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+  ${h7Bold}
+  cursor: pointer;
+
+  &:hover{
+    opacity:.95;
+  }
+`;
+
+S.PostBody = styled.div`
   ${h6Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
   word-break: break-word;
-  margin-bottom: 20px; /* ✅ 본문 아래 간격 */
+  margin-bottom: 20px;
 `;
 
-S.PostInfo = styled.div`
+S.PostMetaRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -114,114 +133,362 @@ S.PostInfo = styled.div`
   color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
 `;
 
-S.PostMetaWrap = styled.div`
+S.MetaLeft = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+
   b {
     color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
   }
 `;
 
+S.MetaRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
+
 S.ReportBtn = styled.div`
   cursor: pointer;
+  ${h7Medium}
   &:hover {
     text-decoration: underline;
   }
 `;
 
-/* 답변갯수, 좋아요, 알림받는 창 */
-S.AlarmBox = styled.div`
-  display: flex;
-  /* flex-direction: column; */
-`;
-
-S.AnswerCn = styled.div``;
-
-S.LikeAndAlarm = styled.div``;
-
-S.Like = styled.div``;
-
-S.Alarm = styled.div``;
-
-S.ToggleSwitch = styled.div``;
-
-S.ToggleCircle = styled.div``;
-
-/* 🟢 답변 섹션 (이름 유지) */
-S.AnswerSection = styled.div`
-  margin-top: 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-`;
-
-S.AnswerTitle = styled.h3`
-  ${h6Bold}
-`;
-
-S.AnswerCard = styled.div`
-  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
-  border-radius: 8px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-S.AnswerTop = styled.div`
+S.Like = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
+  cursor: pointer;
+
+  img {
+    width: 12px;
+    height: 10px;
+  }
 `;
 
-S.AnswerProfile = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+S.LikeText = styled.span`
+  transition: color .2s ease;
+  color: ${({ $liked, theme }) =>
+    $liked ? theme.PALETTE.primary.purple.main : theme.PALETTE.neutral.black.main};
 `;
 
-S.AnswerUser = styled.div`
+/* 🗨️ 댓글 */
+S.CommentHeader = styled.div`
+  margin-top: 50px;
+  margin-bottom: 12px;
+`;
+
+S.CommentCount = styled.div`
+  ${h5Bold}
+  span{
+    color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+  }
+`;
+
+S.CommentWriteBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
+  border-radius: 10px;
+  padding: 10px 12px;
+  background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+`;
+
+S.CommentInput = styled.textarea`
+  flex: 1;
+  min-height: 44px;
+  max-height: 160px;
+  resize: vertical;
+  border: none;
+  outline: none;
   ${h7Medium}
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
 `;
 
-S.AnswerMeta = styled.div`
+S.CommentSubmit = styled.button`
+  flex: none;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: none;
+  ${h7Bold}
+  background-color: ${({ theme }) => theme.PALETTE.primary.blue.main};
+  color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+  cursor: pointer;
+`;
+
+S.NoComment = styled.div`
+  text-align: center;
+  color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+  margin: 24px 0 0;
+`;
+
+S.CommentList = styled.div`
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+`;
+
+S.CommentItem = styled.div`
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 10px;
+`;
+
+S.CommentLeft = styled.div``;
+
+S.CommentRight = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+S.CommentAvatar = styled.img`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+`;
+
+S.CommentUserRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px; /* 요청하신 간격 6px */
+`;
+
+S.CommentUserName = styled.span`
+  ${h7Bold}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+`;
+
+S.CommentUserLevel = styled.span`
+  ${h9Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+`;
+
+S.CommentContent = styled.div`
+  ${h7Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+  white-space: pre-wrap;
+`;
+
+S.CommentMetaRow = styled.div`
   ${h8Medium}
-  color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
-`;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: ${({ theme }) => theme.PALETTE.neutral.black.disable};
 
-S.AnswerContent = styled.p`
-  ${h6Medium}
-  line-height: 1.6;
-`;
-
-S.NoAnswer = styled.div`
-  text-align: center;
-  margin-top: 30px;
-  color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
-`;
-
-S.BackButton = styled.div`
-  margin-top: 60px;
-  text-align: center;
-  a {
-    ${h6Bold}
-    color: ${({ theme }) => theme.PALETTE.primary.purple.main};
-    text-decoration: none;
+  img {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    vertical-align: middle;
   }
 `;
 
-/* 상태 메시지 */
+/* ✅ 메타 액션(신고/답글 달기 등) */
+S.CommentAction = styled.span`
+  cursor: pointer;
+  &:hover { text-decoration: underline; }
+`;
+
+S.CommentLikeCount = styled.span`
+  cursor: pointer;
+  transition: color .2s ease;
+  color: ${({ $liked, theme }) =>
+    $liked ? theme.PALETTE.primary.purple.main : theme.PALETTE.neutral.black.disable};
+`;
+
+/* 🪶 대댓글 */
+S.SubcommentList = styled.div`
+  margin-top: 10px;
+  margin-left: 40px; /* 부모 댓글 아바타 너비만큼 들여쓰기 */
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+`;
+
+S.SubcommentItem = styled.div`
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 8px;
+`;
+
+S.SubcommentLeft = styled.div``;
+
+S.SubcommentRight = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+S.SubcommentAvatar = styled.img`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+`;
+
+S.SubcommentUserRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+S.SubcommentUserName = styled.span`
+  ${h8Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+`;
+
+S.SubcommentUserLevel = styled.span`
+  ${h9Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+`;
+
+S.SubcommentContent = styled.div`
+  ${h8Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+`;
+
+S.SubcommentMetaRow = styled.div`
+  ${h9Medium}
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: ${({ theme }) => theme.PALETTE.neutral.black.disable};
+`;
+
+/* ✅ 답글 입력 UI */
+S.ReplyBox = styled.div`
+  margin-left: 40px;      /* 부모 댓글과 정렬 */
+  margin-top: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
+  border-radius: 10px;
+  padding: 10px 12px;
+  background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+`;
+
+S.ReplyInput = styled.textarea`
+  flex: 1;
+  min-height: 40px;
+  max-height: 140px;
+  resize: vertical;
+  border: none;
+  outline: none;
+  ${h7Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+`;
+
+S.ReplySubmit = styled.button`
+  flex: none;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: none;
+  ${h7Bold}
+  background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+  color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+  cursor: pointer;
+`;
+
+/* ◀ ▶ 페이지네이션(숫자형) */
+S.Pagination = styled.div`
+  ${flexCenter}
+  margin-top: 28px;
+  gap: 6px;
+`;
+
+S.PageBtn = styled.button`
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
+  background-color: ${({ $active, theme }) =>
+    $active ? theme.PALETTE.primary.purple.main : theme.PALETTE.neutral.white.main};
+  color: ${({ $active, theme }) =>
+    $active ? theme.PALETTE.neutral.white.main : theme.PALETTE.neutral.black.main};
+  ${h9Medium}
+  cursor: pointer;
+`;
+
 S.LoadingMsg = styled.p`
   text-align: center;
   margin-top: 120px;
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
 `;
 
-S.NotFoundMsg = styled.p`
-  text-align: center;
-  margin-top: 120px;
-  color: gray;
+/* ⚠️ 신고 모달 */
+S.ReportOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,.4);
+  ${flexCenter}
+  z-index: 999;
+`;
+
+S.ReportBox = styled.div`
+  background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+  width: 320px;
+  border-radius: 10px;
+  padding: 30px 25px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  position: relative;
+`;
+
+S.ReportTitle = styled.div`
+  ${h4Bold}
+  margin-bottom: 12px;
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+S.CloseBtn = styled.div`
+  cursor: pointer;
+  img{ width: 20px; height: 20px; }
+`;
+
+S.ReportDesc = styled.div`
+  ${h6Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+  line-height: 1.4;
+  margin-bottom: 16px;
+
+  span{
+    color: ${({ theme }) => theme.PALETTE.primary.red.main};
+    ${h7Medium}
+  }
+`;
+
+S.ReportSelect = styled.select`
+  width: 100%;
+  height: 42px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
+  margin-bottom: 20px;
+  padding: 0 10px;
+  ${h7Medium}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+  background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+`;
+
+S.ReportSubmit = styled.button`
+  width: 100%;
+  height: 44px;
+  border-radius: 8px;
+  border: none;
+  background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+  color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+  ${h6Bold}
+  cursor: pointer;
 `;
 
 export default S;

@@ -1,53 +1,57 @@
-import styled from "styled-components"
+import styled from "styled-components";
+import { flexBeetweenRow } from "styles/common";
 
+const S = {};
 
-const S = {}
+S.Wrapper = styled.div`
+  width: 1440px;
+  height: 100vh;
+  margin: 0 auto;
+  border: solid 1px #d9d9d9;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+`;
 
-  S.Wrapper = styled.div`
-    width: 1440px;
-    height: 100vh;
-    margin: 0 auto;
+S.MenuWrapper = styled.div`
+  border: solid 1px #d9d9d9;
+  display: flex;
+  justify-content: right;
+`;
+
+S.MenuLayout = styled.div`
+  display: flex;
+  justify-content: right;
+
+  & > div {
+    width: 300px;
     border: solid 1px #d9d9d9;
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-  `
+  }
+`;
 
-  S.MenuWrapper = styled.div`
-    border: solid 1px #d9d9d9;
-    display: flex;
-    justify-content: right;
-    `
+S.Content = styled.div`
+  width: 70%;
+  border: solid 1px #d9d9d9;
+`;
 
-  S.MenuLayout = styled.div`
-    display: flex;
-    justify-content: right;
+S.ChattingLayout = styled.div`
+  border: solid 1px #d9d9d9;
+  width: 30%;
+`;
 
-    & > div {
-      width: 300px;
-      border: solid 1px #d9d9d9;
-    }
-  `
-  
-  S.Content = styled.div`
-    width: 70%;
-    border: solid 1px #d9d9d9;
-  `
+S.MainWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  gap: 40px;
+  flex: 1;
+`;
 
-  S.ChattingLayout = styled.div`
-    border: solid 1px #d9d9d9;
-    width: 30%;
-  `
-
-  S.MainWrapper = styled.div`
-    display: flex;
-    width: 100%;
-    gap: 40px;
-    flex: 1;
-  `
-
-  S.CardLayout = styled.div`
-    border: solid 1px #d9d9d9;
-  `
+S.CardLayout = styled.div`
+  border: solid 1px #d9d9d9;
+  width: 100%;
+  ${flexBeetweenRow}
+  justify-content: space-around;
+  gap: auto;
+`;
 
 export default S;

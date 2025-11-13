@@ -1,77 +1,102 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom"; // ✅ useLocation 추가
 import S from "./style";
+import { useSelector } from "react-redux";
 
 const QuestionWriteContainer = () => {
-  const { questionId } = useParams(); // URL 파라미터로 게시글 ID 받기
-  const [posts, setPosts] = useState([]);
+  const { questionId } = useParams(); // 게시글 ID
+  const navigate = useNavigate();
+  const location = useLocation(); // ✅ 수정 시 전달받을 데이터
+  const { commentData } = location.state || {}; // ✅ 전달받은 답변 데이터
+
   const [currentPost, setCurrentPost] = useState(null);
-  const [comments, setComments] = useState([]);
+  const [comment, setComment] = useState(commentData?.commentDescription || ""); // ✅ 기존 내용 세팅
   const [postLikeCount, setPostLikeCount] = useState(0);
 
-  /* 상대 시간 포맷 */
-  const toRelativeTime = (dateLike) => {
-    if (!dateLike) return "방금";
-    const d = new Date(dateLike);
-    if (Number.isNaN(d.getTime())) return "방금";
-    const diff = Date.now() - d.getTime();
-    const m = Math.floor(diff / 60000);
-    if (m < 1) return "방금";
-    if (m < 60) return `${m}분`;
-    const h = Math.floor(m / 60);
-    if (h < 24) return `${h}시간`;
-    const day = Math.floor(h / 24);
-    if (day < 7) return `${day}일`;
-    const mon = Math.floor(day / 30);
-    if (mon < 12) return `${mon}개월`;
-    const y = Math.floor(mon / 12);
-    return `${y}년`;
-  };
+  // ✅ Redux에서 로그인 유저 정보 가져오기
+  const user = useSelector((state) => state.user)
+  const {currentUser, isLogin } = user;
+  const { id } = currentUser
 
-  /* 데이터 로드 (백엔드 연동) */
+  /* 게시글 불러오기 */
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 게시글 데이터 불러오기
-        const postRes = await fetch(
-          `http://localhost:10000/post/get-post/${questionId}`
-        );
-        if (!postRes.ok) throw new Error("게시글 불러오기 실패");
-        const postData = await postRes.json();
-
-        // 댓글(답변) 데이터 불러오기
-        const commentRes = await fetch(
-          `http://localhost:10000/comment/${questionId}`
-        );
-        if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
-        const commentData = await commentRes.json();
-
-        setCurrentPost(postData.data || postData);
-        setPosts([postData.data || postData]);
-        setComments(commentData.data || []);
-        setPostLikeCount(postData.data?.postViewCount || 0);
+        const res = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
+        if (!res.ok) throw new Error("게시글 불러오기 실패");
+        const data = await res.json();
+        setCurrentPost(data.data || data);
+        setPostLikeCount(data.data?.postViewCount || 0);
       } catch (err) {
         console.error("데이터 로드 에러:", err);
-        setCurrentPost(null);
-        setComments([]);
       }
     };
     loadData();
   }, [questionId]);
 
-  // 백엔드 DTO 필드명에 맞게 구조 분해   ????  뭔지모름;;
-  const {
-    postTitle,
-    postContent,
-    postCreateAt,
-    postViewCount,
-    userNickname,
-  } = currentPost || {};
+  // ✅ 답변 등록 / 수정 버튼 클릭
+  const handleSubmitComment = async () => {
+    if (!isLogin) {
+      alert("로그인 후 이용해주세요!");
+      navigate("/login");
+      return;
+    }
 
+    if (!comment.trim()) {
+      alert("답변 내용을 입력해주세요!");
+      return;
+    }
+
+    try {
+      // ✅ 수정 모드일 경우 PUT 요청
+      if (commentData) {
+        const updatedComment = {
+          id: commentData.id,
+          postId: commentData.postId,
+          userId: commentData.userId,
+          commentDescription: comment,
+        };
+
+        const response = await fetch("http://localhost:10000/comment/modify", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedComment),
+        });
+
+        if (!response.ok) throw new Error("수정 실패");
+        alert("답변이 수정되었습니다!");
+      } else {
+        // ✅ 새 답변 등록일 경우 POST 요청
+        const newComment = {
+          postId: questionId,
+          userId: currentUser.id,
+          commentDescription: comment,
+          commentCreateAt: new Date().toISOString(),
+        };
+
+        const response = await fetch("http://localhost:10000/comment/write", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newComment),
+        });
+
+        if (!response.ok) throw new Error("등록 실패");
+        alert("답변이 등록되었습니다!");
+      }
+
+      setComment("");
+      navigate(`/question/${questionId}`);
+    } catch (error) {
+      console.error("답변 처리 중 오류:", error);
+      alert("답변 처리 중 오류가 발생했습니다.");
+    }
+  };
+
+  const { postTitle, postContent, postCreateAt, postViewCount } =
+    currentPost || {};
 
   return (
     <>
-      {/* 상단 배너 */}
       <S.PurpleBannerWrap>
         <S.PurpleBanner>
           <S.PurpleBannerInner>
@@ -89,70 +114,69 @@ const QuestionWriteContainer = () => {
         </S.PurpleBanner>
       </S.PurpleBannerWrap>
 
-      {/* 질문 본문 */}
       <S.ContentWrap>
         <S.QuestionWrap>
           <S.QuestionTitle>{postTitle}</S.QuestionTitle>
-
           <S.QuestionerInfo>
             <S.LeftBox>
               <S.ProfileImgA
-                src={"/assets/images/defalutpro.svg"}
-                alt={userNickname || "익명"}
+                src={
+                  currentUser.userThumbnailUrl || "/assets/images/defalutpro.svg"
+                }
+                alt={currentUser.userNickname || "익명"}
               />
-              <span>{userNickname || "익명"}</span>
+              <span>{currentUser.userNickname || "익명"}</span>
             </S.LeftBox>
-            <S.FollowButton>팔로우</S.FollowButton>
           </S.QuestionerInfo>
-
           <S.QuestionContent>{postContent}</S.QuestionContent>
 
-          {/* 게시글 하단 정보 */}
           <S.QuestionInfo>
             <S.QuestionMetaWrap>
-              <span>{toRelativeTime(postCreateAt)}</span>
+              <span>{new Date(postCreateAt).toLocaleDateString()}</span>
               <b>·</b>
-              <span>좋아요 {postLikeCount}</span>
+              <span>좋아요 0</span>
               <b>·</b>
               <span>조회 {postViewCount || 0}</span>
             </S.QuestionMetaWrap>
           </S.QuestionInfo>
         </S.QuestionWrap>
 
-        {/* 답변 작성 영역 */}
+        {/* ✅ 답변 입력 영역 (그대로 유지) */}
         <S.Container>
           <S.ResponseCard>
-            {/*  프로필 & 안내 */}
             <S.InfoAndWrite>
               <S.ResponseBanner>
                 <S.ProfileImg
-                  src="/assets/images/defalutpro.svg"
+                  src={
+                    currentUser.userThumbnailUrl ||
+                    "/assets/images/defalutpro.svg"
+                  }
                   alt="프로필"
                 />
                 <S.ResponserInfo>
-                  <div>뚜왈밍3냥님,</div>
+                  <div>{currentUser.userNickname || "익명"}님,</div>
                   <div>정보를 공유해 주세요.</div>
                 </S.ResponserInfo>
               </S.ResponseBanner>
 
-              {/* 버튼 */}
-              <S.ButtonWrap>답변등록</S.ButtonWrap>
+              {/* ✅ 기존 버튼 그대로 유지 */}
+              <S.ButtonWrap onClick={handleSubmitComment}>답변등록</S.ButtonWrap>
             </S.InfoAndWrite>
 
-            {/* {} 코드 입력칸 */}
             <S.CodeBox>
               <S.CodeBtn>
                 <S.CodeImg>
-                <img src="/assets/icons/code.svg" alt="{}" />
-              </S.CodeImg>
-              <S.SorceCode>소스코드</S.SorceCode>
+                  <img src="/assets/icons/code.svg" alt="{}" />
+                </S.CodeImg>
+                <S.SorceCode>소스코드</S.SorceCode>
               </S.CodeBtn>
-              
             </S.CodeBox>
 
-            {/* 안내문 포함 답변 입력란 */}
+            {/* ✅ 답변 입력창 (기존 유지, 단 초기값만 수정됨) */}
             <S.InputResponse
-              placeholder={`답변 작성 시 서비스 운영정책을 지켜주세요.\n이상한 말 쓰지 말고 제대로 작성하세요. 매너 지켜요.\n욕 안돼요. 못한다고 잔소리 안됩니다.`}
+              placeholder={`답변 작성 시 서비스 운영정책을 지켜주세요.\n이상한말쓰지말고 제대로 작성하세요. 매너 지켜요. 욕 안돼요.\n못한다고 잔소리 안됩니다.`}
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
             />
           </S.ResponseCard>
         </S.Container>
