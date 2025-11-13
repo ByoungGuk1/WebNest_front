@@ -30,20 +30,20 @@ S.MenuLayout = styled.div`
 `;
 
 S.Content = styled.div`
-  width: 70%;
-  border: solid 1px #d9d9d9;
+width: 1040px;
 `;
 
-  S.ChattingLayout = styled.div`
-    border: solid 1px #d9d9d9;
-    width: 30%;
-  `
+S.ChattingLayout = styled.div`
+  width: 320px;
+  height: 700px;
+`
 
 S.MainWrapper = styled.div`
   display: flex;
-  width: 100%;
   gap: 40px;
   flex: 1;
+  flex-direction: row;
+  justify-content: space-between;
 `;
 
 S.CardLayout = styled.div`
@@ -54,4 +54,19 @@ S.CardLayout = styled.div`
   gap: auto;
 `;
 
+S.HelperWwrap = styled.div`
+  width: 320px;
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  align-items: center;
+`
+S.HelperItems = styled.div`
+  width: 80px;
+  height: 35px;
+  background-color: #fff;
+  border: #fff 0.4 1px;
+   box-shadow: 0 0 20px #9585F2 0.1;
+
+`
 export default S;

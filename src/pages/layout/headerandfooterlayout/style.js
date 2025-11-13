@@ -9,7 +9,7 @@ const S = {}
     align-items: center;
     justify-content: center;
     background-color: #fff;
-    border-bottom: 3px solid black;
+    border-bottom: 1px solid black;
   `
 
   S.wrap_left = styled.div`

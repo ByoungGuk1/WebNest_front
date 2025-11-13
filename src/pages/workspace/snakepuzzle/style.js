@@ -6,10 +6,9 @@ const S = {};
 
 S.Section = styled.div`
   display: flex;
+  width: 1040px;
   align-items: flex-start;
-  justify-content: center;
-  gap: 48px;
-  padding: 32px 0;
+  justify-content: space-between;
 `;
 
 S.BoardWrap = styled.div`
@@ -58,6 +57,7 @@ S.DiceArea = styled.div`
   align-items: center;
   justify-content: flex-end;
   height: 700px;
+  width: 200px;
 `;
 
 S.BoardDice = styled.div`

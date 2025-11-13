@@ -6,13 +6,17 @@ import ChattingContainer from "./chatting/ChattingContainer";
 const MultiWorkspaceRoomContainer = () => {
   return (
     <S.Wrapper>
-      <S.MenuLayout>
-        <div>
-          <span>도움말</span>
-          <span>설정</span>
-          <span>나가기</span>
-        </div>
-      </S.MenuLayout>
+        <S.HelperWwrap>
+          <S.HelperItems>
+            <span>도움말</span>
+          </S.HelperItems>
+          <S.HelperItems>
+            <span>설정</span>
+          </S.HelperItems>
+          <S.HelperItems>
+            <span>나가기</span>
+          </S.HelperItems>
+        </S.HelperWwrap>
       <S.MainWrapper>
         <S.Content>
           <Outlet />

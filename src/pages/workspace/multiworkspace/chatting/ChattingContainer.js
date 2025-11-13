@@ -86,32 +86,42 @@ const ChattingContainer = () => {
   }, [roomId, userSenderId, userNickname]);
 
   // 엔터키 입력 시 메시지 전송
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && message.trim() !== '') {
-      const chatData = {
-        gameRoomId: roomId,
-        userSenderId: userSenderId,
-        userReceiverId: null,
-        chatMessageContent: message,
-        chatMessageType: 'MESSAGE',
-      };
+  const [isComposing, setIsComposing] = useState(false);
 
+const handleKeyDown = (e) => {
+  // 한글 입력 조합 중이면 무시
+  if (isComposing) return;
+
+  // 일부 브라우저: nativeEvent.isComposing 도 같이 방어
+  if (e.nativeEvent?.isComposing) return;
+
+  if (e.key === 'Enter' && message.trim() !== '') {
+    const chatData = {
+      gameRoomId: roomId,
+      userSenderId,
+      userReceiverId: null,
+      chatMessageContent: message,
+      chatMessageType: 'MESSAGE',
+    };
+
+    // 연결 체크(가끔 연결 직후 안전장치)
+    if (stompClientRef.current?.connected) {
       stompClientRef.current.publish({
         destination: '/pub/chats/send',
         body: JSON.stringify(chatData),
       });
-
       setMessage('');
     }
-  };
+  }
+};
   console.log(chatList)
 
   return (
-    <div style={{ padding: '20px', width: '320px', height:'700px', border: '2px solid blue',margin: '0 auto' }}>
-      <h2>채팅</h2>
-
-      <div style={{ minHeight: '300px', border: '2px solid orange', width: "100%",height:'700px' }}>
-
+    <S.ChatWrap>
+      <S.ChatHeader>
+        <h2>채팅</h2>
+      </S.ChatHeader>
+      <S.ChatListWrap>
         <S.ChatList>
           {chatList.map((chat, idx) => (
             String(chat?.userSenderId) === String(userSenderId) ? (
@@ -128,18 +138,23 @@ const ChattingContainer = () => {
             )
           ))}
         </S.ChatList>
-
-      </div>
-
-      <input
-        type="text"
-        placeholder="메시지를 입력하고 엔터를 누르세요..."
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyDown={handleKeyDown}
-        style={{ width: '100%', padding: '8px' }}
-      />
-    </div>
+      </S.ChatListWrap>
+      <S.RowWrap>
+        <img src='/assets/images/chat/arrow_right.png' alt='초대용' className='arrow'></img>
+        <S.InputBox>
+          <S.Input
+            type="text"
+            placeholder="메시지를 입력하고 엔터를 누르세요..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onCompositionStart={() => setIsComposing(true)}
+            onCompositionEnd={() => setIsComposing(false)}
+          />
+        <img src='/assets/images/chat/airplane.png' alt='전송이미지' className='airplane'></img>
+        </S.InputBox>
+      </S.RowWrap>
+    </S.ChatWrap>
   );
 };
 
