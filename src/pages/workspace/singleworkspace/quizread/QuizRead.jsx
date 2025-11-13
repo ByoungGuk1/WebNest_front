@@ -6,14 +6,10 @@ const QuizRead = ({
     quiz = {}, 
     prevQuiz = {},
     nextQuiz = {},
-    userId,
-    userExp,
-    isSolve,
-    isBookmark
         }) => {
 
     const {
-        id,
+        id: quizId,
         quizTitle,
         quizDescription,
         quizLanguage,
@@ -33,6 +29,7 @@ const QuizRead = ({
         quizDifficult: nextQuizDifficult,
     } = nextQuiz;
 
+    console.log("quizRead:", quizId)
     return (
         <S.QuizReadWrap>
             {/* 좌측 헤더 */}
@@ -100,11 +97,9 @@ const QuizRead = ({
                 <S.QuizRightConsoleArea>
                     <CodeEditor 
                         quizLanguage={quizLanguage} 
-                        id={id} 
-                        userExp={userExp}
-                        userId={userId}
-                        isBookmark={isBookmark}
-                        isSolve={isSolve}
+                        quizId={quizId}
+                        quizExp={quizExp}
+                        quizExpectation={quizExpectation}
                     />
                 </S.QuizRightConsoleArea>
             </S.quizRightWrap>
