@@ -3,19 +3,20 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import S from './style';
 import QuizRead from '../quizread/QuizRead';
+import { useSelector } from 'react-redux';
 
 const QuizReadFetch = () => {
 
     const { quizid } = useParams();
     const location = useLocation();
-
     const [quizs, setQuizs] = useState([]);
     const [quiz, setQuiz] = useState({});
     const [loading, setLoading] = useState(false);
-    const [userExp, setUserExp] = useState();
     const [isBookmark, setIsBookmark] = useState();
     const [isSolve, setIsSolve] = useState();
-    const [userId, setUserId] = useState();
+    const getUser = useSelector(state => state.user)
+    const currentUser = getUser.currentUser
+    const { id } = currentUser;
 
     useEffect(() => {
         const fetchQuizListAndCurrent = async () => {
@@ -54,24 +55,23 @@ const QuizReadFetch = () => {
     const nextQuiz = quizs[currentIndex + 1];
     
     useEffect(() => {
-        
         const readQuiz = async () => {
             setLoading(true)
             try {
                 const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/workspace/quiz/${quizid}`, {
-                    method: "GET",
+                    method: "POST",
                     headers: {
                         "Content-Type": "application/json"
-                    }
+                    },
+                    body: JSON.stringify({
+                        "quizId": quizid,
+                        "userId": id
+                    })
                 })
                 if (!response.ok) throw new Error("퀴즈 요청 실패")
                     const data = await response.json()
-                console.log("dd",data.data.findQuizPersonalData)
+                console.log("dd",data)
                 setQuiz(data.data)
-                setUserExp(data.data.findQuizPersonalData.userExp)
-                setIsBookmark(data.data.findQuizPersonalData.quizPersonalIsBookmark)
-                setIsSolve(data.data.findQuizPersonalData.quizPersonalIsSolve)
-                setUserId(data.data.findQuizPersonalData.userId)
             } catch (err) {
                 console.error(err)
             } finally {
@@ -89,15 +89,12 @@ const QuizReadFetch = () => {
         )
     }
 
-    console.log("userId", userId)
     return (
 
         <QuizRead 
             quiz={quiz}
             prevQuiz={prevQuiz}
             nextQuiz={nextQuiz} 
-            userExp={userExp}
-            userId={userId}
             isBookmark={isBookmark}
             isSolve={isSolve}
             />
