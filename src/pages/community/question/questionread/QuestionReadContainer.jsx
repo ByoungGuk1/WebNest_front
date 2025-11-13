@@ -9,6 +9,8 @@ const QuestionReadContainer = () => {
   const [currentPost, setCurrentPost] = useState(null);
   const [comments, setComments] = useState([]); // 백엔드 댓글 데이터
   const navigate = useNavigate();
+  const [deleteTargetId, setDeleteTargetId] = useState(null); // ✅ 삭제할 답변 id 저장
+ 
 
   // 신고 관련 state
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -46,25 +48,52 @@ const QuestionReadContainer = () => {
     setOpenMenuId((prev) => (prev === id ? null : id));
   };
 
-  const handleEdit = (answerId) => {
-    navigate(`/question/${questionId}/write`);
+  const handleEdit = (answer) => {
+    navigate(`/question/${questionId}/write`, {
+      state: { commentData: answer }  // ✅ 수정할 답변 데이터 전달
+    });
   };
+
   const handleWriteAnswer = () => {
     navigate(`/question/${questionId}/write`);
   };
 
   const handleDelete = (id) => {
+    setDeleteTargetId(id); // 어떤 댓글을 지울지 저장
     setOpenMenuId(null);
     setIsDeleteModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    setIsDeleteModalOpen(false);
-    alert("답변이 삭제되었습니다.");
+ const handleConfirmDelete = async () => {
+    try {
+      // ✅ DELETE 요청 보내기
+      const response = await fetch("http://localhost:10000/comment/remove", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(deleteTargetId), // 백엔드에서 Long id로 받음
+      });
+
+      if (!response.ok) throw new Error("삭제 실패");
+
+      alert("답변이 삭제되었습니다.");
+
+      // ✅ UI에서 해당 댓글 제거
+      setComments((prev) => prev.filter((c) => c.id !== deleteTargetId));
+
+      setIsDeleteModalOpen(false);
+      setDeleteTargetId(null);
+    } catch (error) {
+      console.error("답변 삭제 오류:", error);
+      alert("답변 삭제 중 오류가 발생했습니다.");
+      setIsDeleteModalOpen(false);
+    }
   };
 
   const handleCancelDelete = () => {
     setIsDeleteModalOpen(false);
+    setDeleteTargetId(null);
   };
 
   /* 게시글 좋아요 관련 */
@@ -73,6 +102,8 @@ const QuestionReadContainer = () => {
 
   /* 답변 좋아요 관련 */
   const [likedAnswers, setLikedAnswers] = useState({});
+  //  좋아요 수는 { [commentId]: number } 형태로 별도 관리
+  const [answerLikeCounts, setAnswerLikeCounts] = useState({});
 
   /* 알림 토글 */
   const [isAlarmOn, setIsAlarmOn] = useState(false);
@@ -86,12 +117,19 @@ const QuestionReadContainer = () => {
     setPostLikeCount((prev) => (isPostLiked ? prev - 1 : prev + 1));
   };
 
+  //좋아요
   const handleAnswerLike = (answerId) => {
-    setLikedAnswers((prev) => {
-      const isLiked = !prev[answerId];
-      return { ...prev, [answerId]: isLiked };
+    setLikedAnswers((prevLiked) => {
+      const isLiked = !prevLiked[answerId]; // 현재 상태 반전
+      setAnswerLikeCounts((prevCounts) => ({
+        ...prevCounts,
+        [answerId]: (prevCounts[answerId] || 0) + (isLiked ? 1 : -1), // +1 또는 -1
+      }));
+      return { ...prevLiked, [answerId]: isLiked }; // 토글된 상태 저장
     });
   };
+
+
 
   const handleChooseClick = () => {
     setIsChooseModalOpen(true);
@@ -125,32 +163,51 @@ const QuestionReadContainer = () => {
     return `${y}년`;
   };
 
-  /* 데이터 로드 (백엔드 연동) */
+ /* 데이터 로드 (백엔드 연동) */
   useEffect(() => {
     const loadData = async () => {
       try {
-        // 게시글 데이터 불러오기
         const postRes = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
         if (!postRes.ok) throw new Error("게시글 불러오기 실패");
         const postData = await postRes.json();
 
-        // 댓글(답변) 데이터 불러오기
         const commentRes = await fetch(`http://localhost:10000/comment/${questionId}`);
         if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
         const commentData = await commentRes.json();
+        const commentList = commentData.data || [];
 
+        // ✅ 각 댓글별 좋아요 수 불러오기
+        const likeCounts = {};
+        for (const comment of commentList) {
+          try {
+            const likeRes = await fetch(`http://localhost:10000/commentLike/${comment.id}`);
+            if (likeRes.ok) {
+              const likeData = await likeRes.json();
+              likeCounts[comment.id] = likeData.data; // 백엔드의 likeCount 값
+            } else {
+              likeCounts[comment.id] = 0;
+            }
+          } catch {
+            likeCounts[comment.id] = 0;
+          }
+        }
+
+        // ✅ 초기 세팅
+        setAnswerLikeCounts(likeCounts);
+        setComments(commentList);
         setCurrentPost(postData.data || postData);
         setPosts([postData.data || postData]);
-        setComments(commentData.data || []);
         setPostLikeCount(postData.data?.postViewCount || 0);
       } catch (err) {
-        console.error(" 데이터 로드 에러:", err);
+        console.error("데이터 로드 에러:", err);
         setCurrentPost(null);
         setComments([]);
       }
     };
+
     loadData();
   }, [questionId]);
+
 
   if (!posts)
     return <S.LoadingMsg>게시글을 불러오는 중...</S.LoadingMsg>;
@@ -281,10 +338,11 @@ const QuestionReadContainer = () => {
                   <span>{toRelativeTime(ans.commentCreateAt)}</span>
                   <b>·</b>
                   <AnswerLikeButton
-                    isLiked={likedAnswers[ans.id]}
-                    likeCount={likedAnswers[ans.id] ? 1 : 0}
-                    onToggleLike={() => handleAnswerLike(ans.id)}
+                    isLiked={likedAnswers[ans.id] || false} // 하트 색상 변경 상태
+                    likeCount={answerLikeCounts[ans.id] || 0} // 실제 좋아요 수
+                    onToggleLike={() => handleAnswerLike(ans.id)} // 클릭 시 토글
                   />
+
                   <b>·</b>
                   <span onClick={() => handleReportClick("answer", ans.id)}>신고</span>
                 </S.AnswerDate>
@@ -295,10 +353,11 @@ const QuestionReadContainer = () => {
 
                 {openMenuId === ans.id && (
                   <S.AnswerMenu>
-                    <li onClick={() => handleEdit(ans.id)}>수정하기</li>
+                    <li onClick={() => handleEdit(ans)}>수정하기</li>
                     <li onClick={() => handleDelete(ans.id)}>삭제하기</li>
                   </S.AnswerMenu>
                 )}
+
               </S.AnswerCard>
             ))}
           </S.AnswerSection>
