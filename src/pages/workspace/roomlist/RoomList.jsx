@@ -31,6 +31,8 @@ const RoomList = () => {
     return <div>게임방 목록이 없습니다.😥</div>
   }
 
+  console.log(rooms)
+
   const roomList = rooms.map(({gameRoomCreateAt, gameRoomCurrentPlayer, gameRoomIsOpen, gameRoomIsStart, gameRoomIsTeam, gameRoomMaxPlayer, gameRoomPassKey, gameRoomTitle, gameRoomType, id, }, i) => (
     <li key={i}>
       <Link to={`/workspace/rooms/${id}/${gameRoomType}`}>
