@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import S from "./style";
 import AnswerLikeButton from "components/like/AnswerLikeButton";
+import { useSelector } from "react-redux";
 
 const QuestionReadContainer = () => {
   const { questionId } = useParams();
@@ -10,7 +11,16 @@ const QuestionReadContainer = () => {
   const [comments, setComments] = useState([]); // 백엔드 댓글 데이터
   const navigate = useNavigate();
   const [deleteTargetId, setDeleteTargetId] = useState(null); // ✅ 삭제할 답변 id 저장
- 
+  const location = useLocation();
+  const noViewIncrease = location.state?.noViewIncrease;
+  const [selectedCommentId, setSelectedCommentId] = useState(null);  //방금 추가
+
+ // ✅ Redux에서 로그인 유저 정보 가져오기
+  const user = useSelector((state) => state.user)
+  const {currentUser, isLogin } = user;
+  // const { id } = currentUser
+  // 로그인 유저 id (이름 충돌 피하기!)
+  const { id: currentUserId } = currentUser;
 
   // 신고 관련 state
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -131,14 +141,44 @@ const QuestionReadContainer = () => {
 
 
 
-  const handleChooseClick = () => {
+  // const handleChooseClick = () => {
+  //   setIsChooseModalOpen(true);
+  // };
+
+  const handleChooseClick = (commentId) => {
+    setSelectedCommentId(commentId);
     setIsChooseModalOpen(true);
   };
 
-  const handleConfirmChoose = () => {
-    setIsChooseModalOpen(false);
-    alert("답변이 채택되었습니다! 🎉");
+
+  // const handleConfirmChoose = () => {
+  //   setIsChooseModalOpen(false);
+  //   alert("답변이 채택되었습니다! 🎉");
+  // };
+
+  const handleConfirmChoose = async () => {
+    try {
+      const res = await fetch("http://localhost:10000/comment/choose", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ commentId: selectedCommentId })
+      });
+
+      if (!res.ok) throw new Error("채택 실패");
+
+      // UI 업데이트
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === selectedCommentId ? { ...c, commentIsAccept: 1 } : c
+        )
+      );
+
+      setIsChooseModalOpen(false);
+    } catch (e) {
+      console.error(e);
+    }
   };
+
 
   const handleCancelChoose = () => {
     setIsChooseModalOpen(false);
@@ -164,26 +204,89 @@ const QuestionReadContainer = () => {
   };
 
  /* 데이터 로드 (백엔드 연동) */
+  // useEffect(() => {
+  //   // const loadData = async () => {
+  //   //   try {
+  //   //     const postRes = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
+  //   //     if (!postRes.ok) throw new Error("게시글 불러오기 실패");
+  //   //     const postData = await postRes.json();
+
+  //   //     const commentRes = await fetch(`http://localhost:10000/comment/${questionId}`);
+  //   //     if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
+  //   //     const commentData = await commentRes.json();
+  //   //     const commentList = commentData.data || [];
+  //   const loadData = async () => {
+  //     try {
+  //       const apiUrl = noViewIncrease
+  //         ? `http://localhost:10000/post/get-post-no-view/${questionId}`  // 조회수 증가 X
+  //         : `http://localhost:10000/post/get-post/${questionId}`;         // 조회수 증가 O
+
+  //       const postRes = await fetch(apiUrl);
+  //       if (!postRes.ok) throw new Error("게시글 불러오기 실패");
+  //       const postData = await postRes.json();
+
+  //         // ✅ 각 댓글별 좋아요 수 불러오기
+  //         const likeCounts = {};
+  //         for (const comment of commentList) {
+  //           try {
+  //             const likeRes = await fetch(`http://localhost:10000/commentLike/${comment.id}`);
+  //             if (likeRes.ok) {
+  //               const likeData = await likeRes.json();
+  //               likeCounts[comment.id] = likeData.data; // 백엔드의 likeCount 값
+  //             } else {
+  //               likeCounts[comment.id] = 0;
+  //             }
+  //           } catch {
+  //             likeCounts[comment.id] = 0;
+  //           }
+  //         }
+
+  //         // ✅ 초기 세팅
+  //         setAnswerLikeCounts(likeCounts);
+  //         setComments(commentList);
+  //         setCurrentPost(postData.data || postData);
+  //         setPosts([postData.data || postData]);
+  //         setPostLikeCount(postData.data?.postViewCount || 0);
+  //       } catch (err) {
+  //         console.error("데이터 로드 에러:", err);
+  //         setCurrentPost(null);
+  //         setComments([]);
+  //     }
+  //   };
+
+  //   loadData();
+  // }, [questionId]);
   useEffect(() => {
     const loadData = async () => {
       try {
-        const postRes = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
+        // 1) 조회수 증가 여부에 따른 API 선택
+        const apiUrl = noViewIncrease
+          ? `http://localhost:10000/post/get-post-no-view/${questionId}`
+          : `http://localhost:10000/post/get-post/${questionId}`;
+
+        const postRes = await fetch(apiUrl);
         if (!postRes.ok) throw new Error("게시글 불러오기 실패");
         const postData = await postRes.json();
+        const post = postData.data || postData;
 
-        const commentRes = await fetch(`http://localhost:10000/comment/${questionId}`);
+        // 2) 댓글 불러오기
+        const commentRes = await fetch(
+          `http://localhost:10000/comment/${questionId}`
+        );
         if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
         const commentData = await commentRes.json();
         const commentList = commentData.data || [];
 
-        // ✅ 각 댓글별 좋아요 수 불러오기
+        // 3) 댓글별 좋아요 수 로드
         const likeCounts = {};
         for (const comment of commentList) {
           try {
-            const likeRes = await fetch(`http://localhost:10000/commentLike/${comment.id}`);
+            const likeRes = await fetch(
+              `http://localhost:10000/commentLike/${comment.id}`
+            );
             if (likeRes.ok) {
               const likeData = await likeRes.json();
-              likeCounts[comment.id] = likeData.data; // 백엔드의 likeCount 값
+              likeCounts[comment.id] = likeData.data;
             } else {
               likeCounts[comment.id] = 0;
             }
@@ -192,12 +295,15 @@ const QuestionReadContainer = () => {
           }
         }
 
-        // ✅ 초기 세팅
-        setAnswerLikeCounts(likeCounts);
+        // 4) 상태 업데이트
+        setCurrentPost(post);
+        setPosts([post]);
         setComments(commentList);
-        setCurrentPost(postData.data || postData);
-        setPosts([postData.data || postData]);
-        setPostLikeCount(postData.data?.postViewCount || 0);
+        setAnswerLikeCounts(likeCounts);
+        // setPostLikeCount(post.postViewCount || 0);
+        setPostLikeCount(post.postLikeCount || 0);
+
+
       } catch (err) {
         console.error("데이터 로드 에러:", err);
         setCurrentPost(null);
@@ -206,7 +312,8 @@ const QuestionReadContainer = () => {
     };
 
     loadData();
-  }, [questionId]);
+  }, [questionId, noViewIncrease]);
+
 
 
   if (!posts)
@@ -222,6 +329,7 @@ const QuestionReadContainer = () => {
     postCreateAt,
     postViewCount,
     userNickname,
+    // postLikeCount
   } = currentPost;
 
   return (
@@ -327,9 +435,15 @@ const QuestionReadContainer = () => {
                     </S.AnswerInnerBox>
                   </S.UserInfo>
 
-                  <S.ChooseAnswer onClick={handleChooseClick}>
+                  {/* <S.ChooseAnswer onClick={handleChooseClick}>
                     <span>채택</span>
-                  </S.ChooseAnswer>
+                  </S.ChooseAnswer> */}
+                  {currentUserId === currentPost.userId && !ans.commentIsAccept && (
+                    <S.ChooseAnswer onClick={() => handleChooseClick(ans.id)}>
+                      채택
+                    </S.ChooseAnswer>
+                  )}
+
                 </S.AnswerTop>
 
                 <S.AnswerContent>{ans.commentDescription}</S.AnswerContent>
@@ -347,16 +461,30 @@ const QuestionReadContainer = () => {
                   <span onClick={() => handleReportClick("answer", ans.id)}>신고</span>
                 </S.AnswerDate>
 
-                <S.HamburgerButton onClick={() => toggleMenu(ans.id)}>
+                {/* <S.HamburgerButton onClick={() => toggleMenu(ans.id)}>
                   <img src="/assets/icons/hamburgerbutton.svg" alt="메뉴" />
-                </S.HamburgerButton>
+                </S.HamburgerButton> */}
+                {currentUserId === ans.userId && (
+                  <S.HamburgerButton onClick={() => toggleMenu(ans.id)}>
+                    <img src="/assets/icons/hamburgerbutton.svg" alt="메뉴" />
+                  </S.HamburgerButton>
+                )}
 
-                {openMenuId === ans.id && (
+
+                {/* {openMenuId === ans.id && (
+                  <S.AnswerMenu>
+                    <li onClick={() => handleEdit(ans)}>수정하기</li>
+                    <li onClick={() => handleDelete(ans.id)}>삭제하기</li>
+                  </S.AnswerMenu>
+                )} */}
+
+                {openMenuId === ans.id && currentUserId === ans.userId && (
                   <S.AnswerMenu>
                     <li onClick={() => handleEdit(ans)}>수정하기</li>
                     <li onClick={() => handleDelete(ans.id)}>삭제하기</li>
                   </S.AnswerMenu>
                 )}
+
 
               </S.AnswerCard>
             ))}
@@ -411,8 +539,8 @@ const QuestionReadContainer = () => {
           <S.ModalBox>
             <S.ModalTitle>답변을 채택하시겠습니까?</S.ModalTitle>
             <S.ModalDesc>
-              채택된 답변은 수정/삭제가 불가하며<br />
-              다른 답변을 채택할 수 없습니다.
+              답변을 채택한 이후 채택취소가 불가능합니다.<br />
+              한 게시글에 여러 답변을 채택할 수 있습니다.
             </S.ModalDesc>
             <S.ModalButtons>
               <S.CancelBtn onClick={handleCancelChoose}>취소</S.CancelBtn>

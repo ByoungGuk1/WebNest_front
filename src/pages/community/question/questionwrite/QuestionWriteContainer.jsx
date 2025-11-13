@@ -19,20 +19,36 @@ const QuestionWriteContainer = () => {
   const { id } = currentUser
 
   /* 게시글 불러오기 */
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     try {
+  //       const res = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
+  //       if (!res.ok) throw new Error("게시글 불러오기 실패");
+  //       const data = await res.json();
+  //       setCurrentPost(data.data || data);
+  //       setPostLikeCount(data.data?.postViewCount || 0);
+  //     } catch (err) {
+  //       console.error("데이터 로드 에러:", err);
+  //     }
+  //   };
+  //   loadData();
+  // }, [questionId]);
+
   useEffect(() => {
+  // 수정일 때는 게시글 조회 필요 없음
+  // if (commentData) return;
+
     const loadData = async () => {
-      try {
-        const res = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
-        if (!res.ok) throw new Error("게시글 불러오기 실패");
-        const data = await res.json();
-        setCurrentPost(data.data || data);
-        setPostLikeCount(data.data?.postViewCount || 0);
-      } catch (err) {
-        console.error("데이터 로드 에러:", err);
-      }
+      // 조회수 증가 없는 API 사용
+      const res = await fetch(`http://localhost:10000/post/get-post-no-view/${questionId}`);
+      const data = await res.json();
+      setCurrentPost(data.data || data);
+      setPostLikeCount(data.data?.postViewCount || 0);
     };
+
     loadData();
-  }, [questionId]);
+  }, [questionId, commentData]);
+
 
   // ✅ 답변 등록 / 수정 버튼 클릭
   const handleSubmitComment = async () => {
@@ -85,7 +101,10 @@ const QuestionWriteContainer = () => {
       }
 
       setComment("");
-      navigate(`/question/${questionId}`);
+
+      // 상세페이지로 돌아갈 때 조회수 증가 금지
+      navigate(`/question/${questionId}`, { state: { noViewIncrease: true } });
+
     } catch (error) {
       console.error("답변 처리 중 오류:", error);
       alert("답변 처리 중 오류가 발생했습니다.");
