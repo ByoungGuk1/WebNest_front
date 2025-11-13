@@ -91,25 +91,25 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <SearchResult />
+            element: <SearchResult />,
           },
           {
             path: "question-post",
-            element: <QuestionPost />
+            element: <QuestionPost />,
           },
           {
             path: "open-post",
-            element: <OpenPost />
+            element: <OpenPost />,
           },
           {
             path: "quiz",
-            element: <QuizSearchDetail />
+            element: <QuizSearchDetail />,
           },
           {
             path: "follow",
-            element: <FollowSearchDetail />
-          }
-        ]
+            element: <FollowSearchDetail />,
+          },
+        ],
       },
       {
         path: "/post",
@@ -126,7 +126,6 @@ const router = createBrowserRouter([
       {
         path: "/question",
         element: <QuestionListContainer />,
-        
       },
       {
         path: "/question/:questionId",
@@ -138,8 +137,8 @@ const router = createBrowserRouter([
       },
       {
         path: "/question/:questionId/write",
-        element: <QuestionWriteContainer />, // 이게 핵심
-      }, 
+        element: <QuestionWriteContainer />,
+      },
       {
         path: "oauth2/success",
         element: <OauthSuccess />,
@@ -157,6 +156,10 @@ const router = createBrowserRouter([
       {
         path: "rooms",
         element: <RoomListContainer />,
+      },
+      {
+        path: "rooms/typing",
+        element: <TypingPracticeContainer />,
       },
       {
         path: "rooms/:roomId",
@@ -177,10 +180,6 @@ const router = createBrowserRouter([
           {
             path: "snakepuzzle",
             element: <SnakePuzzleContainer />,
-          },
-          {
-            path: "typing",
-            element: <TypingPracticeContainer />,
           },
         ],
       },
