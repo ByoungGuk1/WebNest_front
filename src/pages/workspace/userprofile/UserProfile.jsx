@@ -1,11 +1,9 @@
-import { faX } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import React, { useEffect, useState } from "react";
 import S from "./style";
-import { useEffect, useState } from "react";
 import UserGrade from "./UserGrade";
+import ResignPlayer from "./common/components/ResignPlayer";
 
-const UserProfile = ({ userData, onClick }) => {
+const UserProfile = ({ userData, onClick, setUsers, users }) => {
   const teamColorUrl = {
     yellow: "/assets/background/yellow.png",
     aqua: "/assets/background/aqua.png",
@@ -17,20 +15,18 @@ const UserProfile = ({ userData, onClick }) => {
     red: "/assets/background/red.png",
   };
 
-  const [user, setUser] = useState({ userData });
-  const [teamColor, setTeamColor] = useState(teamColorUrl[user.userColor]);
+  const [user, setUser] = useState(userData);
+  const [teamColor, setTeamColor] = useState(teamColorUrl[userData.gameJoinTeamcolor]);
 
   useEffect(() => {
     setUser(userData);
-    setTeamColor(teamColorUrl[user.userColor]);
-  }, [user]);
+    setTeamColor(teamColorUrl[userData.gameJoinTeamcolor]);
+  }, [userData]);
 
-  const hostCrown = () => {
-    if (user.gameJoinIsHost) {
-      return <S.CrownIcon src="/assets/icons/crown.png" alt="" />;
-    }
-    return null;
-  };
+  const hostCrown = () =>
+    user.gameJoinIsHost ? (
+      <S.CrownIcon src="/assets/icons/crown.png" alt="" />
+    ) : null;
 
   return (
     <div>
@@ -41,19 +37,13 @@ const UserProfile = ({ userData, onClick }) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}>
-        <S.ResignButton type="button">
-          <FontAwesomeIcon
-            icon={faX}
-            size="2xs"
-            style={{
-              cursor: "pointer",
-            }}
-          />
-        </S.ResignButton>
+        <ResignPlayer user={user} setUsers={setUsers} users={users} />
+
         <S.ProfileImageWrap>
           {hostCrown()}
           <img src={user.userThumbnailURL} alt={user.userThumbnailName} />
         </S.ProfileImageWrap>
+
         <S.UserNameWrap>{user.userNickname}</S.UserNameWrap>
         <UserGrade level={user.userLevel} />
         <S.UserTextWrap>{user.innerText}</S.UserTextWrap>

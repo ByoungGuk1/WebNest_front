@@ -1,14 +1,12 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
 import S from "./style";
-import { useEffect, useState } from "react";
 import UserGrade from "./UserGrade";
-import resignPlayerButton from "./common/components/resignPlayerButton";
 import useGetUserData from "hooks/useGetUserData";
+import ResignPlayer from "./common/components/ResignPlayer";
 
-const UserProfileBehind = ({ userData, setUsers, onClick }) => {
+const UserProfileBehind = ({ userData, setUsers, onClick, users }) => {
   const user = userData;
-  const { currentUser, isLogin } = useGetUserData();
+  const { currentUser } = useGetUserData();
 
   const teamColorUrl = {
     yellow: "/assets/background/yellow.png",
@@ -21,22 +19,20 @@ const UserProfileBehind = ({ userData, setUsers, onClick }) => {
     red: "/assets/background/red.png",
   };
 
-  const [teamColor, setTeamColor] = useState(teamColorUrl[user.userColor]);
+  const [teamColor, setTeamColor] = useState(teamColorUrl[user.gameJoinTeamcolor]);
 
   useEffect(() => {
-    setTeamColor(teamColorUrl[user.userColor]);
-  }, [user]);
+    setTeamColor(teamColorUrl[user.gameJoinTeamcolor]);
+  }, [userData]);
 
-  const hostCrown = () => {
-    if (user.gameJoinIsHost) {
-      return <S.CrownIcon src="/assets/icons/crown.png" alt="" />;
-    }
-    return null;
-  };
+  const hostCrown = () =>
+    user.gameJoinIsHost ? (
+      <S.CrownIcon src="/assets/icons/crown.png" alt="" />
+    ) : null;
 
   const changeColor = (userId, color) => {
     setUsers((prev) =>
-      prev.map((u) => (u.userId === userId ? { ...u, userColor: color } : u))
+      prev.map((u) => (u.userId === userId ? { ...u, gameJoinTeamcolor: color } : u))
     );
   };
 
@@ -44,29 +40,19 @@ const UserProfileBehind = ({ userData, setUsers, onClick }) => {
     <S.ColorButton
       key={color}
       name={color}
-      onClick={
-        currentUser?.userId === user.userId
-          ? () => changeColor(user.userId, color)
-          : null
-      }
+      onClick={(e) => {
+        if (
+          currentUser?.userId === user.userId ||
+          currentUser?.id === user.userId
+        ) {
+          changeColor(user.userId, color);
+        }
+      }}
       style={{
         backgroundImage: `url(${teamColorUrl[color]})`,
         backgroundSize: "contain",
       }}
     />
-  );
-
-  const selectColorButtons = () => (
-    <>
-      {selectColorButton("aqua")}
-      {selectColorButton("black")}
-      {selectColorButton("blue")}
-      {selectColorButton("green")}
-      {selectColorButton("orange")}
-      {selectColorButton("purple")}
-      {selectColorButton("red")}
-      {selectColorButton("yellow")}
-    </>
   );
 
   return (
@@ -78,13 +64,26 @@ const UserProfileBehind = ({ userData, setUsers, onClick }) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}>
-        <resignPlayerButton uesr={user} />
+        <ResignPlayer user={user} setUsers={setUsers} users={users} />
+
         <S.UserNameWrap>
           {hostCrown()}
           {user.userNickname}
         </S.UserNameWrap>
+
         <UserGrade level={user.userLevel} />
-        <S.SelectColorWrap>{selectColorButtons()}</S.SelectColorWrap>
+
+        <S.SelectColorWrap>
+          {selectColorButton("aqua")}
+          {selectColorButton("black")}
+          {selectColorButton("blue")}
+          {selectColorButton("green")}
+          {selectColorButton("orange")}
+          {selectColorButton("purple")}
+          {selectColorButton("red")}
+          {selectColorButton("yellow")}
+        </S.SelectColorWrap>
+
         <S.UserExpBar value={user.userExp} min="0" max="100" />
       </S.UserProfileWrapper>
     </div>

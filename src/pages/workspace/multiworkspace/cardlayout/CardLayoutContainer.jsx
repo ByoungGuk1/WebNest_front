@@ -8,55 +8,15 @@ const CardLayoutContainer = () => {
   const params = useParams();
 
   const getPlayers = async () => {
-    await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/game-room/${params.roomId}`,
-      {
-        // headers: {
-        //   "Content-Type": "application/json",
-        // },
-        method: "GET",
-        // body: JSON.stringify(players),
-      }
-    ).then(console.log);
+    const fetchUrl = `${process.env.REACT_APP_BACKEND_URL}/player/${params.roomId}`;
+    const res = await fetch(fetchUrl, {
+      method: "GET",
+    });
 
-    // const datas = await res.json();
-    const datas = {
-      players: [
-        {
-          id: 2,
-          userId: 2,
-          gameRoomId: 2,
-          gameJoinIsHost: true,
-          gameJoinCreateAt: "2025-11-12T20:49:29.983Z",
-          userName: "testUser1",
-          userBirthday: "20250115",
-          userEmail: "test@test.com",
-          userPhone: "01012341234",
-          userThumbnailName: "default",
-          userThumbnailURL: "/default",
-          userNickname: "닉네임",
-          userLevel: 5,
-          userExp: 60,
-        },
-        {
-          id: 9007199254740991,
-          userId: 9007199254740991,
-          gameRoomId: 9007199254740991,
-          gameJoinIsHost: true,
-          gameJoinCreateAt: "2025-11-12T20:49:29.983Z",
-          userName: "string",
-          userBirthday: "string",
-          userEmail: "string",
-          userPhone: "string",
-          userThumbnailName: "string",
-          userThumbnailURL: "string",
-          userNickname: "string",
-          userLevel: 2,
-          userExp: 30,
-        },
-      ],
-    };
-    const players = datas?.players;
+    const datas = await res.json();
+
+    const players = datas?.data;
+    console.log(players);
 
     const userdatas = players.map(
       (user) =>
@@ -64,7 +24,7 @@ const CardLayoutContainer = () => {
           ...user,
           profileFlip: false,
           innerText: "준비 중",
-          userColor: "red",
+          gameJoinTeamcolor: user.gameJoinTeamcolor,
         })
     );
 
@@ -88,7 +48,8 @@ const CardLayoutContainer = () => {
           <UserProfile
             key={index}
             userData={user}
-            inputText={user.innerText}
+            setUsers={setUsers}
+            users={users}
             onClick={() => flipCard(user.userId, true)}
           />
         ) : (
@@ -96,6 +57,7 @@ const CardLayoutContainer = () => {
             key={index}
             userData={user}
             setUsers={setUsers}
+            users={users}
             onClick={() => flipCard(user.userId, false)}
           />
         )
