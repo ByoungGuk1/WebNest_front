@@ -1,3 +1,4 @@
+import React from "react";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -5,7 +6,9 @@ import S from "./style";
 import { useEffect, useState } from "react";
 import UserGrade from "./UserGrade";
 
-const UserProfile = ({ userData, onClick }) => {
+const UserProfileBehind = ({ userData, setUsers, onClick }) => {
+  const user = userData;
+
   const teamColorUrl = {
     yellow: "/assets/background/yellow.png",
     aqua: "/assets/background/aqua.png",
@@ -17,11 +20,9 @@ const UserProfile = ({ userData, onClick }) => {
     red: "/assets/background/red.png",
   };
 
-  const [user, setUser] = useState({ userData });
   const [teamColor, setTeamColor] = useState(teamColorUrl[user.userColor]);
 
   useEffect(() => {
-    setUser(userData);
     setTeamColor(teamColorUrl[user.userColor]);
   }, [user]);
 
@@ -31,6 +32,19 @@ const UserProfile = ({ userData, onClick }) => {
     }
     return null;
   };
+
+  const selectColorButtons = () => (
+    <S.SelectColorWrap>
+      <S.ColorButton name="aqua"></S.ColorButton>
+      <S.ColorButton name="black"></S.ColorButton>
+      <S.ColorButton name="blue"></S.ColorButton>
+      <S.ColorButton name="green"></S.ColorButton>
+      <S.ColorButton name="orange"></S.ColorButton>
+      <S.ColorButton name="purple"></S.ColorButton>
+      <S.ColorButton name="red"></S.ColorButton>
+      <S.ColorButton name="yellow"></S.ColorButton>
+    </S.SelectColorWrap>
+  );
 
   return (
     <div>
@@ -50,16 +64,16 @@ const UserProfile = ({ userData, onClick }) => {
             }}
           />
         </S.ResignButton>
-        <S.ProfileImageWrap>
+        <S.UserNameWrap>
           {hostCrown()}
-          <img src={user.userThumbnailURL} alt={user.userThumbnailName} />
-        </S.ProfileImageWrap>
-        <S.UserNameWrap>{user.userNickname}</S.UserNameWrap>
+          {user.userNickname}
+        </S.UserNameWrap>
         <UserGrade level={user.userLevel} />
-        <S.UserTextWrap>{user.innerText}</S.UserTextWrap>
+        {selectColorButtons()}
+        <S.UserExpBar value={user.userExp} min="0" max="100" />
       </S.UserProfileWrapper>
     </div>
   );
 };
 
-export default UserProfile;
+export default UserProfileBehind;
