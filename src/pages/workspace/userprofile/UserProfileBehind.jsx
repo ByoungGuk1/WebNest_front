@@ -1,13 +1,14 @@
 import React from "react";
-import { faX } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import S from "./style";
 import { useEffect, useState } from "react";
 import UserGrade from "./UserGrade";
+import resignPlayerButton from "./common/components/resignPlayerButton";
+import useGetUserData from "hooks/useGetUserData";
 
 const UserProfileBehind = ({ userData, setUsers, onClick }) => {
   const user = userData;
+  const { currentUser, isLogin } = useGetUserData();
 
   const teamColorUrl = {
     yellow: "/assets/background/yellow.png",
@@ -33,17 +34,39 @@ const UserProfileBehind = ({ userData, setUsers, onClick }) => {
     return null;
   };
 
+  const changeColor = (userId, color) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.userId === userId ? { ...u, userColor: color } : u))
+    );
+  };
+
+  const selectColorButton = (color) => (
+    <S.ColorButton
+      key={color}
+      name={color}
+      onClick={
+        currentUser?.userId === user.userId
+          ? () => changeColor(user.userId, color)
+          : null
+      }
+      style={{
+        backgroundImage: `url(${teamColorUrl[color]})`,
+        backgroundSize: "contain",
+      }}
+    />
+  );
+
   const selectColorButtons = () => (
-    <S.SelectColorWrap>
-      <S.ColorButton name="aqua"></S.ColorButton>
-      <S.ColorButton name="black"></S.ColorButton>
-      <S.ColorButton name="blue"></S.ColorButton>
-      <S.ColorButton name="green"></S.ColorButton>
-      <S.ColorButton name="orange"></S.ColorButton>
-      <S.ColorButton name="purple"></S.ColorButton>
-      <S.ColorButton name="red"></S.ColorButton>
-      <S.ColorButton name="yellow"></S.ColorButton>
-    </S.SelectColorWrap>
+    <>
+      {selectColorButton("aqua")}
+      {selectColorButton("black")}
+      {selectColorButton("blue")}
+      {selectColorButton("green")}
+      {selectColorButton("orange")}
+      {selectColorButton("purple")}
+      {selectColorButton("red")}
+      {selectColorButton("yellow")}
+    </>
   );
 
   return (
@@ -55,21 +78,13 @@ const UserProfileBehind = ({ userData, setUsers, onClick }) => {
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}>
-        <S.ResignButton type="button">
-          <FontAwesomeIcon
-            icon={faX}
-            size="2xs"
-            style={{
-              cursor: "pointer",
-            }}
-          />
-        </S.ResignButton>
+        <resignPlayerButton uesr={user} />
         <S.UserNameWrap>
           {hostCrown()}
           {user.userNickname}
         </S.UserNameWrap>
         <UserGrade level={user.userLevel} />
-        {selectColorButtons()}
+        <S.SelectColorWrap>{selectColorButtons()}</S.SelectColorWrap>
         <S.UserExpBar value={user.userExp} min="0" max="100" />
       </S.UserProfileWrapper>
     </div>
