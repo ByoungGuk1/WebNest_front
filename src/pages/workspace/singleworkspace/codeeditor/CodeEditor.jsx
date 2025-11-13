@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import S from './style';
+import { useSelector } from 'react-redux';
 
-const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp, userId }) => {
+const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
+
+    const getUsers = useSelector((state) => state.user);
+    const currentUser = getUsers.currentUser
+    const { id, userExp } = currentUser
+
     const addEditorLanguage = (lang) => {
         switch (lang?.toUpperCase()) {
             case 'JS':
@@ -46,6 +52,38 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp, userId }) 
             console.log = originalLog;
         }
     }
+    // 자바스크립트 채점
+    async function jsCompleteHandleRun(code) {
+        // code = console.log("hello".length)
+        // result = 5
+        console.log("code", result)
+        console.log("code", code)
+        console.log("quizExpectation", quizExpectation)
+        if(result != quizExpectation){
+            setOutput("기댓값과 일치하지 않습니다.")
+            return;
+        } 
+        if(result === quizExpectation){
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/js-success`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        "quizId": quizId,
+                        "userId": id,
+                    })
+                })
+                if(!response.ok) throw new Error("서버 오류")
+                const jsData = await response.json();
+                setOutput("문제풀이 성공")
+                alert(jsData.message)
+            } catch (err) {
+                setOutput("실행 실패" + err.message || "알 수 없는 오류")
+            }
+        }
+    }
 
 
     // 자바코드 핸들러
@@ -58,9 +96,10 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp, userId }) 
                 },
                 body: JSON.stringify({
                     "code": code,
-                    "quizId": id,
+                    "quizId": quizId,
                     "quizSubmitError": null,
                     "className": className,
+                    "userId": id,
                 })
             }
             )
@@ -77,7 +116,6 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp, userId }) 
     }
     // 자바코드 채점
 
-    console.log("userId", userId)
     async function javaCompleteHandleRun(code) {
         try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/java-success`, {
@@ -87,21 +125,19 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp, userId }) 
                 },
                 body: JSON.stringify({
                     "code": code,
-                    "quizId": id,
+                    "quizId": quizId,
                     "className": className,
-                    "isSolve": isSolve,
-                    "isBookmark": isBookmark,
-                    "userId": userId,
+                    "userId": id
                 })
             })
             const getExp = await response.json();
-            console.log("resMessage", getExp)
             if (!response.ok) {
                 const resMessage = getExp.message || `서버 오류 : ${response.status}`
                 setOutput(resMessage);
                 return;
             }
-            setOutput(getExp.message || "실행 성공")
+            setOutput("문제풀이 성공")
+            alert(getExp.message)
         } catch (err) {
             setOutput("실행 실패: " + err.message || "알 수 없는 오류")
         }
@@ -116,9 +152,9 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp, userId }) 
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    "quizId": id,
+                    "quizId": quizId,
                     "code": code,
-                    "quizSubmitError": null
+                    "userId": id
                 })
             })
             const sqlData = await response.json()
@@ -142,17 +178,18 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp, userId }) 
                 },
                 body: JSON.stringify({
                     "code": code,
-                    "quizId": id
+                    "quizId": quizId,
+                    "userId": id
                 })
             })
             const getExp = await response.json();
-            console.log("getExp", getExp)
             if (!response.ok) {
                 const resMessage = getExp.message || `서버 오류: ${response.status}`
                 setOutput(resMessage);
                 return;
             }
-            setOutput(getExp.message || "요청 성공")
+            setOutput("문제풀이 성공")
+            alert(getExp.message)
         } catch (err) {
             setOutput("서버 오류 : " + err.message || "알 수 없는 오류")
         }
@@ -173,13 +210,16 @@ const CodeEditor = ({ quizLanguage, id, isSolve, isBookmark, userExp, userId }) 
                 setOutput('지원하지 않는 언어입니다')
         }
     }
-    const successHandleRun = async (code, quizLanguage) => {
+    const successHandleRun = async (code, quizLanguage, result) => {
         switch ((quizLanguage || '').toUpperCase()) {
             case 'JAVA':
                 javaCompleteHandleRun(code)
                 break;
             case 'ORACLE':
                 slqSuccessHandleRun(code)
+                break;
+            case 'JS':
+                jsCompleteHandleRun(result)
                 break;
             default:
                 setOutput('잘못된 요청입니다')
