@@ -1,22 +1,62 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import S from "./style";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const TypingPracticeContainer = () => {
+   const location = useLocation();
+    // 현재 경로가 long이면 긴글연습 active
+  const isLong = location.pathname.includes("long");
+  console.log("🔥 렌더링, isLong =", isLong);
+
   const [lang, setLang] = useState("ko");
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState("애국가");
+  // const [selected, setSelected] = useState("애국가");
   const navigate = useNavigate();
   // const [inputValue, setInputValue] = useState("");
   //
-  const location = useLocation();
+ 
 
-  // 현재 경로가 long이면 긴글연습 active
-  const isLong = location.pathname.includes("long");
+
 
     // 버튼 active는 반대로 들어감
   const isShortActive = isLong;   // 긴글 UI → 짧은글 버튼 파랑
   const isLongActive = !isLong;   // 기본 화면 → 긴글 버튼 초록
+
+
+  // useEffect(() => {
+  // if (isLong) {
+  //   fetchLongTitleList();
+  // }
+  // }, [lang, isLong]);
+  useEffect(() => {
+  console.log("🔥 useEffect 실행됨, isLong =", isLong, "lang =", lang);
+
+  if (isLong) {
+    console.log("🔥 fetchLongTitleList 실행됨!");
+    fetchLongTitleList();
+  } else {
+    console.log("🔥 isLong=false → fetch 실행 안 함");
+  }
+}, [lang, isLong]);
+
+
+  const [titleList, setTitleList] = useState([]);
+  const [selected, setSelected] = useState("");
+
+  // 리스트 가져오기
+  const fetchLongTitleList = async () => {
+    const res = await fetch(`http://localhost:10000/typing/long/list?language=${lang === "ko" ? "한국어" : "영어"}`);
+    const data = await res.json();   // JSON 변환
+
+    const list = data.data;
+    setTitleList(list);
+
+    if (list.length > 0) {
+      setSelected(list[0].title);
+      navigate(`long?id=${list[0].id}`);
+    }
+  };
+
 
   return (
     <>
@@ -77,7 +117,7 @@ const TypingPracticeContainer = () => {
               <S.Arrow><img src="/assets/images/downarrow.svg" alt="화살표" /></S.Arrow>
             </S.DropdownBox>
 
-            {/* 🔽 드롭다운 옵션 리스트 */}
+            {/* 🔽 드롭다운 옵션 리스트
             {isOpen && (
               <S.DropdownMenu>
                 {["애국가 1절", "애국가 2절", "애국가 3절", "애국가 4절", "애국가 5절"].map((item) => (
@@ -92,9 +132,26 @@ const TypingPracticeContainer = () => {
                   </S.DropdownItem>
                 ))}
               </S.DropdownMenu>
+            )} */}
+            {isOpen && (
+              <S.DropdownMenu>
+                {titleList.map((item) => (
+                  <S.DropdownItem
+                    key={item.id}
+                    onClick={() => {
+                      setSelected(item.title);
+                      setIsOpen(false);
+                      navigate(`long?id=${item.id}`);
+                    }}
+                  >
+                    {item.title}
+                  </S.DropdownItem>
+                ))}
+              </S.DropdownMenu>
             )}
-{/* 
-            <S.ModeOption>짧은 글 연습</S.ModeOption> */}
+
+
+{/*   <S.ModeOption>짧은 글 연습</S.ModeOption> */}
             <S.ModeOption>
               {isLong ? "긴 글 연습" : "짧은 글 연습"}
             </S.ModeOption>
