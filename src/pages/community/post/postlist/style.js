@@ -282,10 +282,10 @@ S.Link = styled(Link)`
 `;
 
 S.Row = styled.div`
-
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding-bottom: 24px;
   border-bottom: 1px solid ${({ theme }) => theme.PALETTE.neutral.white.dark};
 `;
 
@@ -375,7 +375,7 @@ S.TopCommentRow = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 0 35px 30px; /* 댓글과 하단 구분선 사이 간격 46px */
+  padding: 10px 0 0 30px; /* 댓글 상단 여백만 유지, 하단은 Row의 padding-bottom으로 처리 */
 `;
 
 S.TopCmtName = styled.span`

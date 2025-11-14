@@ -70,15 +70,20 @@ const UserResult = ({datas = [], search = "", count}) => {
       </>
     )
   })
+  // 검색 결과 페이지에서는 헤더를 표시하고, 마이페이지에서는 숨김
+  const showHeader = search !== undefined && search !== "";
+  
   return (
     <div>
-      <S.HeaderRow>
-                <div>친구 <span className="blue">{datas.length}</span></div>
-                <S.CleanLinkPlus to={`/search-detail/follow?userNickname=${encodeURIComponent(search)}`}>
-                  <img src="/assets/icons/plus-black.png" alt="" />
-                    더보기
-                </S.CleanLinkPlus>
-              </S.HeaderRow>
+      {showHeader && (
+        <S.HeaderRow>
+          <div>친구 <span className="blue">{count || datas.length}</span></div>
+          <S.CleanLinkPlus to={`/search/follow?search=${encodeURIComponent(search)}`}>
+            <img src="/assets/icons/plus-black.png" alt="" />
+            더보기
+          </S.CleanLinkPlus>
+        </S.HeaderRow>
+      )}
       {changeTags}
     </div>
   );

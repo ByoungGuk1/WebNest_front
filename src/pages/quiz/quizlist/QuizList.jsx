@@ -5,7 +5,7 @@ import S from './style';
 import Pagination from '../pagination/Pagination';
 
 
-const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = [], quizTotalCount = 0 }) => {
+const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = [], quizTotalCount = 0, showPagination = true }) => {
 
     const quizList = Array.isArray(quizs) && quizs.map((q, index) => {
         const quiz = q.quiz || q;
@@ -60,8 +60,7 @@ const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = []
             )}
             {quizList}
 
-
-            <Pagination totalCount={quizTotalCount} />
+            {showPagination && <Pagination totalCount={quizTotalCount} />}
         </S.ListContainer>
     );
 };

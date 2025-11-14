@@ -18,12 +18,18 @@ const SearchResultContainer = () => {
   const handleSearch = (e) => setKeyword(e.target.value)
   const handelSearchUpdate = (e) => {
     if(e.key === 'Enter'){
-      navigate(`/search?search=${keyword}`)
+      const trimmedKeyword = keyword.trim();
+      if (!trimmedKeyword || trimmedKeyword.length < 2) {
+        alert("검색어는 두 글자 이상부터 입력가능합니다.");
+        return;
+      }
+      navigate(`/search?search=${encodeURIComponent(trimmedKeyword)}`)
     }
   }
   
   useEffect(() => {
-    setSearch(searchKeyword)
+    // searchKeyword가 null이거나 빈 문자열이면 빈 문자열로 설정
+    setSearch(searchKeyword || "")
   }, [searchKeyword])
 
   return (

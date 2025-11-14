@@ -2,6 +2,7 @@ import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import S from './style'
 import Header from "./Header";
+import Footer from "./Footer";
 
 const HeaderAndFooterLayout = () => {
   return (
@@ -10,9 +11,7 @@ const HeaderAndFooterLayout = () => {
       <main>
         <Outlet />
       </main>
-      <footer>
-        <p>© 2025 My Website. All rights reserved.</p>
-      </footer>
+      <Footer />
     </div>
   );
 };
