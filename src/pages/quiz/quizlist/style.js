@@ -68,7 +68,7 @@ S.TitleLink = styled(Link)`
 
 S.Status = styled.div`
     font-weight: bold;
-    color: ${({ isClear }) => (isClear ? "#2e7d32" : "#d32f2f")};
+    color: ${({ isSolved }) => (isSolved ? "#2e7d32" : "#d32f2f")};
 `;
 
 S.Difficulty = styled.div`

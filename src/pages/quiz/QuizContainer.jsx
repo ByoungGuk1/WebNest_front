@@ -1,7 +1,7 @@
 import S from "./style";
 import QiuzDropDown from "./quizdropdown/QiuzDropDown";
 import QuizListBanner from "./quizListbanner/QuizListBanner";
-import QuizPage from "./quizpage/QuizPage";
+import QuizPage from "./quizfetchlist/QuizPage";
 
 const QuizContainer = () => {
 
