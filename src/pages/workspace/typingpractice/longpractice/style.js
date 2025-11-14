@@ -18,11 +18,13 @@ S.SectionTitle = styled.div`
   border-radius: 10px;
   ${h4Bold}
   //
-  margin-top: 40px;
+  margin-top: 10px;
   margin-bottom: 10px;
   display: flex;
   align-items: center;     /* 세로 가운데 */
-  padding-left: 60px;
+  padding-left: 64px;
+  //
+  white-space: pre-wrap;
 `;
 
 S.InputWrapper = styled.div`
@@ -92,32 +94,32 @@ S.SentenceList = styled.div`
   }
 `;
 
-/* 🔥 위에 두 줄 문장(P) - 밑줄형 */
-S.P = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-bottom: 25px;
+// /* 🔥 위에 두 줄 문장(P) - 밑줄형 */
+// S.P = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   gap: 5px;
+//   margin-bottom: 25px;
 
-  div {
-    width: 100%;
-    max-width: 840px;
-    margin: 0 auto;
-    ${h5Medium}
-    color: ${({ theme }) => theme.PALETTE.primary.blue.gray};
-    padding-bottom: 10px;
-    border-bottom: 2px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
-    padding-left: 50px;
-  }
-    /* 첫 번째 줄 스타일 */
-  div:first-child {
-    border-bottom: none;
-    padding-bottom: 0; /* 밑줄 없으면 아래 패딩도 제거하는 게 자연스러움 */
-    padding-left: 40px;
-    color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
-    ${h5Bold}
-  }
-`;
+//   div {
+//     width: 100%;
+//     max-width: 840px;
+//     margin: 0 auto;
+//     ${h5Medium}
+//     color: ${({ theme }) => theme.PALETTE.primary.blue.gray};
+//     padding-bottom: 10px;
+//     border-bottom: 2px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
+//     padding-left: 50px;
+//   }
+//     /* 첫 번째 줄 스타일 */
+//   div:first-child {
+//     border-bottom: none;
+//     padding-bottom: 0; /* 밑줄 없으면 아래 패딩도 제거하는 게 자연스러움 */
+//     padding-left: 40px;
+//     color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+//     ${h5Bold}
+//   }
+// `;
 
 
 export default S;
