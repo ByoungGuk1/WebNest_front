@@ -16,7 +16,7 @@ const MultiWorkspaceRoomContainer = () => {
   const handleExitClick = () => {
     // 채팅 STOMP 클라이언트 가져오기
     const stompClient = window.stompClientRef?.current;
-    
+
     if (stompClient && stompClient.connected) {
       // LEAVE 메시지 전송
       const leaveMessage = {
@@ -24,34 +24,36 @@ const MultiWorkspaceRoomContainer = () => {
         userSenderId: userSenderId,
         userReceiverId: null,
         chatMessageContent: `${userNickname}님이 퇴장하셨습니다.`,
-        chatMessageType: 'LEAVE',
+        chatMessageType: "LEAVE",
       };
-      
+
       try {
         stompClient.publish({
-          destination: '/pub/chats/send',
+          destination: "/pub/chats/send",
           body: JSON.stringify(leaveMessage),
         });
-        console.log('퇴장 메시지 전송:', leaveMessage);
+        console.log("퇴장 메시지 전송:", leaveMessage);
       } catch (err) {
-        console.log('퇴장 메시지 전송 실패', err);
+        console.log("퇴장 메시지 전송 실패", err);
       }
-      
+
       // 메시지 전송 후 약간의 지연을 두고 연결 해제 및 이동
       setTimeout(() => {
         if (stompClient.connected) {
           stompClient.deactivate();
         }
-        navigate('/workspace/rooms');
+        navigate("/workspace/rooms");
       }, 1000);
     } else {
       // STOMP 클라이언트가 없으면 바로 이동
-      navigate('/workspace/rooms');
+      navigate("/workspace/rooms");
     }
   };
 
   return (
-    <S.Wrapper>
+    <>
+      <S.Background />
+      <S.Wrapper>
         <S.HelperWwrap>
           <S.HelperItems data-type="help">
             <span>도움말</span>
@@ -66,18 +68,19 @@ const MultiWorkspaceRoomContainer = () => {
             <img src="/assets/gameroom/exit.png" alt="아이콘"></img>
           </S.HelperItems>
         </S.HelperWwrap>
-      <S.MainWrapper>
-        <S.Content>
-          <Outlet />
-        </S.Content>
-        <S.ChattingLayout>
-          <ChattingContainer />
-        </S.ChattingLayout>
-      </S.MainWrapper>
-      <S.CardLayout>
-        <CardLayoutContainer roomStatus={roomStatus} />
-      </S.CardLayout>
-    </S.Wrapper>
+        <S.MainWrapper>
+          <S.Content>
+            <Outlet />
+          </S.Content>
+          <S.ChattingLayout>
+            <ChattingContainer />
+          </S.ChattingLayout>
+        </S.MainWrapper>
+        <S.CardLayout>
+          <CardLayoutContainer roomStatus={roomStatus} />
+        </S.CardLayout>
+      </S.Wrapper>
+    </>
   );
 };
 
