@@ -95,9 +95,9 @@ const Intro = () => {
           </S.lvWrap>
 
           <S.lvWrap>
-            <div>
-              <img src='assets/images/main-page/levels/Lv2.svg'></img>
-            </div>
+            <S.LevelImageWrapper>
+              <img src='/assets/images/level/2.svg' alt='Lv 2' className='level-2'></img>
+            </S.LevelImageWrapper>
             <S.Lv2Box> <span>Lv 2</span> </S.Lv2Box> 
           </S.lvWrap>
 
@@ -109,23 +109,23 @@ const Intro = () => {
           </S.lvWrap>
 
           <S.lvWrap>
-            <div>
-              <img src='assets/images/main-page/levels/Lv4.png' ></img>
-            </div>
+            <S.LevelImageWrapper>
+              <img src='/assets/images/level/4.svg' alt='Lv 4' className='level-4'></img>
+            </S.LevelImageWrapper>
             <S.Lv4Box> <span>Lv 4</span></S.Lv4Box>
           </S.lvWrap>
 
           <S.lvWrap>
-            <div>
-              <img src='assets/images/main-page/levels/Lv5.png' ></img>
-            </div>
+            <S.LevelImageWrapper>
+              <img src='/assets/images/level/5.svg' alt='Lv 5' className='level-5'></img>
+            </S.LevelImageWrapper>
             <S.Lv5Box> <span>Lv 5</span></S.Lv5Box>
           </S.lvWrap>
 
           <S.lvWrap>
-            <div>
-              <img src='assets/images/main-page/levels/Lv6.png' ></img>
-            </div>
+            <S.LevelImageWrapper>
+              <img src='/assets/images/level/6.svg' alt='Lv 6' className='level-6'></img>
+            </S.LevelImageWrapper>
             <S.Lv6Box> <span>Lv 6</span></S.Lv6Box>
           </S.lvWrap>
 
@@ -138,7 +138,7 @@ const Intro = () => {
 
           <S.lvWrap>
             <div class="position">
-              <img src='assets/images/main-page/levels/Lv8.png' class="lv8"></img>
+              <img src='/assets/images/level/8.svg' class="lv8" alt='Lv 8'></img>
             </div>
             <S.Lv8Box> <span>Lv 8</span></S.Lv8Box>
           </S.lvWrap>

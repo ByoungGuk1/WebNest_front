@@ -338,7 +338,7 @@ const notificationLists = () =>
                 <S.profileImage>
                   {/* <img src={profileURL} ></img> */}
                   <Link to={"/my-page"}>
-                    <img src='assets/images/chicken.png'></img>
+                    <img src='/assets/images/chicken.png'></img>
                   </Link>
                 </S.profileImage>
                 <S.log_out onClick={onLogout}>로그아웃</S.log_out>

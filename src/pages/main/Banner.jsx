@@ -12,9 +12,12 @@ const Banner = () => {
       <S.Banner onClick={moveToWorkSpace}>
         <div>
           <S.textWrap>
-            <span class ="purple">모두를 위한 코딩</span>
-            <span class="logo-web blue">Web</span>
-            <span class="logo-web green">Nest</span>
+          {/* #37ffa9 */}
+            <span class ="purple every">모두를 위한 코딩</span>
+            <div>
+              <span class="logo-web blue">Web</span>
+              <span class="logo-web green">Nest</span>
+            </div>
           </S.textWrap>
         <S.fstLing>
           <span>생각한 대로 만드는&nbsp;&nbsp;세상</span>
