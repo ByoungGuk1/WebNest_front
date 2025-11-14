@@ -89,7 +89,7 @@ S.P = styled.ul`
     margin: 0 auto;
     border-radius: 10px;
     ${h5Medium}
-    color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+    color: ${({ theme }) => theme.PALETTE.neutral.gray.light};
   }
 `;
 

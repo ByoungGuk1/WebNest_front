@@ -139,7 +139,7 @@ const S = {}
     background-color: #fff;
     width: 16px;
     height: 18px;
-    background-image: url('assets/images/header/bell.png');
+    background-image: url('/assets/images/header/bell.png');
   `
   S.notification_wrap = styled.div`
     width: 16px;
