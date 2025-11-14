@@ -2,9 +2,11 @@ import React, { useEffect } from "react";
 import { Outlet, useParams, useNavigate } from "react-router-dom";
 import S from "./style";
 import ChattingContainer from "./chatting/ChattingContainer";
+import CardLayoutContainer from "./cardlayout/CardLayoutContainer";
 import { useSelector } from "react-redux";
 
 const MultiWorkspaceRoomContainer = () => {
+  const roomStatus = 1;
   const { roomId } = useParams();
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -73,7 +75,7 @@ const MultiWorkspaceRoomContainer = () => {
         </S.ChattingLayout>
       </S.MainWrapper>
       <S.CardLayout>
-        카드 부분
+        <CardLayoutContainer roomStatus={roomStatus} />
       </S.CardLayout>
     </S.Wrapper>
   );

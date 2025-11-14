@@ -46,6 +46,8 @@ S.CrownIcon = styled.img`
 
 S.UserNameWrap = styled.div`
   ${h8Medium}
+  ${flexCenterRow}
+  position: relative;
 `;
 
 S.UserGradeWrap = styled.div`
@@ -71,6 +73,26 @@ S.UserTextWrap = styled.div`
   ${flexCenterColumn}
   ${h9Bold}
   background: ${theme.PALETTE.background.ready};
+`;
+
+S.SelectColorWrap = styled.div`
+  margin-top: 12px;
+  margin-bottom: 12px;
+  ${flexCenterRow}
+  width: 68px;
+  height: 30px;
+  gap: 5px;
+  flex-wrap: wrap;
+`;
+
+S.ColorButton = styled.button`
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+`;
+
+S.UserExpBar = styled.progress`
+  width: 80%;
 `;
 
 export default S;
