@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import S from "./style";
-import UserGrade from "./UserGrade";
+import UserGrade from "./common/components/UserGrade";
 import useGetUserData from "hooks/useGetUserData";
 import ResignPlayer from "./common/components/ResignPlayer";
+import { useParams } from "react-router-dom";
 
 const UserProfileBehind = ({ userData, setUsers, onClick, users }) => {
   const user = userData;
   const { currentUser } = useGetUserData();
+  const params = useParams();
+  const roomId = params.roomId;
 
   const teamColorUrl = {
     yellow: "/assets/background/yellow.png",
@@ -19,7 +22,9 @@ const UserProfileBehind = ({ userData, setUsers, onClick, users }) => {
     red: "/assets/background/red.png",
   };
 
-  const [teamColor, setTeamColor] = useState(teamColorUrl[user.gameJoinTeamcolor]);
+  const [teamColor, setTeamColor] = useState(
+    teamColorUrl[user.gameJoinTeamcolor]
+  );
 
   useEffect(() => {
     setTeamColor(teamColorUrl[user.gameJoinTeamcolor]);
@@ -30,9 +35,27 @@ const UserProfileBehind = ({ userData, setUsers, onClick, users }) => {
       <S.CrownIcon src="/assets/icons/crown.png" alt="" />
     ) : null;
 
-  const changeColor = (userId, color) => {
-    setUsers((prev) =>
-      prev.map((u) => (u.userId === userId ? { ...u, gameJoinTeamcolor: color } : u))
+  const changeColor = async (userId, color) => {
+    const data = {
+      ...user,
+      gameJoinTeamcolor: color,
+    };
+    console.log(data);
+    await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/player/${roomId}/${userId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "PUT",
+        body: JSON.stringify(data),
+      }
+    ).then(
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.userId === userId ? { ...u, gameJoinTeamcolor: color } : u
+        )
+      )
     );
   };
 
@@ -55,10 +78,16 @@ const UserProfileBehind = ({ userData, setUsers, onClick, users }) => {
     />
   );
 
+  const handleBackgroundClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClick();
+    }
+  };
+
   return (
     <div>
       <S.UserProfileWrapper
-        onClick={onClick}
+        onClick={handleBackgroundClick}
         style={{
           backgroundImage: `url(${teamColor})`,
           backgroundSize: "cover",

@@ -30,17 +30,14 @@ const ResignPlayer = ({ user, setUsers, users }) => {
       return;
     }
 
-    // await fetch(
-    //   `${process.env.REACT_APP_BACKEND_URL}/player/${roomId}/${user.userId}`,
-    // {
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   method: "DELETE",
-    // }
-    // );
-    console.log(
-      `${process.env.REACT_APP_BACKEND_URL}/player/${roomId}/${user.userId}`
+    await fetch(
+      `${process.env.REACT_APP_BACKEND_URL}/player/${roomId}/${user.userId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "DELETE",
+      }
     );
 
     setUsers((prev) => prev.filter((u) => u.userId !== user.userId));

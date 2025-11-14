@@ -16,15 +16,13 @@ const CardLayoutContainer = () => {
     const datas = await res.json();
 
     const players = datas?.data;
-    console.log(players);
 
     const userdatas = players.map(
       (user) =>
         (user = {
           ...user,
           profileFlip: false,
-          innerText: "준비 중",
-          gameJoinTeamcolor: user.gameJoinTeamcolor,
+          gameJoinProfileText: user.gameJoinProfileText || "준비 중",
         })
     );
 
@@ -33,7 +31,7 @@ const CardLayoutContainer = () => {
 
   useEffect(() => {
     getPlayers();
-  }, []);
+  }, [params.roomId]);
 
   const flipCard = (userId, flipTo) => {
     setUsers((prev) =>

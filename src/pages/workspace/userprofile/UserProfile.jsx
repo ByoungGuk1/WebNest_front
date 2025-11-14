@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import S from "./style";
-import UserGrade from "./UserGrade";
+import UserGrade from "./common/components/UserGrade";
 import ResignPlayer from "./common/components/ResignPlayer";
 
 const UserProfile = ({ userData, onClick, setUsers, users }) => {
@@ -16,7 +16,9 @@ const UserProfile = ({ userData, onClick, setUsers, users }) => {
   };
 
   const [user, setUser] = useState(userData);
-  const [teamColor, setTeamColor] = useState(teamColorUrl[userData.gameJoinTeamcolor]);
+  const [teamColor, setTeamColor] = useState(
+    teamColorUrl[userData.gameJoinTeamcolor]
+  );
 
   useEffect(() => {
     setUser(userData);
@@ -46,7 +48,7 @@ const UserProfile = ({ userData, onClick, setUsers, users }) => {
 
         <S.UserNameWrap>{user.userNickname}</S.UserNameWrap>
         <UserGrade level={user.userLevel} />
-        <S.UserTextWrap>{user.innerText}</S.UserTextWrap>
+        <S.UserTextWrap>{user.gameJoinProfileText}</S.UserTextWrap>
       </S.UserProfileWrapper>
     </div>
   );
