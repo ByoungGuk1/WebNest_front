@@ -18,8 +18,7 @@ S.Banner = styled.div`
   width: 100%;
   height: 188px;
   /* theme 안전 처리 (ThemeProvider 미적용 시 기본 보라색) */
-  background-color: ${({ theme }) =>
-    theme?.PALETTE?.primary?.purple?.main || "#7255EE"};
+  background-color: ${({ theme }) => theme?.PALETTE?.primary?.purple?.main || "#7255EE"};
 `;
 
 S.BannerInner = styled.div`
@@ -82,27 +81,19 @@ S.Follow = styled.div`
 
 /* ---------- Tabs (button.tab 기준) ---------- */
 S.Tabs = styled.nav`
-  position: relative;
   display: flex;
-  justify-content: flex-start;
   align-items: flex-end;
-  margin: 8px 0 -px;
-  padding-bottom: 6px;
+  justify-content: space-between;
+  width: 662px;
+  height: 90px;
 
   /* 이동형 언더바 */
-  & > .indicator {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 3px;
-    background: #3b82f6;
-    border-radius: 2px;
-    transition: left 220ms ease, width 220ms ease;
-    will-change: left, width;
+  & > .active {
+    border-bottom: solid 3px ${({ theme }) => theme?.PALETTE?.primary?.blue?.main} !important;
   }
 
   /* 공통 탭 버튼 */
-  & > button.tab {
+  & > .tab {
     ${h5Bold}
     background: transparent;
     border: 0;
@@ -111,6 +102,7 @@ S.Tabs = styled.nav`
     justify-content: flex-start;
     align-items: center;
     text-align: left;
+    text-decoration: none;
     cursor: pointer;
   }
 
