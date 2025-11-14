@@ -51,6 +51,8 @@ import QuizSearchDetail from "../pages/searchresult/search-detail/QuizSearchDeta
 import FollowSearchDetail from "../pages/searchresult/search-detail/FollowSearchDetail";
 import WriteContainer from "pages/community/write/WriteContainer";
 import SearchResult from "pages/searchresult/SearchResult";
+import ShortPractice from "pages/workspace/typingpractice/shortpractice/ShortPractice";
+import LongPractice from "pages/workspace/typingpractice/longpractice/LongPractice";
 
 const router = createBrowserRouter([
   {
@@ -160,6 +162,16 @@ const router = createBrowserRouter([
       {
         path: "rooms/typing",
         element: <TypingPracticeContainer />,
+        children: [
+          {
+            index: true,
+            element: <ShortPractice />,   // 기본 페이지
+          },
+          {
+            path: "long",
+            element: <LongPractice />,    // 긴 글 페이지
+          },
+        ],
       },
       {
         path: "rooms/:roomId",

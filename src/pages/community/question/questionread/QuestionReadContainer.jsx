@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import S from "./style";
-import AnswerLikeButton from "components/like/AnswerLikeButton";
+import { useSelector } from "react-redux";
 
 const QuestionReadContainer = () => {
   const { questionId } = useParams();
@@ -10,7 +10,16 @@ const QuestionReadContainer = () => {
   const [comments, setComments] = useState([]); // 백엔드 댓글 데이터
   const navigate = useNavigate();
   const [deleteTargetId, setDeleteTargetId] = useState(null); // ✅ 삭제할 답변 id 저장
- 
+  const location = useLocation();
+  const noViewIncrease = location.state?.noViewIncrease;
+  const [selectedCommentId, setSelectedCommentId] = useState(null);  //방금 추가
+
+ // ✅ Redux에서 로그인 유저 정보 가져오기
+  const user = useSelector((state) => state.user)
+  const {currentUser, isLogin } = user;
+  // const { id } = currentUser
+  // 로그인 유저 id (이름 충돌 피하기!)
+  const { id: currentUserId } = currentUser;
 
   // 신고 관련 state
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -112,33 +121,101 @@ const QuestionReadContainer = () => {
   /* 채택 모달 상태 */
   const [isChooseModalOpen, setIsChooseModalOpen] = useState(false);
 
-  const handlePostLike = () => {
-    setIsPostLiked((prev) => !prev);
-    setPostLikeCount((prev) => (isPostLiked ? prev - 1 : prev + 1));
+  // const handlePostLike = () => {
+  //   setIsPostLiked((prev) => !prev);
+  //   setPostLikeCount((prev) => (isPostLiked ? prev - 1 : prev + 1));
+  // };
+  const handlePostLike = async () => {
+    if (!isLogin) return alert("로그인이 필요합니다!");
+
+    try {
+      const res = await fetch(`http://localhost:10000/post/like?postId=${questionId}&userId=${currentUserId}`, {
+        method: "POST"
+      });
+
+      const data = await res.json();
+
+      setIsPostLiked(data.data.liked);            // true/false 
+      setPostLikeCount(data.data.likeCount);      // 최신 좋아요 수
+    } catch (e) {
+      console.error("좋아요 처리 실패:", e);
+    }
   };
+
 
   //좋아요
-  const handleAnswerLike = (answerId) => {
-    setLikedAnswers((prevLiked) => {
-      const isLiked = !prevLiked[answerId]; // 현재 상태 반전
-      setAnswerLikeCounts((prevCounts) => ({
-        ...prevCounts,
-        [answerId]: (prevCounts[answerId] || 0) + (isLiked ? 1 : -1), // +1 또는 -1
+  const handleAnswerLike = async (commentId, postId) => {
+    if (!isLogin) return alert("로그인이 필요합니다!");
+
+    try {
+      const res = await fetch(
+        `http://localhost:10000/commentLike/toggle?commentId=${commentId}&postId=${postId}&userId=${currentUserId}`,
+        { method: "POST" }
+      );
+
+      const data = await res.json();
+      const { liked, likeCount } = data.data;
+
+      const idNum = Number(commentId); // <-- 핵심
+
+      // 좋아요 여부 저장
+      setLikedAnswers((prev) => ({
+        ...prev,
+        [idNum]: liked,
       }));
-      return { ...prevLiked, [answerId]: isLiked }; // 토글된 상태 저장
-    });
+
+      // 좋아요 수 저장
+      setAnswerLikeCounts((prev) => ({
+        ...prev,
+        [idNum]: likeCount,
+      }));
+    } catch (e) {
+      console.error("답변 좋아요 오류:", e);
+    }
   };
 
 
 
-  const handleChooseClick = () => {
+
+
+  // const handleChooseClick = () => {
+  //   setIsChooseModalOpen(true);
+  // };
+
+  const handleChooseClick = (commentId) => {
+    setSelectedCommentId(commentId);
     setIsChooseModalOpen(true);
   };
 
-  const handleConfirmChoose = () => {
-    setIsChooseModalOpen(false);
-    alert("답변이 채택되었습니다! 🎉");
+
+  // const handleConfirmChoose = () => {
+  //   setIsChooseModalOpen(false);
+  //   alert("답변이 채택되었습니다! 🎉");
+  // };
+
+  const handleConfirmChoose = async () => {
+    try {
+      const res = await fetch("http://localhost:10000/comment/choose", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ commentId: selectedCommentId })
+      });
+
+      if (!res.ok) throw new Error("채택 실패");
+
+      // UI 업데이트
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === selectedCommentId ? { ...c, commentIsAccept: 1 } : c
+        )
+      );
+
+      setIsChooseModalOpen(false);
+    } catch (e) {
+      console.error(e);
+    }
   };
+
 
   const handleCancelChoose = () => {
     setIsChooseModalOpen(false);
@@ -163,50 +240,103 @@ const QuestionReadContainer = () => {
     return `${y}년`;
   };
 
- /* 데이터 로드 (백엔드 연동) */
   useEffect(() => {
+    const safeUserId = currentUserId ?? 0;
+
     const loadData = async () => {
       try {
-        const postRes = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
-        if (!postRes.ok) throw new Error("게시글 불러오기 실패");
-        const postData = await postRes.json();
+        const apiUrl = noViewIncrease
+          ? `http://localhost:10000/post/get-post-no-view/${questionId}?userId=${safeUserId}`
+          : `http://localhost:10000/post/get-post/${questionId}?userId=${safeUserId}`;
 
-        const commentRes = await fetch(`http://localhost:10000/comment/${questionId}`);
-        if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
+        const postRes = await fetch(apiUrl);
+        const postData = await postRes.json();
+        const post = postData.data;
+
+        setIsPostLiked(post.liked);
+        setPostLikeCount(post.postLikeCount);
+        setCurrentPost(post);
+        setPosts([post]);
+
+        // 댓글 조회
+        const commentRes = await fetch(
+          `http://localhost:10000/comment/${questionId}?userId=${safeUserId}`
+        );
         const commentData = await commentRes.json();
         const commentList = commentData.data || [];
+        setComments(commentList);
 
-        // ✅ 각 댓글별 좋아요 수 불러오기
-        const likeCounts = {};
-        for (const comment of commentList) {
-          try {
-            const likeRes = await fetch(`http://localhost:10000/commentLike/${comment.id}`);
-            if (likeRes.ok) {
-              const likeData = await likeRes.json();
-              likeCounts[comment.id] = likeData.data; // 백엔드의 likeCount 값
-            } else {
-              likeCounts[comment.id] = 0;
-            }
-          } catch {
-            likeCounts[comment.id] = 0;
-          }
+        // 댓글 좋아요 상태/개수 맵
+        const likedMap = {};
+        const countMap = {};
+
+        for (const c of commentList) {
+          likedMap[c.id] = Boolean(c.liked);         // ← undefined 방지
+          countMap[c.id] = c.likeCount ?? 0;         // ← undefined 방지
         }
 
-        // ✅ 초기 세팅
-        setAnswerLikeCounts(likeCounts);
-        setComments(commentList);
-        setCurrentPost(postData.data || postData);
-        setPosts([postData.data || postData]);
-        setPostLikeCount(postData.data?.postViewCount || 0);
-      } catch (err) {
-        console.error("데이터 로드 에러:", err);
-        setCurrentPost(null);
-        setComments([]);
-      }
+        setLikedAnswers(likedMap);
+        setAnswerLikeCounts(countMap);
+
+        } catch (err) {
+          console.error("로드 오류:", err);
+        }
+        
     };
 
     loadData();
-  }, [questionId]);
+  }, [questionId, noViewIncrease, currentUserId]);
+
+
+// useEffect(() => {
+//   const safeUserId = currentUserId ?? 0;
+
+//   const loadData = async () => {
+//     try {
+//       // 게시글 조회
+//       const apiUrl = noViewIncrease
+//         ? `http://localhost:10000/post/get-post-no-view/${questionId}?userId=${safeUserId}`
+//         : `http://localhost:10000/post/get-post/${questionId}?userId=${safeUserId}`;
+
+//       const postRes = await fetch(apiUrl);
+//       const postData = await postRes.json();
+//       const post = postData.data;
+
+//       setIsPostLiked(post.liked);
+//       setPostLikeCount(post.postLikeCount);
+//       setCurrentPost(post);
+//       setPosts([post]);
+
+//       // 댓글 조회 (userId 포함)
+//       const commentRes = await fetch(
+//         `http://localhost:10000/comment/${questionId}?userId=${safeUserId}`
+//       );
+//       const commentData = await commentRes.json();
+//       const commentList = commentData.data || [];
+//       setComments(commentList);
+
+//       // 댓글 좋아요 상태 + 개수
+//       const likedMap = {};
+//       const countMap = {};
+
+//       for (const c of commentList) {
+//         likedMap[c.id] = c.liked;
+//         countMap[c.id] = c.likeCount;
+//       }
+
+//       setLikedAnswers(likedMap);
+//       setAnswerLikeCounts(countMap);
+//     } catch (err) {
+//       console.error("로드 오류:", err);
+//     }
+//   };
+
+//   loadData();
+// }, [questionId, noViewIncrease, currentUserId]);
+
+
+
+
 
 
   if (!posts)
@@ -222,6 +352,7 @@ const QuestionReadContainer = () => {
     postCreateAt,
     postViewCount,
     userNickname,
+    // postLikeCount
   } = currentPost;
 
   return (
@@ -327,9 +458,15 @@ const QuestionReadContainer = () => {
                     </S.AnswerInnerBox>
                   </S.UserInfo>
 
-                  <S.ChooseAnswer onClick={handleChooseClick}>
+                  {/* <S.ChooseAnswer onClick={handleChooseClick}>
                     <span>채택</span>
-                  </S.ChooseAnswer>
+                  </S.ChooseAnswer> */}
+                  {currentUserId === currentPost.userId && !ans.commentIsAccept && (
+                    <S.ChooseAnswer onClick={() => handleChooseClick(ans.id)}>
+                      채택
+                    </S.ChooseAnswer>
+                  )}
+
                 </S.AnswerTop>
 
                 <S.AnswerContent>{ans.commentDescription}</S.AnswerContent>
@@ -337,26 +474,53 @@ const QuestionReadContainer = () => {
                 <S.AnswerDate>
                   <span>{toRelativeTime(ans.commentCreateAt)}</span>
                   <b>·</b>
-                  <AnswerLikeButton
-                    isLiked={likedAnswers[ans.id] || false} // 하트 색상 변경 상태
-                    likeCount={answerLikeCounts[ans.id] || 0} // 실제 좋아요 수
-                    onToggleLike={() => handleAnswerLike(ans.id)} // 클릭 시 토글
+                  
+
+                  {/* 답글 좋아요 버튼 */}
+                <S.AnswerLikeBox onClick={() => handleAnswerLike(ans.id, ans.postId)}>
+                  <S.AnswerLikeImg
+                    src={
+                      likedAnswers[ans.id]
+                        ? "/assets/icons/heartfull.svg"
+                        : "/assets/icons/greyheart.svg"
+                    }
+                    alt="좋아요"
                   />
+
+                  <S.AnswerLikeNum $liked={likedAnswers[ans.id]}>
+                    {answerLikeCounts[ans.id] || 0}
+                  </S.AnswerLikeNum>
+                </S.AnswerLikeBox>
+
 
                   <b>·</b>
                   <span onClick={() => handleReportClick("answer", ans.id)}>신고</span>
                 </S.AnswerDate>
 
-                <S.HamburgerButton onClick={() => toggleMenu(ans.id)}>
+                {/* <S.HamburgerButton onClick={() => toggleMenu(ans.id)}>
                   <img src="/assets/icons/hamburgerbutton.svg" alt="메뉴" />
-                </S.HamburgerButton>
+                </S.HamburgerButton> */}
+                {currentUserId === ans.userId && (
+                  <S.HamburgerButton onClick={() => toggleMenu(ans.id)}>
+                    <img src="/assets/icons/hamburgerbutton.svg" alt="메뉴" />
+                  </S.HamburgerButton>
+                )}
 
-                {openMenuId === ans.id && (
+
+                {/* {openMenuId === ans.id && (
+                  <S.AnswerMenu>
+                    <li onClick={() => handleEdit(ans)}>수정하기</li>
+                    <li onClick={() => handleDelete(ans.id)}>삭제하기</li>
+                  </S.AnswerMenu>
+                )} */}
+
+                {openMenuId === ans.id && currentUserId === ans.userId && (
                   <S.AnswerMenu>
                     <li onClick={() => handleEdit(ans)}>수정하기</li>
                     <li onClick={() => handleDelete(ans.id)}>삭제하기</li>
                   </S.AnswerMenu>
                 )}
+
 
               </S.AnswerCard>
             ))}
@@ -411,8 +575,8 @@ const QuestionReadContainer = () => {
           <S.ModalBox>
             <S.ModalTitle>답변을 채택하시겠습니까?</S.ModalTitle>
             <S.ModalDesc>
-              채택된 답변은 수정/삭제가 불가하며<br />
-              다른 답변을 채택할 수 없습니다.
+              답변을 채택한 이후 채택취소가 불가능합니다.<br />
+              한 게시글에 여러 답변을 채택할 수 있습니다.
             </S.ModalDesc>
             <S.ModalButtons>
               <S.CancelBtn onClick={handleCancelChoose}>취소</S.CancelBtn>

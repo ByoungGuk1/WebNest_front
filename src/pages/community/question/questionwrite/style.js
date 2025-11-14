@@ -237,9 +237,11 @@ S.InputResponse = styled.textarea`
   background-color: ${({ theme }) => theme.PALETTE.neutral.white.secondary};
   box-sizing: border-box;
   resize: none;
+  /* white-space: pre-wrap; */
+
 
   &::placeholder {
-    white-space: pre-line;
+    /* white-space: pre-line; */
     color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
   }
 
