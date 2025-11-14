@@ -31,7 +31,7 @@ const BackGround = () => {
           </S.CardText>
 
           <S.CardThumTogether>
-            <img src='assets/images/chickens.png' class='cardImage'></img>
+            <img src='/assets/images/chickens.png' class='cardImage'></img>
           </S.CardThumTogether>
 
           <S.CardButtonWrap>
