@@ -2,8 +2,10 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import S from "./style";
 import ChattingContainer from "./chatting/ChattingContainer";
+import CardLayoutContainer from "./cardlayout/CardLayoutContainer";
 
 const MultiWorkspaceRoomContainer = () => {
+  const roomStatus = 1;
   return (
     <S.Wrapper>
       <S.MenuLayout>
@@ -22,7 +24,7 @@ const MultiWorkspaceRoomContainer = () => {
         </S.ChattingLayout>
       </S.MainWrapper>
       <S.CardLayout>
-        카드 부분
+        <CardLayoutContainer roomStatus={roomStatus} />
       </S.CardLayout>
     </S.Wrapper>
   );

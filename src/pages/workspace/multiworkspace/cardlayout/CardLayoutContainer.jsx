@@ -1,60 +1,65 @@
 import UserProfile from "pages/workspace/userprofile/UserProfile";
+import UserProfileBehind from "pages/workspace/userprofile/UserProfileBehind";
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
-const CardLayoutContainer = ({ roomStatus }) => {
-  const [users, setUsers] = useState([
-    {
-      userName: "홍길동",
-      userImage: "",
-      userLevel: 1,
-      userColor: "red",
-      isHost: true,
-      innerText: "방장",
-    },
-    {
-      userName: "22222",
-      userImage: "",
-      userLevel: 3,
-      userColor: "blue",
-      isHost: false,
-      innerText: "준비 완료",
-    },
-  ]);
+const CardLayoutContainer = () => {
+  const [users, setUsers] = useState([]);
+  const params = useParams();
 
-  const roomNumber = 1;
+  const getPlayers = async () => {
+    const fetchUrl = `${process.env.REACT_APP_BACKEND_URL}/player/${params.roomId}`;
+    const res = await fetch(fetchUrl, {
+      method: "GET",
+    });
+
+    const datas = await res.json();
+
+    const players = datas?.data;
+
+    const userdatas = players.map(
+      (user) =>
+        (user = {
+          ...user,
+          profileFlip: false,
+          gameJoinProfileText: user.gameJoinProfileText || "준비 중",
+        })
+    );
+
+    setUsers(userdatas);
+  };
 
   useEffect(() => {
     getPlayers();
-  }, [roomNumber]);
+  }, [params.roomId]);
 
-  const getPlayers = async () => {
-    await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/game-room/${roomNumber}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "GET",
-        // body: JSON.stringify(players),
-      }
-    )
-      .then((res) => res.json())
-      .then((datas) => datas.players)
-      .then((players) => {
-        setUsers(players);
-      });
+  const flipCard = (userId, flipTo) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.userId === userId ? { ...u, profileFlip: flipTo } : u))
+    );
   };
 
   return (
     <>
-      {Array.isArray(users) &&
-        users.map((user, index) => (
+      {users.map((user, index) =>
+        !user.profileFlip ? (
           <UserProfile
             key={index}
             userData={user}
-            inputText={user?.innerText ? user.innerText : "대기 중"}
+            setUsers={setUsers}
+            users={users}
+            onClick={() => flipCard(user.userId, true)}
           />
-        ))}
+        ) : (
+          <UserProfileBehind
+            key={index}
+            userData={user}
+            setUsers={setUsers}
+            users={users}
+            onClick={() => flipCard(user.userId, false)}
+          />
+        )
+      )}
     </>
   );
 };

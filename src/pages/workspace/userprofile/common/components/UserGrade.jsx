@@ -1,5 +1,5 @@
 import React from "react";
-import S from "./style";
+import S from "../../style";
 
 const UserGrade = ({ level }) => {
   const publicUrl = `/assets/images/level/`;
@@ -13,7 +13,7 @@ const UserGrade = ({ level }) => {
     7: publicUrl + `7.svg`,
     8: publicUrl + `8.svg`,
     9: publicUrl + `9.svg`,
-    10: publicUrl + `10.svg`,
+    10: publicUrl + `x.svg`,
   };
 
   return (
