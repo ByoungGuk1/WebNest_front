@@ -1,5 +1,6 @@
 // src/pages/community/post/postlist/PostListContainer.jsx
 import React, { useEffect, useState, useRef, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import S from "./style";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -113,6 +114,8 @@ const PostListContainer = () => {
 
   const prevRef = useRef(null);
   const nextRef = useRef(null);
+
+  const navigate = useNavigate();
 
   /* 🔌 실제 백엔드 호출 */
   useEffect(() => {
@@ -364,7 +367,10 @@ const PostListContainer = () => {
             }}
           />
         </div>
-        <S.WriteButton>글쓰기</S.WriteButton>
+        {/* ✅ 글쓰기 버튼 클릭 시 /question/write 로 이동 */}
+        <S.WriteButton onClick={() => navigate("/question/write")}>
+          글쓰기
+        </S.WriteButton>
       </S.SortWrap>
 
       {/* 리스트 */}
