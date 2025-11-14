@@ -91,7 +91,7 @@ const SignInContainer = () => {
               {...register("userPassword", {
                 required: true,
                 pattern: {
-                  value: passwordRegex,
+                  // value: passwordRegex,
                 },
               })}
             />
