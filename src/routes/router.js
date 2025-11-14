@@ -164,7 +164,7 @@ const router = createBrowserRouter([
         element: <TypingPracticeContainer />,
         children: [
           {
-            index: true,
+            index: "short",
             element: <ShortPractice />,   // 기본 페이지
           },
           {
