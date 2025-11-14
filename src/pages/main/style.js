@@ -1,7 +1,27 @@
 import { Link } from "react-router-dom";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+import { h2Bold } from "styles/common";
 
 const S = {};
+
+// 아래에서 위로 튀어오르는 애니메이션
+const bounceUp = keyframes`
+  0% {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(5px);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`;
 
 S.Div = styled.div`
   width: 100px;
@@ -10,8 +30,8 @@ S.Div = styled.div`
 `;
 S.BannerWrap = styled.div`
   width: 100%;
-  height:(900 + 120 + 3)px ;
-  gap: 3px;
+  height:(900 + 120)px ;
+  gap: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -23,7 +43,7 @@ S.BannerWrap = styled.div`
 S.Banner = styled.div`
   width: 100%;
   height: 900px;
-  background-color: #FFC600;
+  background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -41,14 +61,17 @@ S.Banner = styled.div`
     color: #fff;
   }
   & .purple {
-    font-size: ${({ theme }) => theme.FONT_SIZE.h2};
-    color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+    ${h2Bold}
+    color: #fff;
+  }
+  & .textWrap .purple {
+    color: #37ffa9;
   }
   & .green {
-    color: ${({ theme }) => theme.PALETTE.primary.green.main};
+    color: #37ffa9;
   }
   & .blue {
-    color: ${({ theme }) => theme.PALETTE.primary.blue.main};
+    color: #37ffa9;
   }
   & .logo-web {
     font-family: 'RomanticGumi';
@@ -67,7 +90,9 @@ S.fstLing = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  border-bottom: 2px solid #D7AF24;
+  border-bottom: 2px solid ${({ theme }) => theme.PALETTE.primary.purple.dark};
+  animation: ${bounceUp} 0.8s ease-out;
+  animation-delay: 0s;
 `
 S.textWrap = styled.div`
   display: flex;
@@ -75,12 +100,10 @@ S.textWrap = styled.div`
   justify-content: center;
   align-items: center;
   gap: 22px;
-  & a {
-    text-decoration: none;
-    color: blue;
-    & div {
-      color: red;
-    }
+  animation: ${bounceUp} 0.8s ease-out;
+  animation-delay: 0s;
+  & .every{
+    color: #37ffa9;
   }
 `
 
@@ -98,7 +121,11 @@ S.secLine = styled.div`
   justify-content: center;
   align-items: center;
   gap: 26px;
-  border-bottom: 2px solid #D7AF24;
+  border-bottom: 2px solid ${({ theme }) => theme.PALETTE.primary.purple.dark};
+  animation: ${bounceUp} 0.8s ease-out;
+  animation-delay: 0.2s;
+  opacity: 0;
+  animation-fill-mode: forwards;
   & .vector {
     width: 87px;
     height: 64px;
@@ -115,12 +142,16 @@ S.trdLine = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  border-bottom: 2px solid #D7AF24;
-  & #trophy{
+  border-bottom: 2px solid ${({ theme }) => theme.PALETTE.primary.purple.dark};
+  animation: ${bounceUp} 0.8s ease-out;
+  animation-delay: 0.4s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+  & .trophy{
     width: 117px;
     height: 114px;
   }
-  & #charactor {
+  & .charactor {
     width: 120px;
     height: 134px;
   }
@@ -135,7 +166,8 @@ S.KeepGoing = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+  background-color: ${({ theme }) => theme.PALETTE.primary.purple.dark};
+  margin-top: 0;
   & span{
     font-size: ${({ theme }) => theme.FONT_SIZE.h3};
     font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
@@ -264,7 +296,6 @@ S.StepWrap = styled.div`
   width: 1160px;
   align-items: center;
   justify-content: center;
-  gap: 40px;
   /* box-shadow: 0px 1px 20px 0px #9A9A9A1F;  */
   background-color: #fff;
   & * {
@@ -287,6 +318,21 @@ S.ButtonBox = styled.div`
   }
 `
 // ------------------------- 레벨 레이아웃 -----------
+S.LevelImageWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  & img.level-2,
+  & img.level-4,
+  & img.level-5,
+  & img.level-6 {
+    width: 61px;
+    height: 74px;
+    object-fit: contain;
+  }
+`
+
 S.lvWrap =styled.div`
   display: flex;
   flex-direction: column;
@@ -300,16 +346,25 @@ S.lvWrap =styled.div`
       position: absolute;
       top: -86px;
       left: 23px;
+      width: 73.2px;
+      height: 88.8px;
+      object-fit: contain;
     }
     & .lv9 {
       position: absolute;
       left: 26px;
       top : -68px;
+      width: 109.8px;
+      height: 133.2px;
+      object-fit: contain;
     }
     & .lv10 {
       position: absolute;
       top: -72px;
       left: 18px;
+      width: 109.8px;
+      height: 133.2px;
+      object-fit: contain;
     }
 
   }
@@ -479,7 +534,6 @@ S.BackWrap = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
   & > img {
     width: 100%;
   }
@@ -489,6 +543,7 @@ S.CardWrap = styled.div`
   display: flex;
   flex-direction: row;
   position: absolute;
+  gap: 20px;
   /* left: 120px; */
 `
 
