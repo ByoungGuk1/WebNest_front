@@ -3,9 +3,18 @@ import { flexBeetweenRow, h6Medium } from "styles/common";
 
 const S = {};
 
+S.Background = styled.div`
+  position: fixed;
+  inset: 0;
+  background-image: url("/assets/background/workspacebackground.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+`;
+
 S.Wrapper = styled.div`
   width: 1440px;
-  height: 100vh;
   margin: 0 auto;
   border: solid 1px #d9d9d9;
   display: flex;
@@ -17,6 +26,7 @@ S.MenuWrapper = styled.div`
   border: solid 1px #d9d9d9;
   display: flex;
   justify-content: right;
+  height: 700px;
 `;
 
 S.MenuLayout = styled.div`
@@ -30,20 +40,17 @@ S.MenuLayout = styled.div`
 `;
 
 S.Content = styled.div`
-width: 1040px;
+  height: 100%;
 `;
 
 S.ChattingLayout = styled.div`
   width: 320px;
-  height: 700px;
-`
+  height: 100%;
+`;
 
 S.MainWrapper = styled.div`
-  display: flex;
+  ${flexBeetweenRow}
   gap: 40px;
-  flex: 1;
-  flex-direction: row;
-  justify-content: space-between;
 `;
 
 S.CardLayout = styled.div`
@@ -61,7 +68,7 @@ S.HelperWwrap = styled.div`
   align-items: center;
   margin-left: auto;
   margin-top: 20px;
-`
+`;
 
 S.HelperItems = styled.div`
   width: 80px;
@@ -96,21 +103,21 @@ S.HelperItems = styled.div`
   }
 
   &[data-type="help"] > span {
-    background: linear-gradient(to bottom, #4DD998, #297351);
+    background: linear-gradient(to bottom, #4dd998, #297351);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   &[data-type="settings"] > span {
-    background: linear-gradient(to bottom, #9585F2, #2F1BA4);
+    background: linear-gradient(to bottom, #9585f2, #2f1ba4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   &[data-type="exit"] > span {
-    background: linear-gradient(to bottom, #FF7A65, #99493D);
+    background: linear-gradient(to bottom, #ff7a65, #99493d);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -124,5 +131,5 @@ S.HelperItems = styled.div`
   &:active {
     transform: scale(0.98);
   }
-`
+`;
 export default S;

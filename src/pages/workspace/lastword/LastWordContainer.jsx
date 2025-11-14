@@ -1,10 +1,13 @@
-import React from "react";
+import ContentsContainer from "./contents/ContentsContainer";
+import MainContainer from "./header/MainContainer";
+import S from "./style";
 
 const LastWordContainer = () => {
   return (
-    <div>
-      <h1>끝말잇기 게임 페이지</h1>
-    </div>
+    <S.MainWrapper>
+      <MainContainer />
+      <ContentsContainer />
+    </S.MainWrapper>
   );
 };
 
