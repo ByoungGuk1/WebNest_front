@@ -27,6 +27,36 @@ S.Board = styled.div`
   position: relative;
 `;
 
+S.Dice3DContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  
+  & > div {
+    width: 100% !important;
+    height: 100% !important;
+  }
+`;
+
+S.GameImage = styled.img`
+  position: absolute;
+  left: ${({ $left }) => `${$left}%`};
+  top: ${({ $top }) => `${$top}%`};
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: ${({ $higherZIndex }) => ($higherZIndex ? 5 : 1)};
+  
+  /* letter_13_46.png 불필요한 부분 제거 */
+  ${({ $needsClipping }) => $needsClipping && `
+    clip-path: polygon(0% 0%, 100% 0%, 100% 85%, 0% 85%);
+    object-position: center top;
+  `}
+`;
+
 S.Cell = styled.div`
   position: relative;
   width: calc(100% / 10);
@@ -35,6 +65,7 @@ S.Cell = styled.div`
   box-sizing: border-box;
   border: 2px solid #dadce0;
   background: ${({ $even }) => ($even ? "#F2EEFF" : "#FBF9FF")};
+  z-index: 0;
 
   display: flex;
   align-items: center;
@@ -48,6 +79,29 @@ S.Number = styled.span`
   ${h8Bold}
   color: #222;
   user-select: none;
+  z-index: 2;
+`;
+
+S.StartLabel = styled.span`
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  ${h8Bold}
+  color: #4DD998;
+  user-select: none;
+  z-index: 2;
+`;
+
+S.FinishLabel = styled.span`
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  ${h8Bold}
+  color: #E53E3E;
+  user-select: none;
+  z-index: 2;
 `;
 
 /* ====== 주사위 스타일/컴포넌트 추가 (같은 파일에) ====== */
@@ -79,6 +133,7 @@ S.BoardDice = styled.div`
   box-shadow: none;
   transition: transform 220ms ease, opacity 220ms ease;
   opacity: ${({ $rolling }) => ($rolling ? 0.85 : 1)};
+  z-index: 3;
 `;
 
 const fillPulse = keyframes`
@@ -135,6 +190,24 @@ S.RollBtn = styled.button`
     transform: none;
     box-shadow: none;
   }
+`;
+
+S.PlayerMarker = styled.div`
+  position: absolute;
+  left: ${({ $left }) => `${$left}%`};
+  top: ${({ $top }) => `${$top}%`};
+  transform: translate(-50%, -50%);
+  width: ${({ $isCurrentUser }) => $isCurrentUser ? '28px' : '24px'};
+  height: ${({ $isCurrentUser }) => $isCurrentUser ? '28px' : '24px'};
+  border-radius: 50%;
+  background: ${({ $isCurrentUser }) => $isCurrentUser ? '#E53E3E' : '#4A90E2'};
+  border: ${({ $isCurrentUser }) => $isCurrentUser ? '3px solid #ffffff' : '2px solid #ffffff'};
+  box-shadow: ${({ $isCurrentUser }) => $isCurrentUser 
+    ? '0 2px 8px rgba(229, 62, 62, 0.4)' 
+    : '0 2px 6px rgba(74, 144, 226, 0.3)'};
+  z-index: ${({ $isCurrentUser }) => $isCurrentUser ? 16 : 15};
+  pointer-events: none;
+  transition: left 0.3s ease, top 0.3s ease;
 `;
 
 export default S;

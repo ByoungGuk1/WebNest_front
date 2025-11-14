@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { flexBeetweenRow } from "styles/common";
+import { flexBeetweenRow, h6Medium } from "styles/common";
 
 const S = {};
 
@@ -57,16 +57,72 @@ S.CardLayout = styled.div`
 S.HelperWwrap = styled.div`
   width: 320px;
   display: flex;
-  gap: 40px;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  margin-left: auto;
+  margin-top: 20px;
 `
+
 S.HelperItems = styled.div`
   width: 80px;
   height: 35px;
-  background-color: #fff;
-  border: #fff 0.4 1px;
-   box-shadow: 0 0 20px #9585F2 0.1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 20px rgba(149, 133, 242, 0.1);
+  backdrop-filter: blur(20px);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 8px;
+  & > span {
+    ${h6Medium}
+    user-select: none;
+  }
 
+  & > img {
+    width: auto;
+    height: auto;
+    max-width: 20px;
+    max-height: 100%;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+    /* 벡터 이미지의 경우 아래 속성 사용 */
+    /* image-rendering: auto; */
+  }
+
+  &[data-type="help"] > span {
+    background: linear-gradient(to bottom, #4DD998, #297351);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  &[data-type="settings"] > span {
+    background: linear-gradient(to bottom, #9585F2, #2F1BA4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  &[data-type="exit"] > span {
+    background: linear-gradient(to bottom, #FF7A65, #99493D);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 20px rgba(149, 133, 242, 0.15);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 `
 export default S;

@@ -13,7 +13,7 @@ S.ChattingLayout = styled.div`
 S.ChatList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 12px;
   white-space: normal;
   min-width: 0;
 `;
@@ -164,6 +164,25 @@ S.RowWrap =styled.div`
     width: 11px;
     height: 18px;
     margin-right: 8px;
+  }
+`
+
+S.ArrowButton = styled.button`
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  &:active {
+    opacity: 0.5;
   }
 `
 

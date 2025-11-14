@@ -140,6 +140,10 @@ const deleteAllNotice = async () => {
   
   const goSearch = () => {
     const search = queryString.trim();
+    if (!search || search.length < 2) {
+      alert("검색어는 두 글자 이상부터 입력가능합니다.");
+      return;
+    }
     navigate(`/search?search=${encodeURIComponent(search)}`);
   };
   
@@ -301,7 +305,7 @@ const notificationLists = () =>
               <input 
                 name='search' id="search" onChange={getSearch} onKeyDown={enterTomove}>
               </input>
-              <button type='submit'></button>
+              <button type='button' onClick={goSearch}></button>
             <button onClick={onLogout}></button>
             {/* <img src="/assets/header/search.png"></img> */}
           </S.search>
