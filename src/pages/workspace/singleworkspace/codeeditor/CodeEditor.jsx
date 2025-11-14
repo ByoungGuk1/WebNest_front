@@ -30,13 +30,13 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
         "    } \n" +
         "}"
     const [result, setResult] = useState(null)
-    const [code, setCode] = useState(() => {
+    const [quizSubmitCode, setQuizSubmitCode] = useState(() => {
         return quizLanguage === "JAVA" ? defaultClassValue : "";
     }); // 코드입력칸
     const [output, setOutput] = useState('');
 
     // 자바스크립티티코드 핸들러
-    function jsHandleRun(code) {
+    function jsHandleRun(quizSubmitCode) {
         let logs = [];
         const originalLog = console.log;
         console.log = (...args) => {
@@ -44,7 +44,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
             setResult(args.join(' '))
         };
         try {
-            eval(code)
+            eval(quizSubmitCode)
             setOutput(logs.join('\n') || '결과 없음');
         } catch (err) {
             setOutput("에러 발생: " + err.message);
@@ -53,11 +53,11 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
         }
     }
     // 자바스크립트 채점
-    async function jsCompleteHandleRun(code) {
+    async function jsCompleteHandleRun(quizSubmitCode) {
         // code = console.log("hello".length)
         // result = 5
         console.log("code", result)
-        console.log("code", code)
+        console.log("code", quizSubmitCode)
         console.log("quizExpectation", quizExpectation)
         if(result != quizExpectation){
             setOutput("기댓값과 일치하지 않습니다.")
@@ -73,10 +73,12 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
                     body: JSON.stringify({
                         "quizId": quizId,
                         "userId": id,
+                        "quizSubmitCode": result
                     })
                 })
                 if(!response.ok) throw new Error("서버 오류")
                 const jsData = await response.json();
+                console.log("jsData",jsData)
                 setOutput("문제풀이 성공")
                 alert(jsData.message)
             } catch (err) {
@@ -87,7 +89,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
 
 
     // 자바코드 핸들러
-    async function javaHandleRun(code) {
+    async function javaHandleRun(quizSubmitCode) {
         try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/java-expectation`, {
                 method: "POST",
@@ -95,7 +97,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    "code": code,
+                    "quizSubmitCode": quizSubmitCode,
                     "quizId": quizId,
                     "quizSubmitError": null,
                     "className": className,
@@ -116,7 +118,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
     }
     // 자바코드 채점
 
-    async function javaCompleteHandleRun(code) {
+    async function javaCompleteHandleRun(quizSubmitCode) {
         try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/java-success`, {
                 method: "POST",
@@ -124,7 +126,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    "code": code,
+                    "quizSubmitCode": quizSubmitCode,
                     "quizId": quizId,
                     "className": className,
                     "userId": id
@@ -144,7 +146,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
     }
 
     // SQL코드 핸들러
-    async function sqlHandleRun(code) {
+    async function sqlHandleRun(quizSubmitCode) {
         try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/sql-expectation`, {
                 method: "POST",
@@ -153,7 +155,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
                 },
                 body: JSON.stringify({
                     "quizId": quizId,
-                    "code": code,
+                    "quizSubmitCode": quizSubmitCode,
                     "userId": id
                 })
             })
@@ -169,7 +171,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
         }
     }
     // SQL코드 채점
-    async function slqSuccessHandleRun(code) {
+    async function slqSuccessHandleRun(quizSubmitCode) {
         try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/sql-success`, {
                 method: "POST",
@@ -177,7 +179,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    "code": code,
+                    "quizSubmitCode": quizSubmitCode,
                     "quizId": quizId,
                     "userId": id
                 })
@@ -195,28 +197,28 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
         }
     }
 
-    const handleRun = async (code, quizLanguage) => {
+    const handleRun = async (quizSubmitCode, quizLanguage) => {
         switch ((quizLanguage || '').toUpperCase()) {
             case 'JS':
-                jsHandleRun(code)
+                jsHandleRun(quizSubmitCode)
                 break;
             case 'JAVA':
-                javaHandleRun(code)
+                javaHandleRun(quizSubmitCode)
                 break;
             case 'ORACLE':
-                sqlHandleRun(code)
+                sqlHandleRun(quizSubmitCode)
                 break;
             default:
                 setOutput('지원하지 않는 언어입니다')
         }
     }
-    const successHandleRun = async (code, quizLanguage, result) => {
+    const successHandleRun = async (quizSubmitCode, quizLanguage, result) => {
         switch ((quizLanguage || '').toUpperCase()) {
             case 'JAVA':
-                javaCompleteHandleRun(code)
+                javaCompleteHandleRun(quizSubmitCode)
                 break;
             case 'ORACLE':
-                slqSuccessHandleRun(code)
+                slqSuccessHandleRun(quizSubmitCode)
                 break;
             case 'JS':
                 jsCompleteHandleRun(result)
@@ -227,7 +229,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
     }
 
     const addReset = () => {
-        setCode('');
+        setQuizSubmitCode('');
         setOutput('');
     }
     return (
@@ -235,8 +237,8 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
             <S.StyledEditor
                 height="600px"
                 defaultLanguage={editorLanguage}
-                value={code}
-                onChange={(value) => setCode(value)}
+                value={quizSubmitCode}
+                onChange={(value) => setQuizSubmitCode(value)}
                 theme='vs-dark'
                 options={{
                     fontSize: 18,
@@ -254,8 +256,8 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
                 <S.OutputContent>{output}</S.OutputContent>
                 <S.ButtonWrap>
                     <S.RunButton onClick={addReset}>초기화</S.RunButton>
-                    <S.RunButton onClick={() => handleRun(code, quizLanguage)}>코드실행</S.RunButton>
-                    <S.RunButton onClick={() => successHandleRun(code, quizLanguage)}>제출하기</S.RunButton>
+                    <S.RunButton onClick={() => handleRun(quizSubmitCode, quizLanguage)}>코드실행</S.RunButton>
+                    <S.RunButton onClick={() => successHandleRun(quizSubmitCode, quizLanguage)}>제출하기</S.RunButton>
                 </S.ButtonWrap>
             </S.OutputBox>
 

@@ -3,19 +3,25 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import S from './style';
 import Pagination from '../pagination/Pagination';
+import QuizFetch from '../quizfetch/QuizFetch';
 
 
-const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = [], quizTotalCount = 0 }) => {
+const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = [], solveIds= new Set(), quizTotalCount = 0, requesting = new Set() }) => {
 
     const quizList = Array.isArray(quizs) && quizs.map((q, index) => {
         const quiz = q.quiz || q;
         const { id, quizDifficult, quizLanguage, quizTitle, quizCategory, solve = false } = quiz
         if (!id && id == null) return null;
         const ids = Number(id);
+
+        const isActive = bookMarkId.includes(ids);
+        const isLoading = requesting.has(ids);
+        const isSolved = solveIds.has(ids);
+
         return (
             <S.Row key={id ?? `quiz-${index}`}>
-                <S.BookMark value={sessionStorage.getItem("bookMarkId")} onClick={() => toggleBookmark(ids)}>
-                    <S.BookMarkIcon active={bookMarkId.includes(ids)} />
+                <S.BookMark onClick={() => !isLoading && toggleBookmark(ids)}>
+                    <S.BookMarkIcon active={isActive} />
                 </S.BookMark>
                 <S.Cell flex={0.6} style={{ textAlign: 'left' }}>
                     {Number.isFinite(ids) && ids > 0 ? `000${ids}` : id}
@@ -33,8 +39,8 @@ const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = []
                 </S.Cell>
                 <S.Cell flex={2}>{quizCategory}</S.Cell>
                 <S.Cell flex={1}>
-                    <S.Status isClear={solve}>
-                        {solve ? '해결됨' : '미해결'}
+                    <S.Status isSolved={isSolved}>
+                        {isSolved ? '해결됨' : '미해결'}
                     </S.Status>
                 </S.Cell>
             </S.Row>
@@ -62,6 +68,7 @@ const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = []
 
 
             <Pagination totalCount={quizTotalCount} />
+            <QuizFetch></QuizFetch>
         </S.ListContainer>
     );
 };
