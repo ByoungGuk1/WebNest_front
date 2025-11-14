@@ -19,78 +19,105 @@ S.SectionTitle = styled.div`
   ${h4Bold}
   //
   margin-top: 40px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;     /* 세로 가운데 */
-  padding-left: 35px;
+  padding-left: 60px;
 `;
 
-
-
-S.InputBox = styled.input`
-  width: 95%;
-  height: 65px;
-  margin-bottom: 40px;
-  border: 2px solid ${({ theme }) => theme.PALETTE.primary.green.main};
-  border-radius: 10px;
-  background: white;
-
-  ${h4Bold};
-  color: #000;
-
-  outline: none;
-
-  /* 🔥 글씨 위치 제목 박스와 완벽 동일 */
-  padding-left: 35px;       
-  padding-right: 15px;
-
-  /* 🔥 세로 중앙 자동 정렬 (input은 기본적으로 됨) */
+S.InputWrapper = styled.div`
+  width: 100%;
+  margin: 0 auto 25px;
   display: flex;
   align-items: center;
+  gap: 20px; /* 아이콘과 input 사이 간격 */
+  border-bottom: 2px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
 
-`;
+  &:focus-within {
+    border-bottom-color: ${({ theme }) => theme.PALETTE.primary.blue.main};
+  }
 
-
-
-S.SentenceList = styled.ul`
-  display: flex;
-  flex-direction: column;
-  gap: 19px;
-  list-style: none;
- 
-
-  div {
-    background-color: white;
-    display: flex;
-    align-items: center;
-    padding-left: 40px;
-    width: 840px;
-    height: 57px;
-    margin: 0 auto;
-    border-radius: 10px;
-    ${h5Medium}
-    color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+  img {
+    width: 20px;
+    height: 20px;
+    margin-left: 20px;
   }
 `;
-S.P = styled.ul`
+S.InputBox = styled.input`
+  flex: 1;
+  height: 55px;
+  border: none;
+  background: transparent;
+  ${h4Bold};
+  outline: none;
+  padding-left: 5px; /* 글씨 살짝 오른쪽으로 */
+`;
+
+
+
+// /* 🔤 입력창도 밑줄형 */
+// S.InputBox = styled.input`
+//   width: 96%;
+//   height: 55px;
+//   margin: 0 auto 40px;
+//   background: transparent;
+//   border: none;
+//   border-bottom: 2px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
+//   ${h4Bold};
+//   color: #000;
+//   padding-left: 35px;
+//   outline: none;
+
+//   &:focus {
+//     border-bottom-color: ${({ theme }) => theme.PALETTE.primary.blue.main};
+//   }
+// `;
+
+
+S.SentenceList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 19px;
-  list-style: none;
- 
+  gap: 25px;
 
   div {
-    background-color: white;
-    display: flex;
-    align-items: center;
-    padding-left: 40px;
-    width: 840px;
-    height: 57px;
+    width: 100%;
+    max-width: 840px;
     margin: 0 auto;
-    border-radius: 10px;
-    ${h5Medium}
-    color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+    ${h5Medium};
+    padding-left: 40px;
+    color: ${({ theme }) => theme.PALETTE.primary.blue.gray};
+    padding-bottom: 40px;
+    border-bottom: 2px solid ${({ theme }) =>
+      theme.PALETTE.neutral.gray.light};
   }
 `;
+
+/* 🔥 위에 두 줄 문장(P) - 밑줄형 */
+S.P = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 25px;
+
+  div {
+    width: 100%;
+    max-width: 840px;
+    margin: 0 auto;
+    ${h5Medium}
+    color: ${({ theme }) => theme.PALETTE.primary.blue.gray};
+    padding-bottom: 10px;
+    border-bottom: 2px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
+    padding-left: 50px;
+  }
+    /* 첫 번째 줄 스타일 */
+  div:first-child {
+    border-bottom: none;
+    padding-bottom: 0; /* 밑줄 없으면 아래 패딩도 제거하는 게 자연스러움 */
+    padding-left: 40px;
+    color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+    ${h5Bold}
+  }
+`;
+
 
 export default S;
