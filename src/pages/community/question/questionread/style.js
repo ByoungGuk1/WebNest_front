@@ -172,12 +172,15 @@ S.Like = styled.div`
   gap: 4px;
   cursor: pointer;
 
+
+
   img {
     width: 12px;
     height: 10px;
   }
 
 `;
+
 
 S.PostLikeText = styled.span`
   transition: color 0.2s ease;
@@ -301,6 +304,8 @@ S.ChooseAnswer = styled.button`
 S.AnswerContent = styled.p`
   ${h6Medium}
   margin-bottom: 30px;
+  white-space: pre-wrap;   /* ⭐ 줄바꿈 반영 */
+  word-break: break-word;  /* ⭐ 긴 단어 처리 */
 `;
 S.AnswerDate = styled.div`
   display: flex;
@@ -638,6 +643,25 @@ S.AnswerWriteButton = styled.button`
   z-index: 998; 
 `;
 
+//////////////////////////////////////////////
+S.AnswerLikeBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+`;
+
+S.AnswerLikeImg = styled.img`
+  width: 16px;
+  height: 16px;
+`;
+
+S.AnswerLikeNum = styled.span`
+  ${h7Medium}
+  transition: color 0.2s ease;
+  color: ${({ $liked, theme }) =>
+    $liked ? theme.PALETTE.primary.purple.main : theme.PALETTE.neutral.black.disable};
+`;
 
 
 export default S;

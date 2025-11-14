@@ -77,9 +77,9 @@ const WriteContainer = () => {
           <S.Select>
             <select value={category1} onChange={(e) => setCategory1(e.target.value)}>
               <option value="">주제 선택</option>
-              <option value="JS">JavaScript</option>
+              <option value="JS">JS</option>
               <option value="JAVA">JAVA</option>
-              <option value="OPEN">HTML</option>
+              {/* <option value="OPEN">HTML</option> */}
               <option value="ORACLE">Oracle</option>
 
             </select>
