@@ -643,6 +643,25 @@ S.AnswerWriteButton = styled.button`
   z-index: 998; 
 `;
 
+//////////////////////////////////////////////
+S.AnswerLikeBox = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+`;
+
+S.AnswerLikeImg = styled.img`
+  width: 16px;
+  height: 16px;
+`;
+
+S.AnswerLikeNum = styled.span`
+  ${h7Medium}
+  transition: color 0.2s ease;
+  color: ${({ $liked, theme }) =>
+    $liked ? theme.PALETTE.primary.purple.main : theme.PALETTE.neutral.black.disable};
+`;
 
 
 export default S;

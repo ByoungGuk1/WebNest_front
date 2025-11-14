@@ -1,19 +1,66 @@
-import React from "react";
+import React, { useState } from "react";
 import S from "./style";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const TypingPracticeContainer = () => {
+  const [lang, setLang] = useState("ko");
+  const [isOpen, setIsOpen] = useState(false);
+  const [selected, setSelected] = useState("애국가");
+  const navigate = useNavigate();
+  // const [inputValue, setInputValue] = useState("");
+  //
+  const location = useLocation();
+
+  // 현재 경로가 long이면 긴글연습 active
+  const isLong = location.pathname.includes("long");
+
+    // 버튼 active는 반대로 들어감
+  const isShortActive = isLong;   // 긴글 UI → 짧은글 버튼 파랑
+  const isLongActive = !isLong;   // 기본 화면 → 긴글 버튼 초록
+
   return (
     <>
-      {/* 상단 옵션 영역 */}
+    <S.Main>
+       {/* 상단 옵션 영역 */}
       <S.Option>
         <S.ModeSelect>
-          <S.ModeButton>긴 글 연습</S.ModeButton>
+
+          {/* /typing → 긴 글 연습 버튼만 표시 */}
+          {!isLong && (
+            <S.ModeButton
+              $active={true}           // 초록
+              onClick={() => navigate("long")}
+            >
+              긴 글 연습
+            </S.ModeButton>
+          )}
+
+          {/* /typing/long → 짧은 글 연습 버튼만 표시 */}
+          {isLong && (
+            <S.ModeButton
+              $active={false}          // 파랑
+              onClick={() => navigate("")}
+            >
+              짧은 글 연습
+            </S.ModeButton>
+          )}
+
+
         </S.ModeSelect>
 
         <S.LanguageSelect>
-          <S.LanguageToggle>
-            한국어 <span>ENG</span>
-          </S.LanguageToggle>
+          <S.ToggleWrapper 
+            onClick={() => setLang(lang === "ko" ? "en" : "ko")} 
+            $lang={lang}
+          >
+            <S.ToggleButton 
+              $lang={lang} 
+              $mode={isLong ? "long" : "short"} 
+            />
+
+            <span className="ko">한국어</span>
+            <span className="en">ENG</span>
+          </S.ToggleWrapper>
         </S.LanguageSelect>
       </S.Option>
 
@@ -24,57 +71,79 @@ const TypingPracticeContainer = () => {
           <S.MyInfoInner>
             <S.SelectTitle>글선택</S.SelectTitle>
 
-            <S.DropdownBox>
-              <span>애국가</span>
-              <S.Arrow>⌄</S.Arrow>
+            {/* 🔽 선택된 값 표시 영역 */}
+            <S.DropdownBox onClick={() => setIsOpen(!isOpen)}>
+              <span>{selected}</span>
+              <S.Arrow><img src="/assets/images/downarrow.svg" alt="화살표" /></S.Arrow>
             </S.DropdownBox>
 
+            {/* 🔽 드롭다운 옵션 리스트 */}
+            {isOpen && (
+              <S.DropdownMenu>
+                {["애국가 1절", "애국가 2절", "애국가 3절", "애국가 4절", "애국가 5절"].map((item) => (
+                  <S.DropdownItem
+                    key={item}
+                    onClick={() => {
+                      setSelected(item);
+                      setIsOpen(false);
+                    }}
+                  >
+                    {item}
+                  </S.DropdownItem>
+                ))}
+              </S.DropdownMenu>
+            )}
+{/* 
+            <S.ModeOption>짧은 글 연습</S.ModeOption> */}
+            <S.ModeOption>
+              {isLong ? "긴 글 연습" : "짧은 글 연습"}
+            </S.ModeOption>
+
             <S.MyCharacter>
-              <img src="/assets/images/chick.png" alt="캐릭터" />
+              <img src="/assets/images/chicken.png" alt="캐릭터" />
               <S.CharacterName>만렙코더</S.CharacterName>
             </S.MyCharacter>
 
             <S.ProgressTitle>현재 진행도</S.ProgressTitle>
 
             <S.ProgressBox>
-              <p>진행 시간 (초)</p>
-              <b>05 : 02</b>
+              <S.ProgressTime>
+                <span>진행 시간 (초)</span>
+                <span>05 : 02</span>
+              </S.ProgressTime>
               <S.Bar className="blue" />
             </S.ProgressBox>
 
             <S.ProgressBox>
-              <p>타수 (타/분)</p>
-              <b>208</b>
+              <S.ProgressTime>
+                <span>타수 (타/분)</span>
+                <span>208</span>
+              </S.ProgressTime>
               <S.Bar className="blue" />
             </S.ProgressBox>
 
             <S.ProgressBox>
-              <p>정확도 (%)</p>
-              <b>100.00</b>
+              <S.ProgressTime>
+                <span>정확도 (%)</span>
+                <span>100.00</span>
+              </S.ProgressTime>
               <S.Bar className="red" />
             </S.ProgressBox>
           </S.MyInfoInner>
         </S.MyInfo>
 
-        {/* 오른쪽 타이핑 영역 */}
-        <S.TypingSection>
-          <S.SectionTitle>콘솔 2</S.SectionTitle>
+        <Outlet />
 
-          <S.InputBox />
-
-          <S.SentenceList>
-            <li>만약 금히 서두르려면 돌아가는 길로 가라.</li>
-            <li>만약 금히 서두르려면 돌아가는 길로 가라.</li>
-            <li>만약 금히 서두르려면 돌아가는 길로 가라.</li>
-            <li>만약 금히 서두르려면 돌아가는 길로 가라.</li>
-            <li>만약 금히 서두르려면 돌아가는 길로 가라.</li>
-            <li>만약 금히 서두르려면 돌아가는 길로 가라.</li>
-          </S.SentenceList>
-        </S.TypingSection>
+      
       </S.TypingAll>
 
       {/* 오른쪽 아래 버튼 */}
-      <S.StopPracticeButton>타자연습 그만하기</S.StopPracticeButton>
+      <S.StopPracticeButton onClick={() => navigate("/workspace/rooms")}>
+        타자연습<br />그만하기
+      </S.StopPracticeButton>
+
+    </S.Main>
+     
     </>
   );
 };

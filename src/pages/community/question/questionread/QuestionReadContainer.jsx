@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import S from "./style";
-import AnswerLikeButton from "components/like/AnswerLikeButton";
 import { useSelector } from "react-redux";
 
 const QuestionReadContainer = () => {
@@ -122,22 +121,60 @@ const QuestionReadContainer = () => {
   /* 채택 모달 상태 */
   const [isChooseModalOpen, setIsChooseModalOpen] = useState(false);
 
-  const handlePostLike = () => {
-    setIsPostLiked((prev) => !prev);
-    setPostLikeCount((prev) => (isPostLiked ? prev - 1 : prev + 1));
+  // const handlePostLike = () => {
+  //   setIsPostLiked((prev) => !prev);
+  //   setPostLikeCount((prev) => (isPostLiked ? prev - 1 : prev + 1));
+  // };
+  const handlePostLike = async () => {
+    if (!isLogin) return alert("로그인이 필요합니다!");
+
+    try {
+      const res = await fetch(`http://localhost:10000/post/like?postId=${questionId}&userId=${currentUserId}`, {
+        method: "POST"
+      });
+
+      const data = await res.json();
+
+      setIsPostLiked(data.data.liked);            // true/false 
+      setPostLikeCount(data.data.likeCount);      // 최신 좋아요 수
+    } catch (e) {
+      console.error("좋아요 처리 실패:", e);
+    }
   };
 
+
   //좋아요
-  const handleAnswerLike = (answerId) => {
-    setLikedAnswers((prevLiked) => {
-      const isLiked = !prevLiked[answerId]; // 현재 상태 반전
-      setAnswerLikeCounts((prevCounts) => ({
-        ...prevCounts,
-        [answerId]: (prevCounts[answerId] || 0) + (isLiked ? 1 : -1), // +1 또는 -1
+  const handleAnswerLike = async (commentId, postId) => {
+    if (!isLogin) return alert("로그인이 필요합니다!");
+
+    try {
+      const res = await fetch(
+        `http://localhost:10000/commentLike/toggle?commentId=${commentId}&postId=${postId}&userId=${currentUserId}`,
+        { method: "POST" }
+      );
+
+      const data = await res.json();
+      const { liked, likeCount } = data.data;
+
+      const idNum = Number(commentId); // <-- 핵심
+
+      // 좋아요 여부 저장
+      setLikedAnswers((prev) => ({
+        ...prev,
+        [idNum]: liked,
       }));
-      return { ...prevLiked, [answerId]: isLiked }; // 토글된 상태 저장
-    });
+
+      // 좋아요 수 저장
+      setAnswerLikeCounts((prev) => ({
+        ...prev,
+        [idNum]: likeCount,
+      }));
+    } catch (e) {
+      console.error("답변 좋아요 오류:", e);
+    }
   };
+
+
 
 
 
@@ -203,116 +240,102 @@ const QuestionReadContainer = () => {
     return `${y}년`;
   };
 
- /* 데이터 로드 (백엔드 연동) */
-  // useEffect(() => {
-  //   // const loadData = async () => {
-  //   //   try {
-  //   //     const postRes = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
-  //   //     if (!postRes.ok) throw new Error("게시글 불러오기 실패");
-  //   //     const postData = await postRes.json();
-
-  //   //     const commentRes = await fetch(`http://localhost:10000/comment/${questionId}`);
-  //   //     if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
-  //   //     const commentData = await commentRes.json();
-  //   //     const commentList = commentData.data || [];
-  //   const loadData = async () => {
-  //     try {
-  //       const apiUrl = noViewIncrease
-  //         ? `http://localhost:10000/post/get-post-no-view/${questionId}`  // 조회수 증가 X
-  //         : `http://localhost:10000/post/get-post/${questionId}`;         // 조회수 증가 O
-
-  //       const postRes = await fetch(apiUrl);
-  //       if (!postRes.ok) throw new Error("게시글 불러오기 실패");
-  //       const postData = await postRes.json();
-
-  //         // ✅ 각 댓글별 좋아요 수 불러오기
-  //         const likeCounts = {};
-  //         for (const comment of commentList) {
-  //           try {
-  //             const likeRes = await fetch(`http://localhost:10000/commentLike/${comment.id}`);
-  //             if (likeRes.ok) {
-  //               const likeData = await likeRes.json();
-  //               likeCounts[comment.id] = likeData.data; // 백엔드의 likeCount 값
-  //             } else {
-  //               likeCounts[comment.id] = 0;
-  //             }
-  //           } catch {
-  //             likeCounts[comment.id] = 0;
-  //           }
-  //         }
-
-  //         // ✅ 초기 세팅
-  //         setAnswerLikeCounts(likeCounts);
-  //         setComments(commentList);
-  //         setCurrentPost(postData.data || postData);
-  //         setPosts([postData.data || postData]);
-  //         setPostLikeCount(postData.data?.postViewCount || 0);
-  //       } catch (err) {
-  //         console.error("데이터 로드 에러:", err);
-  //         setCurrentPost(null);
-  //         setComments([]);
-  //     }
-  //   };
-
-  //   loadData();
-  // }, [questionId]);
   useEffect(() => {
+    const safeUserId = currentUserId ?? 0;
+
     const loadData = async () => {
       try {
-        // 1) 조회수 증가 여부에 따른 API 선택
         const apiUrl = noViewIncrease
-          ? `http://localhost:10000/post/get-post-no-view/${questionId}`
-          : `http://localhost:10000/post/get-post/${questionId}`;
+          ? `http://localhost:10000/post/get-post-no-view/${questionId}?userId=${safeUserId}`
+          : `http://localhost:10000/post/get-post/${questionId}?userId=${safeUserId}`;
 
         const postRes = await fetch(apiUrl);
-        if (!postRes.ok) throw new Error("게시글 불러오기 실패");
         const postData = await postRes.json();
-        const post = postData.data || postData;
+        const post = postData.data;
 
-        // 2) 댓글 불러오기
-        const commentRes = await fetch(
-          `http://localhost:10000/comment/${questionId}`
-        );
-        if (!commentRes.ok) throw new Error("댓글 불러오기 실패");
-        const commentData = await commentRes.json();
-        const commentList = commentData.data || [];
-
-        // 3) 댓글별 좋아요 수 로드
-        const likeCounts = {};
-        for (const comment of commentList) {
-          try {
-            const likeRes = await fetch(
-              `http://localhost:10000/commentLike/${comment.id}`
-            );
-            if (likeRes.ok) {
-              const likeData = await likeRes.json();
-              likeCounts[comment.id] = likeData.data;
-            } else {
-              likeCounts[comment.id] = 0;
-            }
-          } catch {
-            likeCounts[comment.id] = 0;
-          }
-        }
-
-        // 4) 상태 업데이트
+        setIsPostLiked(post.liked);
+        setPostLikeCount(post.postLikeCount);
         setCurrentPost(post);
         setPosts([post]);
+
+        // 댓글 조회
+        const commentRes = await fetch(
+          `http://localhost:10000/comment/${questionId}?userId=${safeUserId}`
+        );
+        const commentData = await commentRes.json();
+        const commentList = commentData.data || [];
         setComments(commentList);
-        setAnswerLikeCounts(likeCounts);
-        // setPostLikeCount(post.postViewCount || 0);
-        setPostLikeCount(post.postLikeCount || 0);
 
+        // 댓글 좋아요 상태/개수 맵
+        const likedMap = {};
+        const countMap = {};
 
-      } catch (err) {
-        console.error("데이터 로드 에러:", err);
-        setCurrentPost(null);
-        setComments([]);
-      }
+        for (const c of commentList) {
+          likedMap[c.id] = Boolean(c.liked);         // ← undefined 방지
+          countMap[c.id] = c.likeCount ?? 0;         // ← undefined 방지
+        }
+
+        setLikedAnswers(likedMap);
+        setAnswerLikeCounts(countMap);
+
+        } catch (err) {
+          console.error("로드 오류:", err);
+        }
+        
     };
 
     loadData();
-  }, [questionId, noViewIncrease]);
+  }, [questionId, noViewIncrease, currentUserId]);
+
+
+// useEffect(() => {
+//   const safeUserId = currentUserId ?? 0;
+
+//   const loadData = async () => {
+//     try {
+//       // 게시글 조회
+//       const apiUrl = noViewIncrease
+//         ? `http://localhost:10000/post/get-post-no-view/${questionId}?userId=${safeUserId}`
+//         : `http://localhost:10000/post/get-post/${questionId}?userId=${safeUserId}`;
+
+//       const postRes = await fetch(apiUrl);
+//       const postData = await postRes.json();
+//       const post = postData.data;
+
+//       setIsPostLiked(post.liked);
+//       setPostLikeCount(post.postLikeCount);
+//       setCurrentPost(post);
+//       setPosts([post]);
+
+//       // 댓글 조회 (userId 포함)
+//       const commentRes = await fetch(
+//         `http://localhost:10000/comment/${questionId}?userId=${safeUserId}`
+//       );
+//       const commentData = await commentRes.json();
+//       const commentList = commentData.data || [];
+//       setComments(commentList);
+
+//       // 댓글 좋아요 상태 + 개수
+//       const likedMap = {};
+//       const countMap = {};
+
+//       for (const c of commentList) {
+//         likedMap[c.id] = c.liked;
+//         countMap[c.id] = c.likeCount;
+//       }
+
+//       setLikedAnswers(likedMap);
+//       setAnswerLikeCounts(countMap);
+//     } catch (err) {
+//       console.error("로드 오류:", err);
+//     }
+//   };
+
+//   loadData();
+// }, [questionId, noViewIncrease, currentUserId]);
+
+
+
 
 
 
@@ -451,11 +474,24 @@ const QuestionReadContainer = () => {
                 <S.AnswerDate>
                   <span>{toRelativeTime(ans.commentCreateAt)}</span>
                   <b>·</b>
-                  <AnswerLikeButton
-                    isLiked={likedAnswers[ans.id] || false} // 하트 색상 변경 상태
-                    likeCount={answerLikeCounts[ans.id] || 0} // 실제 좋아요 수
-                    onToggleLike={() => handleAnswerLike(ans.id)} // 클릭 시 토글
+                  
+
+                  {/* 답글 좋아요 버튼 */}
+                <S.AnswerLikeBox onClick={() => handleAnswerLike(ans.id, ans.postId)}>
+                  <S.AnswerLikeImg
+                    src={
+                      likedAnswers[ans.id]
+                        ? "/assets/icons/heartfull.svg"
+                        : "/assets/icons/greyheart.svg"
+                    }
+                    alt="좋아요"
                   />
+
+                  <S.AnswerLikeNum $liked={likedAnswers[ans.id]}>
+                    {answerLikeCounts[ans.id] || 0}
+                  </S.AnswerLikeNum>
+                </S.AnswerLikeBox>
+
 
                   <b>·</b>
                   <span onClick={() => handleReportClick("answer", ans.id)}>신고</span>

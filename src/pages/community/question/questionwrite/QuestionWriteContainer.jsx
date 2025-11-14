@@ -1,56 +1,54 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom"; // ✅ useLocation 추가
+import { useNavigate, useParams, useLocation } from "react-router-dom"; 
 import S from "./style";
 import { useSelector } from "react-redux";
 
 const QuestionWriteContainer = () => {
-  const { questionId } = useParams(); // 게시글 ID
+  const { questionId } = useParams(); 
   const navigate = useNavigate();
-  const location = useLocation(); // ✅ 수정 시 전달받을 데이터
-  const { commentData } = location.state || {}; // ✅ 전달받은 답변 데이터
+  const location = useLocation(); 
+  const { commentData } = location.state || {}; 
 
   const [currentPost, setCurrentPost] = useState(null);
-  const [comment, setComment] = useState(commentData?.commentDescription || ""); // ✅ 기존 내용 세팅
+  const [comment, setComment] = useState(commentData?.commentDescription || ""); //  기존 내용 세팅
   const [postLikeCount, setPostLikeCount] = useState(0);
 
-  // ✅ Redux에서 로그인 유저 정보 가져오기
+  //  Redux에서 로그인 유저 정보 가져오기
   const user = useSelector((state) => state.user)
   const {currentUser, isLogin } = user;
   const { id } = currentUser
 
   /* 게시글 불러오기 */
   // useEffect(() => {
+  // // 수정일 때는 게시글 조회 필요 없음
+  // // if (commentData) return;
+
   //   const loadData = async () => {
-  //     try {
-  //       const res = await fetch(`http://localhost:10000/post/get-post/${questionId}`);
-  //       if (!res.ok) throw new Error("게시글 불러오기 실패");
-  //       const data = await res.json();
-  //       setCurrentPost(data.data || data);
-  //       setPostLikeCount(data.data?.postViewCount || 0);
-  //     } catch (err) {
-  //       console.error("데이터 로드 에러:", err);
-  //     }
+  //     // 조회수 증가 없는 API 사용
+  //     const res = await fetch(`http://localhost:10000/post/get-post-no-view/${questionId}`);
+  //     const data = await res.json();
+  //     setCurrentPost(data.data || data);
+  //     setPostLikeCount(data.data?.postViewCount || 0);
   //   };
+
   //   loadData();
-  // }, [questionId]);
-
+  // }, [questionId, commentData]);
   useEffect(() => {
-  // 수정일 때는 게시글 조회 필요 없음
-  // if (commentData) return;
+  const loadData = async () => {
+    const res = await fetch(
+      `http://localhost:10000/post/get-post-no-view/${questionId}?userId=${id}`
+    );
+    const data = await res.json();
+    setCurrentPost(data.data || data);
+    setPostLikeCount(data.data?.postViewCount || 0);
+  };
 
-    const loadData = async () => {
-      // 조회수 증가 없는 API 사용
-      const res = await fetch(`http://localhost:10000/post/get-post-no-view/${questionId}`);
-      const data = await res.json();
-      setCurrentPost(data.data || data);
-      setPostLikeCount(data.data?.postViewCount || 0);
-    };
-
-    loadData();
-  }, [questionId, commentData]);
+  loadData();
+}, [questionId, id]);
 
 
-  // ✅ 답변 등록 / 수정 버튼 클릭
+
+  //  답변 등록 / 수정 버튼 클릭
   const handleSubmitComment = async () => {
     if (!isLogin) {
       alert("로그인 후 이용해주세요!");
@@ -64,7 +62,7 @@ const QuestionWriteContainer = () => {
     }
 
     try {
-      // ✅ 수정 모드일 경우 PUT 요청
+      //  수정 모드일 경우 PUT 요청
       if (commentData) {
         const updatedComment = {
           id: commentData.id,
@@ -82,7 +80,7 @@ const QuestionWriteContainer = () => {
         if (!response.ok) throw new Error("수정 실패");
         alert("답변이 수정되었습니다!");
       } else {
-        // ✅ 새 답변 등록일 경우 POST 요청
+        //  새 답변 등록일 경우 POST 요청
         const newComment = {
           postId: questionId,
           userId: currentUser.id,
@@ -160,7 +158,7 @@ const QuestionWriteContainer = () => {
           </S.QuestionInfo>
         </S.QuestionWrap>
 
-        {/* ✅ 답변 입력 영역 (그대로 유지) */}
+        {/*  답변 입력 영역 (그대로 유지) */}
         <S.Container>
           <S.ResponseCard>
             <S.InfoAndWrite>
@@ -178,7 +176,7 @@ const QuestionWriteContainer = () => {
                 </S.ResponserInfo>
               </S.ResponseBanner>
 
-              {/* ✅ 기존 버튼 그대로 유지 */}
+              {/*  기존 버튼 그대로 유지 */}
               <S.ButtonWrap onClick={handleSubmitComment}>답변등록</S.ButtonWrap>
             </S.InfoAndWrite>
 
@@ -191,7 +189,7 @@ const QuestionWriteContainer = () => {
               </S.CodeBtn>
             </S.CodeBox>
 
-            {/* ✅ 답변 입력창 (기존 유지, 단 초기값만 수정됨) */}
+            {/*  답변 입력창 (기존 유지, 단 초기값만 수정됨) */}
             <S.InputResponse
               placeholder={`답변 작성 시 서비스 운영정책을 지켜주세요.\n이상한말쓰지말고 제대로 작성하세요. 매너 지켜요. 욕 안돼요.\n못한다고 잔소리 안됩니다.`}
               value={comment}
