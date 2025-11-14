@@ -4,12 +4,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import S from "./style";
 
+
 /** 🔧 백엔드 연동용 상수 */
 const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
-const GET_OPEN_POST        = (id) => `${API_BASE}/post/get-post/${id}`;
-const GET_COMMENTS = (postId) => `${API_BASE}/comment/${postId}`;
+const GET_OPEN_POST = (id, userId) =>
+  `${API_BASE}/post/get-post/${id}?userId=${userId}`;
+const GET_COMMENTS         = (id) => `${API_BASE}/comment/${id}`;
 const GET_COMMENT_LIKE     = (id) => `${API_BASE}/commentLike/${id}`;
-
 const GET_SUBCOMMENTS      = (commentId) => `${API_BASE}/subcomment/get-comments/${commentId}`;
 const GET_SUBCOMMENT_LIKE  = (id) => `${API_BASE}/subcommentLike/${id}`;
 
@@ -20,11 +21,8 @@ const UPDATE_COMMENT       = `${API_BASE}/comment/modify`;     // 댓글 수정
 const TOGGLE_POST_LIKE       = (postId)    => `${API_BASE}/post/like/${postId}`;             // POST
 const TOGGLE_COMMENT_LIKE    = (commentId) => `${API_BASE}/commentLike/toggle/${commentId}`; // POST
 
-
 /** ✅ 대댓글 좋아요 토글 (POST /subcommentLike/subcommentlike, body: userId, subcommentId) */
 const TOGGLE_SUBCOMMENT_LIKE = `${API_BASE}/subcommentLike/subcommentlike`;
-
-
 /** ✅ 대댓글 좋아요 삭제 (DELETE /subcommentLike/remove, body: { id, userId, subcommentId }) */
 const DELETE_SUBCOMMENT_LIKE = `${API_BASE}/subcommentLike/remove`;
 
@@ -133,7 +131,8 @@ const PostReadContainer = () => {
 
   const navigate = useNavigate();
   const { currentUser, isLogin } = useSelector((state) => state.user);
-
+  const userIdForRequest = currentUser?.id ?? 0;
+  
   /** 게시글 */
   const [post, setPost] = useState(null);
   const [isPostLiked, setIsPostLiked] = useState(false);
@@ -568,30 +567,31 @@ const PostReadContainer = () => {
     }
   };
 
-  /** 데이터 로드 */
-  useEffect(() => {
-    if (!pid) return;
+ /** 데이터 로드 */
+useEffect(() => {
+  if (!pid) return;
 
-    const fetchAll = async () => {
-      try {
-        // 게시글
-        const resPost = await fetch(GET_OPEN_POST(pid));
-        if (!resPost.ok) throw new Error("게시글 불러오기 실패");
-        const raw = await resPost.json();
-        const p = raw?.data ?? raw;
-        const ui = mapPost(p);
-        setPost(ui);
-        setPostLikeCount(ui.likes || 0);
+  const fetchAll = async () => {
+    try {
+      // 게시글
+      const resPost = await fetch(GET_OPEN_POST(pid, userIdForRequest)); // 🔧 userId 추가!
+      if (!resPost.ok) throw new Error("게시글 불러오기 실패");
+      const raw = await resPost.json();
+      const p = raw?.data ?? raw;
+      const ui = mapPost(p);
+      setPost(ui);
+      setPostLikeCount(ui.likes || 0);
 
-        // 댓글 + 대댓글 + 좋아요 수
-        await loadComments();
-      } catch (e) {
-        console.error(e);
-      }
-    };
+      // 댓글 + 대댓글 + 좋아요 수
+      await loadComments();
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
-    fetchAll();
-  }, [pid]);
+  fetchAll();
+}, [pid, userIdForRequest]); // 🔧 userId도 dependency에 추가 (선택이지만 안전)
+
 
   /** 페이지네이션 계산 */
   const pageCount = useMemo(
