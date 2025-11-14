@@ -1,10 +1,33 @@
 // QiuzDropDown.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useDropDown from '../../../hooks/useDropDown';
 import S from './style';
 
 const QiuzDropDown = () => {
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+
+        const solveParam = params.get('quizPersonalIsSolve');
+        if(solveParam === '1') setSelectIsSolve('해결');
+        else if(solveParam === '0') setSelectIsSolve('미해결');
+        else setSelectIsSolve(null);
+
+        let paramReplace = false;
+        if( params.has('solve')) { params.delete('solve'); paramReplace = true; }
+        if( params.has('quizPersonalSolve')) { params.delete('quizPersonalSolve')}
+
+        if(paramReplace){
+
+            const next = new URLSearchParams();
+            if(params.get('quizLanguage')) next.set('quizLanguage', params.get('quizLanguage'));
+            if(params.get('quizDifficult')) next.set('quizDifficult',params.get('quizDifficult'));    
+            if(params.get('quizPersonalIsSolve')) next.set('quizPersonalIsSolve',params.get('quizPersonalIsSolve'));    
+            if(params.get('quiz')) next.set('',params.get(''));
+            next.set('page', '1');
+
+        }
+    }, [])
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -16,24 +39,29 @@ const QiuzDropDown = () => {
     // 로컬 표시 상태 (UI)
     const [selectLang, setSelectLang] = useState(null);
     const [selectDifficult, setSelectDifficult] = useState(null);
-    const [selectIsClear, setSelectIsClear] = useState(null);
+    const [selectIsSolve, setSelectIsSolve] = useState(null);
     const [selectKeyword, setSelectKeyword] = useState(null);
 
-    // location.search 기반 기존 쿼리 유지/수정 함수
     const buildAndNavigate = (overrides = {}) => {
-        const params = new URLSearchParams(location.search);
-        // 현재 UI 값 또는 overrides 우선 적용
-        const lang = overrides.quizLanguage ?? selectLang;
-        const diff = overrides.quizDifficult ?? selectDifficult;
-        const solve = overrides.solve ?? selectIsClear;
-        const keyword = overrides.keyword ?? selectKeyword;
-        // const page = overrides.page ?? "1";
-        
 
-        if (lang) params.set('quizLanguage', lang); else params.delete('quizLanguage');
-        if (diff) params.set('quizDifficult', diff); else params.delete('quizDifficult');
-        if (solve) params.set('solve', solve); else params.delete('solve');
-        if (keyword) params.set('keyword', keyword); else params.delete('keyword');
+        const params = new URLSearchParams();
+
+        const lang = overrides.quizLanguage != undefined ? overrides.quizLanguage : selectLang;
+        const diff = overrides.quizDifficult != undefined ? overrides.quizDifficult : selectDifficult;
+
+        const solve = overrides.quizPersonalIsSolve != undefined
+            ? overrides.quizPersonalIsSolve
+            : (selectIsSolve === "해결" ? "1" : selectIsSolve === "미해결" ? "0" : undefined);
+
+        const keyword = overrides.keyword != undefined ? overrides.keyword : selectKeyword;
+        // const page = overrides.page ?? "1";
+
+
+        if (lang) params.set('quizLanguage', String(lang));
+        if (diff) params.set('quizDifficult', String(diff));
+
+        if (solve === '0' || solve === '1') params.set('quizPersonalIsSolve', String(solve));
+        if (keyword) params.set('keyword', keyword);
 
         // params.set('page', String(page)); // 항상 page 유지 혹은 리셋
         navigate({ pathname: '/quiz', search: `?${params.toString()}` });
@@ -54,10 +82,11 @@ const QiuzDropDown = () => {
                 buildAndNavigate({ quizDifficult: next, page: 1 });
                 break;
             }
-            case 'IsClear': {
-                const next = selectIsClear === value ? null : value;
-                setSelectIsClear(next);
-                buildAndNavigate({ solve: next, page: 1 });
+            case 'IsSolve': {
+                const next = selectIsSolve === value ? null : value;
+                setSelectIsSolve(next);
+                const solveParam = next === "해결" ? "1" : next === "미해결" ? "0" : undefined;
+                buildAndNavigate({ quizPersonalIsSolve: solveParam, page: 1 });
                 break;
             }
             case 'Keyword': {
@@ -74,11 +103,12 @@ const QiuzDropDown = () => {
     const refreshToggle = () => {
         setSelectLang(null);
         setSelectDifficult(null);
-        setSelectIsClear(null);
+        setSelectIsSolve(null);
         setSelectKeyword(null);
         // URL에서도 삭제
-        buildAndNavigate({ quizLanguage: null, quizDifficult: null, solve: null, keyword: null, page: 1 });
+        buildAndNavigate({ quizLanguage: null, quizDifficult: null, quizPersonalIsSolve: null, keyword: null, page: 1 });
     };
+
 
     return (
         <S.DropContainer>
@@ -109,13 +139,13 @@ const QiuzDropDown = () => {
             </S.ButtonWrap>
 
             <S.ButtonWrap ref={isClearRef}>
-                <S.DropDownButton onClick={isClearHandler} select={!!selectIsClear}>
-                    {selectIsClear || '해결여부'}
+                <S.DropDownButton onClick={isClearHandler} select={!!selectIsSolve}>
+                    {selectIsSolve || '해결여부'}
                     <S.DropDownIconWrap><S.DropDownIcon /></S.DropDownIconWrap>
                 </S.DropDownButton>
                 <S.DropDownMenuWrap isDropped={isClearOpen}>
-                    <S.DropDownMenu onClick={() => handleSelect('IsClear', '미해결')}>미해결</S.DropDownMenu>
-                    <S.DropDownMenu onClick={() => handleSelect('IsClear', '해결')}>해결</S.DropDownMenu>
+                    <S.DropDownMenu onClick={() => handleSelect('IsSolve', '미해결')}>미해결</S.DropDownMenu>
+                    <S.DropDownMenu onClick={() => handleSelect('IsSolve', '해결')}>해결</S.DropDownMenu>
                 </S.DropDownMenuWrap>
             </S.ButtonWrap>
 
