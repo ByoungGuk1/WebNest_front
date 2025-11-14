@@ -53,6 +53,14 @@ import WriteContainer from "pages/community/write/WriteContainer";
 import SearchResult from "pages/searchresult/SearchResult";
 import ShortPractice from "pages/workspace/typingpractice/shortpractice/ShortPractice";
 import LongPractice from "pages/workspace/typingpractice/longpractice/LongPractice";
+import FriendContainer from "pages/mypage/friend/FriendContainer";
+import GradeContainer from "pages/mypage/grade/GradeContainer";
+import LikePostContainer from "pages/mypage/likepost/LikePostContainer";
+import ModifyContainer from "pages/mypage/modify/ModifyContainer";
+import MyPostContainer from "pages/mypage/mypost/MyPostContainer";
+import QuestionBookmarkContainer from "pages/mypage/questionbookmark/QuestionBookmarkContainer";
+import Follower from "pages/mypage/friend/Follower";
+import Following from "pages/mypage/friend/Following";
 
 const router = createBrowserRouter([
   {
@@ -86,6 +94,42 @@ const router = createBrowserRouter([
       {
         path: "my-page",
         element: <MyPageContainer />,
+        children: [
+          {
+            path: "",
+            element: <QuestionBookmarkContainer />
+          },
+          {
+              path: "friend",
+              element: <FriendContainer />,
+              children: [
+                {
+                  path: "follower",
+                  element: <Follower />
+                },
+                {
+                  path: "following",
+                  element: <Following />
+                }
+              ]
+          },
+          {
+              path: "grade",
+              element: <GradeContainer />
+          },
+          {
+              path: "like",
+              element: <LikePostContainer />
+          },
+          {
+              path: "modify",
+              element: <ModifyContainer />
+          },
+          {
+              path: "my-post",
+              element: <MyPostContainer />
+          },
+        ]
       },
       {
         path: "search",

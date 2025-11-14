@@ -1,5 +1,6 @@
-// src/pages/community/post/postlist/PostListContainer.jsx
+// src/pages/community/post/postlist/PostListContainer.jsx 
 import React, { useEffect, useState, useRef, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import S from "./style";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -12,8 +13,11 @@ import ThreeDropDown from "../../../../components/dropdown/ThreeDropDown";
 /* =========================
    🔧 백엔드 연동용 상수
    ========================= */
-const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
-const POSTS_ENDPOINT = "/post/open";
+const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(
+  /\/+$/,
+  ""
+);
+const POSTS_ENDPOINT = "/post/open"; // 열린둥지 전체 조회
 const BUILD_URL = () => `${API_BASE}${POSTS_ENDPOINT}`;
 // 댓글 API
 const COMMENT_URL = (postId) => `${API_BASE}/comment/${postId}`;
@@ -25,7 +29,10 @@ const mapComment = (c) => ({
   createdAt: c.commentCreateAt ?? c.createdAt ?? null,
   selected:
     (typeof c.commentIsAccept === "boolean" ? c.commentIsAccept : null) ??
-    c.isBest ?? c.best ?? c.selected ?? false,
+    c.isBest ??
+    c.best ??
+    c.selected ??
+    false,
   author: {
     name: c.userNickname ?? c.authorNickname ?? c.userName ?? null,
     profileImg: c.userThumbnailUrl ?? c.authorProfile ?? null,
@@ -55,8 +62,11 @@ const toRelativeTime = (dateLike) => {
 const getTopComment = (post) => {
   const comments = post?.comments || post?.answers || [];
   if (!Array.isArray(comments) || comments.length === 0) return null;
-  const byBest = comments.find((c) => c?.isBest || c?.best || c?.selected) || null;
+
+  const byBest =
+    comments.find((c) => c?.isBest || c?.best || c?.selected) || null;
   if (byBest) return byBest;
+
   const sorted = [...comments].sort(
     (a, b) => (b?.likes ?? b?.up ?? 0) - (a?.likes ?? a?.up ?? 0)
   );
@@ -102,7 +112,10 @@ const getReplyCount = (post) =>
   (Array.isArray(post?.answers) ? post.answers.length : 0) ??
   0;
 
-const PostListContainer = () => {
+/* =========================
+   🔥 컴포넌트
+   ========================= */
+const PostListContainer = ({ customUrl, authToken, isMyPage = false }) => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -114,7 +127,9 @@ const PostListContainer = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
-  /* 🔌 실제 백엔드 호출 */
+  const navigate = useNavigate();
+
+  /* 🔌 열린둥지 전체 조회 */
   useEffect(() => {
     const ac = new AbortController();
 
@@ -242,7 +257,8 @@ const PostListContainer = () => {
           })
         );
       } catch (e) {
-        if (e.name !== "AbortError") console.error("[Comments] fetch error:", e);
+        if (e.name !== "AbortError")
+          console.error("[Comments] fetch error:", e);
       }
     })();
 
@@ -251,16 +267,23 @@ const PostListContainer = () => {
 
   /* 인기 카드(조회수 기준) */
   const popularPosts = useMemo(
-    () => [...posts].sort((a, b) => (b?.views ?? 0) - (a?.views ?? 0)).slice(0, 8),
+    () =>
+      [...posts].sort((a, b) => (b?.views ?? 0) - (a?.views ?? 0)).slice(0, 8),
     [posts]
   );
 
   // 페이지 이동
-  const handlePrev = () => { if (currentPage > 1) setCurrentPage((p) => p - 1); };
-  const handleNext = () => { if (currentPage < totalPages) setCurrentPage((p) => p + 1); };
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage((p) => p - 1);
+  };
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage((p) => p + 1);
+  };
   const handlePageClick = (num) => setCurrentPage(num);
 
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "auto" }); }, [currentPage]);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [currentPage]);
 
   return (
     <>
@@ -310,14 +333,20 @@ const PostListContainer = () => {
             {popularPosts.map((post) => (
               <SwiperSlide key={post.postId}>
                 {/* 인기글 카드 전체 클릭 -> /post/:id */}
-                <S.Link to={`/post/${post.postId}`} aria-label={`${post.postTitle} 상세보기`}>
+                <S.Link
+                  to={`/post/${post.postId}`}
+                  aria-label={`${post.postTitle} 상세보기`}
+                >
                   <S.PopularCard role="button">
                     <S.PopularTitle>{post.postTitle}</S.PopularTitle>
                     <S.PopularPreview>{post.postContent}</S.PopularPreview>
                     <S.Info>
                       <S.MetaWrap>
                         <S.ProfileImg
-                          src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
+                          src={
+                            post.author?.profileImg ||
+                            "/assets/images/defalutpro.svg"
+                          }
                           alt={post.author?.name || ""}
                         />
                         {post.author?.name && (
@@ -351,7 +380,10 @@ const PostListContainer = () => {
         <div className="dd-ctrl">
           <ThreeDropDown
             value={sortBy}
-            onChange={(v) => { setSortBy(v); setCurrentPage(1); }}
+            onChange={(v) => {
+              setSortBy(v);
+              setCurrentPage(1);
+            }}
             color={{
               buttonBg: "#ffffff",
               buttonFg: "#121212",
@@ -364,7 +396,10 @@ const PostListContainer = () => {
             }}
           />
         </div>
-        <S.WriteButton>글쓰기</S.WriteButton>
+        {/* 필요하면 /post/write 로 바꿔도 됨 */}
+        <S.WriteButton onClick={() => navigate("/question/write")}>
+          글쓰기
+        </S.WriteButton>
       </S.SortWrap>
 
       {/* 리스트 */}
@@ -383,7 +418,7 @@ const PostListContainer = () => {
             return (
               <S.Link to={`/post/${post.postId}`} key={post.postId}>
                 <S.Row>
-                  {/* ✅ 게시글 상단 태그 */}
+                  {/* 게시글 상단 태그 */}
                   <S.Tag lang={post.postLangTag}>{post.postLangTag}</S.Tag>
 
                   <S.QuestionInfo>
@@ -394,7 +429,10 @@ const PostListContainer = () => {
                       <S.ListMetaRow>
                         <S.MetaWrap>
                           <S.ProfileImg
-                            src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
+                            src={
+                              post.author?.profileImg ||
+                              "/assets/images/defalutpro.svg"
+                            }
                             alt={post.author?.name || ""}
                           />
                           {post.author?.name && (
@@ -451,7 +489,9 @@ const PostListContainer = () => {
                               topCmt.comment ||
                               ""}
                           </S.TopCmtContent>
-                          {(topCmt.isBest || topCmt.best || topCmt.selected) && (
+                          {(topCmt.isBest ||
+                            topCmt.best ||
+                            topCmt.selected) && (
                             <S.BestBadge>best</S.BestBadge>
                           )}
                         </S.TopCommentRow>

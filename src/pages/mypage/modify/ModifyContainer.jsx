@@ -1,6 +1,6 @@
 import React from 'react';
 
-const MyModifyContainer = () => {
+const ModifyContainer = () => {
   return (
     <div>
       회원 정보 수정
@@ -8,4 +8,4 @@ const MyModifyContainer = () => {
   );
 };
 
-export default MyModifyContainer;
+export default ModifyContainer;

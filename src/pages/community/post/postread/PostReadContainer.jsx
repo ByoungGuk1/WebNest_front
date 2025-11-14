@@ -1,14 +1,64 @@
-// src/pages/community/post/postread/PostReadContainer.jsx
+// src/pages/community/post/postread/PostReadContainer.jsx 
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import S from "./style";
+
 
 /** 🔧 백엔드 연동용 상수 */
 const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
-const GET_OPEN_POST    = (id) => `${API_BASE}/post/get-post/${id}`;
-const GET_COMMENTS     = (id) => `${API_BASE}/comment/${id}`;
-const GET_COMMENT_LIKE = (id) => `${API_BASE}/commentLike/${id}`;
-const GET_SUBCOMMENTS  = (commentId) => `${API_BASE}/subcomment/get-comments/${commentId}`;
+const GET_OPEN_POST = (id, userId) =>
+  `${API_BASE}/post/get-post/${id}?userId=${userId}`;
+const GET_COMMENTS         = (id) => `${API_BASE}/comment/${id}`;
+const GET_COMMENT_LIKE     = (id) => `${API_BASE}/commentLike/${id}`;
+const GET_SUBCOMMENTS      = (commentId) => `${API_BASE}/subcomment/get-comments/${commentId}`;
+const GET_SUBCOMMENT_LIKE  = (id) => `${API_BASE}/subcommentLike/${id}`;
+
+const CREATE_COMMENT       = `${API_BASE}/comment/write`;      // 댓글 작성
+const UPDATE_COMMENT       = `${API_BASE}/comment/modify`;     // 댓글 수정
+
+/** ✅ 좋아요 토글(백엔드 규약에 맞게 필요시 경로 수정) */
+const TOGGLE_POST_LIKE       = (postId)    => `${API_BASE}/post/like/${postId}`;             // POST
+const TOGGLE_COMMENT_LIKE    = (commentId) => `${API_BASE}/commentLike/toggle/${commentId}`; // POST
+
+/** ✅ 대댓글 좋아요 토글 (POST /subcommentLike/subcommentlike, body: userId, subcommentId) */
+const TOGGLE_SUBCOMMENT_LIKE = `${API_BASE}/subcommentLike/subcommentlike`;
+/** ✅ 대댓글 좋아요 삭제 (DELETE /subcommentLike/remove, body: { id, userId, subcommentId }) */
+const DELETE_SUBCOMMENT_LIKE = `${API_BASE}/subcommentLike/remove`;
+
+/** ✅ 대댓글 좋아요 localStorage 키 유틸 */
+const SUBCOMMENT_LIKE_STORAGE_KEY_PREFIX = "subcommentLikes_";
+
+const getSubcommentLikeStorageKey = (userId) =>
+  `${SUBCOMMENT_LIKE_STORAGE_KEY_PREFIX}${userId}`;
+
+const loadStoredSubcommentLikes = (userId) => {
+  if (!userId || typeof window === "undefined") {
+    return { liked: {}, ids: {} };
+  }
+  try {
+    const raw = window.localStorage.getItem(getSubcommentLikeStorageKey(userId));
+    if (!raw) return { liked: {}, ids: {} };
+    const parsed = JSON.parse(raw);
+    return {
+      liked: parsed.liked && typeof parsed.liked === "object" ? parsed.liked : {},
+      ids: parsed.ids && typeof parsed.ids === "object" ? parsed.ids : {},
+    };
+  } catch (e) {
+    console.error("loadStoredSubcommentLikes error", e);
+    return { liked: {}, ids: {} };
+  }
+};
+
+const saveStoredSubcommentLikes = (userId, likedMap, idMap) => {
+  if (!userId || typeof window === "undefined") return;
+  try {
+    const payload = JSON.stringify({ liked: likedMap, ids: idMap });
+    window.localStorage.setItem(getSubcommentLikeStorageKey(userId), payload);
+  } catch (e) {
+    console.error("saveStoredSubcommentLikes error", e);
+  }
+};
 
 /** ⏰ 상대 시간 */
 const toRelativeTime = (dateLike) => {
@@ -51,7 +101,7 @@ const mapPost = (p) => ({
   },
 });
 
-/* ✅ 댓글/대댓글 공용 매퍼: 대댓글 필드(subcomment*) 우선 매핑 */
+/* ✅ 댓글/대댓글 공용 매퍼 */
 const mapComment = (c) => ({
   id: c.id ?? c.subcommentId ?? c.commentId,
   content:
@@ -67,6 +117,7 @@ const mapComment = (c) => ({
     c.createdAt ??
     null,
   likes: c.likes ?? 0,
+  userId: c.userId ?? c.authorId ?? null,        // ✅ 작성자 id 저장
   user: {
     name: c.userNickname ?? c.userName ?? "user",
     profileImg: c.userThumbnailUrl ?? "/assets/images/defalutpro.svg",
@@ -78,15 +129,28 @@ const PostReadContainer = () => {
   const { postId: postIdParam, id: idParam } = useParams();
   const pid = postIdParam ?? idParam;
 
+  const navigate = useNavigate();
+  const { currentUser, isLogin } = useSelector((state) => state.user);
+  const userIdForRequest = currentUser?.id ?? 0;
+  
   /** 게시글 */
   const [post, setPost] = useState(null);
   const [isPostLiked, setIsPostLiked] = useState(false);
   const [postLikeCount, setPostLikeCount] = useState(0);
+  const [postLikePending, setPostLikePending] = useState(false);
 
   /** 댓글 */
   const [comments, setComments] = useState([]);
   const [commentInput, setCommentInput] = useState("");
-  const [likedComments, setLikedComments] = useState({}); // { [commentId]: true }
+  const [likedComments, setLikedComments] = useState({});           // { [commentId]: true }
+  const [commentLikePending, setCommentLikePending] = useState({}); // { [commentId]: true }
+
+  /** ✅ 대댓글 좋아요 상태 */
+  const [likedSubcomments, setLikedSubcomments] = useState({});            // { [subcommentId]: true }
+  const [subcommentLikePending, setSubcommentLikePending] = useState({});  // { [subcommentId]: true }
+  /** ✅ 대댓글 좋아요 row ID (백엔드에서 반환해주는 SEQ 값 저장) */
+  const [subcommentLikeIds, setSubcommentLikeIds] = useState({});          // { [subcommentId]: likeId }
+
   const [currentPage, setCurrentPage] = useState(1);
   const COMMENTS_PER_PAGE = 10;
 
@@ -100,6 +164,31 @@ const PostReadContainer = () => {
   const [replyOpenMap, setReplyOpenMap] = useState({});  // { [commentId]: boolean }
   const [replyTextMap, setReplyTextMap] = useState({});  // { [commentId]: string }
 
+  /** ✅ 댓글 수정 UI 상태 */
+  const [editingCommentId, setEditingCommentId] = useState(null);     // 어떤 댓글을 수정 중인지
+  const [editingCommentText, setEditingCommentText] = useState("");   // 수정 내용
+
+  /** 🔄 게시글 id 바뀔 때 댓글 좋아요 상태는 초기화 (대댓글은 localStorage로 관리) */
+  useEffect(() => {
+    setLikedComments({});
+    setCommentLikePending({});
+  }, [pid]);
+
+  /** 🔄 로그인된 유저 기준으로 localStorage에 저장된 대댓글 좋아요 상태 로드 */
+  useEffect(() => {
+    if (!isLogin || !currentUser?.id) return;
+    const { liked, ids } = loadStoredSubcommentLikes(currentUser.id);
+    setLikedSubcomments(liked);
+    setSubcommentLikeIds(ids);
+  }, [isLogin, currentUser?.id]);
+
+  /** 💾 대댓글 좋아요 상태 변경될 때마다 localStorage에 저장 */
+  useEffect(() => {
+    if (!isLogin || !currentUser?.id) return;
+    saveStoredSubcommentLikes(currentUser.id, likedSubcomments, subcommentLikeIds);
+  }, [likedSubcomments, subcommentLikeIds, isLogin, currentUser?.id]);
+
+  /** 신고 모달 열기/닫기 */
   const openReport = (type, id) => {
     setReportTarget(type);
     setTargetId(id);
@@ -113,140 +202,396 @@ const PostReadContainer = () => {
     setIsReportOpen(false);
   };
 
-  /** 게시글 좋아요 */
-  const togglePostLike = () => {
-    setIsPostLiked((prev) => !prev);
-    setPostLikeCount((prev) => (isPostLiked ? prev - 1 : prev + 1));
+  /** ✅ 게시글 좋아요 (낙관적 → 실패 시 롤백) */
+  const togglePostLike = async () => {
+    if (!isLogin) {
+      alert("로그인 후 이용해주세요!");
+      navigate("/login");
+      return;
+    }
+    if (!post?.id || postLikePending) return;
+
+    const willLike = !isPostLiked;
+    setIsPostLiked(willLike);
+    setPostLikeCount((prev) => prev + (willLike ? 1 : -1));
+    setPostLikePending(true);
+
+    try {
+      const res = await fetch(TOGGLE_POST_LIKE(post.id), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ userId: currentUser?.id }),
+      });
+      if (!res.ok) throw new Error("post like failed");
+    } catch (e) {
+      setIsPostLiked(!willLike);
+      setPostLikeCount((prev) => prev - (willLike ? 1 : -1));
+      console.error(e);
+      alert("좋아요 처리 중 오류가 발생했습니다.");
+    } finally {
+      setPostLikePending(false);
+    }
   };
 
-  /** 댓글 좋아요(프론트 낙관적 토글) */
-  const toggleCommentLike = (cid) => {
-    setLikedComments((prev) => {
-      const liked = !prev[cid];
-      return { ...prev, [cid]: liked };
-    });
+  /** ✅ 댓글 좋아요(낙관적 → 실패 시 롤백) */
+  const toggleCommentLike = async (cid) => {
+    if (!isLogin) {
+      alert("로그인 후 이용해주세요!");
+      navigate("/login");
+      return;
+    }
+    if (commentLikePending[cid]) return;
+
+    const willLike = !likedComments[cid];
+    setLikedComments((prev) => ({ ...prev, [cid]: willLike }));
+    setCommentLikePending((prev) => ({ ...prev, [cid]: true }));
+
+    try {
+      const res = await fetch(TOGGLE_COMMENT_LIKE(cid), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ userId: currentUser?.id }),
+      });
+      if (!res.ok) throw new Error("comment like failed");
+    } catch (e) {
+      setLikedComments((prev) => ({ ...prev, [cid]: !willLike }));
+      console.error(e);
+      alert("댓글 좋아요 처리 중 오류가 발생했습니다.");
+    } finally {
+      setCommentLikePending((prev) => ({ ...prev, [cid]: false }));
+    }
   };
 
-  /** 댓글 입력 */
-  const handleAddComment = () => {
+  /** 🔁 대댓글 좋아요 수를 서버에서 다시 조회해서 comments에 반영 */
+  const refreshSubcommentLikeCount = async (sid) => {
+    try {
+      const r = await fetch(GET_SUBCOMMENT_LIKE(sid));
+      if (!r.ok) return;
+      const j = await r.json();
+      const cnt = typeof j === "number" ? j : (j?.data ?? 0);
+
+      setComments((prev) =>
+        prev.map((c) => ({
+          ...c,
+          subcomments: Array.isArray(c.subcomments)
+            ? c.subcomments.map((sub) =>
+                sub.id === sid ? { ...sub, likes: cnt } : sub
+              )
+            : c.subcomments,
+        }))
+      );
+    } catch (e) {
+      console.error("refreshSubcommentLikeCount error", e);
+    }
+  };
+
+  /** ✅ 대댓글 좋아요(낙관적 토글: INSERT ↔ DELETE /remove) */
+  const toggleSubcommentLike = async (sid) => {
+    if (!isLogin) {
+      alert("로그인 후 이용해주세요!");
+      navigate("/login");
+      return;
+    }
+    if (subcommentLikePending[sid]) return;
+
+    const currentlyLiked = !!likedSubcomments[sid]; // 지금 하트 상태
+    const willLike = !currentlyLiked;               // 클릭 후 상태
+
+    // UI 먼저 토글 (낙관적 업데이트: 하트)
+    setLikedSubcomments((prev) => ({ ...prev, [sid]: willLike }));
+    setSubcommentLikePending((prev) => ({ ...prev, [sid]: true }));
+
+    const basePayload = {
+      userId: currentUser?.id,
+      subcommentId: sid,
+    };
+
+    try {
+      if (willLike) {
+        // ✅ 좋아요 누름 → INSERT
+        const res = await fetch(TOGGLE_SUBCOMMENT_LIKE, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(basePayload),
+        });
+
+        if (!res.ok) throw new Error("subcomment like insert failed");
+
+        // 응답에서 like id 추출 후 저장
+        try {
+          const json = await res.json();
+          const data = json?.data ?? json?.result ?? json;
+          if (data && typeof data === "object") {
+            const likeId =
+              data.newPostId ??
+              data.id ??
+              data.likeId ??
+              null;
+
+            if (likeId != null) {
+              setSubcommentLikeIds((prev) => ({
+                ...prev,
+                [sid]: likeId,
+              }));
+            }
+          }
+        } catch (e) {
+          console.error("parse subcomment like insert response error", e);
+        }
+
+        // 서버 기준 최신 좋아요 수 반영
+        await refreshSubcommentLikeCount(sid);
+      } else {
+        // ✅ 좋아요 취소 → DELETE /subcommentLike/remove
+        const likeId = subcommentLikeIds[sid];
+
+        if (!likeId) {
+          // 삭제할 row의 ID 모르면 롤백하고 안내
+          setLikedSubcomments((prev) => ({ ...prev, [sid]: currentlyLiked }));
+          alert("대댓글 좋아요 정보를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요.");
+          return;
+        }
+
+        const deleteBody = {
+          ...basePayload,
+          id: likeId,
+        };
+
+        const res = await fetch(DELETE_SUBCOMMENT_LIKE, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(deleteBody),
+        });
+
+        if (!res.ok) throw new Error("subcomment like delete failed");
+
+        // 삭제 성공 시, ID 맵에서 제거
+        setSubcommentLikeIds((prev) => {
+          const copy = { ...prev };
+          delete copy[sid];
+          return copy;
+        });
+
+        // 서버 기준 최신 좋아요 수 반영
+        await refreshSubcommentLikeCount(sid);
+      }
+    } catch (e) {
+      console.error(e);
+      // 실패하면 UI 롤백
+      setLikedSubcomments((prev) => ({ ...prev, [sid]: currentlyLiked }));
+      alert("대댓글 좋아요 처리 중 오류가 발생했습니다.");
+    } finally {
+      setSubcommentLikePending((prev) => ({ ...prev, [sid]: false }));
+    }
+  };
+
+  /** ✅ 댓글 + 대댓글 + 좋아요 수 로드 */
+  const loadComments = async () => {
+    const resC = await fetch(GET_COMMENTS(pid));
+    if (!resC.ok) throw new Error("댓글 불러오기 실패");
+    const r = await resC.json();
+    const list = Array.isArray(r)
+      ? r
+      : Array.isArray(r?.data)
+      ? r.data
+      : Array.isArray(r?.result)
+      ? r.result
+      : [];
+
+    const mapped = list.map(mapComment);
+
+    const enriched = await Promise.all(
+      mapped.map(async (c) => {
+        const [likeCnt, subs] = await Promise.all([
+          // 댓글 좋아요 수
+          (async () => {
+            try {
+              const r2 = await fetch(GET_COMMENT_LIKE(c.id));
+              if (!r2.ok) return c.likes ?? 0;
+              const likeJson = await r2.json();
+              return typeof likeJson === "number" ? likeJson : (likeJson?.data ?? 0);
+            } catch {
+              return c.likes ?? 0;
+            }
+          })(),
+          // 대댓글 목록 + 각 대댓글 좋아요 수
+          (async () => {
+            try {
+              const rs = await fetch(GET_SUBCOMMENTS(c.id));
+              if (!rs.ok) return [];
+              const sj = await rs.json();
+              const rawSubs = Array.isArray(sj)
+                ? sj
+                : Array.isArray(sj?.data)
+                ? sj.data
+                : Array.isArray(sj?.result)
+                ? sj.result
+                : [];
+
+              const subsWithLikes = await Promise.all(
+                rawSubs.map(async (sub) => {
+                  const mappedSub = mapComment(sub);
+                  try {
+                    const lr = await fetch(GET_SUBCOMMENT_LIKE(mappedSub.id));
+                    if (!lr.ok) return mappedSub;
+                    const lj = await lr.json();
+                    const cnt = typeof lj === "number" ? lj : (lj?.data ?? 0);
+                    return { ...mappedSub, likes: cnt };
+                  } catch {
+                    return mappedSub;
+                  }
+                })
+              );
+
+              return subsWithLikes;
+            } catch {
+              return [];
+            }
+          })(),
+        ]);
+
+        return { ...c, likes: likeCnt, subcomments: subs };
+      })
+    );
+
+    setComments(enriched);
+  };
+
+  /** ✅ 댓글 입력 → DB 저장 */
+  const handleAddComment = async () => {
     const text = commentInput.trim();
     if (!text) return;
+    if (!isLogin) {
+      alert("로그인 후 이용해주세요!");
+      navigate("/login");
+      return;
+    }
 
-    const newComment = {
-      id: Date.now(),
-      user: { name: "user", profileImg: "/assets/images/defalutpro.svg", level: 1 },
-      content: text,
-      createdAt: new Date().toISOString(),
-      likes: 0,
-      subcomments: [],
-    };
-    setComments((prev) => [newComment, ...prev]);
-    setCommentInput("");
-    setCurrentPage(1);
-  };
+    try {
+      const now = new Date();
 
-  /** ✅ 답글(대댓글) UI 토글/입력/등록 */
-  const toggleReplyOpen = (cid) =>
-    setReplyOpenMap((prev) => ({ ...prev, [cid]: !prev[cid] }));
+      const payload = {
+        postId: Number(pid),         // VO.postId
+        userId: currentUser?.id,     // VO.userId
+        commentDescription: text,    // VO.commentDescription
+        commentIsAccept: false,      // VO.commentIsAccept
+        commentCreateAt: now,        // VO.commentCreateAt
+      };
 
-  const onChangeReplyText = (cid, value) =>
-    setReplyTextMap((prev) => ({ ...prev, [cid]: value }));
+      const res = await fetch(CREATE_COMMENT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
 
-  const submitReply = (cid) => {
-    const text = (replyTextMap[cid] || "").trim();
-    if (!text) return;
-
-    // 프론트 즉시 반영용 더미 대댓글 (백엔드 연동 시 POST 호출로 교체)
-    const newSub = {
-      id: Date.now(),
-      user: { name: "user", profileImg: "/assets/images/defalutpro.svg", level: 1 },
-      content: text,
-      createdAt: new Date().toISOString(),
-      likes: 0,
-    };
-
-    setComments((prev) =>
-      prev.map((c) =>
-        c.id === cid ? { ...c, subcomments: [...(c.subcomments || []), newSub] } : c
-      )
-    );
-    setReplyTextMap((prev) => ({ ...prev, [cid]: "" }));
-    setReplyOpenMap((prev) => ({ ...prev, [cid]: false }));
-  };
-
-  /** 데이터 로드 */
-  useEffect(() => {
-    if (!pid) return;
-
-    const fetchAll = async () => {
-      try {
-        // 게시글
-        const resPost = await fetch(GET_OPEN_POST(pid));
-        if (!resPost.ok) throw new Error("게시글 불러오기 실패");
-        const raw = await resPost.json();
-        const p = raw?.data ?? raw;
-        const ui = mapPost(p);
-        setPost(ui);
-        setPostLikeCount(ui.likes || 0);
-
-        // 댓글
-        const resC = await fetch(GET_COMMENTS(pid));
-        if (!resC.ok) throw new Error("댓글 불러오기 실패");
-        const r = await resC.json();
-        const list = Array.isArray(r)
-          ? r
-          : Array.isArray(r?.data)
-          ? r.data
-          : Array.isArray(r?.result)
-          ? r.result
-          : [];
-        const mapped = list.map(mapComment);
-
-        // ✅ 댓글 좋아요 수 + 대댓글 동시 병합
-        const enriched = await Promise.all(
-          mapped.map(async (c) => {
-            const [likeCnt, subs] = await Promise.all([
-              (async () => {
-                try {
-                  const r2 = await fetch(GET_COMMENT_LIKE(c.id));
-                  if (!r2.ok) return c.likes ?? 0;
-                  const likeJson = await r2.json();
-                  return typeof likeJson === "number" ? likeJson : (likeJson?.data ?? 0);
-                } catch {
-                  return c.likes ?? 0;
-                }
-              })(),
-              (async () => {
-                try {
-                  const rs = await fetch(GET_SUBCOMMENTS(c.id));
-                  if (!rs.ok) return [];
-                  const sj = await rs.json();
-                  const rawSubs = Array.isArray(sj)
-                    ? sj
-                    : Array.isArray(sj?.data)
-                    ? sj.data
-                    : Array.isArray(sj?.result)
-                    ? sj.result
-                    : [];
-                  return rawSubs.map(mapComment);
-                } catch {
-                  return [];
-                }
-              })(),
-            ]);
-
-            return { ...c, likes: likeCnt, subcomments: subs };
-          })
-        );
-
-        setComments(enriched);
-      } catch (e) {
-        console.error(e);
+      if (!res.ok) {
+        const t = await res.text().catch(() => "");
+        throw new Error(t || "댓글 작성 실패");
       }
-    };
 
-    fetchAll();
-  }, [pid]);
+      setCommentInput("");
+      setCurrentPage(1);
+      await loadComments(); // 목록 새로고침
+    } catch (e) {
+      console.error(e);
+      alert("댓글 작성 중 오류가 발생했습니다.");
+    }
+  };
+
+  /** ✅ 댓글 수정 시작 */
+  const handleStartEditComment = (comment) => {
+    if (!isLogin) {
+      alert("로그인 후 이용해주세요!");
+      navigate("/login");
+      return;
+    }
+    if (!currentUser?.id || currentUser.id !== comment.userId) {
+      alert("본인이 작성한 댓글만 수정할 수 있습니다.");
+      return;
+    }
+    setEditingCommentId(comment.id);
+    setEditingCommentText(comment.content);
+  };
+
+  /** ✅ 댓글 수정 취소 */
+  const handleCancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditingCommentText("");
+  };
+
+  /** ✅ 댓글 수정 완료 */
+  const handleUpdateComment = async (commentId) => {
+    const text = editingCommentText.trim();
+    if (!text) {
+      alert("수정할 내용을 입력해주세요.");
+      return;
+    }
+    if (!isLogin) {
+      alert("로그인 후 이용해주세요!");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const payload = {
+        id: Number(commentId),
+        commentId: Number(commentId),
+        postId: Number(pid),
+        userId: currentUser?.id,
+        commentDescription: text,
+      };
+
+      const res = await fetch(UPDATE_COMMENT, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const t = await res.text().catch(() => "");
+        throw new Error(t || "댓글 수정 실패");
+      }
+
+      await loadComments();
+      setEditingCommentId(null);
+      setEditingCommentText("");
+    } catch (e) {
+      console.error(e);
+      alert("댓글 수정 중 오류가 발생했습니다.");
+    }
+  };
+
+ /** 데이터 로드 */
+useEffect(() => {
+  if (!pid) return;
+
+  const fetchAll = async () => {
+    try {
+      // 게시글
+      const resPost = await fetch(GET_OPEN_POST(pid, userIdForRequest)); // 🔧 userId 추가!
+      if (!resPost.ok) throw new Error("게시글 불러오기 실패");
+      const raw = await resPost.json();
+      const p = raw?.data ?? raw;
+      const ui = mapPost(p);
+      setPost(ui);
+      setPostLikeCount(ui.likes || 0);
+
+      // 댓글 + 대댓글 + 좋아요 수
+      await loadComments();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  fetchAll();
+}, [pid, userIdForRequest]); // 🔧 userId도 dependency에 추가 (선택이지만 안전)
+
 
   /** 페이지네이션 계산 */
   const pageCount = useMemo(
@@ -282,7 +627,10 @@ const PostReadContainer = () => {
 
           <S.PostHeader>
             <S.AuthorBox>
-              <S.ProfileImg src={post.author?.profileImg || "/assets/images/defalutpro.svg"} alt={post.author?.name || "user"} />
+              <S.ProfileImg
+                src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
+                alt={post.author?.name || "user"}
+              />
               <S.AuthorName>{post.author?.name || "user"}</S.AuthorName>
             </S.AuthorBox>
           </S.PostHeader>
@@ -342,7 +690,10 @@ const PostReadContainer = () => {
             {pageSlice.map((c) => (
               <S.CommentItem key={c.id}>
                 <S.CommentLeft>
-                  <S.CommentAvatar src={c.user?.profileImg || "/assets/images/defalutpro.svg"} alt={c.user?.name || "user"} />
+                  <S.CommentAvatar
+                    src={c.user?.profileImg || "/assets/images/defalutpro.svg"}
+                    alt={c.user?.name || "user"}
+                  />
                 </S.CommentLeft>
 
                 <S.CommentRight>
@@ -351,7 +702,30 @@ const PostReadContainer = () => {
                     <S.CommentUserLevel>Lv.{c.user?.level ?? 1}</S.CommentUserLevel>
                   </S.CommentUserRow>
 
-                  <S.CommentContent>{c.content}</S.CommentContent>
+                  {/* ✅ 댓글 내용/수정 UI */}
+                  {editingCommentId === c.id ? (
+                    <S.ReplyBox>
+                      <S.ReplyInput
+                        value={editingCommentText}
+                        onChange={(e) => setEditingCommentText(e.target.value)}
+                        placeholder="댓글 내용을 수정해주세요."
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleUpdateComment(c.id);
+                          }
+                        }}
+                      />
+                      <S.ReplySubmit onClick={() => handleUpdateComment(c.id)}>
+                        수정 완료
+                      </S.ReplySubmit>
+                      <S.CommentAction onClick={handleCancelEditComment}>
+                        취소
+                      </S.CommentAction>
+                    </S.ReplyBox>
+                  ) : (
+                    <S.CommentContent>{c.content}</S.CommentContent>
+                  )}
 
                   <S.CommentMetaRow>
                     <span>{toRelativeTime(c.createdAt)}</span>
@@ -368,33 +742,61 @@ const PostReadContainer = () => {
                       {(c.likes ?? 0) + (likedComments[c.id] ? 1 : 0)}
                     </S.CommentLikeCount>
 
-                    {/* ✅ ‘답글 달기’ 버튼 */}
+                    {/* 답글 달기 */}
                     <b>·</b>
-                    <S.CommentAction onClick={() => toggleReplyOpen(c.id)}>답글 달기</S.CommentAction>
+                    <S.CommentAction
+                      onClick={() =>
+                        setReplyOpenMap((prev) => ({ ...prev, [c.id]: !prev[c.id] }))
+                      }
+                    >
+                      답글 달기
+                    </S.CommentAction>
+
+                    {/* ✅ 댓글 수정 (작성자만 노출) */}
+                    {isLogin && currentUser?.id && currentUser.id === c.userId && (
+                      <>
+                        <b>·</b>
+                        <S.CommentAction onClick={() => handleStartEditComment(c)}>
+                          {editingCommentId === c.id ? "수정 중" : "수정"}
+                        </S.CommentAction>
+                      </>
+                    )}
 
                     <b>·</b>
                     <S.CommentAction onClick={() => openReport("comment", c.id)}>신고</S.CommentAction>
                   </S.CommentMetaRow>
 
-                  {/* ✅ 답글 입력창 (토글) */}
+                  {/* 답글 입력창 */}
                   {replyOpenMap[c.id] && (
                     <S.ReplyBox>
                       <S.ReplyInput
                         value={replyTextMap[c.id] || ""}
-                        onChange={(e) => onChangeReplyText(c.id, e.target.value)}
+                        onChange={(e) =>
+                          setReplyTextMap((prev) => ({ ...prev, [c.id]: e.target.value }))
+                        }
                         placeholder="이 댓글에 답글을 남겨보세요."
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
-                            submitReply(c.id);
+                            // TODO: 대댓글 작성 API 연동
+                            setReplyTextMap((prev) => ({ ...prev, [c.id]: "" }));
+                            setReplyOpenMap((prev) => ({ ...prev, [c.id]: false }));
                           }
                         }}
                       />
-                      <S.ReplySubmit onClick={() => submitReply(c.id)}>등록</S.ReplySubmit>
+                      <S.ReplySubmit
+                        onClick={() => {
+                          // TODO: 대댓글 작성 API 연동
+                          setReplyTextMap((prev) => ({ ...prev, [c.id]: "" }));
+                          setReplyOpenMap((prev) => ({ ...prev, [c.id]: false }));
+                        }}
+                      >
+                        등록
+                      </S.ReplySubmit>
                     </S.ReplyBox>
                   )}
 
-                  {/* ✅ 대댓글 리스트 */}
+                  {/* 대댓글 리스트 */}
                   {Array.isArray(c.subcomments) && c.subcomments.length > 0 && (
                     <S.SubcommentList>
                       {c.subcomments.map((s) => (
@@ -414,7 +816,27 @@ const PostReadContainer = () => {
                             <S.SubcommentMetaRow>
                               <span>{toRelativeTime(s.createdAt)}</span>
                               <b>·</b>
-                              <S.CommentAction onClick={() => openReport("comment", s.id)}>신고</S.CommentAction>
+                              {/* ✅ 대댓글 좋아요 */}
+                              <img
+                                src={
+                                  likedSubcomments[s.id]
+                                    ? "/assets/icons/heartfull.svg"
+                                    : "/assets/icons/greyheart.svg"
+                                }
+                                alt="좋아요"
+                                onClick={() => toggleSubcommentLike(s.id)}
+                              />
+                              <S.CommentLikeCount
+                                $liked={likedSubcomments[s.id]}
+                                onClick={() => toggleSubcommentLike(s.id)}
+                              >
+                                {/* 🔢 카운트는 서버 값 그대로 사용 (중복 +1 방지) */}
+                                {s.likes ?? 0}
+                              </S.CommentLikeCount>
+                              <b>·</b>
+                              <S.CommentAction onClick={() => openReport("comment", s.id)}>
+                                신고
+                              </S.CommentAction>
                             </S.SubcommentMetaRow>
                           </S.SubcommentRight>
                         </S.SubcommentItem>
@@ -427,7 +849,7 @@ const PostReadContainer = () => {
           </S.CommentList>
         )}
 
-        {/* 하단 페이지네이션 (간단 숫자형) */}
+        {/* 하단 페이지네이션 */}
         {pageCount > 1 && (
           <S.Pagination>
             {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
@@ -449,7 +871,9 @@ const PostReadContainer = () => {
           <S.ReportBox>
             <S.ReportTitle>
               신고하기
-              <S.CloseBtn onClick={closeReport}><img src="/assets/icons/x.svg" alt="닫기" /></S.CloseBtn>
+              <S.CloseBtn onClick={closeReport}>
+                <img src="/assets/icons/x.svg" alt="닫기" />
+              </S.CloseBtn>
             </S.ReportTitle>
 
             <S.ReportDesc>
