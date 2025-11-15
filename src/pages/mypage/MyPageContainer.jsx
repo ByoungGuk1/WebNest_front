@@ -28,7 +28,7 @@ const MyPageContainer = () => {
         console.log(`getMyDatas ${err}`)
       })
   }, [])
-
+console.log(myData)
   return (
     <S.Page>
       <S.BannerWrap>

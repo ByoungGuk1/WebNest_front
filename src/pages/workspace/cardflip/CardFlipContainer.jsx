@@ -1,14 +1,15 @@
 // src/pages/cardflip/CardFlipContainer.jsx
 import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
+// 🔥 Outlet 제거
+// import { Outlet } from "react-router-dom";
 import S from "./style";
 
 const IMAGE_BASE_PATH = "/assets/images/level";
 
-// 카드 뒷면(공통) 이미지
+// 카드 앞면 이미지
 const FRONT_IMAGE = `${IMAGE_BASE_PATH}/1.svg`;
 
-// 8쌍(16장) 카드 — 2.svg ~ 9.svg 예시
+// 8쌍(16장) 카드
 const BACK_IMAGES = [
   "2.svg",
   "3.svg",
@@ -56,34 +57,29 @@ const CardFlipContainer = () => {
     const clicked = cards[index];
     if (clicked.isFlipped || clicked.isMatched) return;
 
-    // 카드 뒤집기
     setCards((prev) =>
       prev.map((card, i) =>
         i === index ? { ...card, isFlipped: true } : card
       )
     );
 
-    // 첫 번째 카드 선택
     if (firstIndex === null) {
       setFirstIndex(index);
       return;
     }
 
-    // 두 번째 카드 선택
     setSecondIndex(index);
     setDisableDeck(true);
 
     const firstCard = cards[firstIndex];
     const secondCard = cards[index];
 
-    // 이미지 비교
     if (firstCard.backImg === secondCard.backImg) {
-      // 같은 카드면 매칭 처리
       setTimeout(() => {
         setCards((prev) =>
           prev.map((card, i) => {
             if (i === firstIndex || i === index) {
-              return { ...card, isMatched: true }; // 뒤집힌 상태 유지
+              return { ...card, isMatched: true };
             }
             return card;
           })
@@ -91,7 +87,6 @@ const CardFlipContainer = () => {
         resetSelection();
       }, 300);
     } else {
-      // 다른 카드면 흔들린 다음 다시 뒤집기
       setTimeout(() => {
         setCards((prev) =>
           prev.map((card, i) => {
@@ -152,8 +147,6 @@ const CardFlipContainer = () => {
           })}
         </S.Cards>
       </S.CardInner>
-
-      <Outlet />
     </S.PageWrap>
   );
 };
