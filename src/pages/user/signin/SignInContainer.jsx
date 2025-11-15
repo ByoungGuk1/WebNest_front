@@ -26,20 +26,38 @@ const SignInContainer = () => {
 
   const handleSumbmitForm = handleSubmit(async (data) => {
     const { ...member } = data;
-    await fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/login`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      credentials: "include",
-      body: JSON.stringify(member),
-    })
-      .then((res) => res.json())
-      .then(({ message, data }) => {
-        let accessToken = data.accessToken;
+    
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/auth/login`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          credentials: "include",
+          body: JSON.stringify(member),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.message || "로그인에 실패했습니다.");
+        return;
+      }
+
+      const accessToken = result.data?.accessToken;
+      if (accessToken) {
         localStorage.setItem("accessToken", accessToken);
         navigate("/");
-      });
+      } else {
+        alert("토큰을 받아오지 못했습니다.");
+      }
+    } catch (error) {
+      console.error("로그인 오류:", error);
+      alert("로그인 중 오류가 발생했습니다.");
+    }
   });
 
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

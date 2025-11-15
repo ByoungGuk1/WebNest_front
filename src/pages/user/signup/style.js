@@ -38,4 +38,33 @@ S.EmailVerification = styled.div`
   }
 `;
 
+S.SendPhoneWrapper = styled.div`
+  width: 100%;
+`;
+
+S.PhoneVerification = styled.div`
+  ${flexCenterColumn};
+  justify-content: center;
+  align-items: start;
+  gap: 2px;
+  margin: 4px auto;
+  ${h7Medium}
+
+  button {
+    background: none;
+    border: none;
+    color: ${({ theme }) => theme.PALETTE.neutral.black.disable};
+    text-decoration: none;
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+      color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
+    }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+`;
+
 export default S;
