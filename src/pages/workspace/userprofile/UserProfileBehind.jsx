@@ -40,7 +40,6 @@ const UserProfileBehind = ({ userData, setUsers, onClick, users }) => {
       ...user,
       gameJoinTeamcolor: color,
     };
-    console.log(data);
     await fetch(
       `${process.env.REACT_APP_BACKEND_URL}/player/${roomId}/${userId}`,
       {
@@ -59,24 +58,40 @@ const UserProfileBehind = ({ userData, setUsers, onClick, users }) => {
     );
   };
 
-  const selectColorButton = (color) => (
-    <S.ColorButton
-      key={color}
-      name={color}
-      onClick={(e) => {
-        if (
-          currentUser?.userId === user.userId ||
-          currentUser?.id === user.userId
-        ) {
+  const selectColorButton = (color) => {
+    const profileText = user.gameJoinProfileText?.trim() || "";
+    const normalizedText = profileText.replace(/\s+/g, "");
+    const isReady =
+      user.gameJoinIsReady === true ||
+      user.gameJoinIsReady === 1 ||
+      normalizedText === "준비완료";
+
+    const isCurrentUser =
+      currentUser?.userId === user.userId || currentUser?.id === user.userId;
+
+    return (
+      <S.ColorButton
+        key={color}
+        name={color}
+        onClick={(e) => {
+          if (!isCurrentUser) return;
+
+          if (isReady) {
+            alert("준비완료 상태에서는 색상을 변경할 수 없습니다.");
+            return;
+          }
+
           changeColor(user.userId, color);
-        }
-      }}
-      style={{
-        backgroundImage: `url(${teamColorUrl[color]})`,
-        backgroundSize: "contain",
-      }}
-    />
-  );
+        }}
+        style={{
+          backgroundImage: `url(${teamColorUrl[color]})`,
+          backgroundSize: "contain",
+          opacity: isReady && isCurrentUser ? 0.5 : 1,
+          cursor: isReady && isCurrentUser ? "not-allowed" : "pointer",
+        }}
+      />
+    );
+  };
 
   const handleBackgroundClick = (e) => {
     if (e.target === e.currentTarget) {
