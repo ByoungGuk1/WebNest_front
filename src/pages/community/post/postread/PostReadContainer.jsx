@@ -229,11 +229,30 @@ const PostReadContainer = () => {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
-      if (!res.ok) throw new Error("post like failed");
+      
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => "");
+        throw new Error(errorText || "게시글 좋아요 실패");
+      }
+
+      // ✅ 응답 파싱 및 상태 업데이트
+      const data = await res.json();
+      const result = data?.data || data;
+      
+      if (result && typeof result === "object") {
+        // 백엔드에서 반환하는 실제 상태로 업데이트
+        if (typeof result.liked === "boolean") {
+          setIsPostLiked(result.liked);
+        }
+        if (typeof result.likeCount === "number") {
+          setPostLikeCount(result.likeCount);
+        }
+      }
     } catch (e) {
+      // 실패 시 롤백
       setIsPostLiked(!willLike);
       setPostLikeCount((prev) => prev - (willLike ? 1 : -1));
-      console.error(e);
+      console.error("게시글 좋아요 오류:", e);
       alert("좋아요 처리 중 오류가 발생했습니다.");
     } finally {
       setPostLikePending(false);
@@ -265,24 +284,45 @@ const PostReadContainer = () => {
           credentials: "include",
           body: JSON.stringify({ 
             userId: currentUser?.id,
-            postId: Number(pid),
             commentId: Number(cid)
           }),
         });
-        if (!res.ok) throw new Error("comment like insert failed");
+        
+        if (!res.ok) {
+          const errorText = await res.text().catch(() => "");
+          throw new Error(errorText || "댓글 좋아요 추가 실패");
+        }
         
         // 응답에서 like id 추출 후 저장
+        const json = await res.json();
+        const data = json?.data ?? json?.result ?? json;
+        if (data && typeof data === "object") {
+          const likeId = data.newCommentLikeId ?? data.id ?? data.likeId ?? null;
+          if (likeId != null) {
+            setCommentLikeIds((prev) => ({ ...prev, [cid]: likeId }));
+          }
+        }
+
+        // 좋아요 수 최신화
         try {
-          const json = await res.json();
-          const data = json?.data ?? json?.result ?? json;
-          if (data && typeof data === "object") {
-            const likeId = data.newCommentLikeId ?? data.id ?? data.likeId ?? null;
-            if (likeId != null) {
-              setCommentLikeIds((prev) => ({ ...prev, [cid]: likeId }));
-            }
+          const countRes = await fetch(`${API_BASE}/commentLike/${cid}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          });
+          if (countRes.ok) {
+            const countJson = await countRes.json();
+            const count = typeof countJson === "number" 
+              ? countJson 
+              : (countJson?.data ?? (countJson?.result ?? 0));
+            setComments((prev) =>
+              prev.map((c) =>
+                c.id === cid ? { ...c, likes: count } : c
+              )
+            );
           }
         } catch (e) {
-          console.error("parse comment like insert response error", e);
+          console.error("좋아요 수 조회 실패", e);
         }
       } else {
         // ✅ 좋아요 삭제
@@ -290,6 +330,7 @@ const PostReadContainer = () => {
         if (!likeId) {
           // 삭제할 row의 ID 모르면 롤백하고 안내
           setLikedComments((prev) => ({ ...prev, [cid]: currentlyLiked }));
+          setCommentLikePending((prev) => ({ ...prev, [cid]: false }));
           alert("댓글 좋아요 정보를 찾을 수 없습니다. 새로고침 후 다시 시도해주세요.");
           return;
         }
@@ -304,7 +345,11 @@ const PostReadContainer = () => {
             commentId: Number(cid)
           }),
         });
-        if (!res.ok) throw new Error("comment like delete failed");
+        
+        if (!res.ok) {
+          const errorText = await res.text().catch(() => "");
+          throw new Error(errorText || "댓글 좋아요 삭제 실패");
+        }
         
         // 삭제 성공 시, ID 맵에서 제거
         setCommentLikeIds((prev) => {
@@ -312,6 +357,28 @@ const PostReadContainer = () => {
           delete copy[cid];
           return copy;
         });
+
+        // 좋아요 수 최신화
+        try {
+          const countRes = await fetch(`${API_BASE}/commentLike/${cid}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          });
+          if (countRes.ok) {
+            const countJson = await countRes.json();
+            const count = typeof countJson === "number" 
+              ? countJson 
+              : (countJson?.data ?? (countJson?.result ?? 0));
+            setComments((prev) =>
+              prev.map((c) =>
+                c.id === cid ? { ...c, likes: count } : c
+              )
+            );
+          }
+        } catch (e) {
+          console.error("좋아요 수 조회 실패", e);
+        }
       }
     } catch (e) {
       // 실패하면 UI 롤백

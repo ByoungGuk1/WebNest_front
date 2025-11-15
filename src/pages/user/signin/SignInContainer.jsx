@@ -36,6 +36,10 @@ const SignInContainer = () => {
     })
       .then((res) => res.json())
       .then(({ message, data }) => {
+        if (!data?.accessToken) {
+          console.error("액세스 토큰을 받아오지 못했습니다.");
+          return;
+        }
         let accessToken = data.accessToken;
         localStorage.setItem("accessToken", accessToken);
         navigate("/");

@@ -24,6 +24,10 @@ const OauthSuccess = () => {
 
       if (!response.ok) return;
       const datas = await response.json();
+      if (!datas?.data?.accessToken) {
+        console.error("액세스 토큰을 받아오지 못했습니다.");
+        return;
+      }
       localStorage.setItem("accessToken", datas.data.accessToken);
       dispatch(setUserStatus(true));
       navigate("/");
