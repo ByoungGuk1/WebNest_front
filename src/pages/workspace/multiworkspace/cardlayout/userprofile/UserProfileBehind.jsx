@@ -5,7 +5,13 @@ import useGetUserData from "hooks/useGetUserData";
 import ResignPlayer from "./common/components/ResignPlayer";
 import { useParams } from "react-router-dom";
 
-const UserProfileBehind = ({ userData, setUsers, onClick, users }) => {
+const UserProfileBehind = ({
+  userData,
+  setUsers,
+  onClick,
+  users,
+  getPlayers,
+}) => {
   const user = userData;
   const { currentUser } = useGetUserData();
   const params = useParams();
@@ -36,26 +42,46 @@ const UserProfileBehind = ({ userData, setUsers, onClick, users }) => {
     ) : null;
 
   const changeColor = async (userId, color) => {
-    const data = {
-      ...user,
+    const updateData = {
+      userId: userId,
+      gameRoomId: roomId,
+      gameJoinIsHost: user.gameJoinIsHost || false,
       gameJoinTeamcolor: color,
+      gameJoinMyturn: user.gameJoinMyturn || false,
+      gameJoinProfileText: user.gameJoinProfileText || "준비중",
+      gameJoinIsReady: user.gameJoinIsReady || 0,
     };
-    await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/player/${roomId}/${userId}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "PUT",
-        body: JSON.stringify(data),
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/player/${roomId}/${userId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "PUT",
+          body: JSON.stringify(updateData),
+        }
+      );
+
+      if (!response.ok) {
+        return;
       }
-    ).then(
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.userId === userId ? { ...u, gameJoinTeamcolor: color } : u
-        )
-      )
-    );
+
+      await response.json();
+
+      if (setUsers) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.userId === userId ? { ...u, gameJoinTeamcolor: color } : u
+          )
+        );
+      }
+
+      if (getPlayers) {
+        await getPlayers();
+      }
+    } catch (error) {}
   };
 
   const selectColorButton = (color) => {

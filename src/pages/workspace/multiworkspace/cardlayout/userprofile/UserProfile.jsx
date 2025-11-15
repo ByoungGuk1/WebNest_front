@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import S from "./style";
 import UserGrade from "./common/components/UserGrade";
 import ResignPlayer from "./common/components/ResignPlayer";
 import { useParams } from "react-router-dom";
 import useGetUserData from "hooks/useGetUserData";
 
-const UserProfile = ({ userData, onClick, setUsers, users }) => {
+const UserProfile = ({ userData, onClick, setUsers, users, getPlayers }) => {
   const { currentUser } = useGetUserData();
   const params = useParams();
   const roomId = params.roomId;
@@ -28,66 +28,6 @@ const UserProfile = ({ userData, onClick, setUsers, users }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasInitialized, setHasInitialized] = useState(false);
 
-  const fetchUserInfo = useCallback(
-    async (targetUserId = null) => {
-      const userIdToFind = targetUserId || userData?.userId || user?.userId;
-      if (!userIdToFind) return;
-
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/player/${roomId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          return;
-        }
-
-        const result = await response.json();
-        const players = result?.data || [];
-
-        const currentPlayer = players.find(
-          (p) => p.userId === userIdToFind || p.id === userIdToFind
-        );
-
-        if (currentPlayer) {
-          setUser(currentPlayer);
-          setTeamColor(teamColorUrl[currentPlayer.gameJoinTeamcolor]);
-
-          if (setUsers) {
-            setUsers((prev) =>
-              prev.map((u) =>
-                u.userId === userIdToFind || u.userId === currentPlayer.userId
-                  ? currentPlayer
-                  : u
-              )
-            );
-          }
-        }
-      } catch (error) {}
-    },
-    [roomId, userData?.userId, setUsers]
-  );
-
-  useEffect(() => {
-    setUser(userData);
-    setTeamColor(teamColorUrl[userData.gameJoinTeamcolor]);
-
-    if (userData && userData.userId && !hasInitialized) {
-      setIsLoading(false);
-      setHasInitialized(true);
-
-      updateUserStatus("준비중", false);
-
-      fetchUserInfo();
-    }
-  }, [userData, hasInitialized, fetchUserInfo]);
-
   const updateUserStatus = async (profileText, isReady = null) => {
     const userId = user?.userId || user?.id;
     if (!userId) {
@@ -105,7 +45,11 @@ const UserProfile = ({ userData, onClick, setUsers, users }) => {
     }
 
     const updateData = {
-      ...user,
+      userId: userId,
+      gameRoomId: roomId,
+      gameJoinIsHost: user.gameJoinIsHost || false,
+      gameJoinTeamcolor: user.gameJoinTeamcolor,
+      gameJoinMyturn: user.gameJoinMyturn || false,
       gameJoinProfileText: profileText,
       gameJoinIsReady: readyValue,
     };
@@ -126,9 +70,48 @@ const UserProfile = ({ userData, onClick, setUsers, users }) => {
         return;
       }
 
-      await fetchUserInfo(userId);
+      await response.json();
+
+      if (setUsers) {
+        setUsers((prev) => {
+          return prev.map((u) =>
+            u.userId === userId
+              ? {
+                  ...u,
+                  gameJoinProfileText: profileText,
+                  gameJoinIsReady: readyValue,
+                }
+              : u
+          );
+        });
+      }
+
+      setUser((prev) => ({
+        ...prev,
+        gameJoinProfileText: profileText,
+        gameJoinIsReady: readyValue,
+      }));
+
+      if (getPlayers) {
+        await getPlayers();
+      }
     } catch (error) {}
   };
+
+  useEffect(() => {
+    if (userData && userData.userId) {
+      setUser(userData);
+      setTeamColor(
+        teamColorUrl[userData.gameJoinTeamcolor] || teamColorUrl["black"]
+      );
+
+      if (!hasInitialized) {
+        setIsLoading(false);
+        setHasInitialized(true);
+        updateUserStatus("준비중", false);
+      }
+    }
+  }, [userData, hasInitialized]);
 
   const handleTextClick = (e) => {
     e.stopPropagation();

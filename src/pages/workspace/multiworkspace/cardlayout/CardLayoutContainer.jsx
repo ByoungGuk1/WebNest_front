@@ -1,5 +1,5 @@
-import UserProfile from "pages/workspace/userprofile/UserProfile";
-import UserProfileBehind from "pages/workspace/userprofile/UserProfileBehind";
+import UserProfile from "./userprofile/UserProfile";
+import UserProfileBehind from "./userprofile/UserProfileBehind";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
@@ -8,25 +8,34 @@ const CardLayoutContainer = () => {
   const params = useParams();
 
   const getPlayers = async () => {
-    const fetchUrl = `${process.env.REACT_APP_BACKEND_URL}/player/${params.roomId}`;
-    const res = await fetch(fetchUrl, {
-      method: "GET",
-    });
+    try {
+      const fetchUrl = `${process.env.REACT_APP_BACKEND_URL}/player/${params.roomId}`;
+      const res = await fetch(fetchUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    const datas = await res.json();
+      if (!res.ok) {
+        return;
+      }
 
-    const players = datas?.data;
+      const datas = await res.json();
+      const players = datas?.data || [];
 
-    const userdatas = players.map(
-      (user) =>
-        (user = {
-          ...user,
-          profileFlip: false,
-          gameJoinProfileText: user.gameJoinProfileText || "준비 중",
-        })
-    );
+      if (!Array.isArray(players)) {
+        return;
+      }
 
-    setUsers(userdatas);
+      const userdatas = players.map((user) => ({
+        ...user,
+        profileFlip: false,
+        gameJoinProfileText: user.gameJoinProfileText || "로딩 중",
+      }));
+
+      setUsers(userdatas);
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -41,25 +50,27 @@ const CardLayoutContainer = () => {
 
   return (
     <>
-      {users.map((user, index) =>
-        !user.profileFlip ? (
+      {users.map((user, index) => {
+        return !user.profileFlip ? (
           <UserProfile
-            key={index}
+            key={user.userId || user.id || index}
             userData={user}
             setUsers={setUsers}
             users={users}
+            getPlayers={getPlayers}
             onClick={() => flipCard(user.userId, true)}
           />
         ) : (
           <UserProfileBehind
-            key={index}
+            key={user.userId || user.id || index}
             userData={user}
             setUsers={setUsers}
             users={users}
+            getPlayers={getPlayers}
             onClick={() => flipCard(user.userId, false)}
           />
-        )
-      )}
+        );
+      })}
     </>
   );
 };
