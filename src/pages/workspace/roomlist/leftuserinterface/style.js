@@ -5,33 +5,22 @@ import theme from "../../../../styles/theme";
 const S = {};
 
 S.LeftInterFaceWrap = styled.div`
-    width: 242px;
-    height: 633px;
+    width: 100%;
+    height: 168px;
     display: flex;
     flex-direction: column;
-    gap: 42px;
+    margin-top: 24px;
 `
-S.LeftFriendWrap = styled.div`
-    width: 100%;
-    height: 423px;
-    display: flex;
-    background-color: #FFFFFF;
-    box-shadow: 0px 0px 5px 0px #00000011;
-    border-radius: 8px;
-    justify-content: center;
-    border-color: ${theme.PALETTE.primary.red.lightGray};
-    span {
-        text-align: center;
-        padding: 30px;
-        ${h7Medium};
-        color: ${theme.PALETTE.primary.red.gray};
-    }
-`
+
 S.LeftUserCardWrap = styled.div`
+    width: 242px;
+    height: 100%;
     background-color: #FFFFFF;
     box-shadow: 0px 0px 5px 0px #00000011;
     border-radius: 8px;
     border-color: ${theme.PALETTE.primary.red.lightGray};
+    display: flex;
+    flex-direction: column;
 `
 S.LeftUserHeaderWrap = styled.div`
     background-color: #FFFFFF;
@@ -120,9 +109,9 @@ S.UserInfoTitle = styled.span`
     }
 `;
 S.UserInfoContent = styled.span`
-    font: ${({ level}) => level ? h9Bold : h9Medium};
+    font: ${({ $level}) => $level ? h9Bold : h9Medium};
     font-size: 9px;
-    color: ${({ level}) => level ? theme.PALETTE.primary.green.main : "#222"};
+    color: ${({ $level}) => $level ? theme.PALETTE.primary.green.main : "#222"};
     &.grade {
         font: 800;
     }
@@ -144,13 +133,27 @@ S.ExpBarWrap = styled.div`
 `;
 S.ExpBarFill = styled.div`
     height: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
     background: linear-gradient(to right, #AB4BFF, #2F58FD);
     transition: width 0.4s ease;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
     text-align: center;
 `;
 S.ExpText = styled.p`
     font-size: ${theme.FONT_SIZE.h8};
     color: ${theme.PALETTE.neutral.white.dark};
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    text-align: center;
 `;
 
 

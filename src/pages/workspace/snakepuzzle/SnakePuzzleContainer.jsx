@@ -137,8 +137,16 @@ const SnakePuzzleContainer = () => {
                 const hostPlayer = body.gameState.find(p => p.isHost === true || p.isHost === 1) || body.gameState[0];
                 setIsHost(String(hostPlayer.userId) === String(userId));
                 
-                // 내 턴 여부 확인
-                setIsMyTurn(currentPlayer.isTurn === true || currentPlayer.isTurn === 1);
+                // 내 턴 여부 확인 (gameJoinMyturn 필드 사용)
+                const myTurn = currentPlayer.gameJoinMyturn === true || currentPlayer.gameJoinMyturn === 1 || 
+                               currentPlayer.isTurn === true || currentPlayer.isTurn === 1;
+                console.log('🎲 현재 플레이어 턴 정보:', {
+                  userId: currentPlayer.userId,
+                  gameJoinMyturn: currentPlayer.gameJoinMyturn,
+                  isTurn: currentPlayer.isTurn,
+                  myTurn: myTurn
+                });
+                setIsMyTurn(myTurn);
                 
                 // 준비 상태 확인 (필드명은 백엔드에 따라 다를 수 있음)
                 if (currentPlayer.isReady !== undefined) {

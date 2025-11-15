@@ -2,10 +2,21 @@ import React, { useState } from 'react';
 import S from './style';
 import Modal from './modal/Modal';
 
-const HeaderToggle = () => {
+const HeaderToggle = ({ teamMode, onTeamModeChange }) => {
     // const [defficultOpen, defficultRef, defficultHandler] = useDropDown();
     const [difficult, setDifficult] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const handleTeamToggle = () => {
+        // null -> false (개인전) -> true (팀전) -> null (전체) 순환
+        if (teamMode === null) {
+            onTeamModeChange(false); // 개인전
+        } else if (teamMode === false) {
+            onTeamModeChange(true); // 팀전
+        } else {
+            onTeamModeChange(null); // 전체
+        }
+    };
 
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
@@ -48,7 +59,12 @@ const HeaderToggle = () => {
             )}</S.GameRoomToggle>
             <S.GameRoomToggle><S.IconCircle><img src="/assets/icons/flash.png" alt='빠른입장'/></S.IconCircle><S.GameRoomToggleInnerText>빠른 입장</S.GameRoomToggleInnerText></S.GameRoomToggle>
             <S.GameRoomToggle onClick={nextLevel}><S.IconCircle><img src="/assets/icons/star.png" alt='난이도' /></S.IconCircle><S.GameRoomToggleInnerText>{currentDifficult.value}</S.GameRoomToggleInnerText></S.GameRoomToggle>
-            <S.GameRoomToggle><S.IconCircle><img src="/assets/icons/people.png" alt='개인전' /></S.IconCircle><S.GameRoomToggleInnerText>개인전</S.GameRoomToggleInnerText></S.GameRoomToggle>
+            <S.GameRoomToggle $isSelected={teamMode !== null} onClick={handleTeamToggle}>
+                <S.IconCircle><img src="/assets/icons/people.png" alt='개인전' /></S.IconCircle>
+                <S.GameRoomToggleInnerText $isSelected={teamMode !== null}>
+                    {teamMode === null ? '전체' : (teamMode === false ? '개인전' : '팀전')}
+                </S.GameRoomToggleInnerText>
+            </S.GameRoomToggle>
             <S.GameRoomToggle><S.IconCircle><img src="/assets/icons/computer.png" alt='게임방방'/></S.IconCircle><S.GameRoomToggleInnerText>게임방</S.GameRoomToggleInnerText></S.GameRoomToggle>
         </S.GameRoomToggleWrap>
     );

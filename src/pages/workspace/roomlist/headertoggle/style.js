@@ -14,10 +14,13 @@ S.GameRoomToggleWrap = styled.div`
 `
 S.GameRoomToggleInnerText = styled.span`
         font: ${h6Bold};
-        background: linear-gradient(to right, #AB4BFF, #7255EE, #2F58FD);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        background: ${({ $isSelected }) => $isSelected 
+            ? 'transparent' 
+            : 'linear-gradient(to right, #AB4BFF, #7255EE, #2F58FD)'};
+        background-clip: ${({ $isSelected }) => $isSelected ? 'unset' : 'text'};
+        -webkit-background-clip: ${({ $isSelected }) => $isSelected ? 'unset' : 'text'};
+        -webkit-text-fill-color: ${({ $isSelected }) => $isSelected ? '#FFFFFF' : 'transparent'};
+        color: ${({ $isSelected }) => $isSelected ? '#FFFFFF' : 'transparent'};
         display: flex;
         align-items: center;
         gap: 12px;
@@ -29,7 +32,9 @@ S.GameRoomToggle = styled.div`
     height: 50px;
     border-radius: 25px;
     padding-left: 8px;
-    background: #F5F7FD;
+    background: ${({ $isSelected }) => $isSelected 
+        ? 'linear-gradient(to right, #6D2FFD 0%, #7255EE 38%, #AB4BFF 100%)' 
+        : '#F5F7FD'};
     display: flex;
     align-items: center;
     gap: 8px;
@@ -43,7 +48,9 @@ S.GameRoomToggle = styled.div`
         inset: 0;
         border-radius: 25px;
         padding: 3px;
-        background: linear-gradient(to right, #AB4BFF, #7255EE, #2F58FD);
+        background: ${({ $isSelected }) => $isSelected 
+            ? 'transparent' 
+            : 'linear-gradient(to right, #AB4BFF, #7255EE, #2F58FD)'};
         -webkit-mask:
             linear-gradient(#fff 0 0) content-box, 
             linear-gradient(#fff 0 0);
@@ -51,16 +58,19 @@ S.GameRoomToggle = styled.div`
                 mask-composite: exclude;
         z-index: 0;
         pointer-events: none;
+        display: ${({ $isSelected }) => $isSelected ? 'none' : 'block'};
     }
     & > * {
         z-index: 1;
     }
     &:hover {
-        background: linear-gradient(to left, #2F58FD, #7255EE, #AB4BFF);
+        background: ${({ $isSelected }) => $isSelected 
+            ? 'linear-gradient(to right, #6D2FFD 0%, #7255EE 38%, #AB4BFF 100%)' 
+            : 'linear-gradient(to left, #2F58FD, #7255EE, #AB4BFF)'};
     }
     &:hover ${S.GameRoomToggleInnerText} {
-        -webkit-text-fill-color: #FFFFFF;
-        color:#FFFFFF;
+        -webkit-text-fill-color: ${({ $isSelected }) => $isSelected ? '#FFFFFF' : '#FFFFFF'};
+        color: #FFFFFF;
     }
 
 `;

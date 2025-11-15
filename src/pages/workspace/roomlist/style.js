@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import { h6Bold, h6Medium, h7Light, h7Medium, h8Light, h8Medium, h9Bold, h9Light, h9Medium } from "../../../styles/common";
+import { Link } from "react-router-dom";
+import { h5Bold, h6Bold, h6Medium, h7Light, h7Medium, h8Bold, h8Light, h8Medium, h9Bold, h9Light, h9Medium, h10Bold, h10Medium } from "../../../styles/common";
 import theme from "../../../styles/theme";
 
 const S = {};
@@ -13,6 +14,7 @@ S.GameRoomBackGround = styled.div`
     background-repeat: no-repeat;
     display: flex;
     justify-content: center;
+    background-color: #F5F7FD;
 `
 
 S.LayoutWrapper = styled.div`
@@ -23,13 +25,427 @@ S.LayoutWrapper = styled.div`
 
 S.ListWrapper = styled.div`
     display: flex;
+    flex-direction: row;
     gap: 40px;
 `
 
-S.RoomListWrapper = styled.div`
-    width: 100%;
+S.LeftSection = styled.div`
+    width: 242px;
+    height: 680px;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: space-between; */
+    /* border: 2px solid black; */
 `
 
+S.RoomListWrapper = styled.div`
+    width: 890px;
+    height: 630px;
+`
+S.RoomListWrap = styled.div`
+    width: 890px;
+    height: 630px;
+    background-color: #fff;
+    border: 1px solid #C1A8F9;
+    border-radius:10px;
+    padding: 20px 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
 
+    &::-webkit-scrollbar {
+        width: 30%;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background-color: ${theme.PALETTE.primary.purple.light};
+        border-radius: 10px;
+        
+        &:hover {
+            background-color: ${theme.PALETTE.primary.purple.main};
+        }
+    }
+`
 
+S.RoomListContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: baseline;
+    align-items: center;
+    gap: 10px;
+`
+
+S.RoomListLink = styled(Link)`
+    text-decoration: none;
+    color: inherit;
+`
+S.RoomList = styled.div`
+    position: relative;
+    padding: 0 30px;
+    width: 850px;
+    height: 90px;
+    box-sizing: border-box;
+    background-color: ${({ $isDisabled }) => $isDisabled ? '#999' : '#F7F8F9'};
+    border-radius:10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-content: center;
+    transition: background-color 0.2s ease;
+    cursor: ${({ $isDisabled }) => $isDisabled ? 'not-allowed' : 'pointer'};
+    
+    &:hover {
+        background-color: ${({ $isDisabled }) => 
+            $isDisabled ? '#999' : 'rgba(149, 133, 242, 0.1)'
+        };
+    }
+    
+    .flag {
+        width : 40px;
+        height: 42px;
+    }
+    .locker {
+        width: 25px;
+        height: 25px;
+        position: absolute;
+        top: 50%;           /* 요소의 상단 경계를 부모 요소의 중앙에 위치시킴 */
+        left: 50%;          /* 요소의 좌측 경계를 부모 요소의 중앙에 위치시킴 */
+        transform: translate(-50%, -50%); /* 요소 자체의 너비와 높이의 50%를 이동시켜 정중앙에 위치시킴 */
+    }
+`
+S.RowWrap = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+`
+S.ProfileWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+`
+
+S.ProfileWrap = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+`
+
+S.AverageLevelText = styled.p`
+    ${h8Bold}
+    color: ${({ $levelColor }) => $levelColor || theme.PALETTE.primary.red.main};
+    margin: 0;
+    padding: 0;
+    text-align: center;
+`
+
+S.RoomLeft = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+`
+
+S.RoomTitleWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    ${h5Bold}
+`
+
+S.RoomLanguage = styled.span`
+    ${h6Medium}
+`
+S.RoomRight = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+`
+S.ProfileImgWrap = styled.div`
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`
+
+S.ProfileImg = styled.img`
+    width: 24px;
+    height: 24px;
+    border-radius: 100%;
+    background-color: green;
+    object-fit: cover;
+`
+
+S.CrownIcon = styled.img`
+    position: absolute;
+    z-index: 1;
+    top: -14px;
+    left: 20%;
+    transform: translateX(-50%) rotate(-15deg);
+    width: 27px;
+    height: auto;
+`
+S.ColWrap = styled.div`
+    display: flex;
+    flex-direction: column;
+`
+S.TeamWrap = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    min-width: 50px;
+    
+    p {
+        ${h8Bold}
+        text-align: center;
+        margin: 0;
+        min-width: 40px;
+    }
+`
+S.FollowWrap = styled.div`
+    padding-top: 12px;
+    width: 100%;
+    height: 423px;
+    display: flex;
+    flex-direction: column;
+    justify-content: baseline;
+    align-items: center;
+    background-color: #fff;
+    border-radius: 12px;
+    overflow: scroll;
+`
+S.Followlist = styled.div`
+    width: 200px;
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    
+    p {
+        ${h9Medium};
+    }
+`
+
+S.FollowLeftWrap = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+`
+
+S.FollowImg = styled.img`
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #e5e7eb;
+`
+S.LevelImg = styled.img`
+    width: 6px;
+    height: 7px;
+`
+S.LevelWrap = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+    width: 30px;
+    height: 15px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0px 0px 1.75px rgba(0, 0, 0, 0.1);
+    align-items: center;
+    justify-content: center;
+`
+
+S.LevelText = styled.p`
+    font-size: 8px;
+    line-height: 12px;
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    letter-spacing: -0.5px;
+    margin: 0;
+    color: ${({ $levelColor }) => $levelColor || theme.PALETTE.primary.red.main};
+`
+
+S.StatusWrapper = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+`
+
+S.StatusDot = styled.div`
+    width: 5px;
+    height: 5px;
+    border-radius: 100%;
+    background-color: ${({ $color }) => $color || theme.PALETTE.neutral.gray.main};
+`
+
+S.StatusText = styled.p`
+    font-size: 8px;
+    line-height: 12px;
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.medium};
+    letter-spacing: -0.5px;
+    color: #808080;
+    margin: 0;
+`
+
+S.FollowLeftWrap = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+`
+S.FollowNameWrap = styled.div`
+    display: flex;
+    flex-direction: column;
+`
+S.RoomHeaderWrap = styled.div`
+    display: flex;
+    flex-direction: row;
+`
+
+S.SearchWrap = styled.div`
+    width: 1160px;
+    height: 33px;
+    display: flex;
+    justify-content: space-between;
+`;
+S.IconBox = styled.div`
+    width: 25px;
+    height: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+        background-color: #FFFFFF;
+    box-shadow: 0px 0px 5px 0px #00000011;
+    border-radius: 8px;
+    img {
+        width: 10px;
+        height: 10px;
+    }
+`;
+S.RightWrap = styled.div`
+    padding-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+`
+S.RightArrayWrap = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    ${h7Light};
+    cursor: pointer;
+`
+S.RightRefreshWrap = styled.div`
+    height: 25px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    ${h7Light};
+    cursor: pointer;
+`
+S.RightInputWrap = styled.div`
+    width: 160px;
+    height: -webkit-fill-available;
+    position: relative;
+    img {
+        position: absolute;
+        right: 5%;
+        top: 40%;
+        cursor: pointer;
+    }
+    `
+    S.RightInput = styled.input`
+        width: 160px;
+        height: -webkit-fill-available;
+        border: #FFFFFF;
+        box-shadow: 0px 0px 5px 0px #00000011;
+        border-radius: 8px;
+        font-size: 10px;
+        &::placeholder {
+            ${h9Medium}
+            padding: 0 0 0 8px;
+        }
+        &:focus {
+            outline: 2px solid ${theme.PALETTE.primary.purple.main};
+        }
+    `
+S.LeftWrap = styled.div`
+    margin-bottom: 10px;
+    width: 240px;
+    height: 33px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+        img {
+        position: absolute;
+        bottom: 35%;
+        right: 4%;
+        cursor: pointer;
+    };
+`;
+S.LeftInput = styled.input`
+    width: 240px;
+    height: -webkit-fill-available;
+    border: none;
+    background-color: #FFFFFF;
+    box-shadow: 0px 0px 5px 0px #00000011;
+    border-radius: 8px;
+    ${h9Medium};
+    &::placeholder{
+        padding: 0 0 0 8px;
+    }
+    &:focus {
+        outline: 2px solid ${theme.PALETTE.primary.purple.main};
+    }
+    
+`
+S.SelectBox = styled.div`
+    width: 107px;
+    height: 37px;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    background-color: rgba(255,255,255,0.5);
+    color: #999;
+    border-top: ${({ $isSelected }) => $isSelected ? `2px solid ${theme.PALETTE.primary.purple.main}` : '2px solid transparent'};
+    border-left: ${({ $isSelected }) => $isSelected ? `2px solid ${theme.PALETTE.primary.purple.main}` : '2px solid transparent'};
+    border-right: ${({ $isSelected }) => $isSelected ? `2px solid ${theme.PALETTE.primary.purple.main}` : '2px solid transparent'};
+    border-bottom: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        background-color: rgba(193, 168, 249, 0.3);
+    }
+`
+S.SelectBoxWrap = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+`
+S.FilterWrap = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 14px;
+    margin-right: 10px;
+    gap: 12px;
+`
 export default S;
