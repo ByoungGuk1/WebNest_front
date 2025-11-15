@@ -7,10 +7,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = (
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:10000"
-).replace(/\/+$/, "");
-
 const FindPasswordContainer = () => {
   const navigate = useNavigate();
   const [isPhoneValid, setIsPhoneValid] = useState(false);
@@ -56,7 +52,7 @@ const FindPasswordContainer = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${API_BASE}/auth/codes/sms?phoneNumber=${phoneNumber}`,
+        `${process.env.REACT_APP_BACKEND_URL}/auth/codes/sms?phoneNumber=${phoneNumber}`,
         {
           method: "POST",
           headers: {
@@ -104,7 +100,7 @@ const FindPasswordContainer = () => {
       setIsLoading(true);
       try {
         const response = await fetch(
-          `${API_BASE}/auth/codes/verify?userAuthentificationCode=${userAuthentificationCode}`,
+          `${process.env.REACT_APP_BACKEND_URL}/auth/codes/verify?userAuthentificationCode=${userAuthentificationCode}`,
           {
             method: "POST",
             headers: {
@@ -166,7 +162,7 @@ const FindPasswordContainer = () => {
           userName: getValues("userName"),
         };
 
-        const tokenResponse = await fetch(`${API_BASE}/auth/tmp-token`, {
+        const tokenResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/tmp-token`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -235,7 +231,7 @@ const FindPasswordContainer = () => {
       const userEmail = getValues("userEmail");
       const userPhone = getValues("userPhone");
 
-      const response = await fetch(`${API_BASE}/private/users/modify`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/private/users/modify`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
