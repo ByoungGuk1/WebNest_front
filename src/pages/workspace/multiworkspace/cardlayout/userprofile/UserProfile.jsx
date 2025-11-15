@@ -108,7 +108,12 @@ const UserProfile = ({ userData, onClick, setUsers, users, getPlayers }) => {
       if (!hasInitialized) {
         setIsLoading(false);
         setHasInitialized(true);
-        updateUserStatus("준비중", false);
+        const currentProfileText = userData.gameJoinProfileText?.trim() || "";
+        const normalizedProfileText = currentProfileText.replace(/\s+/g, "");
+
+        if (normalizedProfileText === "로딩중" || !currentProfileText) {
+          updateUserStatus("준비중", false);
+        }
       }
     }
   }, [userData, hasInitialized]);

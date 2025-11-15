@@ -53,7 +53,7 @@ const CardLayoutContainer = () => {
       {users.map((user, index) => {
         return !user.profileFlip ? (
           <UserProfile
-            key={user.userId || user.id || index}
+            key={index}
             userData={user}
             setUsers={setUsers}
             users={users}
@@ -62,7 +62,7 @@ const CardLayoutContainer = () => {
           />
         ) : (
           <UserProfileBehind
-            key={user.userId || user.id || index}
+            key={index}
             userData={user}
             setUsers={setUsers}
             users={users}
