@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
 import S from './style';
 import CodeEditor from '../codeeditor/CodeEditor';
+import { clickTitle } from 'pages/quiz/function/getQuiz';
 
-const QuizRead = ({ 
-    quiz = {}, 
+const QuizRead = ({
+    isSolved,
+    quiz = {},
     prevQuiz = {},
     nextQuiz = {},
-        }) => {
-
+}) => {
+    isSolved = {isSolved};
     const {
         id: quizId,
         quizTitle,
@@ -30,6 +32,7 @@ const QuizRead = ({
     } = nextQuiz;
 
     console.log("quizRead:", quizId)
+
     return (
         <S.QuizReadWrap>
             {/* 좌측 헤더 */}
@@ -60,7 +63,7 @@ const QuizRead = ({
                     <S.QuizExpectationWrap flex={0.3}>
                         언어 종류:{quizLanguage}
                     </S.QuizExpectationWrap>
-                    
+
                 </S.QuizLeftMiddleWrap>
                 {/* 좌측 푸터터 */}
                 <S.QuizLeftFooterWrap>
@@ -95,8 +98,8 @@ const QuizRead = ({
                     solution
                 </S.QuizRightTextWrap>
                 <S.QuizRightConsoleArea>
-                    <CodeEditor 
-                        quizLanguage={quizLanguage} 
+                    <CodeEditor
+                        quizLanguage={quizLanguage}
                         quizId={quizId}
                         quizExp={quizExp}
                         quizExpectation={quizExpectation}
