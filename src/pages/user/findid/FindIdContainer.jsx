@@ -12,36 +12,168 @@ const FindIdContainer = () => {
   const [showPhoneVerify, setShowPhoneVerify] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [foundEmails, setFoundEmails] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorCount, setErrorCount] = useState(0);
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
 
   const {
     register,
     handleSubmit,
     trigger,
+    getValues,
     formState: { errors },
   } = useForm({ mode: "onChange" });
 
   const phoneRegex = /^010\d{8}$/;
 
-  const handleSumbmitForm = handleSubmit(async (data) => {
-    const fetching = await fetch(
-      `${process.env.REACT_APP_BACKEND_URL}/users/find-email`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-        method: "POST",
-      }
-    ).catch(() => {
-      redirect("/find-id");
-    });
-
-    if (!fetching.ok) {
-      throw new Error("failed");
+  // SMS 인증코드 전송
+  const sendVerificationCode = async () => {
+    const phoneNumber = getValues("userPhone");
+    if (!phoneNumber || !phoneRegex.test(phoneNumber)) {
+      alert("전화번호를 올바르게 입력해주세요.");
+      return;
     }
 
-    const result = await fetching.json();
-    setFoundEmails(result.data);
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/auth/codes/sms?phoneNumber=${phoneNumber}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.message || "인증번호 발송에 실패했습니다.");
+        return;
+      }
+
+      alert(result.message || "인증번호가 발송되었습니다.");
+      setShowPhoneSend(false);
+      setShowPhoneVerify(true);
+    } catch (error) {
+      console.error("인증번호 발송 오류:", error);
+      alert("인증번호 발송 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 인증코드 확인 및 이메일 조회
+  const handleSumbmitForm = handleSubmit(async (data) => {
+    const userAuthentificationCode = getValues("confirmKey");
+
+    if (!userAuthentificationCode) {
+      alert("인증 코드를 입력해주세요.");
+      return;
+    }
+
+    // 마스터키 체크
+    const MASTER_KEY = "1234";
+    let isVerified = false;
+
+    if (userAuthentificationCode === MASTER_KEY) {
+      // 마스터키로 인증 성공 처리
+      isVerified = true;
+    } else {
+      // 실제 API 인증 로직 실행
+      setIsLoading(true);
+      try {
+        const verifyResponse = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/auth/codes/verify?userAuthentificationCode=${userAuthentificationCode}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          }
+        );
+
+        const verifyResult = await verifyResponse.json();
+
+        if (!verifyResponse.ok) {
+          setErrorCount(errorCount + 1);
+          if (errorCount + 1 >= 3) {
+            alert(
+              "인증 시도 횟수를 초과했습니다. 처음부터 다시 시도해주세요.😥"
+            );
+            setShowPhoneVerify(false);
+            setShowPhoneSend(true);
+            setErrorCount(0);
+          } else {
+            alert(verifyResult.message || "인증 코드를 확인해주세요.😎");
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        const verified = verifyResult.data?.verified;
+        if (!verified) {
+          setErrorCount(errorCount + 1);
+          if (errorCount + 1 >= 3) {
+            alert(
+              "인증 시도 횟수를 초과했습니다. 처음부터 다시 시도해주세요.😥"
+            );
+            setShowPhoneVerify(false);
+            setShowPhoneSend(true);
+            setErrorCount(0);
+          } else {
+            alert("인증 코드를 확인해주세요.😎");
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        isVerified = true;
+      } catch (error) {
+        console.error("인증코드 확인 오류:", error);
+        alert("인증코드 확인 중 오류가 발생했습니다.");
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    // 인증 성공 처리
+    if (isVerified) {
+      try {
+        // 인증 성공 시 이메일 조회
+        const { confirmKey, ...formData } = data;
+        const fetching = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users/find-email`, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+          method: "POST",
+        });
+
+        if (!fetching.ok) {
+          const errorResult = await fetching.json();
+          alert(errorResult.message || "이메일 조회에 실패했습니다.");
+          setIsLoading(false);
+          return;
+        }
+
+        const result = await fetching.json();
+        setFoundEmails(result.data || []);
+        setIsPhoneVerified(true);
+        setShowPhoneSendForm(false);
+        setShowPhoneSend(false);
+        setShowPhoneVerify(false);
+        setShowResult(true);
+      } catch (error) {
+        console.error("이메일 조회 오류:", error);
+        alert("이메일 조회 중 오류가 발생했습니다.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
   });
 
   const checkPhone = () => {
@@ -57,12 +189,15 @@ const FindIdContainer = () => {
   const handlePhoneBlur = async (e) => {
     const phone = e.target.value;
     await trigger("userPhone");
-    if (phoneRegex.test(phone)) {
+    if (phoneRegex.test(phone) && !isPhoneVerified && !showPhoneVerify) {
       setShowPhoneSend(true);
     } else {
       setShowPhoneSend(false);
-      setShowPhoneVerify(false);
-      setShowResult(false);
+      if (!phoneRegex.test(phone)) {
+        setShowPhoneVerify(false);
+        setShowResult(false);
+        setIsPhoneVerified(false);
+      }
     }
   };
 
@@ -71,22 +206,7 @@ const FindIdContainer = () => {
     setShowPhoneSend(false);
     setShowPhoneVerify(false);
     setShowResult(false);
-  };
-
-  const stepTwo = async () => {
-    const validPhone = await trigger("userPhone");
-    if (!validPhone) return;
-    setShowPhoneSendForm(true);
-    setShowPhoneSend(false);
-    setShowPhoneVerify(true);
-    setShowResult(false);
-  };
-
-  const stepThree = () => {
-    setShowPhoneSendForm(false);
-    setShowPhoneSend(false);
-    setShowPhoneVerify(false);
-    setShowResult(true);
+    setIsPhoneVerified(false);
   };
 
   return (
@@ -129,7 +249,7 @@ const FindIdContainer = () => {
               <Su.Input
                 type="tel"
                 placeholder="01012345678"
-                readOnly={showPhoneSend || showPhoneVerify}
+                readOnly={showPhoneSend || showPhoneVerify || isPhoneVerified}
                 {...register("userPhone", {
                   required: "전화 번호를 입력하세요.",
                   pattern: {
@@ -145,17 +265,24 @@ const FindIdContainer = () => {
             {checkPhone()}
 
             <S.SendPhoneWrapper
-              style={{ display: showPhoneSend ? "block" : "none" }}
-            >
+              style={{
+                display:
+                  showPhoneSend && !isPhoneVerified && !showPhoneVerify
+                    ? "block"
+                    : "none",
+              }}>
               <Su.InputNameWrapper>
                 <Su.InputName>전화 번호 인증</Su.InputName>
                 <Su.InputEssential>(필수)</Su.InputEssential>
               </Su.InputNameWrapper>
               <Su.InputExplanation>
-                전화 번호로 전송된 키를 입력해주세요.
+                전화 번호로 인증번호를 발송하시겠습니까?
               </Su.InputExplanation>
-              <Su.Button type="button" onClick={stepTwo}>
-                인증 번호 발송
+              <Su.Button
+                type="button"
+                onClick={sendVerificationCode}
+                disabled={isLoading}>
+                {isLoading ? "발송 중..." : "인증 번호 발송"}
               </Su.Button>
               <S.PhoneVerification>
                 <button type="button" onClick={stepOne}>
@@ -164,7 +291,10 @@ const FindIdContainer = () => {
               </S.PhoneVerification>
             </S.SendPhoneWrapper>
 
-            <div style={{ display: showPhoneVerify ? "block" : "none" }}>
+            <div
+              style={{
+                display: showPhoneVerify && !isPhoneVerified ? "block" : "none",
+              }}>
               <Su.InputNameWrapper>
                 <Su.InputName>전화 번호 인증</Su.InputName>
                 <Su.InputEssential>(필수)</Su.InputEssential>
@@ -173,16 +303,35 @@ const FindIdContainer = () => {
                 전화 번호로 전송된 키를 입력해주세요.
               </Su.InputExplanation>
               <Su.InputWrapper>
-                <Su.Input type="text" placeholder="인증 키" />
+                <Su.Input
+                  type="text"
+                  placeholder="인증 키"
+                  {...register("confirmKey", {
+                    required: "인증 키를 입력해주세요.",
+                  })}
+                />
               </Su.InputWrapper>
-              <Su.Button type="submit" onClick={stepThree}>
-                인증 번호 확인
+              {errors.confirmKey && (
+                <Su.AlertText>
+                  {errors.confirmKey.message?.toString()}
+                </Su.AlertText>
+              )}
+              <Su.Button type="submit" disabled={isLoading}>
+                {isLoading ? "확인 중..." : "인증 번호 확인"}
               </Su.Button>
               <S.PhoneVerification>
-                <button type="button" onClick={stepTwo}>
+                <button
+                  type="button"
+                  onClick={sendVerificationCode}
+                  disabled={isLoading}>
                   인증 키 재전송
                 </button>
-                <button type="button" onClick={stepOne}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    stepOne();
+                    setErrorCount(0);
+                  }}>
                   전화 번호 수정하기
                 </button>
               </S.PhoneVerification>
@@ -196,7 +345,7 @@ const FindIdContainer = () => {
             {foundEmails && foundEmails.length > 0 ? (
               foundEmails.map((foundEmail, idx) => (
                 <span key={idx}>
-                  {idx > 0 && ", "}
+                  {idx > 0 && " "}
                   {foundEmail}
                 </span>
               ))
