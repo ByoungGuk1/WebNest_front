@@ -3,6 +3,12 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import S from "./style";
 import { useSelector } from "react-redux";
 
+/** 🔧 백엔드 연동용 상수 */
+const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
+const GET_POST_NO_VIEW = (id, userId) => `${API_BASE}/post/get-post-no-view/${id}?userId=${userId}`;
+const WRITE_COMMENT = `${API_BASE}/comment/write`;
+const MODIFY_COMMENT = `${API_BASE}/comment/modify`;
+
 const QuestionWriteContainer = () => {
   const { questionId } = useParams(); 
   const navigate = useNavigate();
@@ -34,17 +40,29 @@ const QuestionWriteContainer = () => {
   //   loadData();
   // }, [questionId, commentData]);
   useEffect(() => {
-  const loadData = async () => {
-    const res = await fetch(
-      `http://localhost:10000/post/get-post-no-view/${questionId}?userId=${id}`
-    );
-    const data = await res.json();
-    setCurrentPost(data.data || data);
-    setPostLikeCount(data.data?.postViewCount || 0);
-  };
+    if (!questionId || !id) return;
 
-  loadData();
-}, [questionId, id]);
+    const loadData = async () => {
+      try {
+        const res = await fetch(GET_POST_NO_VIEW(questionId, id), {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("게시글 조회 실패");
+
+        const data = await res.json();
+        const post = data.data || data;
+        setCurrentPost(post);
+        setPostLikeCount(post.postViewCount || 0);
+      } catch (error) {
+        console.error("게시글 조회 오류:", error);
+        alert("게시글을 불러오는 중 오류가 발생했습니다.");
+      }
+    };
+
+    loadData();
+  }, [questionId, id]);
 
 
 
@@ -66,35 +84,45 @@ const QuestionWriteContainer = () => {
       if (commentData) {
         const updatedComment = {
           id: commentData.id,
+          commentId: commentData.id,
           postId: commentData.postId,
           userId: commentData.userId,
           commentDescription: comment,
         };
 
-        const response = await fetch("http://localhost:10000/comment/modify", {
+        const response = await fetch(MODIFY_COMMENT, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(updatedComment),
         });
 
-        if (!response.ok) throw new Error("수정 실패");
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => "");
+          throw new Error(errorText || "수정 실패");
+        }
         alert("답변이 수정되었습니다!");
       } else {
         //  새 답변 등록일 경우 POST 요청
         const newComment = {
-          postId: questionId,
+          postId: Number(questionId),
           userId: currentUser.id,
           commentDescription: comment,
-          commentCreateAt: new Date().toISOString(),
+          commentIsAccept: false,
+          commentCreateAt: new Date(),
         };
 
-        const response = await fetch("http://localhost:10000/comment/write", {
+        const response = await fetch(WRITE_COMMENT, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(newComment),
         });
 
-        if (!response.ok) throw new Error("등록 실패");
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => "");
+          throw new Error(errorText || "등록 실패");
+        }
         alert("답변이 등록되었습니다!");
       }
 
