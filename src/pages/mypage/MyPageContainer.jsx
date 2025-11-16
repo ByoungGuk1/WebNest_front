@@ -1,32 +1,52 @@
 import { NavLink, Outlet } from "react-router-dom";
 import S from "./style"; 
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 const MyPageContainer = () => {
-  
+  const currentUser = useSelector((state) => state.user.currentUser);
   const [myData, setMyData] = useState(null)
 
   // 마이페이지 데이터를 한 번에 불러온다.
-  useEffect(() => {
+  const getMyDatas = async () => {
     const accessToken = localStorage.getItem("accessToken");
+    
+    if (!accessToken) {
+      console.error("accessToken이 없습니다. 로그인이 필요합니다.");
+      setMyData({});
+      return;
+    }
 
-    const getMyDatas = async () => {
+    try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/private/users/my-page`, {
         headers: {
           "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
         },
         method: "GET",
       })
 
-      if(!response.ok) throw new Error(`${response.status} getMyDatas error`)
-      const datas = await response.json()
-      setMyData(datas.data)
+      if(!response.ok) {
+        const errorText = await response.text();
+        console.error(`getMyDatas error: ${response.status}`, errorText);
+        
+        if (response.status === 401) {
+          console.error("인증 실패 - 토큰이 유효하지 않거나 만료되었습니다.");
+        }
+        
+        throw new Error(`${response.status} getMyDatas error: ${errorText}`);
+      }
+      
+      const datas = await response.json();
+      setMyData(datas.data || {});
+    } catch (err) {
+      console.error(`getMyDatas ${err}`);
+      setMyData({}); // 빈 객체로 설정하여 에러 발생 시에도 기본값 제공
     }
+  }
 
-    getMyDatas()
-      .catch((err) => {
-        console.log(`getMyDatas ${err}`)
-      })
+  useEffect(() => {
+    getMyDatas();
   }, [])
 
   return (
@@ -39,14 +59,17 @@ const MyPageContainer = () => {
 
       <S.Wrapper>
         <S.ProfileArea>
-          <S.ProfileImg src="/assets/images/chicken.png" alt="프로필" />
+          <S.ProfileImg 
+            src={currentUser?.userThumbnailUrl || "/assets/images/defalutpro.svg"} 
+            alt="프로필" 
+          />
           <div>
-            <S.Nickname>희동고동희</S.Nickname>
+            <S.Nickname>{currentUser?.userNickname || "사용자"}</S.Nickname>
           </div>
           <S.Follow>
-            <span><b>팔로워</b> 20</span>
+            <span><b>팔로워</b> {myData?.followers?.length || 0}</span>
             <span><b>·</b></span>
-            <span><b>팔로잉</b> 10</span>
+            <span><b>팔로잉</b> {myData?.following?.length || 0}</span>
           </S.Follow>
         </S.ProfileArea>
         <S.Tabs>
@@ -57,9 +80,10 @@ const MyPageContainer = () => {
           <NavLink className={"tab"} to={"/my-page/grade"}>등급</NavLink>
           <NavLink className={"tab"} to={"/my-page/modify"}>정보수정</NavLink>
         </S.Tabs>
-        <Outlet context={
-          {...myData}
-        } />
+        <Outlet context={{
+          ...myData,
+          refreshData: getMyDatas
+        }} />
       </S.Wrapper>
     </S.Page>
   );

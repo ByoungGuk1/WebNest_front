@@ -1,11 +1,94 @@
 // src/pages/mypage/friend/style.js
 import styled from "styled-components";
+import theme from "../../../styles/theme";
+import { h7Medium } from "../../../styles/common";
 
 const S = {};
 
 /** 마이페이지 최상위 컨테이너 (레이아웃이 따로 잡혀 있으면 width:100% 유지) */
 S.Page = styled.div`
   width: 100%;
+`;
+
+/* 보드 토글: 1160 그리드 중앙 + 좌측 정렬 */
+S.BoardToggleRow = styled.div`
+  max-width: 1160px;
+  width: 100%;
+  margin: 0 auto 8px;
+  display: flex;
+  justify-content: center;
+  padding: 40px 0 50px 0;
+`;
+
+/* 토글 버튼 묶음 */
+S.BoardToggle = styled.div`
+  display: inline-flex;
+  gap: 8px;
+`;
+
+/* 토글 버튼 (가로/세로로 크기 제어) */
+S.BoardButton = styled.button`
+  appearance: none;
+  border: 1px solid
+    ${({ theme, $active }) =>
+      $active ? (theme.PALETTE.primary.blue.main) :(theme.PALETTE.primary.green.lightGray)};
+  background: ${({ theme, $active }) =>
+    $active ? (theme.PALETTE.primary.blue.main) : "#ffffff"};
+  color: ${({ theme, $active }) =>
+    $active ? "#ffffff" : (theme?.PALETTE?.neutral?.black?.primary || "#111")};
+
+  /* [MOD] 패딩 기반 → width/height 기반으로 변경 */
+  width: 86px;
+  height: 40px;
+  box-sizing: border-box;
+  border-radius: 12px; /* 항상 알약 형태 */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+
+  ${h7Medium}
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: ${({ theme }) => theme?.PALETTE?.primary?.blue?.main || "#1e90ff"};
+  }
+  &:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 3px
+      ${({ theme }) => (theme?.PALETTE?.primary?.blue?.main || "#1e90ff") + "33"};
+  }
+`;
+
+/** 탭 네비게이션 (기존 스타일 유지 - 필요시 사용) */
+S.TabNav = styled.nav`
+  display: flex;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid #eee;
+  
+  & > a {
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #666;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+    
+    &:hover {
+      color: #2F96FD;
+    }
+    
+    &.active {
+      color: #2F96FD;
+      border-bottom-color: #2F96FD;
+    }
+  }
 `;
 
 /** UserResult 묶음을 쌓아 올리는 섹션 */
