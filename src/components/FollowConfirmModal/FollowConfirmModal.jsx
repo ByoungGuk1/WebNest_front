@@ -28,3 +28,5 @@ const FollowConfirmModal = ({ isOpen, onClose, onConfirm, nickname }) => {
 
 export default FollowConfirmModal;
 
+
+

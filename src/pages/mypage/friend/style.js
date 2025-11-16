@@ -18,7 +18,7 @@ S.BoardToggleRow = styled.div`
   margin: 0 auto 8px;
   display: flex;
   justify-content: center;
-  padding: 40px 0 50px 0;
+  padding: 40px 0 0 0;
 `;
 
 /* 토글 버튼 묶음 */
@@ -40,7 +40,7 @@ S.BoardButton = styled.button`
 
   /* [MOD] 패딩 기반 → width/height 기반으로 변경 */
   width: 86px;
-  height: 40px;
+  height: 36px;
   box-sizing: border-box;
   border-radius: 12px; /* 항상 알약 형태 */
 
@@ -71,15 +71,15 @@ S.BoardNavLink = styled(NavLink)`
     ${({ theme, $active }) =>
       $active ? (theme.PALETTE.primary.blue.main) :(theme.PALETTE.primary.green.lightGray)};
   background: ${({ theme, $active }) =>
-    $active ? (theme.PALETTE.primary.blue.main) : "#ffffff"};
+    $active ? "#EAF2FF" : "#ffffff"};
   color: ${({ theme, $active }) =>
-    $active ? "#ffffff" : (theme?.PALETTE?.neutral?.black?.primary || "#111")};
+    $active ? (theme.PALETTE.primary.blue.main) : (theme?.PALETTE?.neutral?.black?.primary || "#111")};
 
   /* [MOD] 패딩 기반 → width/height 기반으로 변경 */
-  width: 86px;
-  height: 40px;
+  width: 108px;
+  height: 36px;
   box-sizing: border-box;
-  border-radius: 12px; /* 항상 알약 형태 */
+  border-radius: 8px; /* 항상 알약 형태 */
 
   display: flex;
   align-items: center;
@@ -94,6 +94,7 @@ S.BoardNavLink = styled(NavLink)`
 
   &:hover {
     border-color: ${({ theme }) => theme?.PALETTE?.primary?.blue?.main || "#1e90ff"};
+  
   }
   &:focus-visible {
     outline: 0;
