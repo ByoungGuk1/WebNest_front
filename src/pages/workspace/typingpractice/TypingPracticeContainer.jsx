@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import S from "./style";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import ResultModal from "./typingresult/ResultModal";
 
 const TypingPracticeContainer = () => {
    const location = useLocation();
@@ -10,12 +11,31 @@ const TypingPracticeContainer = () => {
 
   const [lang, setLang] = useState("ko");
   const [isOpen, setIsOpen] = useState(false);
-  // const [selected, setSelected] = useState("애국가");
   const navigate = useNavigate();
-  // const [inputValue, setInputValue] = useState("");
-  //
- 
 
+  //타이머
+  const [practiceTime, setPracticeTime] = useState(0);
+
+  //정확도 타수
+  const [practiceAccuracy, setPracticeAccuracy] = useState(100);
+  const [practiceWPM, setPracticeWPM] = useState(0);
+  const [practiceFinish, setPracticeFinish] = useState(null);
+
+  // 디버깅: practiceFinish 변경 감지
+  useEffect(() => {
+    console.log("🔥 practiceFinish 상태 변경:", practiceFinish);
+    if (practiceFinish) {
+      console.log("🔥 practiceFinish 값 있음 - 모달 표시해야 함:", practiceFinish);
+    } else {
+      console.log("🔥 practiceFinish null - 모달 숨김");
+    }
+  }, [practiceFinish]);
+
+
+
+  //타수
+  const maxWpm = 400;
+  const wpmPercent = Math.min((practiceWPM / maxWpm) * 100, 100);
 
 
     // 버튼 active는 반대로 들어감
@@ -23,21 +43,13 @@ const TypingPracticeContainer = () => {
   const isLongActive = !isLong;   // 기본 화면 → 긴글 버튼 초록
 
 
-  // useEffect(() => {
-  // if (isLong) {
-  //   fetchLongTitleList();
-  // }
-  // }, [lang, isLong]);
   useEffect(() => {
-  console.log("🔥 useEffect 실행됨, isLong =", isLong, "lang =", lang);
-
-  if (isLong) {
-    console.log("🔥 fetchLongTitleList 실행됨!");
-    fetchLongTitleList();
-  } else {
-    console.log("🔥 isLong=false → fetch 실행 안 함");
-  }
-}, [lang, isLong]);
+    if (isLong) {
+      fetchLongTitleList();
+    } else {
+      fetchShortTitleList();
+    }
+  }, [lang, isLong]);
 
 
   const [titleList, setTitleList] = useState([]);
@@ -45,18 +57,50 @@ const TypingPracticeContainer = () => {
 
   // 리스트 가져오기
   const fetchLongTitleList = async () => {
-    const res = await fetch(`http://localhost:10000/typing/long/list?language=${lang === "ko" ? "한국어" : "영어"}`);
-    const data = await res.json();   // JSON 변환
+    try {
+      const res = await fetch(`http://localhost:10000/typing/long/list?language=${lang === "ko" ? "한국어" : "영어"}`);
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const data = await res.json();   
 
-    const list = data.data;
-    setTitleList(list);
+      const list = data.data || [];
+      setTitleList(list);
 
-    if (list.length > 0) {
-      setSelected(list[0].title);
-      navigate(`long?id=${list[0].id}`);
+      if (list.length > 0) {
+        setSelected(list[0].title);
+        navigate(`long?id=${list[0].id}`);
+      }
+    } catch (error) {
+      console.error("긴글 목록 로드 실패:", error);
+      setTitleList([]);
     }
   };
 
+  const fetchShortTitleList = async () => {
+    try {
+      const res = await fetch(`http://localhost:10000/typing/short/list?language=${lang === "ko" ? "한국어" : "영어"}`);
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+
+      const list = data.data || [];
+      setTitleList(list);
+
+      if (list.length > 0) {
+        setSelected(list[0].title);
+        navigate(`?id=${list[0].id}`);  // short는 long 경로 없음
+      }
+    } catch (error) {
+      console.error("짧은글 목록 로드 실패:", error);
+      setTitleList([]);
+    }
+  };
 
   return (
     <>
@@ -117,22 +161,7 @@ const TypingPracticeContainer = () => {
               <S.Arrow><img src="/assets/images/downarrow.svg" alt="화살표" /></S.Arrow>
             </S.DropdownBox>
 
-            {/* 🔽 드롭다운 옵션 리스트
-            {isOpen && (
-              <S.DropdownMenu>
-                {["애국가 1절", "애국가 2절", "애국가 3절", "애국가 4절", "애국가 5절"].map((item) => (
-                  <S.DropdownItem
-                    key={item}
-                    onClick={() => {
-                      setSelected(item);
-                      setIsOpen(false);
-                    }}
-                  >
-                    {item}
-                  </S.DropdownItem>
-                ))}
-              </S.DropdownMenu>
-            )} */}
+            
             {isOpen && (
               <S.DropdownMenu>
                 {titleList.map((item) => (
@@ -141,7 +170,12 @@ const TypingPracticeContainer = () => {
                     onClick={() => {
                       setSelected(item.title);
                       setIsOpen(false);
-                      navigate(`long?id=${item.id}`);
+                      if (isLong) {
+                        navigate(`long?id=${item.id}`);
+                      } else {
+                        navigate(`?id=${item.id}`);
+                      }
+
                     }}
                   >
                     {item.title}
@@ -163,33 +197,66 @@ const TypingPracticeContainer = () => {
 
             <S.ProgressTitle>현재 진행도</S.ProgressTitle>
 
-            <S.ProgressBox>
+            {/* <S.ProgressBox>
               <S.ProgressTime>
                 <span>진행 시간 (초)</span>
                 <span>05 : 02</span>
               </S.ProgressTime>
               <S.Bar className="blue" />
+            </S.ProgressBox> */}
+            <S.ProgressBox>
+              <S.ProgressTime>
+                <span>진행 시간 (초)</span>
+                <span>{practiceTime.toFixed(1)}</span>
+              </S.ProgressTime>
+              <S.Bar className="blue" />
             </S.ProgressBox>
-
             <S.ProgressBox>
               <S.ProgressTime>
                 <span>타수 (타/분)</span>
-                <span>208</span>
+                {/* <span>208</span> */}
+                <span>{practiceWPM.toFixed(2)}</span>
+
               </S.ProgressTime>
-              <S.Bar className="blue" />
+              {/* <S.Bar className="blue" /> */}
+             <S.Bar 
+                className="blue"
+                $width={`${Math.max(wpmPercent, 1)}%`} // 최소 1%
+              />
+
+
+
             </S.ProgressBox>
 
             <S.ProgressBox>
               <S.ProgressTime>
                 <span>정확도 (%)</span>
-                <span>100.00</span>
+                {/* <span>100.00</span> */}
+                <span>{practiceAccuracy.toFixed(2)}</span>
+
               </S.ProgressTime>
-              <S.Bar className="red" />
+              {/* <S.Bar className="red" /> */}
+              <S.Bar 
+                className="red"
+                $width={`${Math.max(practiceAccuracy, 1)}%`}
+              />
+
+
+
             </S.ProgressBox>
           </S.MyInfoInner>
         </S.MyInfo>
 
-        <Outlet />
+        {/* <Outlet /> */}
+
+        {/* <Outlet context={{ setPracticeTime }} /> */}
+        <Outlet context={{ 
+          setPracticeTime, 
+          setPracticeAccuracy,
+          setPracticeWPM,
+          setPracticeFinish
+        }} />
+
 
       
       </S.TypingAll>
@@ -200,6 +267,28 @@ const TypingPracticeContainer = () => {
       </S.StopPracticeButton>
 
     </S.Main>
+
+    {/* 결과 모달 */}
+    {practiceFinish && (
+      <>
+        {console.log("🔥 ResultModal 렌더링 시도:", practiceFinish)}
+        <ResultModal
+          wpm={practiceFinish.wpm || 0}
+          accuracy={practiceFinish.accuracy || 0}
+          time={practiceFinish.time || 0}
+          onRetry={() => {
+            // console.log("🔥 다시하기 클릭");
+            setPracticeFinish(null);
+            window.location.reload();
+          }}
+          onClose={() => {
+            // console.log("🔥 그만하기 클릭");
+            setPracticeFinish(null);
+            navigate("/workspace/rooms");
+          }}
+        />
+      </>
+    )}
      
     </>
   );
