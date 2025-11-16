@@ -23,9 +23,9 @@ const UserProfile = ({ userData, onClick, setUsers, users, getPlayers }) => {
 
   const [user, setUser] = useState(userData);
   const [teamColor, setTeamColor] = useState(
-    teamColorUrl[userData.gameJoinTeamcolor]
+    teamColorUrl[userData?.gameJoinTeamcolor] || teamColorUrl["black"]
   );
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
 
   const updateUserStatus = async (profileText, isReady = null) => {
@@ -93,9 +93,13 @@ const UserProfile = ({ userData, onClick, setUsers, users, getPlayers }) => {
       }));
 
       if (getPlayers) {
-        await getPlayers();
+        setTimeout(() => {
+          getPlayers();
+        }, 500);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("updateUserStatus error:", error);
+    }
   };
 
   useEffect(() => {
@@ -106,7 +110,6 @@ const UserProfile = ({ userData, onClick, setUsers, users, getPlayers }) => {
       );
 
       if (!hasInitialized) {
-        setIsLoading(false);
         setHasInitialized(true);
         const currentProfileText = userData.gameJoinProfileText?.trim() || "";
         const normalizedProfileText = currentProfileText.replace(/\s+/g, "");
@@ -177,7 +180,7 @@ const UserProfile = ({ userData, onClick, setUsers, users, getPlayers }) => {
                 ? "pointer"
                 : "default",
           }}>
-          {isLoading ? "로딩중" : user.gameJoinProfileText?.trim() || "준비중"}
+          {user.gameJoinProfileText?.trim() || "준비중"}
         </S.UserTextWrap>
       </S.UserProfileWrapper>
     </div>

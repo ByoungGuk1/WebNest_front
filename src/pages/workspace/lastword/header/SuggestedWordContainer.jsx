@@ -1,11 +1,10 @@
-import React from "react";
 import S from "../style";
 
-const SuggestedWordContainer = () => {
+const SuggestedWordContainer = ({ startWord }) => {
   return (
     <S.SuggestedWordBanner>
       <span>제시어 :</span>
-      <span>제시어</span>
+      <span>{startWord || "준비중..."}</span>
     </S.SuggestedWordBanner>
   );
 };
