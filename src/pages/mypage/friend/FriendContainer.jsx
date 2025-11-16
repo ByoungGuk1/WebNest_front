@@ -15,22 +15,21 @@ const FriendContainer = () => {
       {/* 토글 버튼 */}
       <S.BoardToggleRow>
         <S.BoardToggle>
-          <S.BoardButton
-            as={NavLink}
-            to="/my-page/friend/follower"
+          <S.BoardNavLink 
+            to={"/my-page/friend/follower"}
             $active={isFollower}
           >
             팔로워
-          </S.BoardButton>
-          <S.BoardButton
-            as={NavLink}
-            to="/my-page/friend/following"
+          </S.BoardNavLink>
+          <S.BoardNavLink 
+            to={"/my-page/friend/following"}
             $active={!isFollower}
           >
             팔로잉
-          </S.BoardButton>
+          </S.BoardNavLink>
         </S.BoardToggle>
       </S.BoardToggleRow>
+      
       {/* 레이아웃과 UserResult 묶음 사이 여백 */}
       <S.Section>
         <Outlet context={{...myData}} />

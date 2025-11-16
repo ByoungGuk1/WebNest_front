@@ -1,7 +1,8 @@
 // src/pages/mypage/friend/style.js
 import styled from "styled-components";
+import { NavLink } from "react-router-dom";
 import theme from "../../../styles/theme";
-import { h7Medium } from "../../../styles/common";
+import { h4Bold, h7Bold, h7Light, h7Medium, h9Bold } from "../../../styles/common";
 
 const S = {};
 
@@ -47,6 +48,44 @@ S.BoardButton = styled.button`
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+
+  ${h7Medium}
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: ${({ theme }) => theme?.PALETTE?.primary?.blue?.main || "#1e90ff"};
+  }
+  &:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 3px
+      ${({ theme }) => (theme?.PALETTE?.primary?.blue?.main || "#1e90ff") + "33"};
+  }
+`;
+
+/* NavLink를 위한 토글 버튼 스타일 */
+S.BoardNavLink = styled(NavLink)`
+  appearance: none;
+  border: 1px solid
+    ${({ theme, $active }) =>
+      $active ? (theme.PALETTE.primary.blue.main) :(theme.PALETTE.primary.green.lightGray)};
+  background: ${({ theme, $active }) =>
+    $active ? (theme.PALETTE.primary.blue.main) : "#ffffff"};
+  color: ${({ theme, $active }) =>
+    $active ? "#ffffff" : (theme?.PALETTE?.neutral?.black?.primary || "#111")};
+
+  /* [MOD] 패딩 기반 → width/height 기반으로 변경 */
+  width: 86px;
+  height: 40px;
+  box-sizing: border-box;
+  border-radius: 12px; /* 항상 알약 형태 */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  text-decoration: none;
 
   ${h7Medium}
   line-height: 1;
@@ -152,6 +191,178 @@ S.ErrorBox = styled.div`
     border-radius: 8px;
     margin: 8px 0 4px;
     overflow-x: auto;
+  }
+`;
+
+/* ====================== Follower 컴포넌트 스타일 ====================== */
+S.FollowerContainer = styled.div`
+  width: 100%;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 20px 0;
+`;
+
+S.FollowerList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+`;
+
+S.FollowerItem = styled.div`
+  width: 1160px;
+  height: 153px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+S.FollowerLeft = styled.div`
+  width: 320px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  & .lv {
+    ${h9Bold}
+    color: #2F96FD;
+  }
+  & img {
+    width: 66px;
+    height: 66px;
+    border-radius: 100%;
+    background-color: gray;
+  }
+  & p{
+    ${h4Bold}
+  }
+  & .follower {
+    ${h7Light}
+    color: #555;
+  }
+  & .count {
+    color: #4d4d4d;
+    ${h7Medium}
+  }
+`;
+
+S.FollowerAvatar = styled.div` 
+  position: relative;
+`;
+
+S.LevelBadge = styled.div`
+  width: 35px;
+  height: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 12px;
+  background-color: #fff;
+  position: absolute;
+  bottom: 0px;
+  right: -8px;
+  & span {
+    ${h9Bold}
+    color: #2F96FD;
+  }
+  & .lv {
+    ${h9Bold}
+    color: #2F96FD;
+  }
+  & .lvImg {
+    width: calc(61px * 0.1);
+    height: calc(74px * 0.1);
+    background-color: #fff;
+    margin-right: 3px;
+  }
+`;
+
+
+S.FollowButton = styled.div`
+  width: 86px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #2F96FD;
+  & span{
+    ${h7Bold}
+    color: #fff;
+  }
+`;
+
+S.FollowingButton = styled.div`
+  width: 86px;
+  height: 34px;
+  background-color: #00D674;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  & span{
+    ${h7Bold}
+    color : #fff;
+  }
+`;
+
+S.EmptyMessage = styled.div`
+  text-align: center;
+  padding: 60px 20px;
+  color: ${theme.PALETTE.neutral.gray.main};
+  ${h7Medium}
+`;
+
+S.Pagination = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 40px;
+  padding: 20px 0;
+`;
+
+S.PaginationButton = styled.button`
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #333;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background-color: #f5f5f5;
+    border-color: #2F96FD;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+S.PaginationNumber = styled.button`
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  background-color: ${({ $active }) => ($active ? "#FFD700" : "#fff")};
+  border-radius: 50%;
+  cursor: pointer;
+  color: #333;
+  ${h7Medium}
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: ${({ $active }) => ($active ? "#FFD700" : "#f5f5f5")};
+    border-color: #2F96FD;
   }
 `;
 
