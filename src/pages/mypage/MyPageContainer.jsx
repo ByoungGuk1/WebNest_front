@@ -48,7 +48,7 @@ const MyPageContainer = () => {
   useEffect(() => {
     getMyDatas();
   }, [])
-
+console.log(myData)
   return (
     <S.Page>
       <S.BannerWrap>

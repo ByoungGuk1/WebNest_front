@@ -1,12 +1,13 @@
 // src/pages/cardflip/CardFlipContainer.jsx
 import React, { useState } from "react";
-import { Outlet } from "react-router-dom";
+// 🔥 Outlet 제거
+// import { Outlet } from "react-router-dom";
 import S from "./style";
 
 const IMAGE_BASE_PATH = "/assets/images/level";
 
-// 카드 앞면(공통) 이미지
-const FRONT_IMAGE = `${IMAGE_BASE_PATH}/1.svg`;
+
+
 
 // 문제와 정답 데이터 (4쌍)
 const PROBLEM_DATA = [
@@ -14,7 +15,10 @@ const PROBLEM_DATA = [
   { id: 2, problem: "int[] a = {10, 20, 30};\nSystem.out.println(a[a.length-1]);", answer: "30" },
   { id: 3, problem: "int a = 10;\nint b = 20;\nSystem.out.println(a>b? 'A': 'B');", answer: "B" },
   { id: 4, problem: "String str = \"Hello\";\nSystem.out.println(str.length());", answer: "5" },
-];
+]
+// 카드 앞면 이미지
+const FRONT_IMAGE = `${IMAGE_BASE_PATH}/1.svg`;
+
 
 // 홀수 레벨 이미지 (6쌍 = 12개)
 const IMAGE_PAIRS = [
@@ -105,20 +109,17 @@ const CardFlipContainer = () => {
     const clicked = cards[index];
     if (clicked.isFlipped || clicked.isMatched) return;
 
-    // 카드 뒤집기
     setCards((prev) =>
       prev.map((card, i) =>
         i === index ? { ...card, isFlipped: true } : card
       )
     );
 
-    // 첫 번째 카드 선택
     if (firstIndex === null) {
       setFirstIndex(index);
       return;
     }
 
-    // 두 번째 카드 선택
     setSecondIndex(index);
     setDisableDeck(true);
 
@@ -142,11 +143,12 @@ const CardFlipContainer = () => {
 
     if (isMatched) {
       // 문제와 정답이 매칭되면 처리
+    if (firstCard.backImg === secondCard.backImg) {
       setTimeout(() => {
         setCards((prev) =>
           prev.map((card, i) => {
             if (i === firstIndex || i === index) {
-              return { ...card, isMatched: true }; // 뒤집힌 상태 유지
+              return { ...card, isMatched: true };
             }
             return card;
           })
@@ -154,7 +156,6 @@ const CardFlipContainer = () => {
         resetSelection();
       }, 300);
     } else {
-      // 다른 카드면 흔들린 다음 다시 뒤집기
       setTimeout(() => {
         setCards((prev) =>
           prev.map((card, i) => {
@@ -218,10 +219,9 @@ const CardFlipContainer = () => {
           })}
         </S.Cards>
       </S.CardInner>
-
-      <Outlet />
     </S.PageWrap>
   );
 };
 
+};
 export default CardFlipContainer;
