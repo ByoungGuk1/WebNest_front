@@ -1,37 +1,68 @@
-// src/pages/mypage/grade/style.js
 import styled from "styled-components";
+import { h5Bold, h6Medium, h7Medium } from "../../../styles/common";
+import theme from "../../../styles/theme";
 
 const S = {};
 
-// 1160 그리드 중앙 정렬
-S.Wrap = styled.section`
+// 페이지 전체 컨테이너
+S.Page = styled.div`
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  padding: 40px 0;
+`;
+
+// 배경 이미지
+S.Background = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("/assets/background/purple.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: repeat;
+  z-index: -1;
+  opacity: 0.1;
+`;
+
+// 메인 컨테이너
+S.Container = styled.div`
   max-width: 1160px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 `;
 
-// 카드 컨테이너
-S.Card = styled.div`
-  border: 1px solid ${({ theme }) => theme?.PALETTE?.neutral?.line || "#EEE"};
-  border-radius: 12px;
+// 공통 카드 스타일
+const CardBase = styled.div`
   background: #fff;
-  padding: 20px 24px;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 `;
 
-// 좌우 정렬 행
-S.Row = styled.div`
-  display: grid;
-  grid-template-columns: 220px 1fr; /* 배지 220, 우측 막대 확장 */
+// 등급 카드
+S.GradeCard = styled(CardBase)`
+  background: ${({ theme }) => theme?.PALETTE?.card?.purple || "#EAE7FC"};
+  border: 1px solid ${({ theme }) => theme?.PALETTE?.primary?.purple?.light || "#9585F2"};
+`;
+
+S.GradeRow = styled.div`
+  display: flex;
   align-items: center;
   gap: 24px;
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 16px;
   }
 `;
 
-/* ===== 배지 영역 ===== */
 S.BadgeArea = styled.div`
   display: flex;
   align-items: center;
@@ -39,53 +70,36 @@ S.BadgeArea = styled.div`
 `;
 
 S.Circle = styled.div`
-  width: 84px;
-  height: 84px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: ${({ theme }) => theme?.PALETTE?.neutral?.surface || "#F7F7FA"};
-  border: 1px solid ${({ theme }) => theme?.PALETTE?.neutral?.line || "#EEE"};
+  background: ${({ $color }) => $color || "#E9E9EE"};
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  display: grid;
-  place-items: center;
   overflow: hidden;
 `;
 
-// 실제 알 아이콘(이미지)
-// * 기본값으로만 표시(플레이스홀더는 시멘틱용으로 숨김)
 S.EggImg = styled.img`
-  width: 64%;
-  height: 64%;
+  width: 70%;
+  height: 70%;
   object-fit: contain;
-  display: block;
-`;
-
-// 이미지 대체 텍스트(시멘틱 유지, 시각적으로 숨김)
-S.PlaceholderEgg = styled.span`
-  position: absolute !important;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap; 
-  border: 0;
 `;
 
 S.LevelText = styled.p`
+  ${h5Bold}
   margin: 0;
-  font-weight: 600;
-  font-size: ${({ theme }) => theme?.FONT_SIZE?.h6 || "16px"};
-  color: ${({ theme }) => theme?.PALETTE?.neutral?.black?.primary || "#222"};
+  color: ${({ theme }) => theme?.PALETTE?.neutral?.black?.main || "#222"};
 `;
 
-/* ===== 막대 영역 ===== */
 S.BarArea = styled.div`
-  display: grid;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 `;
 
-// 10칸 트랙(세그먼트 래퍼)
 S.BarTrack = styled.div`
   display: grid;
   grid-template-columns: repeat(10, 1fr);
@@ -94,7 +108,6 @@ S.BarTrack = styled.div`
   height: 14px;
 `;
 
-// 각 세그먼트
 S.BarSegment = styled.span`
   display: block;
   width: 100%;
@@ -104,7 +117,6 @@ S.BarSegment = styled.span`
   transition: background 160ms ease;
 `;
 
-// 아래 라벨( Lv1 ~ LvX )
 S.BarLabels = styled.div`
   display: grid;
   grid-template-columns: repeat(10, 1fr);
@@ -115,6 +127,181 @@ S.BarLabels = styled.div`
     color: ${({ theme }) => theme?.PALETTE?.neutral?.black?.tertiary || "#888"};
     text-align: center;
     user-select: none;
+  }
+`;
+
+// 섹션 제목
+S.SectionTitle = styled.h2`
+  ${h5Bold}
+  margin: 0 0 20px 0;
+  color: ${({ theme }) => theme?.PALETTE?.neutral?.black?.main || "#222"};
+`;
+
+// 경험치 카드
+S.ExpCard = styled(CardBase)``;
+
+S.ExpContent = styled.div`
+  display: flex;
+  gap: 40px;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 24px;
+  }
+`;
+
+S.PieChartContainer = styled.div`
+  width: 200px;
+  height: 200px;
+  position: relative;
+  flex-shrink: 0;
+`;
+
+S.PieChart = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(
+    ${({ $gradient }) => $gradient || "#E9E9EE"}
+  );
+  position: relative;
+  
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 60%;
+    border-radius: 50%;
+    background: #fff;
+  }
+`;
+
+S.ExpList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+`;
+
+S.ExpItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  ${h6Medium}
+  color: ${({ theme }) => theme?.PALETTE?.neutral?.black?.main || "#222"};
+
+  > span:last-child {
+    font-weight: 600;
+    color: ${({ theme }) => theme?.PALETTE?.primary?.purple?.main || "#7255EE"};
+  }
+`;
+
+S.ExpTotal = styled.div`
+  ${h6Medium}
+  font-weight: 600;
+  color: ${({ theme }) => theme?.PALETTE?.neutral?.black?.main || "#222"};
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid ${({ theme }) => theme?.PALETTE?.neutral?.white?.dark || "#D9D9D9"};
+`;
+
+// 타자 카드
+S.TypingCard = styled(CardBase)``;
+
+S.TypingContent = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+`;
+
+S.TypingItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+`;
+
+S.TypingIcon = styled.div`
+  font-size: 24px;
+  margin-bottom: 4px;
+`;
+
+S.TypingValue = styled.div`
+  ${h5Bold}
+  color: ${({ theme }) => theme?.PALETTE?.neutral?.black?.main || "#222"};
+`;
+
+S.TypingLabel = styled.div`
+  ${h7Medium}
+  color: ${({ theme }) => theme?.PALETTE?.neutral?.black?.secondary || "#4d4d4d"};
+`;
+
+// 문제 해결 현황 카드
+S.ProblemCard = styled(CardBase)``;
+
+S.ProblemContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+S.ProblemHeader = styled.div`
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid ${({ theme }) => theme?.PALETTE?.neutral?.white?.dark || "#D9D9D9"};
+  ${h7Medium}
+  font-weight: 600;
+  color: ${({ theme }) => theme?.PALETTE?.neutral?.black?.secondary || "#4d4d4d"};
+`;
+
+S.ProblemHeaderItem = styled.div``;
+
+S.ProblemRow = styled.div`
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+`;
+
+S.LanguageName = styled.div`
+  ${h6Medium}
+  font-weight: 600;
+  color: ${({ theme }) => theme?.PALETTE?.neutral?.black?.main || "#222"};
+`;
+
+S.ProgressBarContainer = styled.div`
+  display: flex;
+  width: 100%;
+  height: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: ${({ theme }) => theme?.PALETTE?.neutral?.white?.dark || "#D9D9D9"};
+`;
+
+S.ProgressBarSegment = styled.div`
+  height: 100%;
+  width: ${({ $width }) => $width}%;
+  background: ${({ $color }) => $color};
+  transition: width 0.3s ease;
+
+  &:not(:last-child) {
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
   }
 `;
 

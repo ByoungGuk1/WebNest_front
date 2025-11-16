@@ -5,10 +5,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { redirect, useNavigate } from "react-router-dom";
 
-const API_BASE = (
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:10000"
-).replace(/\/+$/, "");
-
 const FindIdContainer = () => {
   const navigate = useNavigate();
   const [showPhoneSendForm, setShowPhoneSendForm] = useState(true);
@@ -41,7 +37,7 @@ const FindIdContainer = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${API_BASE}/auth/codes/sms?phoneNumber=${phoneNumber}`,
+        `${process.env.REACT_APP_BACKEND_URL}/auth/codes/sms?phoneNumber=${phoneNumber}`,
         {
           method: "POST",
           headers: {
@@ -90,7 +86,7 @@ const FindIdContainer = () => {
       setIsLoading(true);
       try {
         const verifyResponse = await fetch(
-          `${API_BASE}/auth/codes/verify?userAuthentificationCode=${userAuthentificationCode}`,
+          `${process.env.REACT_APP_BACKEND_URL}/auth/codes/verify?userAuthentificationCode=${userAuthentificationCode}`,
           {
             method: "POST",
             headers: {
@@ -149,7 +145,7 @@ const FindIdContainer = () => {
       try {
         // 인증 성공 시 이메일 조회
         const { confirmKey, ...formData } = data;
-        const fetching = await fetch(`${API_BASE}/users/find-email`, {
+        const fetching = await fetch(`${process.env.REACT_APP_BACKEND_URL}/users/find-email`, {
           headers: {
             "Content-Type": "application/json",
           },

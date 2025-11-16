@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import QuizList from '../quizlist/QuizList';
 import { useSelector } from 'react-redux';
-import { set } from 'react-hook-form';
 
 const parseFiltersFromSearch = (search) => {
     const params = new URLSearchParams(search);
     return {
+        // 필터링 시 쿼리스트링 겟
         quizLanguage: params.get('quizLanguage') || null,
         quizDifficult: params.get('quizDifficult') || null,
         quizPersonalIsSolve: params.get('quizPersonalIsSolve') || null,
@@ -19,13 +19,14 @@ const QuizPage = () => {
 
     const user = useSelector(state => state.user);
     const { currentUser, isLogined } = user;
-    const { id } = currentUser;
-
+    const userId = currentUser.id;
 
     const location = useLocation();
     const [quizs, setQuizs] = useState([]);
     const [bookMarkId, setBookMarkId] = useState([]);
     const [solveIds, setSolveIds] = useState(new Set());
+
+    const requestingRef = useRef(new Set());
     const [requesting, setRequesting] = useState(new Set());
     const [loading, setLoading] = useState(false);
     const [quizTotalCount, setQuizTotalCount] = useState(0);
@@ -33,11 +34,16 @@ const QuizPage = () => {
     const token = localStorage.getItem('accessToken');
 
     // 북마크기능
-    async function toggleBookmark(quizId, userId) {
-        if (requesting.has(quizId)) return
+    async function toggleBookmark(quizId) {
+        if (requestingRef.current.has(quizId)) return
 
-        setRequesting(prev => new Set(prev).add(quizId))
-
+        requestingRef.current = new Set(requestingRef.current).add(quizId);
+        setRequesting(prev => {
+            const next = new Set(prev);
+            next.add(quizId);
+            return next
+        })
+        console.log('요청시작', quizId);
         try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/${quizId}/bookmark`, {
                 method: "POST",
@@ -45,13 +51,30 @@ const QuizPage = () => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    "userId": id, quizId
+                    "userId": userId,
+                    "quizId": quizId
                 })
             })
             const data = await response.json();
-            const serverBookmark = Number(data?.data?.quizPersonal?.quizPersonalIsBookmark || 0);
-            const serverIsSolve = Number(data?.data?.quizPersonal?.quizPersonalIsSolve || 0);
-            const reSolveId = quizId;
+            console.log('서버 응답 전체:', data?.data?.quizPersonal);
+
+            let personal = null;
+            const quizPersonal = data?.data?.quizPersonal;
+            if (!quizPersonal) {
+                personal = null;
+            } else if (Array.isArray(quizPersonal)) {
+                personal = quizPersonal.find(quiz => Number(quiz.quizId) || quizPersonal[0] || null);
+            } else {
+                personal = quizPersonal;
+            }
+            
+            
+            console.log('선택된 personal:', personal);
+            console.log('serverBookmark, serverIsSolve:', serverBookmark, serverIsSolve);
+            console.log("완료")
+            const serverBookmark = Number(personal?.quizPersonalIsBookmark ?? 0);
+            const serverIsSolve = Number(personal?.quizPersonalIsSolve ?? 0);
+            const serverQuizPersonalId = personal?.quizPersonalId ?? personal?.id ?? null;
             setBookMarkId(prev => {
                 if (serverBookmark == 1) {
                     return prev.includes(quizId) ? prev : [...prev, quizId];
@@ -61,19 +84,25 @@ const QuizPage = () => {
             });
             setSolveIds(prev => {
                 const next = new Set(prev);
-                if(serverIsSolve >= 1) next.add(reSolveId);
-                else next.delete(reSolveId);
+                if (serverIsSolve >= 1) next.add(quizId);
+                else next.delete(quizId);
                 return next;
             })
 
             setQuizs(prevQuizs =>
-                prevQuizs.map(quiz =>
-                    quiz.id === quizId ? { ...quiz, quizPersonalIsBookmark: serverBookmark, quizPersonalIsSolve: serverIsSolve } : quiz
-                )
-            )
+                prevQuizs.map(quiz => {
+                    const idNum = Number(quiz.id ?? quiz.quizId)
+                    if (idNum != Number(quizId)) return quiz;
+                    return { ...quiz, quizPersonalIsBookmark: serverBookmark, quizPersonalIsSolve: serverIsSolve, quizPersonalId: serverQuizPersonalId }
+                })
+            );
         } catch (err) {
             setBookMarkId(prev => prev.includes(quizId) ? prev.filter(i => i != quizId) : [...prev, quizId]);
         } finally {
+            const nextRef = new Set(requestingRef.current)
+            nextRef.delete(quizId);
+            requestingRef.current = nextRef;
+
             setRequesting(prev => {
                 const next = new Set(prev);
                 next.delete(quizId);
@@ -81,7 +110,6 @@ const QuizPage = () => {
             })
         }
     }
-
     // 문제리스트 요청청
     useEffect(() => {
         const filters = parseFiltersFromSearch(location.search);
@@ -91,9 +119,9 @@ const QuizPage = () => {
                 const url = `${process.env.REACT_APP_BACKEND_URL}/quiz`; // POST 엔드포인트
                 const res = await fetch(url, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        ...(token ? { 'Authorization': `Bearer ${token}`} : {})
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                     },
                     body: JSON.stringify(filters) // RequestBody로 filters값들을 보냄
                 });
@@ -110,7 +138,7 @@ const QuizPage = () => {
                 const solved = new Set();
                 quizList.forEach(data => {
                     const isSolveVal = Number(data.quizPersonalIsSolve || 0);
-                    if(isSolveVal >= 1) solved.add(data.id || data.quizId);
+                    if (isSolveVal >= 1) solved.add(data.id || data.quizId);
                 });
                 setSolveIds(solved);
 

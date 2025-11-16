@@ -4,8 +4,8 @@ import {
   flexCenterRow,
   h8Medium,
   h9Bold,
-} from "../../../styles/common";
-import theme from "../../../styles/theme";
+} from "../../../../../styles/common";
+import theme from "../../../../../styles/theme";
 
 const S = {};
 

@@ -7,10 +7,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "styled-components";
 
-const API_BASE = (
-  process.env.REACT_APP_BACKEND_URL || "http://localhost:10000"
-).replace(/\/+$/, "");
-
 const SignUp = () => {
   const [isEyeOpen, setIsEyeOpen] = useState(false);
   const [passwordValue, setPasswordValue] = useState("");
@@ -80,7 +76,7 @@ const SignUp = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `${API_BASE}/auth/codes/sms?phoneNumber=${phoneNumber}`,
+        `${process.env.REACT_APP_BACKEND_URL}/auth/codes/sms?phoneNumber=${phoneNumber}`,
         {
           method: "POST",
           headers: {
@@ -128,7 +124,7 @@ const SignUp = () => {
       setIsLoading(true);
       try {
         const response = await fetch(
-          `${API_BASE}/auth/codes/verify?userAuthentificationCode=${userAuthentificationCode}`,
+          `${process.env.REACT_APP_BACKEND_URL}/auth/codes/verify?userAuthentificationCode=${userAuthentificationCode}`,
           {
             method: "POST",
             headers: {

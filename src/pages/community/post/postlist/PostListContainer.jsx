@@ -115,7 +115,7 @@ const getReplyCount = (post) =>
 /* =========================
    🔥 컴포넌트
    ========================= */
-const PostListContainer = ({ customUrl, authToken, isMyPage = false }) => {
+const PostListContainer = () => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
