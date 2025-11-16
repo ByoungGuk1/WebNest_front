@@ -21,36 +21,48 @@ const Follow = ({ follow = [] }) => {
 
   const getLevelIcon = (level) => {
     const lv = level || 1;
-    if (lv > 10) return '/assets/images/level/10.svg';
+    if (lv === 10) return '/assets/images/level/x.svg';
+    if (lv > 10) return '/assets/images/level/x.svg';
     return `/assets/images/level/${lv}.svg`;
   };
 
   return (
     <S.FollowWrap>
-      {follow.map((item) => {
-        const { userId, userNickname, presenceStatus, userLevel, userThumbnailUrl, profileUrl } = item || {};
-        const profileImg = userThumbnailUrl || profileUrl || '/assets/images/chicken.png';
-        return (
-          <S.Followlist key={userId}>
-            <S.FollowLeftWrap>
-              <S.FollowImg src={profileImg} alt={userNickname || 'user'} />
-                <S.FollowNameWrap>
-                  <S.LevelWrap>
-                    <S.LevelImg src={getLevelIcon(userLevel || 1)} alt={`Lv${userLevel || 1}`} />
-                    <S.LevelText $levelColor={getLevelColor(userLevel || 1)}>
-                      {userLevel === 10 ? 'X' : (userLevel || 1)}
-                    </S.LevelText>
-                  </S.LevelWrap>
-                  <p>{userNickname}</p>
-                </S.FollowNameWrap>
-            </S.FollowLeftWrap>
-            <S.StatusWrapper>
-              <S.StatusDot $color={getStatusColor(presenceStatus || '접속중')} />
-              <S.StatusText>{presenceStatus}</S.StatusText>
-            </S.StatusWrapper>
-          </S.Followlist>
-        );
-      })}
+      <S.FollowListWarp>
+        {follow.map((item) => {
+          const { userId, userNickname, presenceStatus, userLevel, userThumbnailUrl, profileUrl } = item || {};
+          const profileImg = userThumbnailUrl || profileUrl || '/assets/images/chicken.png';
+          return (
+            <S.Followlist key={userId}>
+              <S.FollowLeftWrap>
+                <S.FollowImg src={profileImg} alt={userNickname || 'user'} />
+                  <S.FollowNameWrap>
+                    <S.LevelWrap>
+                      <S.LevelImg src={getLevelIcon(userLevel || 1)} alt={`Lv${userLevel || 1}`} />
+                      <S.LevelText $levelColor={getLevelColor(userLevel || 1)}>
+                        Lv {userLevel === 10 ? 'X' : (userLevel || 1)}
+                      </S.LevelText>
+                    </S.LevelWrap>
+                    <p>{userNickname}</p>
+                  </S.FollowNameWrap>
+              </S.FollowLeftWrap>
+              <S.StatusWrapper>
+                <S.StatusDot $color={getStatusColor(presenceStatus || '접속중')} />
+                <S.StatusText>{presenceStatus}</S.StatusText>
+              </S.StatusWrapper>
+            </S.Followlist>
+          );
+        })}
+      </S.FollowListWarp>
+
+      <S.FollowFooterWrap>
+        <S.FooterItems >
+          <S.MenuFont>≡</S.MenuFont><S.FooterText>친구목록 [ {follow.length} 명]</S.FooterText>
+        </S.FooterItems>
+        <S.FooterItems >
+          <S.ArrangeIcon>↓↑ </S.ArrangeIcon><S.FooterText>등급 순</S.FooterText>
+        </S.FooterItems>
+      </S.FollowFooterWrap>
     </S.FollowWrap>
   );
 };

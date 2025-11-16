@@ -117,6 +117,9 @@ S.RoomList = styled.div`
         transform: translate(-50%, -50%); /* 요소 자체의 너비와 높이의 50%를 이동시켜 정중앙에 위치시킴 */
     }
 `
+S.PasswordHidden = styled.p`
+    display: none;
+`
 S.RowWrap = styled.div`
     display: flex;
     flex-direction: row;
@@ -219,7 +222,7 @@ S.FollowWrap = styled.div`
     height: 423px;
     display: flex;
     flex-direction: column;
-    justify-content: baseline;
+    justify-content: space-between;
     align-items: center;
     background-color: #fff;
     border-radius: 12px;
@@ -232,7 +235,7 @@ S.Followlist = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    
+    margin-bottom: 4px;
     p {
         ${h9Medium};
     }
@@ -447,5 +450,40 @@ S.FilterWrap = styled.div`
     margin-bottom: 14px;
     margin-right: 10px;
     gap: 12px;
+`
+S.FollowFooterWrap = styled.div`
+    width: 100%;
+    height: 10%;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+`
+S.MenuFont = styled.span`
+    font-size: 22px;
+`
+S.FooterText = styled.span`
+    ${h9Light}
+`
+S.FooterItems = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+`
+S.ArrangeIcon = styled.span`
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing:-2px;
+`
+S.FollowListWarp = styled.div`
+    width: 100%;
+    height: 85%;
+    display: flex;
+    flex-direction: column;
+    justify-content: baseline;
+    align-items: center;
 `
 export default S;

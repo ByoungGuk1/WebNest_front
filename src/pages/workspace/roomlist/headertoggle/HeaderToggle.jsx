@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
 import S from './style';
 import Modal from './modal/Modal';
+import { useNavigate } from 'react-router-dom';
 
-const HeaderToggle = ({ teamMode, onTeamModeChange }) => {
+const HeaderToggle = ({ teamMode, onTeamModeChange, rooms }) => {
     // const [defficultOpen, defficultRef, defficultHandler] = useDropDown();
     const [difficult, setDifficult] = useState(0);
+    const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // 입장 가능 방: 시작 안 함 + 공개
+    const entrancableRooms = rooms.filter((list) => !list.gameRoomIsStart).filter((room) => room.gameRoomIsOpen)
+
+    const randomIndex = Math.floor(Math.random() * entrancableRooms.length)
+        
 
     const handleTeamToggle = () => {
         // null -> false (개인전) -> true (팀전) -> null (전체) 순환
@@ -16,6 +24,56 @@ const HeaderToggle = ({ teamMode, onTeamModeChange }) => {
         } else {
             onTeamModeChange(null); // 전체
         }
+    };
+
+    // 타입 -> 라우터 경로 매핑
+    const mapTypeToRoute = (type) => {
+        let t = type;
+        if (t && typeof t === 'object') {
+            if (t.value != null) t = t.value; else if (t.type != null) t = t.type; else if (t.name != null) t = t.name; else t = String(t);
+        }
+        const upper = (t || '').toString().toUpperCase();
+        if (upper === 'SNAKE') return 'snakepuzzle';
+        if (upper === 'OMOK') return 'concave';
+        if (upper === 'WORD') return 'lastword';
+        return (t || '').toString().toLowerCase();
+    };
+
+    const normalizeId = (raw) => {
+        if (raw == null) return '';
+        if (typeof raw === 'object') {
+            if (raw.id != null) return String(raw.id);
+            if (raw.value != null) return String(raw.value);
+            if (raw.$numberLong != null) return String(raw.$numberLong);
+            return '';
+        }
+        return String(raw);
+    };
+
+    const goToRandomRoom = () => {
+        if (randomIndex < 0) {
+            alert('입장 가능한 방이 없습니다.');
+            return;
+        }
+        const room = entrancableRooms[randomIndex];
+        const roomIdStr = encodeURIComponent(normalizeId(room?.id));
+        const routePath = mapTypeToRoute(room?.gameRoomType);
+        if (!roomIdStr || !routePath) {
+            alert('방 정보가 올바르지 않습니다.');
+            return;
+        }
+
+        // 비밀번호 방이면 입력 요청
+        const hasPassword = room?.gameRoomPassKey != null && String(room.gameRoomPassKey).trim() !== '';
+        if (hasPassword) {
+            const input = window.prompt('비밀번호를 입력하세요.');
+            if (input == null) return;
+            if (String(input).trim() !== String(room.gameRoomPassKey).trim()) {
+                alert('비밀번호가 올바르지 않습니다.');
+                return;
+            }
+        }
+        navigate(`/workspace/rooms/${roomIdStr}/${encodeURIComponent(routePath)}`);
     };
 
     const toggleModal = () => {
@@ -35,20 +93,6 @@ const HeaderToggle = ({ teamMode, onTeamModeChange }) => {
         setDifficult((i) => (i + 1) % difficultSelect.length);
     }
 
-    console.log("currentDifficult:", difficult)
-    // <S.DropConatiner ref={defficultRef}>
-    //     <S.ButtonWrap>
-    //         {/* {defficultOpen && (  게임방 눌렀을때 게임선택 토글버튼 누르면 나오는 메뉴들
-    //             <S.DropDownMenu> 
-    //                 <span><S.ToggleIconCircle><img src="/assets/icons/os.svg" /></S.ToggleIconCircle>오목</span>
-    //                 <span><S.ToggleIconCircle><img src="/assets/icons/snake.svg" /></S.ToggleIconCircle>뱀 퍼즐</span>
-    //                 <span><S.ToggleIconCircle><img src="/assets/icons/ga.svg" /></S.ToggleIconCircle>끝말잇기</span>
-    //                 <span><S.ToggleIconCircle><img src="/assets/icons/gamecard.svg" /></S.ToggleIconCircle>카드 뒤집기</span>
-    //             </S.DropDownMenu>
-    //           )} */}
-    //     </S.ButtonWrap>
-    // </S.DropConatiner>
-
     return (
         <S.GameRoomToggleWrap>
             <S.GameRoomToggle><S.IconCircle><img src="/assets/icons/plus2.png" alt='방만들기기' /></S.IconCircle><S.GameRoomToggleInnerText onClick={toggleModal}>방 만들기</S.GameRoomToggleInnerText>{isModalOpen && (
@@ -57,7 +101,7 @@ const HeaderToggle = ({ teamMode, onTeamModeChange }) => {
                     <S.ModalBG />
                 </>
             )}</S.GameRoomToggle>
-            <S.GameRoomToggle><S.IconCircle><img src="/assets/icons/flash.png" alt='빠른입장'/></S.IconCircle><S.GameRoomToggleInnerText>빠른 입장</S.GameRoomToggleInnerText></S.GameRoomToggle>
+            <S.GameRoomToggle onClick={goToRandomRoom}><S.IconCircle><img src="/assets/icons/flash.png" alt='빠른입장'/></S.IconCircle><S.GameRoomToggleInnerText>빠른 입장</S.GameRoomToggleInnerText></S.GameRoomToggle>
             <S.GameRoomToggle onClick={nextLevel}><S.IconCircle><img src="/assets/icons/star.png" alt='난이도' /></S.IconCircle><S.GameRoomToggleInnerText>{currentDifficult.value}</S.GameRoomToggleInnerText></S.GameRoomToggle>
             <S.GameRoomToggle $isSelected={teamMode !== null} onClick={handleTeamToggle}>
                 <S.IconCircle><img src="/assets/icons/people.png" alt='개인전' /></S.IconCircle>

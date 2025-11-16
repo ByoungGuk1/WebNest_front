@@ -33,13 +33,36 @@ const RoomListContainer = () => {
         return;
       }
 
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/game-rooms/?userId=${userId}`)
-      if(!response.ok) {
-        setIsLoading(false);
-        return;
-      }
-      const datas = await response.json()
-      console.log('📦 전체 응답 데이터:', datas);
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        const headers = {
+          "Content-Type": "application/json",
+        };
+        
+        // 토큰이 있으면 Authorization 헤더 추가
+        if (accessToken) {
+          headers["Authorization"] = `Bearer ${accessToken}`;
+        }
+
+        // privateapi 패키지이므로 /private prefix 필요
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/private/game-rooms?userId=${userId}`, {
+          method: "GET",
+          headers: headers
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("❌ 게임방 목록 조회 실패:", {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        const datas = await response.json();
+        console.log('📦 전체 응답 데이터:', datas);
       
       // 응답 구조 확인: ApiResponseDTO 형태 { message, data } 또는 직접 data일 수 있음
       const responseData = datas?.data || datas;
@@ -62,15 +85,16 @@ const RoomListContainer = () => {
       
       setRooms(validRoomList);
       setIsLoading(false);
-      setMyFollowing(Array.isArray(following) ? following : []);
-      setMyWinCount(winningCount);
-      setMyInfos(typeof myInfos === 'object' && myInfos !== null ? myInfos : {});
-    }
-    getRooms()  
-      .catch((error) => {
+        setMyFollowing(Array.isArray(following) ? following : []);
+        setMyWinCount(winningCount);
+        setMyInfos(typeof myInfos === 'object' && myInfos !== null ? myInfos : {});
+      } catch (error) {
         console.error("게임방 목록 불러오는 중 에러 발생:", error);
-        setIsLoading(false)
-      })
+        setIsLoading(false);
+      }
+    };
+    
+    getRooms();
   }, [userId])
 
   // 필터링 및 정렬된 rooms
@@ -160,7 +184,7 @@ const RoomListContainer = () => {
     <S.GameRoomBackGround>
       <div>
         {/* 게임방 상단 토글 */}
-          <HeaderToggle teamMode={teamMode} onTeamModeChange={setTeamMode} />
+          <HeaderToggle teamMode={teamMode} onTeamModeChange={setTeamMode} rooms={rooms}/>
           
         <S.LayoutWrapper>
           {/* 게임방리스트 왼쪽 유저 인터페이스(친구창, 유저카드) */}

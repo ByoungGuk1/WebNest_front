@@ -1,8 +1,10 @@
 import React from 'react';
 import theme from '../../../styles/theme';
 import S from './style'
+import { useNavigate } from 'react-router-dom';
 
 const RoomList = ({ rooms = [], isLoading = false }) => {
+  const navigate = useNavigate();
   
   if(isLoading){
     return <div>게임방 목록을 불러오는 중...😅</div>
@@ -11,8 +13,6 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
   if(!rooms || !rooms.length){
     return <div>게임방 목록이 없습니다.😥</div>
   }
-  
-  console.log('🏠 RoomList - rooms:', rooms);
   
   const getLevelColor = (level) => {
     const lv = level || 1;
@@ -32,14 +32,67 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
     return Math.round(totalLevel / players.length);
   };
 
+  // 안전한 ID 문자열 변환 (중첩 객체 방어)
+  const normalizeId = (raw) => {
+    if (raw == null) return '';
+    if (typeof raw === 'object') {
+      if (raw.id != null) return String(raw.id);
+      if (raw.value != null) return String(raw.value);
+      if (raw.$numberLong != null) return String(raw.$numberLong);
+      return '';
+    }
+    return String(raw);
+  };
+
+  // 백엔드 타입을 라우터 경로로 매핑 (중첩 객체 방어)
+  const mapTypeToRoute = (type) => {
+    let t = type;
+    if (t && typeof t === 'object') {
+      if (t.value != null) t = t.value;
+      else if (t.type != null) t = t.type;
+      else if (t.name != null) t = t.name;
+      else t = String(t);
+    }
+    const upper = (t || '').toString().toUpperCase();
+    if (upper === 'SNAKE') return 'snakepuzzle';
+    if (upper === 'OMOK') return 'concave';
+    if (upper === 'WORD') return 'lastword';
+    return (t || '').toString().toLowerCase();
+  };
+
   const roomList = rooms.map(({gameRoomCreateAt, gameRoomCurrentPlayer, gameRoomIsOpen, gameRoomIsStart, gameRoomIsTeam, gameRoomMaxPlayer, gameRoomPassKey, gameRoomTitle, gameRoomType, gameRoomLanguage, id, players}, i) => {
     const isFull = gameRoomCurrentPlayer >= gameRoomMaxPlayer;
     const isDisabled = !gameRoomIsOpen || isFull;
     const averageLevel = calculateAverageLevel(players);
     const levelColor = getLevelColor(averageLevel);
+    const routePath = mapTypeToRoute(gameRoomType);
+    
+    const handleEnter = () => {
+      if (isDisabled) return;
+      const hasPassword = gameRoomPassKey != null && String(gameRoomPassKey).trim() !== '';
+      if (hasPassword) {
+        const input = window.prompt('비밀번호를 입력하세요.');
+        if (input == null) return; // 취소
+        if (String(input).trim() !== String(gameRoomPassKey).trim()) {
+          alert('비밀번호가 올바르지 않습니다.');
+          return;
+        }
+      }
+      const roomIdStr = encodeURIComponent(normalizeId(id));
+      const typeStr = encodeURIComponent(String(routePath || ''));
+      if (!roomIdStr || !typeStr) {
+        alert('방 정보가 올바르지 않습니다.');
+        return;
+      }
+      navigate(`/workspace/rooms/${roomIdStr}/${typeStr}`);
+    };
+
+    // 아이콘: 비밀번호 있거나 비공개면 잠금, 그 외에는 열림
+    const isLocked = (gameRoomPassKey != null && String(gameRoomPassKey).trim() !== '') || !gameRoomIsOpen;
+    const lockIconSrc = isLocked ? '/assets/images/game-room/lock.png' : '/assets/images/game-room/unlock.png';
     
     return (
-      <S.RoomListLink to={isDisabled ? '#' : `/workspace/rooms/${id}/${gameRoomType}`} key={i}>
+      <div onClick={handleEnter} key={i}>
         <S.RoomList $isDisabled={isDisabled}>
         <S.RoomLeft>
           <img src='/assets/images/game-room/flag.png' alt='flag' className='flag'></img>
@@ -48,9 +101,7 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
             {gameRoomLanguage && <S.RoomLanguage>{gameRoomLanguage}</S.RoomLanguage>}
           </S.RoomTitleWrapper>
         </S.RoomLeft>
-
-        {gameRoomIsOpen ? <img src='/assets/images/game-room/unlock.png' alt='오픈이미지' className='locker'></img> : <img src='/assets/images/game-room/unlock.png' alt='오픈이미지'  className='locker'></img>}
-        
+        <img src={lockIconSrc} alt={isLocked ? '잠금' : '오픈'} className='locker' />
         <S.RoomRight>
           <S.ProfileWrapper>
             <S.ProfileWrap>
@@ -64,7 +115,7 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
                 )
               })}
             </S.ProfileWrap>
-            {averageLevel > 0 && <S.AverageLevelText $levelColor={levelColor}>Lv.{averageLevel}</S.AverageLevelText>}
+            {averageLevel > 0 && <S.AverageLevelText $levelColor={getLevelColor(averageLevel)}>Lv.{averageLevel}</S.AverageLevelText>}
           </S.ProfileWrapper>
           <S.TeamWrap>
             {gameRoomCurrentPlayer}/{gameRoomMaxPlayer}
@@ -72,7 +123,8 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
           </S.TeamWrap>
         </S.RoomRight>
       </S.RoomList>
-    </S.RoomListLink>
+      <S.PasswordHidden className='password'>{gameRoomPassKey}</S.PasswordHidden>
+      </div>
     );
   })
 

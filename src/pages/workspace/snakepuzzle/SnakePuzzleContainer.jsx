@@ -19,6 +19,8 @@ const SnakePuzzleContainer = () => {
   const [isMyTurn, setIsMyTurn] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [isGameEnded, setIsGameEnded] = useState(false);
+  const [winner, setWinner] = useState(null);
   // 10x10 뷰 순서(지그재그)로 정렬된 숫자 배열 생성
   // 말판 부분 - 1이 왼쪽 하단, 100이 오른쪽 상단
   const cells = useMemo(() => {
@@ -47,6 +49,7 @@ const SnakePuzzleContainer = () => {
   const [userLocation, setUserLocation] = useState(0);
   const lastProcessedRef = useRef(null);
   const hasProcessedLocationRef = useRef(false);
+  const previousPositionsRef = useRef({}); // 각 플레이어의 이전 위치 저장
   const gameStompClientRef = useRef(null);
   
   useEffect(() => {
@@ -81,6 +84,21 @@ const SnakePuzzleContainer = () => {
           if (data.gameRoomIsStart !== undefined) {
             setIsGameStarted(data.gameRoomIsStart === true || data.gameRoomIsStart === 1);
           }
+          
+          // 방장 여부 확인 (초기 로드 시)
+          if (data.players && Array.isArray(data.players)) {
+            const currentPlayer = data.players.find(p => String(p.userId) === String(userId));
+            if (currentPlayer) {
+              // gameJoinIsHost 필드 우선 확인
+              const isHostPlayer = currentPlayer.gameJoinIsHost === true || 
+                                   currentPlayer.gameJoinIsHost === 1 ||
+                                   currentPlayer.isHost === true || 
+                                   currentPlayer.isHost === 1;
+              setIsHost(isHostPlayer);
+              console.log('🎮 초기 방장 여부:', { userId, isHostPlayer, gameJoinIsHost: currentPlayer.gameJoinIsHost, isHost: currentPlayer.isHost });
+            }
+          }
+          
           console.log('🎮 게임방 상태 조회:', data);
         } else {
           // 500 에러 등 실패 시 로그 출력
@@ -93,7 +111,7 @@ const SnakePuzzleContainer = () => {
     };
 
     fetchGameRoomStatus();
-  }, [roomId]);
+  }, [roomId, userId]); // userId 추가 - 방장 여부 확인에 필요
 
   // STOMP 연결 및 게임 상태 구독
   useEffect(() => {
@@ -123,19 +141,66 @@ const SnakePuzzleContainer = () => {
 
           if (body.type === 'GAME_STARTED') {
             setIsGameStarted(true);
+            setIsGameEnded(false);
+            setWinner(null);
+          }
+          
+          // 게임 종료 이벤트 확인
+          if (body.type === 'GAME_ENDED' || body.gameEnded === true || body.gameEnded === 1) {
+            setIsGameEnded(true);
+            setIsGameStarted(false); // 게임 시작 상태를 false로 변경
+            setIsMyTurn(false);
+            setIsReady(false); // 준비 상태 초기화
+            
+            // 승자 찾기 (위치가 100인 플레이어)
+            if (body.gameState && Array.isArray(body.gameState)) {
+              const winnerPlayer = body.gameState.find(p => (p.gameJoinPosition || 0) >= 100);
+              if (winnerPlayer) {
+                const winnerName = winnerPlayer.userNickname || winnerPlayer.nickname || '플레이어';
+                setWinner(winnerName);
+                alert(`${winnerName}님이 승리하셨습니다! 게임이 종료되었습니다.`);
+              } else {
+                alert("게임이 종료되었습니다!");
+              }
+            }
+            
+            // 게임 종료 후 초기화: 플레이어 위치 리셋 등
+            setUserLocation(0);
+            setDiceA(null);
+            setDiceB(null);
           }
 
           if (body.type === 'GAME_STARTED' || body.type === 'DICE_ROLLED' || body.type === 'GAME_STATE') {
             if (body.gameState && Array.isArray(body.gameState)) {
+              // 주사위 결과가 있으면 먼저 alert 표시
+              if (body.type === 'DICE_ROLLED' && body.dice1 && body.dice2) {
+                // 주사위를 굴린 플레이어 찾기 (현재 턴이었던 플레이어 또는 body에 포함된 정보)
+                const rollingPlayer = body.gameState.find(p => 
+                  (p.gameJoinMyturn === true || p.gameJoinMyturn === 1) ||
+                  (p.isTurn === true || p.isTurn === 1)
+                ) || body.rollingPlayer || body.gameState[0];
+                
+                const userNickname = rollingPlayer?.userNickname || rollingPlayer?.nickname || '플레이어';
+                const dice1 = body.dice1;
+                const dice2 = body.dice2;
+                const moveCount = dice1 + dice2;
+                
+                alert(`${userNickname}님이 ${dice1} ${dice2}가 나와 앞으로 ${moveCount}칸 이동합니다.`);
+              }
+
               setGameState(body);
               setPlayers(body.gameState);
               
               // 현재 유저의 플레이어 정보 찾기
               const currentPlayer = body.gameState.find(p => String(p.userId) === String(userId));
               if (currentPlayer) {
-                // 방장 여부 확인 (첫 번째 플레이어가 방장 또는 isHost 필드 확인)
-                const hostPlayer = body.gameState.find(p => p.isHost === true || p.isHost === 1) || body.gameState[0];
-                setIsHost(String(hostPlayer.userId) === String(userId));
+                // 방장 여부 확인 (gameJoinIsHost 필드 우선 확인)
+                const isHostPlayer = currentPlayer.gameJoinIsHost === true || 
+                                     currentPlayer.gameJoinIsHost === 1 ||
+                                     currentPlayer.isHost === true || 
+                                     currentPlayer.isHost === 1;
+                setIsHost(isHostPlayer);
+                console.log('🎮 방장 여부 업데이트:', { userId, isHostPlayer, gameJoinIsHost: currentPlayer.gameJoinIsHost, isHost: currentPlayer.isHost });
                 
                 // 내 턴 여부 확인 (gameJoinMyturn 필드 사용)
                 const myTurn = currentPlayer.gameJoinMyturn === true || currentPlayer.gameJoinMyturn === 1 || 
@@ -153,11 +218,59 @@ const SnakePuzzleContainer = () => {
                   setIsReady(currentPlayer.isReady === true || currentPlayer.isReady === 1);
                 }
                 
+                // 위치 변경 감지 및 이벤트 알림
+                const previousPosition = previousPositionsRef.current[currentPlayer.userId] || currentPlayer.gameJoinPosition || 0;
+                const currentPosition = currentPlayer.gameJoinPosition || 0;
+                
+                if (previousPosition !== currentPosition && currentPosition > 0) {
+                  // 이동 후 이벤트 체크
+                  if (body.boardType === 'TRAP') {
+                    const trapPlayer = body.gameState.find(p => 
+                      p.gameJoinPosition === currentPosition && 
+                      (previousPosition < currentPosition || currentPosition < previousPosition)
+                    );
+                    if (trapPlayer) {
+                      const trapNickname = trapPlayer.userNickname || trapPlayer.nickname || '플레이어';
+                      const movedBack = previousPosition - currentPosition;
+                      alert(`${trapNickname}님이 함정에 빠져 ${movedBack > 0 ? movedBack + '칸 뒤로' : Math.abs(movedBack) + '칸 앞으로'} 이동합니다.`);
+                    } else {
+                      alert("함정발동!! 뒤로 내려갑니다.");
+                    }
+                  } else if (body.boardType === 'LADDER') {
+                    const ladderPlayer = body.gameState.find(p => 
+                      p.gameJoinPosition === currentPosition && 
+                      currentPosition > previousPosition
+                    );
+                    if (ladderPlayer) {
+                      const ladderNickname = ladderPlayer.userNickname || ladderPlayer.nickname || '플레이어';
+                      const movedForward = currentPosition - previousPosition;
+                      alert(`${ladderNickname}님이 사다리를 발견해 ${movedForward}칸 앞으로 이동합니다.`);
+                    } else {
+                      alert("사다리 발견! 앞으로 갑니다.");
+                    }
+                  }
+                  
+                  // 이전 위치 업데이트
+                  previousPositionsRef.current[currentPlayer.userId] = currentPosition;
+                } else if (currentPosition > 0) {
+                  // 위치가 처음 설정되는 경우
+                  previousPositionsRef.current[currentPlayer.userId] = currentPosition;
+                }
+                
                 // 내 위치 업데이트
                 if (currentPlayer.gameJoinPosition !== undefined && currentPlayer.gameJoinPosition !== null) {
                   setUserLocation(currentPlayer.gameJoinPosition);
                 }
               }
+              
+              // 모든 플레이어의 위치 업데이트
+              body.gameState.forEach((player) => {
+                if (player.gameJoinPosition !== undefined && player.gameJoinPosition !== null) {
+                  if (!previousPositionsRef.current[player.userId]) {
+                    previousPositionsRef.current[player.userId] = player.gameJoinPosition;
+                  }
+                }
+              });
             }
 
             // 주사위 결과가 있으면 표시
@@ -166,17 +279,7 @@ const SnakePuzzleContainer = () => {
               setDiceB(body.dice2);
             }
 
-            // 함정/사다리 알림
-            if (body.boardType === 'TRAP') {
-              alert("함정발동!! 뒤로 내려갑니다.");
-            } else if (body.boardType === 'LADDER') {
-              alert("사다리 발견! 앞으로 갑니다.");
-            }
-
-            // 게임 종료 알림
-            if (body.gameEnded) {
-              alert("승리하셨습니다!");
-            }
+            // 게임 종료는 위에서 이미 처리됨
           }
         });
       },
@@ -191,115 +294,6 @@ const SnakePuzzleContainer = () => {
       }
     };
   }, [roomId, userId]);
-
-  // 주의: 서버에서 뱀/사다리 처리 및 위치 계산을 수행하므로, 
-  // 클라이언트에서는 서버 응답을 기반으로 위치만 업데이트
-  // 아래 코드는 서버 응답을 받기 전까지의 임시 로직이거나 비활성화됨
-  
-  // userLocation이 변경될 때 뱀과 사다리 처리 (서버에서 처리하므로 비활성화)
-  /*
-  useEffect(() => {
-    if (hasProcessedLocationRef.current) return;
-    
-    let newLocation = userLocation;
-    let shouldUpdate = false;
-
-    // 승리 체크
-    if (userLocation >= 100) {
-      alert("승리하셨습니다!");
-      setUserLocation(0);
-      hasProcessedLocationRef.current = true;
-      return;
-    }
-
-    // 뱀과 사다리 처리
-    switch (userLocation) {
-      // 뱀 (Snakes) - 아래로 내려감
-      case 99:
-        newLocation = 65;
-        shouldUpdate = true;
-        alert("함정발동!! 뒤로 내려갑니다.")
-        break;
-      case 95:
-        alert("함정발동!! 뒤로 내려갑니다.")
-        newLocation = 75;
-        shouldUpdate = true;
-        break;
-      case 87:
-        alert("함정발동!! 뒤로 내려갑니다.")
-        newLocation = 24;
-        shouldUpdate = true;
-        break;
-      case 64:
-        alert("함정발동!! 뒤로 내려갑니다.")
-        newLocation = 43;
-        shouldUpdate = true;
-        break;
-      case 59:
-        alert("함정발동!! 뒤로 내려갑니다.")
-        newLocation = 2;
-        shouldUpdate = true;
-        break;
-      case 36:
-        alert("함정발동!! 뒤로 내려갑니다.")
-        newLocation = 6;
-        shouldUpdate = true;
-        break;
-      case 28:
-        alert("함정발동!! 뒤로 내려갑니다.")
-        newLocation = 10;
-        shouldUpdate = true;
-        break;
-      case 16:
-        alert("함정발동!! 뒤로 내려갑니다.")
-        newLocation = 3;
-        shouldUpdate = true;
-        break;
-      
-      // 사다리 (Ladders) - 위로 올라감
-      case 4:
-        alert("사다리 발견! 앞으로 갑니다.")
-        newLocation = 25;
-        shouldUpdate = true;
-        break;
-      case 27:
-        alert("사다리 발견! 앞으로 갑니다.")
-        newLocation = 48;
-        shouldUpdate = true;
-        break;
-      case 33:
-        alert("사다리 발견! 앞으로 갑니다.")
-        newLocation = 63;
-        shouldUpdate = true;
-        break;
-      case 42:
-        alert("사다리 발견! 앞으로 갑니다.")
-        newLocation = 60;
-        shouldUpdate = true;
-        break;
-      case 50:
-        alert("사다리 발견! 앞으로 갑니다.")
-        newLocation = 69;
-        shouldUpdate = true;
-        break;
-      case 62:
-        alert("사다리 발견! 앞으로 갑니다.")
-        newLocation = 81;
-        shouldUpdate = true;
-        break;
-      case 74:
-        alert("사다리 발견! 앞으로 갑니다.")
-        newLocation = 92;
-        shouldUpdate = true;
-        break;
-    }
-
-    if (shouldUpdate) {
-      setUserLocation(newLocation);
-    }
-    hasProcessedLocationRef.current = true;
-  }, [userLocation]);
-  */
 
   console.log(userLocation)
   
@@ -341,7 +335,7 @@ const SnakePuzzleContainer = () => {
   };
 
   const handleRollDice = () => {
-    if (isRolling || !isMyTurn) return;
+    if (isRolling || !isMyTurn || isGameEnded) return;
     if (!gameStompClientRef.current || !gameStompClientRef.current.connected) {
       alert("게임 서버에 연결되지 않았습니다.");
       return;
@@ -488,10 +482,16 @@ const SnakePuzzleContainer = () => {
             onTouchStart={handlePressStart}
             onTouchEnd={handlePressEnd}
             onTouchCancel={handlePressEnd}
-            disabled={isRolling || !isMyTurn}
+            disabled={isRolling || !isMyTurn || isGameEnded}
             data-pressing={isPressing}
           >
-            {isRolling ? "Rolling..." : !isMyTurn ? "다른 플레이어의 턴입니다" : "주사위 굴리기"}
+            {isGameEnded 
+              ? (winner ? `게임 종료 - ${winner}님이 승리!` : "게임 종료") 
+              : isRolling 
+                ? "Rolling..." 
+                : !isMyTurn 
+                  ? "다른 플레이어의 턴입니다" 
+                  : "주사위 굴리기"}
           </S.RollBtn>
         )}
       </S.DiceArea>
@@ -582,7 +582,7 @@ const SnakePuzzleContainer = () => {
             
             return (
               <S.PlayerMarker
-                key={`player-${player.userId}-${playerPosition}`}
+                key={`player-${player.userId}`}
                 $left={position.x}
                 $top={position.y}
                 $isCurrentUser={isCurrentUser}

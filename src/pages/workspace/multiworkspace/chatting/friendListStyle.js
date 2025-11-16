@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import { h6Bold, h6Light } from "styles/common";
+import { h6Bold, h6Light, h9Medium, h9Light } from "styles/common";
+import theme from "../../../../styles/theme";
 
 const S = {};
 
@@ -46,38 +47,101 @@ S.FriendListContent = styled.div`
   flex-direction: column;
   gap: 8px;
 
-  /* 스크롤바 스타일 */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 3px;
-  }
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
 `;
 
-// 친구 항목
-S.FriendItem = styled.div`
+// ====== Follow styles (룸 리스트와 동일 네이밍/역할) ======
+S.FollowWrap = styled.div`
+  padding-top: 12px;
+  width: 100%;
+  height: 99%;
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.03);
-  }
+  /* background-color: #fff; */
+  border-radius: 12px;
+  overflow: scroll;
 `;
 
-// 체크박스
+S.FollowListWarp = styled.div`
+  width: 100%;
+  height: 85%;
+  display: flex;
+  flex-direction: column;
+  justify-content: baseline;
+  align-items: center;
+`;
+
+S.Followlist = styled.div`
+  width: 85%;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  p { 
+    ${h9Medium};
+     margin: 0;
+    }
+`;
+
+S.FollowLeftWrap = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+`;
+
+S.FollowImg = styled.img`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  object-fit: cover;
+`;
+
+S.FollowNameWrap = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+S.LevelImg = styled.img`
+  width: 6px;
+  height: 7px;
+`;
+
+S.LevelWrap = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+  width: 30px;
+  height: 15px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0px 0px 1.75px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  justify-content: center;
+`;
+
+S.LevelText = styled.p`
+  font-size: 8px;
+  line-height: 12px;
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+  letter-spacing: -0.5px;
+  margin: 0;
+  color: ${({ $levelColor }) => $levelColor || theme.PALETTE.primary.red.main};
+`;
+
+// 체크박스 (이미지 옆)
 S.Checkbox = styled.div`
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  border: 2px solid ${(props) => (props.selected ? "#2F96FD" : "#D9D9D9")};
-  background-color: ${(props) => (props.selected ? "#2F96FD" : "transparent")};
+  border: 2px solid ${({ $selected }) => ($selected ? '#6D2FFD' : '#D9D9D9')};
+  background-color: ${({ $selected }) => ($selected ? '#6D2FFD' : 'transparent')};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,65 +149,38 @@ S.Checkbox = styled.div`
   transition: all 0.2s ease;
 `;
 
-// 체크마크
 S.Checkmark = styled.span`
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
   line-height: 1;
 `;
 
-// 친구 아바타
-S.FriendAvatar = styled.img`
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-  background-color: #EFEFEF;
-`;
-
-// 친구 정보 (레벨 + 이름)
-S.FriendInfo = styled.div`
+S.StatusWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-`;
-
-// 레벨 배지
-S.LevelBadge = styled.div`
-  display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 4px;
-  
-  img {
-    width: 16px;
-    height: 16px;
-    object-fit: contain;
-  }
-
-  span {
-    ${h6Light}
-    font-size: 12px;
-    color: #666;
-    font-weight: 600;
-  }
 `;
 
-// 친구 이름
-S.FriendName = styled.span`
-  ${h6Light}
-  font-size: 14px;
-  color: #121212;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+S.StatusDot = styled.div`
+  width: 5px;
+  height: 5px;
+  border-radius: 100%;
+  background-color: ${({ $color }) => $color || theme.PALETTE.neutral.gray.main};
 `;
 
-// 친구 목록 푸터
+S.StatusText = styled.p`
+  font-size: 8px;
+  line-height: 12px;
+  font-weight: ${({ theme }) => theme.FONT_WEIGHT.medium};
+  letter-spacing: -0.5px;
+  color: #808080;
+  margin: 0;
+`;
+// ====== Follow styles end ======
+
+// ====== 아래 푸터는 절대 수정 금지 ======
 S.FriendListFooter = styled.div`
   width: 100%;
   height: 60px;
@@ -151,11 +188,8 @@ S.FriendListFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  background-color: #FAFAFA;
 `;
 
-// 초대하기 버튼
 S.InviteButton = styled.button`
   ${h6Bold}
   font-size: 14px;
@@ -166,17 +200,10 @@ S.InviteButton = styled.button`
   padding: 8px 12px;
   border-radius: 6px;
   transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: rgba(47, 150, 253, 0.1);
-  }
-
-  &:active {
-    background-color: rgba(47, 150, 253, 0.2);
-  }
+  &:hover { background-color: rgba(47,150,253,0.1); }
+  &:active { background-color: rgba(47,150,253,0.2); }
 `;
 
-// 취소하기 버튼
 S.CancelButton = styled.button`
   ${h6Bold}
   font-size: 14px;
@@ -187,17 +214,10 @@ S.CancelButton = styled.button`
   padding: 8px 12px;
   border-radius: 6px;
   transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: rgba(244, 67, 54, 0.1);
-  }
-
-  &:active {
-    background-color: rgba(244, 67, 54, 0.2);
-  }
+  &:hover { background-color: rgba(244,67,54,0.1); }
+  &:active { background-color: rgba(244,67,54,0.2); }
 `;
 
-// 푸터 상태 (중앙)
 S.FooterStatus = styled.div`
   display: flex;
   align-items: center;
@@ -205,13 +225,9 @@ S.FooterStatus = styled.div`
   ${h6Light}
   font-size: 12px;
   color: #666;
-
-  span:first-child {
-    font-size: 16px;
-  }
+  span:first-child { font-size: 16px; }
 `;
 
-// 정렬 버튼
 S.SortButton = styled.button`
   ${h6Light}
   font-size: 12px;
@@ -222,10 +238,7 @@ S.SortButton = styled.button`
   padding: 4px 8px;
   border-radius: 4px;
   transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
+  &:hover { background-color: rgba(0,0,0,0.05); }
 `;
 
 export default S;
