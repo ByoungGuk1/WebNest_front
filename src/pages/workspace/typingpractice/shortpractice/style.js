@@ -23,6 +23,8 @@ S.SectionTitle = styled.div`
   display: flex;
   align-items: center;     /* 세로 가운데 */
   padding-left: 35px;
+  //
+  white-space: pre-wrap;
 `;
 
 
@@ -40,11 +42,11 @@ S.InputBox = styled.input`
 
   outline: none;
 
-  /* 🔥 글씨 위치 제목 박스와 완벽 동일 */
+  /*  글씨 위치 제목 박스와 완벽 동일 */
   padding-left: 35px;       
   padding-right: 15px;
 
-  /* 🔥 세로 중앙 자동 정렬 (input은 기본적으로 됨) */
+  /*  세로 중앙 자동 정렬 (input은 기본적으로 됨) */
   display: flex;
   align-items: center;
 
@@ -52,7 +54,7 @@ S.InputBox = styled.input`
 
 
 
-S.SentenceList = styled.ul`
+S.SentenceList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 19px;
@@ -72,25 +74,6 @@ S.SentenceList = styled.ul`
     color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
   }
 `;
-S.P = styled.ul`
-  display: flex;
-  flex-direction: column;
-  gap: 19px;
-  list-style: none;
- 
 
-  div {
-    background-color: white;
-    display: flex;
-    align-items: center;
-    padding-left: 40px;
-    width: 840px;
-    height: 57px;
-    margin: 0 auto;
-    border-radius: 10px;
-    ${h5Medium}
-    color: ${({ theme }) => theme.PALETTE.neutral.gray.light};
-  }
-`;
 
 export default S;
