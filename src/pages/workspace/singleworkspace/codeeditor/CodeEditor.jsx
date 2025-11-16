@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import S from './style';
 import { useSelector } from 'react-redux';
 
-const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
+const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
 
     const getUsers = useSelector((state) => state.user);
     const currentUser = getUsers.currentUser
-    const { id, userExp } = currentUser
+    const { id } = currentUser
 
     const addEditorLanguage = (lang) => {
         switch (lang?.toUpperCase()) {
@@ -76,7 +76,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
                         "quizSubmitCode": result
                     })
                 })
-                if(!response.ok) throw new Error("서버 오류")
+                if(!response.ok) throw new Error("서버 오류 ")
                 const jsData = await response.json();
                 console.log("jsData",jsData)
                 setOutput("문제풀이 성공")
@@ -185,6 +185,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExp, quizExpectation }) => {
                 })
             })
             const getExp = await response.json();
+            console.log("getExp", getExp)
             if (!response.ok) {
                 const resMessage = getExp.message || `서버 오류: ${response.status}`
                 setOutput(resMessage);

@@ -6,9 +6,9 @@
                 <S.Banner>
                     <S.BannerInner>
                         <div>
-                            <S.PageTitle>문제 둥지</S.PageTitle>
+                            <S.PageTitle>훈련장</S.PageTitle>
                             <S.PageDesc>
-                                모르는 문제를 함께 올리고 답변을 받아보세요.
+                                초급부터 최상급까지 다양한 훈련방식 으로 연습하세요!
                             </S.PageDesc>
                         </div>
                         <S.Illust
