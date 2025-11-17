@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { h3Light, h3Medium, h4Light, h6Light, h9Light } from "styles/common";
 import theme from "styles/theme";
 
 const S = {};
@@ -25,7 +26,7 @@ S.LeftPanel = styled.aside`
 `;
 
 S.Logo = styled.div`
-  font-weight: 700;
+  ${theme.FONT_WEIGHT.light}
   color: #333;
   margin-bottom: 8px;
 `;
@@ -33,8 +34,7 @@ S.Logo = styled.div`
 S.Timer = styled.div`
   display: flex;
   justify-content: center;
-  font-size: 28px;
-  font-weight: 700;
+  ${h3Medium}
   color: ${theme.PALETTE.primary.red.main};
   margin-bottom: 6px;
 `;
@@ -49,13 +49,12 @@ S.HelpBlock = styled.div`
   padding: 10px;
   border-radius: 6px;
   color: #444;
-  font-size: 13px;
-  line-height: 1.4;
+  ${h6Light}
   margin-bottom: 12px;
 `;
 
 S.HelpTitle = styled.div`
-  font-weight: 700;
+  ${theme.FONT_WEIGHT.light}
   margin-bottom: 6px;
 `;
 

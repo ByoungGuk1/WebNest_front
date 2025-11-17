@@ -38,6 +38,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
     // 자바스크립티티코드 핸들러
     function jsHandleRun(quizSubmitCode) {
         let logs = [];
+        setQuizSubmitCode(quizSubmitCode)
         const originalLog = console.log;
         console.log = (...args) => {
             logs.push(args.join(' '));
@@ -53,13 +54,13 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
         }
     }
     // 자바스크립트 채점
-    async function jsCompleteHandleRun(quizSubmitCode) {
+    async function jsCompleteHandleRun() {
+        console.log("채점부분", quizSubmitCode)
         // code = console.log("hello".length)
         // result = 5
-        console.log("code", result)
-        console.log("code", quizSubmitCode)
-        console.log("quizExpectation", quizExpectation)
         if(result != quizExpectation){
+            alert("기댓값과 일치하지 않습니다!")
+            setResult("")
             setOutput("기댓값과 일치하지 않습니다.")
             return;
         } 
@@ -73,12 +74,12 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
                     body: JSON.stringify({
                         "quizId": quizId,
                         "userId": id,
-                        "quizSubmitCode": result
+                        "quizSubmitCode": result,
+                        "quizSubmitResultCode": quizSubmitCode
                     })
                 })
                 if(!response.ok) throw new Error("서버 오류 ")
                 const jsData = await response.json();
-                console.log("jsData",jsData)
                 setOutput("문제풀이 성공")
                 alert(jsData.message)
             } catch (err) {
@@ -185,7 +186,6 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
                 })
             })
             const getExp = await response.json();
-            console.log("getExp", getExp)
             if (!response.ok) {
                 const resMessage = getExp.message || `서버 오류: ${response.status}`
                 setOutput(resMessage);
