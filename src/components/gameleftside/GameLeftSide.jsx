@@ -3,10 +3,12 @@ import S from './style';
 
 const GameLeftSide = (props) => {
 
+    // 시간/초초
     const timeoutSec = props.timeoutSec === undefined ? 30 : props.timeoutSec;
+    
     // 유저턴 0 또는 1
     const [turn, setTurn] = useState(1);
-    const [message, setMessage] = useState("좌표를 입력하세요. 예: [3|1] 또는 3,1");
+    const [message, setMessage] = useState("여기 게임 설명글 추가  ex) 좌표를 입력하세요 || ?? ");
     const [inGameMessage, setInGameMessage] = useState("게임 시작");
     const inputRef = useRef(null);
     const timerRef = useRef(null);
@@ -21,6 +23,7 @@ const GameLeftSide = (props) => {
         if (inputRef.current) inputRef.current.focus();
     }, []);
 
+    // 웹소켓 서버 연결하면 db에서 host가져오면됨
     function gameStart(host) {
     }
 
@@ -31,7 +34,7 @@ const GameLeftSide = (props) => {
             timerRef.current = null;
         }
     }
-    // 착수 제한시간
+    // 타이머
     function startTimer(start) {
         if (start) {
             clearTimer();
@@ -43,6 +46,7 @@ const GameLeftSide = (props) => {
                 if (remainingRef.current <= 0) {
                     clearTimer();
                 }
+                // 1초마다 
             }, 1000);
         }
     }
@@ -51,17 +55,17 @@ const GameLeftSide = (props) => {
         startTimer();
         return () => clearTimer();
     }, []);
+
+
     // 입력값을 받고 핸들링
     function handleSubmit(e) {
+
         // 걸려있는 이벤트 무효화
         e.preventDefault();
-
-        // 실제 좌표 입력값 ex 3,1
-        const val = inputRef.current ? inputRef.current.value : "";
-
-        // 입력좌표받고고 파싱 row 또는 colum
+        // 밑에 필요로직작성
     }
 
+    // 위 함수 실행시키는 함수수
     function handleKeyDown(e) {
         if (e.key === "Enter") handleSubmit(e);
     }
@@ -70,15 +74,15 @@ const GameLeftSide = (props) => {
         <S.Wrap>
             <S.LeftPanel>
                 <S.Logo>WebNest</S.Logo>
-                <S.Timer>{String(remaining).padStart(2, "0")}:00</S.Timer>
-                <S.Day>토요일</S.Day>
+                <S.Timer>{String(remaining).padStart(2, "0")}초</S.Timer>
+                <S.Day></S.Day>
 
                 <S.HelpBlock>
-                    <S.HelpTitle>설명</S.HelpTitle>
-                    <S.HelpText>이 오목게임은 키보드 입력으로 진행됩니다</S.HelpText>
-                    <S.HelpText>좌표 입력 예: [3|1]</S.HelpText>
-                    <S.HelpText>이미 돌이 있으면 입력 불가</S.HelpText>
-                    <S.HelpText>30초 지나면 무작위 배치됩니다</S.HelpText>
+                    <S.HelpTitle></S.HelpTitle>
+                    <S.HelpText></S.HelpText>
+                    <S.HelpText></S.HelpText>
+                    <S.HelpText></S.HelpText>
+                    <S.HelpText></S.HelpText>
                 </S.HelpBlock>
 
                 <S.Form onSubmit={handleSubmit}>
@@ -88,11 +92,11 @@ const GameLeftSide = (props) => {
                         placeholder="[r|c] 예: [3|1]"
                         autoComplete="off"
                     />
-                    <S.Submit>입력</S.Submit>
+                    <S.Submit></S.Submit>
                 </S.Form>
 
                 <S.MessageBox>
-                    <S.MsgHeader>메시지</S.MsgHeader>
+                    <S.MsgHeader></S.MsgHeader>
                     <S.MsgBody>{message}</S.MsgBody>
                 </S.MessageBox>
             </S.LeftPanel>
