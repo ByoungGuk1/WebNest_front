@@ -1,13 +1,13 @@
 import UserProfile from "./userprofile/UserProfile";
 import UserProfileBehind from "./userprofile/UserProfileBehind";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 
 const CardLayoutContainer = () => {
   const [users, setUsers] = useState([]);
   const params = useParams();
 
-  const getPlayers = async () => {
+  const getPlayers = useCallback(async () => {
     try {
       const fetchUrl = `${process.env.REACT_APP_BACKEND_URL}/player/${params.roomId}`;
       const res = await fetch(fetchUrl, {
@@ -28,19 +28,33 @@ const CardLayoutContainer = () => {
         return;
       }
 
-      const userdatas = players.map((user) => ({
-        ...user,
-        profileFlip: false,
-        gameJoinProfileText: user.gameJoinProfileText || "로딩 중",
-      }));
-
-      setUsers(userdatas);
-    } catch (error) {}
-  };
+      setUsers((prevUsers) => {
+        const userdatas = players.map((user) => {
+          const existingUser = prevUsers.find((u) => u.userId === user.userId);
+          return {
+            ...user,
+            profileFlip: existingUser?.profileFlip || false,
+            gameJoinProfileText: user.gameJoinProfileText || "로딩 중",
+          };
+        });
+        return userdatas;
+      });
+    } catch (error) {
+      console.error("getPlayers error:", error);
+    }
+  }, [params.roomId]);
 
   useEffect(() => {
+    if (!params.roomId) return;
+
     getPlayers();
-  }, [params.roomId]);
+
+    const interval = setInterval(() => {
+      getPlayers();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [params.roomId, getPlayers]);
 
   const flipCard = (userId, flipTo) => {
     setUsers((prev) =>

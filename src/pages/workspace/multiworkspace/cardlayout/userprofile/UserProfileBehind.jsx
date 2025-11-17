@@ -79,7 +79,9 @@ const UserProfileBehind = ({
       }
 
       if (getPlayers) {
-        await getPlayers();
+        setTimeout(() => {
+          getPlayers();
+        }, 500);
       }
     } catch (error) {}
   };

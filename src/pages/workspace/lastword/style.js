@@ -33,11 +33,19 @@ S.SuggestedWordBanner = styled.div`
   ${flexCenterRow}
   ${h3Medium}
   gap: 16px;
+  min-height: 68px;
+
+  span {
+    display: inline-block;
+    min-width: 0;
+    white-space: nowrap;
+  }
 `;
 
 S.UserInputSection = styled.div`
   width: 100%;
   height: 50px;
+  min-height: 50px;
   background: ${theme.PALETTE.neutral.white.main};
   ${h5Medium}
   ${flexCenterRow}
@@ -56,6 +64,8 @@ S.TimeLimitLabel = styled.div`
   position: absolute;
   ${h7Light}
   left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 S.TimeLimitBar = styled.div`
@@ -77,6 +87,10 @@ S.ContentsSection = styled.div`
   justify-content: end;
   gap: 50px;
   width: 100%;
+  min-height: 445px;
+  height: 100%;
+  border: solid 1px ${theme.PALETTE.neutral.white.secondary};
+  border-radius: 12px;
   overflow: hidden;
 `;
 
@@ -90,6 +104,7 @@ S.ContentWrapper = styled.div`
 S.WordBox = styled.div`
   ${flexCenterRow}
   height: 80px;
+  min-height: 80px;
   width: 100%;
   background: ${({ color }) => {
     if (color === "purple") return "rgba(255, 255, 255, 0.2)";
@@ -106,6 +121,11 @@ S.WordBox = styled.div`
   }};
   backdrop-filter: blur(2px);
   ${h4Light}
+
+  & > * {
+    display: inline-block;
+    min-width: 0;
+  }
 `;
 
 S.ExplanatoryBox = styled.div`
@@ -128,6 +148,24 @@ S.ExplanatoryBox = styled.div`
   backdrop-filter: blur(2px);
   border-radius: 12px;
   ${h8Light}
+`;
+
+S.CountdownOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  ${flexCenterColumn}
+  z-index: 1000;
+`;
+
+S.CountdownText = styled.div`
+  font-size: 120px;
+  font-weight: bold;
+  color: ${theme.PALETTE.primary.yellow.light};
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
 `;
 
 export default S;
