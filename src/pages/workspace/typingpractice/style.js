@@ -124,7 +124,7 @@ S.MyInfo = styled.div`
   border-radius: 15px;
   border: 1px solid ${({ theme }) => theme.PALETTE.primary.blue.main};
     position: relative;
-    left: -40px;   //🔥 오직 이 박스만 왼쪽으로 이동
+    left: -40px;   // 오직 이 박스만 왼쪽으로 이동
 `;
 
 S.MyInfoInner = styled.div`
@@ -151,7 +151,7 @@ S.DropdownBox = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px; 
-  border-bottom: 2px solid #dcdcdc; /* 🔥 Figma처럼 아래만 선 */
+  border-bottom: 2px solid #dcdcdc; 
   cursor: pointer;
 
   span {
@@ -254,7 +254,8 @@ S.ProgressTime = styled.div`
 `;
 
 S.Bar = styled.div`
-  width: 100%;
+  /* width: 100%; */
+  width: ${({ $width }) => $width || "100%"};
   height: 4px;
 
   &.blue {
@@ -264,6 +265,44 @@ S.Bar = styled.div`
     background-color: #ff5e5e;
   }
 `;
+// S.ProgressBox = styled.div`
+//   position: relative;
+//   height: 25px;  /* 고정 높이 */
+//   margin-bottom: 10px;
+// `;
+
+// S.Bar = styled.div`
+//   position: absolute;   /* 부모에 영향을 안 주게 */
+//   bottom: 0;
+//   left: 0;
+//   height: 4px;
+//   width: ${({ $width }) => $width || "0%"};
+//   transition: width 0.15s linear;
+
+//   &.blue {
+//     background-color: #4aa7ff;
+//   }
+//   &.red {
+//     background-color: #ff5e5e;
+//   }
+// `;
+
+// S.ProgressTime = styled.div`
+//   display: flex;
+//   justify-content: space-between;
+//   ${h6Medium}
+//   margin-bottom: 10px;
+
+//   span:last-child {
+//     min-width: 60px;
+//     text-align: right;
+//     font-family: monospace;
+//   }
+// `;
+
+
+
+
 
 
 
