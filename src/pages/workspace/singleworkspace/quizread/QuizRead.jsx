@@ -31,7 +31,6 @@ const QuizRead = ({
         quizDifficult: nextQuizDifficult,
     } = nextQuiz;
 
-    console.log("quizRead:", quizId)
 
     return (
         <S.QuizReadWrap>

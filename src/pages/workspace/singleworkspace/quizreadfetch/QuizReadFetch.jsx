@@ -6,7 +6,7 @@ import QuizRead from '../quizread/QuizRead';
 import { useSelector } from 'react-redux';
 
 const QuizReadFetch = () => {
-
+// 화면에서 값을 전달 -> 컨트롤러에서 쿼리전송 후 응답반환 -> 
     const { quizid } = useParams();
     const location = useLocation();
     const [quizs, setQuizs] = useState([]);
@@ -70,7 +70,6 @@ const QuizReadFetch = () => {
                 })
                 if (!response.ok) throw new Error("퀴즈 요청 실패")
                     const data = await response.json()
-                console.log("dd",data)
                 setQuiz(data.data)
             } catch (err) {
                 console.error(err)
