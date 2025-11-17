@@ -79,3 +79,4 @@ export const isImageFile = (fileName) => {
   return imageExtensions.some(ext => lowerFileName.endsWith(ext));
 };
 
+
