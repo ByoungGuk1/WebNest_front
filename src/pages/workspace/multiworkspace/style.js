@@ -41,6 +41,7 @@ S.MenuLayout = styled.div`
 
 S.Content = styled.div`
   height: 100%;
+  width: 100%;
 `;
 
 S.ChattingLayout = styled.div`

@@ -25,8 +25,8 @@ const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = []
         const isActive = Array.isArray(bookMarkId) ? bookMarkId.includes(idNum) : false;
         const isLoading = requesting.has(idNum);
 
+        console.log("isSolved", isSolved)
         const { quizDifficult, quizLanguage, quizTitle, quizCategory } = quiz;
-        
         <QuizRead isSolved={isSolved} />
         return (
             <S.Row key={idNum ?? `quiz-${index}`}>
@@ -43,7 +43,7 @@ const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = []
                 </S.Cell>
                 <S.Cell flex={1}>{quizLanguage}</S.Cell>
                 <S.Cell flex={3.5}>
-                    <S.TitleLink as={Link} to={`/workspace/quiz/${idNum}`} onClick={(e) => clickTitle(e, isSolved)}>
+                    <S.TitleLink as={Link} to={`/workspace/quiz/${idNum}`} >
                         {quizTitle}
                     </S.TitleLink>
                 </S.Cell>

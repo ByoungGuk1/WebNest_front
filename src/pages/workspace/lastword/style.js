@@ -1,92 +1,90 @@
 import styled from "styled-components";
 import theme from "../../../styles/theme";
 import {
+  flexBeetweenColumn,
   flexCenterColumn,
   flexCenterRow,
-  h3Medium,
+  h2Light,
   h4Light,
-  h5Medium,
-  h7Light,
   h8Light,
 } from "../../../styles/common";
 
+const colors = {
+  purple: {
+    background: "rgba(224, 219, 252,0.2)",
+    boxShadow: "inset 0px 0px 12px #E0DBFC",
+  },
+  yellow: {
+    background: "rgba(253, 241, 204,0.2)",
+    boxShadow: "inset 0px 0px 12px #FDF1CC",
+  },
+  green: {
+    background: "rgba(209, 244, 204, 0.2)",
+    boxShadow: "inset 0px 0px 12px #D1F4CC",
+  },
+  blue: {
+    background: "rgba(211, 232, 255, 0.2)",
+    boxShadow: "inset 0px 0px 12px #d3e8ff",
+  },
+  red: {
+    background: "rgba(253, 215, 210, 0.2)",
+    boxShadow: "inset 0px 0px 12px #fdd7d2",
+  },
+  aqua: {
+    background: "rgba(224, 238, 255,0.2)",
+    boxShadow: "inset 0px 0px 12px #e0eeff",
+  },
+  black: {
+    background: "rgba(232, 232, 232, 0.2)",
+    boxShadow: "inset 0px 0px 12px #eae8e8",
+  },
+  orange: {
+    background: "rgba(253, 230, 210,0.2)",
+    boxShadow: "inset 0px 0px 12px #fde6d2",
+  },
+};
+
 const S = {};
 
-S.MainWrapper = styled.div`
-  ${flexCenterColumn}
-  padding: 34px 150px 62px 150px;
-  gap: 30px;
-  width: 740px;
+S.MainWarp = styled.div`
+  ${flexCenterRow}
+  gap: 20px;
+  width: 100%;
 `;
 
-S.HeaderSection = styled.div`
+S.Dummy = styled.div`
+  border: 1px solid ${theme.PALETTE.neutral.black.main};
+  width: 315px;
+  height: 700px;
+  flex-shrink: 0;
+`;
+
+S.LastWordWrap = styled.div`
+  height: 700px;
   width: 100%;
-  ${flexCenterColumn}
+  gap: 20px;
+  ${flexBeetweenColumn}
+`;
+
+S.TitleWarp = styled.div`
+  ${flexCenterRow}
+  ${h2Light}
+  height: 200px;
+  width: 100%;
   border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(2px);
+  border-radius: 12px;
+  background: rgb(244, 242, 254, 0.2);
+  box-shadow: inset 0px 0px 12px #e0dbfc;
 `;
 
-S.SuggestedWordBanner = styled.div`
-  width: 100%;
-  height: 68px;
-  background: ${theme.PALETTE.primary.yellow.light};
-  border-radius: 12px 12px 0px 0px;
-  ${flexCenterRow}
-  ${h3Medium}
-  gap: 16px;
-  min-height: 68px;
-
-  span {
-    display: inline-block;
-    min-width: 0;
-    white-space: nowrap;
-  }
-`;
-
-S.UserInputSection = styled.div`
-  width: 100%;
-  height: 50px;
-  min-height: 50px;
-  background: ${theme.PALETTE.neutral.white.main};
-  ${h5Medium}
-  ${flexCenterRow}
-`;
-
-S.TimeLimitSection = styled.div`
-  border-radius: 0px 0px 12px 12px;
-  width: 100%;
-  height: 32px;
-  position: relative;
-  background: ${theme.PALETTE.primary.purple.lightGray};
-`;
-
-S.TimeLimitLabel = styled.div`
-  z-index: 2;
-  position: absolute;
-  ${h7Light}
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-`;
-
-S.TimeLimitBar = styled.div`
-  position: absolute;
-  z-index: 1;
-  width: ${({ test }) => test}%;
-  height: 100%;
-  border-radius: 0px 0px
-    ${({ test }) => {
-      if (test === 100) return `12px`;
-      return `0px`;
-    }}
-    12px;
-  background: ${theme.PALETTE.primary.purple.light};
-`;
-
-S.ContentsSection = styled.div`
+S.ContentsWrap = styled.div`
   ${flexCenterRow}
   justify-content: end;
   gap: 50px;
-  width: 100%;
+  width: 745px;
+  max-width: 750px;
   min-height: 445px;
   height: 100%;
   border: solid 1px ${theme.PALETTE.neutral.white.secondary};
@@ -94,32 +92,36 @@ S.ContentsSection = styled.div`
   overflow: hidden;
 `;
 
-S.ContentWrapper = styled.div`
+S.SuggestedText = styled.div`
+  ${flexCenterRow}
+  gap: 10px;
+`;
+
+S.ContentContainer = styled.div`
   ${flexCenterColumn}
-  width: 240px;
+  width: 250px;
+  height: 100%;
   gap: 30px;
   flex-shrink: 0;
 `;
 
-S.WordBox = styled.div`
+S.WordContainer = styled.div`
   ${flexCenterRow}
   height: 80px;
   min-height: 80px;
   width: 100%;
-  background: ${({ color }) => {
-    if (color === "purple") return "rgba(255, 255, 255, 0.2)";
-    if (color === "yellow") return "rgba(255, 255, 255, 0.2)";
-    if (color === "green") return "rgba(209, 244, 204, 0.2)";
+  background: ${({ color, isFocus }) => {
+    if (isFocus) {
+      return colors[`${color}`]?.background ?? colors.purple.background;
+    }
     return "rgba(255, 255, 255, 0.2)";
   }};
-  border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: ${({ color }) => {
-    if (color === "purple") return "inset 0px 0px 12px #E0DBFC";
-    if (color === "yellow") return "inset 0px 0px 12px #FDF1CC";
-    if (color === "green") return "inset 0px 0px 12px #D1F4CC";
-    return "inset 0px 0px 12px #E0DBFC";
+    return colors[`${color}`]?.boxShadow ?? colors.purple.boxShadow;
   }};
+  border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(2px);
+  border-radius: 12px;
   ${h4Light}
 
   & > * {
@@ -128,44 +130,24 @@ S.WordBox = styled.div`
   }
 `;
 
-S.ExplanatoryBox = styled.div`
+S.ExplanationContainer = styled.div`
   height: 300px;
+  width: 100%;
+  flex-grow: 1;
   ${flexCenterColumn}
-  padding: 0 12px;
-  background: ${({ color }) => {
-    if (color === "purple") return "rgba(255, 255, 255, 0.2)";
-    if (color === "yellow") return "rgba(255, 255, 255, 0.2)";
-    if (color === "green") return "rgba(209, 244, 204, 0.2)";
+  background: ${({ color, isFocus }) => {
+    if (isFocus) {
+      return colors[`${color}`]?.background ?? colors.purple.background;
+    }
     return "rgba(255, 255, 255, 0.2)";
   }};
-  border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: ${({ color }) => {
-    if (color === "purple") return "inset 0px 0px 12px #E0DBFC";
-    if (color === "yellow") return "inset 0px 0px 12px #FDF1CC";
-    if (color === "green") return "inset 0px 0px 12px #D1F4CC";
-    return "inset 0px 0px 12px #E0DBFC";
+    return colors[`${color}`]?.boxShadow ?? colors.purple.boxShadow;
   }};
+  border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(2px);
   border-radius: 12px;
   ${h8Light}
-`;
-
-S.CountdownOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  ${flexCenterColumn}
-  z-index: 1000;
-`;
-
-S.CountdownText = styled.div`
-  font-size: 120px;
-  font-weight: bold;
-  color: ${theme.PALETTE.primary.yellow.light};
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
 `;
 
 export default S;

@@ -43,7 +43,6 @@ const QuizPage = () => {
             next.add(quizId);
             return next
         })
-        console.log('요청시작', quizId);
         try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/quiz/${quizId}/bookmark`, {
                 method: "POST",
@@ -56,8 +55,7 @@ const QuizPage = () => {
                 })
             })
             const data = await response.json();
-            console.log('서버 응답 전체:', data?.data?.quizPersonal);
-
+            console.log("data", data)
             let personal = null;
             const quizPersonal = data?.data?.quizPersonal;
             if (!quizPersonal) {
@@ -69,9 +67,7 @@ const QuizPage = () => {
             }
             
             
-            console.log('선택된 personal:', personal);
             console.log('serverBookmark, serverIsSolve:', serverBookmark, serverIsSolve);
-            console.log("완료")
             const serverBookmark = Number(personal?.quizPersonalIsBookmark ?? 0);
             const serverIsSolve = Number(personal?.quizPersonalIsSolve ?? 0);
             const serverQuizPersonalId = personal?.quizPersonalId ?? personal?.id ?? null;

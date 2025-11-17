@@ -1,5 +1,6 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useOutletContext } from "react-router-dom";
 import S from "./style";
 
 const COLOR = {
@@ -31,8 +32,17 @@ const clampLevel = (lv) => {
 
 const GradeContainer = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
+  const fullReduxState = useSelector((state) => state);
+  const myData = useOutletContext();
   const safeLevel = clampLevel(currentUser?.userLevel || 1);
   const userExp = currentUser?.userExp || 0;
+
+  // 리덕스 상태 콘솔 출력
+  useEffect(() => {
+    console.log("=== 리덕스 전체 상태 ===", fullReduxState);
+    console.log("=== 리덕스 user 상태 ===", fullReduxState.user);
+    console.log("=== currentUser 정보 ===", currentUser);
+  }, [fullReduxState, currentUser]);
 
   // 10칸 세그먼트 메모이제이션
   const segments = useMemo(
@@ -64,39 +74,41 @@ const GradeContainer = () => {
     maxSpeed: 587,
   };
 
-  // 문제 해결 현황 데이터 (임시 데이터 - 실제로는 API에서 가져와야 함)
-  const problemProgress = [
-    {
-      language: "자바",
-      levels: {
-        beginner: 12,
-        intermediate: 11,
-        upperIntermediate: 100,
-        advanced: 100,
-        expert: 100,
-      },
-    },
-    {
-      language: "오라클",
-      levels: {
-        beginner: 12,
-        intermediate: 11,
-        upperIntermediate: 100,
-        advanced: 100,
-        expert: 100,
-      },
-    },
-    {
-      language: "자바스크립트",
-      levels: {
-        beginner: 12,
-        intermediate: 11,
-        upperIntermediate: 100,
-        advanced: 100,
-        expert: 100,
-      },
-    },
-  ];
+  // 문제 해결 현황 데이터 - API에서 가져온 quizMyPageLanguage 사용
+  const problemProgress = useMemo(() => {
+    const quizMyPageLanguage = myData?.quizMyPageLanguage || [];
+    
+    // 언어명 매핑 (백엔드에서 오는 언어 코드를 한글로 변환)
+    const languageMap = {
+      "JS": "자바스크립트",
+      "JAVA": "자바",
+      "ORACLE": "오라클",
+      "PYTHON": "파이썬",
+      "C": "C",
+      "CPP": "C++",
+    };
+    
+    return quizMyPageLanguage.map((item) => {
+      const languageName = languageMap[item.quizLanguage] || item.quizLanguage || "기타";
+      const solvedCount = item.solvedCount || 0;
+      
+      // 임시로 진행률 계산 (실제로는 난이도별 문제 수가 필요)
+      // 현재는 전체 푼 문제 수를 기반으로 표시
+      const totalProgress = Math.min(100, (solvedCount * 10)); // 문제당 10%씩
+      
+      return {
+        language: languageName,
+        solvedCount: solvedCount,
+        levels: {
+          beginner: totalProgress,
+          intermediate: totalProgress,
+          upperIntermediate: totalProgress,
+          advanced: totalProgress,
+          expert: totalProgress,
+        },
+      };
+    });
+  }, [myData?.quizMyPageLanguage]);
 
   // 파이 차트 계산
   const pieChartGradient = useMemo(() => {
