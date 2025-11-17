@@ -11,11 +11,12 @@ const LeftUserInterface = ({ myInfos = {}, myWinCount = 0 }) => {
                     {/* 유저카드헤더 */}
                     <S.LeftUserHeaderWrap>
                         <S.LeftUserHeaderLeft><img src="/assets/icons/usericon.svg" />내정보</S.LeftUserHeaderLeft>
-                        <div>
-                            <span><img src="/assets/icons/trophy.png" />업적</span>
-                            <span><img src="/assets/icons/fire.png" /> {myWinCount}</span>
-                        </div>
+                        {myWinCount ? (<div>
+                            
+                            <span><img src="/assets/icons/fire.png" /> {myWinCount} 연승 중</span>
+                        </div>) : <span><img src="/assets/icons/trophy.png" />업적이 아직 없습니다.</span>}
                         
+                        <img src="/assets/icons/setting.svg" />
                     </S.LeftUserHeaderWrap>
                     {/* 유저카드바디 */}
                     <S.LeftUserMiddleWrap>
@@ -32,7 +33,7 @@ const LeftUserInterface = ({ myInfos = {}, myWinCount = 0 }) => {
                                     <S.UserInfoContent $level={true}>LV {myInfos.userLevel || myInfos.level || 1}</S.UserInfoContent>
                                 </S.UserInfoRow>
                                 <S.UserInfoRow>
-                                    <S.UserInfoTitle><img src="/assets/icons/setting.svg" />기술</S.UserInfoTitle>
+                                    <S.UserInfoTitle>기술</S.UserInfoTitle>
                                     <S.UserInfoContent>{myInfos.mainSkill || myInfos.userSkill || '-'}</S.UserInfoContent>
                                 </S.UserInfoRow>
                                 <S.UserInfoRow>

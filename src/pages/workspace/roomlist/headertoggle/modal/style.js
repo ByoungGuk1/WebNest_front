@@ -7,16 +7,18 @@ const S = {}
 S.Modal = styled.div`
   position: fixed;
   left: 50%;
-  top: 60%;
+  top: 50%;
   transform: translate(-50%, -50%);
   width: 407px;
-  height: 529px;
+  height: ${({ $hasError }) => $hasError ? '549px' : '499px'};
   background-color: white;
   border: 1px solid #000;
   border-radius: 12px;
   z-index: 100;
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   
 `;
 S.InnerWrap = styled.div`
@@ -35,7 +37,9 @@ S.LeftTitle = styled.div`
   display: flex;
   flex-direction: column;
   ${h6Medium}
-  gap:29px
+  gap:29px;
+  justify-content: center;
+  align-items: center;
 `
 S.RightInputWrap = styled.div`
   display: flex;
@@ -45,27 +49,53 @@ S.RightInputWrap = styled.div`
 S.RightInput = styled.input`
   width: 248px;
   height: 31px;
-  border: 1px solid ${theme.PALETTE.neutral.gray.light};
+  border: ${({ $focused }) => $focused ? `2px solid ${theme.PALETTE.primary.purple.main}` : `1px solid ${theme.PALETTE.neutral.gray.light}`};
   border-radius: 10px;
+  padding: 0 13px;
+  outline: none;
+  box-sizing: border-box;
   &::placeholder {
     ${h7Medium}
-    padding: 0 0 0 13px;
+  }
+  &:focus {
+    outline: none;
   }
 `
 S.FormBtn = styled.button`
   width: 100px;
   height: 30px;
-  margin: 15px 0 0px 120px;
+  margin-top: 24px;
   background-color: #FFFFFF;
   border: 1px solid ${theme.PALETTE.neutral.gray.light};
   border-radius: 8px;
   color: ${theme.PALETTE.primary.blue.main};
 `
 
-S.ExitBtn = styled.p`
+S.ExitBtn = styled.button`
   position: absolute;
   right: 8%;
   top: 6%;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  
+  svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 3;
+    stroke: ${theme.PALETTE.neutral.black.main};
+    stroke-linecap: round;
+  }
+  
+  &:hover {
+    opacity: 0.7;
+  }
 `
 
 S.DropdownWrapper = styled.div`
@@ -209,5 +239,27 @@ S.NumberDisplay = styled.div`
   align-items: center;
   justify-content: center;
   color: ${theme.PALETTE.neutral.gray.main};
+`
+
+S.Items = styled.div`
+  display: flex;
+  width: 330px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`
+S.InnerItems = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: baseline;
+  align-items: center;
+`
+S.Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `
 export default S;

@@ -94,7 +94,7 @@ S.RoomList = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-content: center;
+    align-items: center;
     transition: background-color 0.2s ease;
     cursor: ${({ $isDisabled }) => $isDisabled ? 'not-allowed' : 'pointer'};
     
@@ -162,6 +162,9 @@ S.RoomTitleWrapper = styled.div`
     display: flex;
     flex-direction: column;
     ${h5Bold}
+    line-height: 12px;
+    margin-top: 12px;
+    gap: 4px;
 `
 
 S.RoomLanguage = styled.span`
@@ -207,13 +210,10 @@ S.TeamWrap = styled.div`
     flex-direction: column;
     gap: 6px;
     align-items: center;
+    justify-content: center;
     min-width: 50px;
-    
     p {
         ${h8Bold}
-        text-align: center;
-        margin: 0;
-        min-width: 40px;
     }
 `
 S.FollowWrap = styled.div`
@@ -238,6 +238,7 @@ S.Followlist = styled.div`
     margin-bottom: 4px;
     p {
         ${h9Medium};
+        font-size: 12px;
     }
 `
 
@@ -272,7 +273,7 @@ S.LevelWrap = styled.div`
 `
 
 S.LevelText = styled.p`
-    font-size: 8px;
+    font-size: 10px;
     line-height: 12px;
     font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
     letter-spacing: -0.5px;
@@ -295,12 +296,10 @@ S.StatusDot = styled.div`
 `
 
 S.StatusText = styled.p`
-    font-size: 8px;
-    line-height: 12px;
-    font-weight: ${({ theme }) => theme.FONT_WEIGHT.medium};
+    ${h6Medium}
     letter-spacing: -0.5px;
+    font-size: 12px;
     color: #808080;
-    margin: 0;
 `
 
 S.FollowLeftWrap = styled.div`
@@ -340,6 +339,7 @@ S.IconBox = styled.div`
 S.RightWrap = styled.div`
     padding-left: 10px;
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: 4px;
@@ -360,29 +360,41 @@ S.RightRefreshWrap = styled.div`
     cursor: pointer;
 `
 S.RightInputWrap = styled.div`
+    border: ${({ $focused }) => $focused ? `2px solid ${theme.PALETTE.primary.purple.main}` : 'none'};
+    background-color: #fff;
+    border-radius: 8px;
+    font-size: 10px;
     width: 160px;
-    height: -webkit-fill-available;
+    height: 33px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     position: relative;
-    img {
-        position: absolute;
-        right: 5%;
-        top: 40%;
+    & button {
+        width: 8px;
+        height: 8px;
+        background-image: url("/assets/icons/search.png");
+        background-repeat: no-repeat;
+        background-color: transparent;
+        border: none;
+        padding: 0;
         cursor: pointer;
     }
     `
     S.RightInput = styled.input`
-        width: 160px;
+        background-color: transparent;
+        width: 80%;
         height: -webkit-fill-available;
-        border: #FFFFFF;
-        box-shadow: 0px 0px 5px 0px #00000011;
+        border: none;
         border-radius: 8px;
         font-size: 10px;
+        outline: none;
         &::placeholder {
             ${h9Medium}
-            padding: 0 0 0 8px;
         }
         &:focus {
-            outline: 2px solid ${theme.PALETTE.primary.purple.main};
+            outline: none;
         }
     `
 S.LeftWrap = styled.div`
@@ -447,7 +459,7 @@ S.FilterWrap = styled.div`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin-bottom: 14px;
+    margin-bottom: 8px;
     margin-right: 10px;
     gap: 12px;
 `

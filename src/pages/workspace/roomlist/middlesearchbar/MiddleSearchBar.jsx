@@ -19,8 +19,10 @@ const MiddleSearchBar = () => {
                         <span>목록 새로고침</span><S.IconBox><img src="/assets/icons/Refresh.svg" /></S.IconBox>
                     </S.RightRefreshWrap>
                     <S.RightInputWrap>
-                        <S.RightInput placeholder="방 번호 또는 제목을 입력하세요" />
-                        <img className="lastImg" src="/assets/icons/search.png" />
+                        <input></input>
+                        <button></button>
+                        {/* <S.RightInput placeholder="방 번호 또는 제목을 입력하세요" />
+                        <img className="lastImg" src="/assets/icons/search.png" /> */}
                     </S.RightInputWrap>
                 </S.RightWrap>
             </S.SearchWrap>

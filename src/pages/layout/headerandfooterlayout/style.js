@@ -145,6 +145,7 @@ const S = {}
     width: 16px;
     height: 18px;
     position: relative;
+    z-index: 10000;
   `
   S.notification_new = styled.div`
     width: 8px;
@@ -188,6 +189,7 @@ const S = {}
     border: solid 1px #121212;
     border-radius: 10px;
     position: absolute;
+    z-index: 10001;
     background-color: #fff;
     top: 55px;
     right: -212px;
@@ -321,6 +323,7 @@ S.notice_wrap = styled.div`
   border: 1px solid #121212;
   border-radius: 10px;
   position: absolute;
+  z-index: 10001;
   background-color: #fff;
   top: 55px;
   right: -212px;

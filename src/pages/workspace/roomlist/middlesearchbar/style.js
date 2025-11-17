@@ -57,7 +57,7 @@ S.RightInputWrap = styled.div`
     }
     `
     S.RightInput = styled.input`
-        width: 160px;
+        width: 50%;
         height: -webkit-fill-available;
         border: #FFFFFF;
         box-shadow: 0px 0px 5px 0px #00000011;
