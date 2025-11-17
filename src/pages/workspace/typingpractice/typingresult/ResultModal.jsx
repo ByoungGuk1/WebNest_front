@@ -3,7 +3,7 @@ import S from "./resultStyle";
 
 const ResultModal = ({ wpm, accuracy, time, onClose, onRetry }) => {
   console.log("🔥 ResultModal 렌더링:", { wpm, accuracy, time });
-  
+   //타자연습ㄱㄹ과
   return (
     <S.ModalOverlay>
       <S.ModalBox>
