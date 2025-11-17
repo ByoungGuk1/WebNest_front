@@ -1,7 +1,8 @@
 import { NavLink, Outlet } from "react-router-dom";
 import S from "./style"; 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
+import { getFileDisplayUrl } from "../../utils/fileUtils";
 
 const MyPageContainer = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -48,7 +49,21 @@ const MyPageContainer = () => {
   useEffect(() => {
     getMyDatas();
   }, [])
-console.log(myData)
+
+  // 프로필 이미지 URL 변환 (파일 경로인 경우 display URL로 변환)
+  const profileImageUrl = useMemo(() => {
+    const thumbnailUrl = currentUser?.userThumbnailUrl;
+    if (!thumbnailUrl || thumbnailUrl === '/default') {
+      return "/assets/images/defalutpro.svg";
+    }
+    // 외부 URL이거나 assets 경로인 경우 그대로 사용
+    if (thumbnailUrl.startsWith('http') || thumbnailUrl.startsWith('/assets')) {
+      return thumbnailUrl;
+    }
+    // 파일 경로인 경우 display URL로 변환
+    return getFileDisplayUrl(thumbnailUrl);
+  }, [currentUser?.userThumbnailUrl]);
+
   return (
     <S.Page>
       <S.BannerWrap>
@@ -60,7 +75,7 @@ console.log(myData)
       <S.Wrapper>
         <S.ProfileArea>
           <S.ProfileImg 
-            src={currentUser?.userThumbnailUrl || "/assets/images/defalutpro.svg"} 
+            src={profileImageUrl} 
             alt="프로필" 
           />
           <div>
