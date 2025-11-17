@@ -8,6 +8,7 @@ import { SearchResultProvider } from 'context/SearchResultContext';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser, setUserStatus } from 'modules/user';
+import { TypingProvider } from 'context/TypingContext';
 
 function App() {
 
@@ -45,10 +46,12 @@ function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <SearchResultProvider>
-        <GlobalStyle />
-        <RouterProvider router={router}/>
-        </SearchResultProvider>
+        <TypingProvider>
+          <SearchResultProvider>
+          <GlobalStyle />
+          <RouterProvider router={router}/>
+          </SearchResultProvider>
+        </TypingProvider>
       </ThemeProvider>
     </>
   );
