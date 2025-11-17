@@ -97,8 +97,9 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
         <S.RoomLeft>
           <img src='/assets/images/game-room/flag.png' alt='flag' className='flag'></img>
           <S.RoomTitleWrapper>
-            {gameRoomTitle}
-            {gameRoomLanguage && <S.RoomLanguage>{gameRoomLanguage}</S.RoomLanguage>}
+            <p>{gameRoomTitle}</p>
+            <span>『 {gameRoomLanguage && <S.RoomLanguage>{gameRoomLanguage} 』</S.RoomLanguage>} 
+              {gameRoomType.toLowerCase === "lastword" ? "끝말 잇기" : gameRoomType.toLowerCase === "cardflip" ? "카드 뒤집기" : gameRoomType.toLowerCase === "concave" ? "오목" : gameRoomType.toLowerCase === "lastword" ? "끝말잇기" : "뱀 주사위 놀이"}</span>
           </S.RoomTitleWrapper>
         </S.RoomLeft>
         <img src={lockIconSrc} alt={isLocked ? '잠금' : '오픈'} className='locker' />

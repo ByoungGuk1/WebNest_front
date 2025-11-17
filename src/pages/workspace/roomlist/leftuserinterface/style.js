@@ -23,14 +23,14 @@ S.LeftUserCardWrap = styled.div`
     flex-direction: column;
 `
 S.LeftUserHeaderWrap = styled.div`
+    margin: 0 10px 0 10px;
     background-color: #FFFFFF;
     box-shadow: 0px 0px 5px 0px #00000011;
     border-radius: 8px;
     border-color: ${theme.PALETTE.primary.red.lightGray};
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 45px;
+    justify-content: space-between;
     span {
         ${h9Medium};
         align-items: center;
@@ -45,10 +45,6 @@ S.LeftUserHeaderWrap = styled.div`
         align-items: center;
         gap: 10px;
     }
-    div > span {
-        display: flex;
-        gap: 4px;
-    }
     img {
         width: 10px;
         height: 8px
@@ -57,8 +53,6 @@ S.LeftUserHeaderWrap = styled.div`
 S.LeftUserHeaderLeft = styled.span`
         ${h9Medium};
         align-items: center;
-        gap: 2px;
-        margin: 0 0 0 12px;
 `
 S.UserProfileImgWrap = styled.div`
     display: flex;

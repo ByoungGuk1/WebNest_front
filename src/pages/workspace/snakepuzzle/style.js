@@ -25,6 +25,8 @@ S.Board = styled.div`
   background: #fff;
   border: 2px solid #dadce0;
   position: relative;
+  transform: translateZ(0);
+  will-change: auto;
 `;
 
 S.Dice3DContainer = styled.div`
