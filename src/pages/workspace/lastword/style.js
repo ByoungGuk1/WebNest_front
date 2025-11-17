@@ -2,6 +2,7 @@ import styled from "styled-components";
 import theme from "../../../styles/theme";
 import {
   flexBeetweenColumn,
+  flexBeetweenRow,
   flexCenterColumn,
   flexCenterRow,
   h2Light,
@@ -47,21 +48,14 @@ const colors = {
 const S = {};
 
 S.MainWarp = styled.div`
-  ${flexCenterRow}
+  ${flexBeetweenRow}
   gap: 20px;
-  width: 100%;
-`;
-
-S.Dummy = styled.div`
-  border: 1px solid ${theme.PALETTE.neutral.black.main};
-  width: 315px;
-  height: 700px;
-  flex-shrink: 0;
+  width: 1045px; /* 315 + 700 + gap(20) */
 `;
 
 S.LastWordWrap = styled.div`
   height: 700px;
-  width: 100%;
+  width: 700px;
   gap: 20px;
   ${flexBeetweenColumn}
 `;
@@ -80,15 +74,12 @@ S.TitleWarp = styled.div`
 `;
 
 S.ContentsWrap = styled.div`
-  ${flexCenterRow}
+  ${flexBeetweenRow}
   justify-content: end;
   gap: 50px;
-  width: 745px;
-  max-width: 750px;
+  width: 100%; /* 700 + gap(20) */
   min-height: 445px;
   height: 100%;
-  border: solid 1px ${theme.PALETTE.neutral.white.secondary};
-  border-radius: 12px;
   overflow: hidden;
 `;
 

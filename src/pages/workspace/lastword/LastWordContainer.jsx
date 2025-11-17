@@ -1,3 +1,4 @@
+import GameLeftSide from "components/gameleftside/GameLeftSide";
 import ContentsContainer from "./ContentsContainer";
 import S from "./style";
 import TitleContainer from "./TitleContainer";
@@ -28,7 +29,7 @@ const LastWordContainer = () => {
 
   return (
     <S.MainWarp>
-      <S.Dummy>concaveContainer</S.Dummy>
+      <GameLeftSide />
       <S.LastWordWrap>
         {listWordVO[listWordVO.length - 1]?.word ? (
           <TitleContainer word={listWordVO[listWordVO.length - 1]?.word} />
