@@ -207,7 +207,7 @@ S.PlayerMarker = styled.div`
     : '0 2px 6px rgba(74, 144, 226, 0.3)'};
   z-index: ${({ $isCurrentUser }) => $isCurrentUser ? 16 : 15};
   pointer-events: none;
-  transition: left 0.3s ease, top 0.3s ease;
+  transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1), top 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 export default S;

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { h5Medium, h6Medium } from '../../../styles/common';
+import { h5Medium, h6Medium, h7Light, h7Medium } from '../../../styles/common';
 
 const S = {};
 
@@ -9,7 +9,7 @@ S.FooterWrap = styled.footer`
   display: flex;
   justify-content: center;
   align-items: center;
-  border-top: 2px solid black;
+  border-top: 1px solid black;
 `;
 
 // Footer 내부 컨테이너 (1160px, 12컬럼 그리드 기준)
@@ -17,14 +17,13 @@ S.FooterWrap = styled.footer`
 // 플렉스박스로 1160px 내부에 모든 요소 배치
 S.FooterInner = styled.div`
   width: 1160px;
+  height: 190px;
   max-width: 100%;
   padding: 0;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  gap: 40px;
-
 `;
 
 // 왼쪽: 링크 섹션 (4개 컬럼, 그리드에 맞춤)
@@ -111,10 +110,6 @@ S.LogoWrapper = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
-  gap: 32px;
-  flex: 1;
-  max-width: 400px;
 `;
 
 // WebNest 로고 텍스트 (헤더와 동일한 폰트)
@@ -125,14 +120,14 @@ S.WebNestLogo = styled.div`
 
 S.WebNestWeb = styled.span`
   font-family: 'RomanticGumi';
-  font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+  font-size: 20px;
   color: ${({ theme }) => theme.PALETTE.primary.blue.main || '#1976D2'};
   font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
 `;
 
 S.WebNestNest = styled.span`
   font-family: 'RomanticGumi';
-  font-size: ${({ theme }) => theme.FONT_SIZE.h3};
+  font-size: 20px;
   color: ${({ theme }) => theme.PALETTE.primary.green.main || '#2E7D32'};
   font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
 `;
@@ -159,7 +154,19 @@ S.RightWrap = styled.div`
   display: flex;
   width: 560px;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+`
+S.RightText = styled.div`
+  display: flex;
+  flex-direction: column;
+  ${h7Medium}
+  .logo {
+    font-family: 'RomanticGumi';
+    font-size: 16px;
+    font-weight: 200px;
+  }
 `
 export default S;
 
