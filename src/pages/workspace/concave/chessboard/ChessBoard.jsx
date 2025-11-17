@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import S from "./style";
+import LeftSide from "../../../../components/gameleftside/GameLeftSide";
 
 const ChessBoard = (props) => {
     const boardSize = props.boardSize === undefined ? 15 : props.boardSize;
@@ -8,45 +9,54 @@ const ChessBoard = (props) => {
     const [board, setBoard] = useState(
         () => Array.from({ length: boardSize }, () => Array(boardSize).fill(0))
     );
+    // 유저턴 0 또는 1
     const [turn, setTurn] = useState(1);
     const [message, setMessage] = useState("좌표를 입력하세요. 예: [3|1] 또는 3,1");
+    const [inGameMessage, setInGameMessage] = useState("게임 시작");
     const [lastMove, setLastMove] = useState(null);
     const inputRef = useRef(null);
     const timerRef = useRef(null);
     const remainingRef = useRef(timeoutSec);
     const [remaining, setRemaining] = useState(timeoutSec);
+    
     const [winning, setWinning] = useState(null);
+    // 게임시작버튼 누르면 타이머가동
     const [start, setStart] = useState(false);
 
     useEffect(() => {
         if (inputRef.current) inputRef.current.focus();
     }, []);
 
+    function gameStart(host) {
+    }
+
     function clearTimer() {
+        console.log("콘솔", timerRef.current)
         if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
         }
     }
     // 착수 제한시간
-    function startTimer() {
-        clearTimer();
-        remainingRef.current = timeoutSec;
-        setRemaining(timeoutSec);
-        timerRef.current = setInterval(() => {
-            remainingRef.current -= 1;
-            setRemaining(remainingRef.current);
-            if (remainingRef.current <= 0) {
-                clearTimer();
-                placeRandomMove();
-            }
-        }, 1000);
+    function startTimer(start) {
+        if(start){
+            clearTimer();
+            remainingRef.current = timeoutSec;
+            setRemaining(timeoutSec);
+            timerRef.current = setInterval(() => {
+                remainingRef.current -= 1;
+                setRemaining(remainingRef.current);
+                if (remainingRef.current <= 0) {
+                    clearTimer();
+                    placeRandomMove();
+                }
+            }, 1000);
+        }
     }
 
     useEffect(() => {
         startTimer();
         return () => clearTimer();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     function parseCoords(raw) {
@@ -113,9 +123,11 @@ const ChessBoard = (props) => {
     function handleSubmit(e) {
         // 걸려있는 이벤트 무효화
         e.preventDefault();
+
         // 실제 좌표 입력값 ex 3,1
         const val = inputRef.current ? inputRef.current.value : "";
-        // 입력좌표 컬럼으로 파싱 row 또는 colum
+
+        // 입력좌표받고고 파싱 row 또는 colum
         const parsed = parseCoords(val);
         if (!parsed) {
             setMessage("좌표 형식이 잘못되었습니다. 예: [3|1] 또는 3,1");
