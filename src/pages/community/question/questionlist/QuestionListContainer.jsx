@@ -5,6 +5,11 @@ import QustionListSort from "./questionsort/QustionListSort";
 import QuestionList from "./questionlistdata/QuestionList";
 import Questionpagenation from "./questionpagenation/Questionpagenation";
 
+/** 🔧 백엔드 연동용 상수 */
+const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
+const GET_QUESTION_POSTS = `${API_BASE}/post/question`;
+const GET_COMMENTS = (postId) => `${API_BASE}/comment/${postId}`;
+
 const QuestionListContainer = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +39,13 @@ const QuestionListContainer = () => {
   useEffect(() => {
     const fetchPostsWithComments = async () => {
       try {
-        const res = await fetch("http://localhost:10000/post/question");
+        const res = await fetch(GET_QUESTION_POSTS, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("게시글 조회 실패");
+
         const postData = await res.json();
 
         const postList = Array.isArray(postData)
@@ -47,16 +58,18 @@ const QuestionListContainer = () => {
         const postsWithCounts = await Promise.all(
           postList.map(async (post) => {
             try {
-              const commentRes = await fetch(
-                `http://localhost:10000/comment/${post.id}`
-              );
+              const commentRes = await fetch(GET_COMMENTS(post.id), {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+              });
               if (!commentRes.ok) throw new Error("댓글 조회 실패");
               const commentData = await commentRes.json();
 
-              const commentList = Array.isArray(commentData)
-                ? commentData
-                : Array.isArray(commentData.data)
+              const commentList = Array.isArray(commentData.data)
                 ? commentData.data
+                : Array.isArray(commentData)
+                ? commentData
                 : [];
 
               return { ...post, commentCount: commentList.length };
@@ -67,10 +80,10 @@ const QuestionListContainer = () => {
           })
         );
 
-        console.log("병합된 데이터:", postsWithCounts);
         setPosts(postsWithCounts);
       } catch (err) {
         console.error("게시글 불러오기 실패:", err);
+        alert("게시글을 불러오는 중 오류가 발생했습니다.");
       } finally {
         setLoading(false);
       }

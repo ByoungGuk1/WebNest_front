@@ -1,62 +1,43 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import theme from '../../../../styles/theme';
 import S from './style';
 
-const LeftUserInterface = () => {
-
-    const [users, setUsers] = useState(null);
-
+const LeftUserInterface = ({ myInfos = {}, myWinCount = 0 }) => {
     const maxExp = 1000;
-    useEffect(() => {
-        const getCurrentUser = async () => {
-            const response = await fetch("/json_server/gamelist/user.json")
-            if (!response.ok) throw new Error("게임리스트 오류");
-            const jsonUsers = await response.json();
-            const targetUser = jsonUsers?.users?.find((user) => user.userName == "만렙코더")
-            setUsers(targetUser);
-        }
-        getCurrentUser()
-            .then((res) => {
-                console.log(res)
-            })
-            .catch(console.err)
-    }, [])
+
     return (
         <S.LeftInterFaceWrap>
-            <S.LeftFriendWrap>
-                <span>맞팔로우를 통해 친구를 < br />사귀어보세요</span>
-            </S.LeftFriendWrap>
-            {users && (
-                <S.LeftUserCardWrap>
+            <S.LeftUserCardWrap>
                     {/* 유저카드헤더 */}
                     <S.LeftUserHeaderWrap>
                         <S.LeftUserHeaderLeft><img src="/assets/icons/usericon.svg" />내정보</S.LeftUserHeaderLeft>
                         <div>
                             <span><img src="/assets/icons/trophy.png" />업적</span>
-                            <span><img src="/assets/icons/fire.png" /> {users.streak}</span>
+                            <span><img src="/assets/icons/fire.png" /> {myWinCount}</span>
                         </div>
                         
                     </S.LeftUserHeaderWrap>
                     {/* 유저카드바디 */}
                     <S.LeftUserMiddleWrap>
                         <S.UserProfileImgWrap>
-                            <img src="/assets/images/chicken.png" />
+                            <img src={myInfos.userThumbnailUrl || myInfos.profileUrl || '/assets/images/chicken.png'} alt={myInfos.userNickname || myInfos.nickname} />
                         </S.UserProfileImgWrap>
                         <S.LeftUserMiddleTextWrap>
                             <S.LeftUserCardName>
-                                {users.userName}
+                                {myInfos.userNickname || myInfos.nickname || '익명'}
                             </S.LeftUserCardName>
                             <S.UserInfoWrap>
                                 <S.UserInfoRow>
                                     <S.UserInfoTitle>레벨</S.UserInfoTitle>
-                                    <S.UserInfoContent level>LV {users.userLevel}</S.UserInfoContent>
+                                    <S.UserInfoContent $level={true}>LV {myInfos.userLevel || myInfos.level || 1}</S.UserInfoContent>
                                 </S.UserInfoRow>
                                 <S.UserInfoRow>
                                     <S.UserInfoTitle><img src="/assets/icons/setting.svg" />기술</S.UserInfoTitle>
-                                    <S.UserInfoContent>{users.mainSkill}</S.UserInfoContent>
+                                    <S.UserInfoContent>{myInfos.mainSkill || myInfos.userSkill || '-'}</S.UserInfoContent>
                                 </S.UserInfoRow>
                                 <S.UserInfoRow>
                                     <S.UserInfoTitle>승리</S.UserInfoTitle>
-                                    <S.UserInfoContent>{users.wins}승</S.UserInfoContent>
+                                    <S.UserInfoContent>{myInfos.wins || myWinCount || 0}승</S.UserInfoContent>
                                 </S.UserInfoRow>
                             </S.UserInfoWrap>
 
@@ -64,16 +45,14 @@ const LeftUserInterface = () => {
                     </S.LeftUserMiddleWrap>
                     {/* 유저카드푸터 */}
                     <S.LeftUserCheerUp>
-                        <p>{users.statusMessage}</p>
+                        <p>{myInfos.statusMessage || myInfos.userStatusMessage || '상태 메시지가 없습니다.'}</p>
                     </S.LeftUserCheerUp>
                     <S.ExpBarWrap>
-
-                        <S.ExpBarFill style={{ width: `${(users.userExp / maxExp) * 100}%` }}>
-                            <S.ExpText>{users.userExp} / {maxExp}</S.ExpText>
+                        <S.ExpBarFill style={{ width: `${((myInfos.userExp || myInfos.exp || 0) / maxExp) * 100}%` }}>
+                            <S.ExpText>{myInfos.userExp || myInfos.exp || 0} / {maxExp}</S.ExpText>
                         </S.ExpBarFill>
                     </S.ExpBarWrap>
-                </S.LeftUserCardWrap>
-            )}
+            </S.LeftUserCardWrap>
         </S.LeftInterFaceWrap>
     );
 };

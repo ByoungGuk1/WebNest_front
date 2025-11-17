@@ -35,11 +35,13 @@ const WriteContainer = () => {
 
 
     try {
-      const response = await fetch("http://localhost:10000/post/write", {
+      const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
+      const response = await fetch(`${API_BASE}/post/write`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(postData),
       });
 

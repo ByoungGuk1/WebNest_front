@@ -13,7 +13,7 @@ const shake = keyframes`
 const S = {};
 
 S.PageWrap = styled.div`
-  min-height: 100vh;
+  width: 100%;
   background: #7345fd;
   display: flex;
   flex-direction: column;
@@ -21,15 +21,8 @@ S.PageWrap = styled.div`
   justify-content: center;
 `;
 
-S.Title = styled.h1`
-  color: #ffffff;
-  margin-bottom: 24px;
-  font-size: 28px;
-  font-weight: 700;
-`;
-
 S.CardInner = styled.div`
-  width: 700px;
+  width: 800px;
   height: 700px;
   background-color: #ffffff;
   border-radius: 20px;
@@ -37,10 +30,10 @@ S.CardInner = styled.div`
 `;
 
 S.Cards = styled.ul`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  align-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 16px;
   width: 100%;
   height: 100%;
   list-style: none;
@@ -49,8 +42,6 @@ S.Cards = styled.ul`
 `;
 
 S.CardItem = styled.li`
-  width: calc(100% / 4 - 20px);
-  height: calc(100% / 4 - 20px);
   border: 1px solid #ccc;
   perspective: 1000px;
   transform-style: preserve-3d;
@@ -80,6 +71,10 @@ S.View = styled.div`
   height: 100%;
   user-select: none;
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 
   &.front {
     z-index: 10;
@@ -88,12 +83,41 @@ S.View = styled.div`
 
   &.back {
     transform: rotateY(180deg);
+    background: ${({ $cardType }) => {
+      if ($cardType === 'problem') return '#E3F2FD';
+      if ($cardType === 'answer') return '#E8F5E9';
+      return '#ffffff';
+    }};
+    border: 2px solid ${({ $cardType }) => {
+      if ($cardType === 'problem') return '#2196F3';
+      if ($cardType === 'answer') return '#4CAF50';
+      return '#ccc';
+    }};
   }
 
   img {
     width: 100%;
+    height: 100%;
+    object-fit: contain;
     vertical-align: top;
   }
+`;
+
+S.ContentText = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.4;
+  padding: 8px;
+  box-sizing: border-box;
 `;
 
 export default S;
