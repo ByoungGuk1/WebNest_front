@@ -23,6 +23,7 @@ const RoomListContainer = () => {
   const [sortOrder, setSortOrder] = useState('latest'); // 'latest' | 'oldest'
   const [searchQuery, setSearchQuery] = useState('');
   const [teamMode, setTeamMode] = useState(null); // null: 전체, false: 개인전, true: 팀전
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   
 
   useEffect(() => {
@@ -188,11 +189,6 @@ const RoomListContainer = () => {
           
         <S.LayoutWrapper>
           {/* 게임방리스트 왼쪽 유저 인터페이스(친구창, 유저카드) */}
-          <S.SearchWrap>
-              
-              
-              
-            </S.SearchWrap>
           <S.ListWrapper >
             {/* 중앙에  왼쪽 친구찾기검색바, 오른쪽 방 검색, 정렬버튼 */}
             <S.LeftSection>
@@ -221,14 +217,23 @@ const RoomListContainer = () => {
                   <S.RightRefreshWrap>
                       <span>목록 새로고침</span><S.IconBox><img src="/assets/icons/Refresh.svg" /></S.IconBox>
                   </S.RightRefreshWrap>
-                  <S.RightInputWrap>
+                  <S.RightInputWrap $focused={isSearchFocused}>
+                   <S.RightInput  
+                      placeholder="방 번호 또는 제목을 입력하세요" 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => setIsSearchFocused(true)}
+                      onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}></S.RightInput>
+                    <button></button>
+                  </S.RightInputWrap>
+                  {/* <S.RightInputWrap>
                       <S.RightInput 
                         placeholder="방 번호 또는 제목을 입력하세요" 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
                       <img className="lastImg" src="/assets/icons/search.png" />
-                  </S.RightInputWrap>
+                  </S.RightInputWrap> */}
                 </S.FilterWrap>
               </S.RightWrap>
               <S.RoomListWrapper>
