@@ -16,7 +16,7 @@ S.Background = styled.div`
 S.Wrapper = styled.div`
   width: 1440px;
   margin: 0 auto;
-  border: solid 1px #d9d9d9;
+  /* border: solid 1px #d9d9d9; */
   display: flex;
   flex-direction: column;
   gap: 40px;
@@ -55,7 +55,7 @@ S.MainWrapper = styled.div`
 `;
 
 S.CardLayout = styled.div`
-  border: solid 1px #d9d9d9;
+  /* border: solid 1px #d9d9d9; */
   width: 100%;
   ${flexBeetweenRow}
   justify-content: space-around;

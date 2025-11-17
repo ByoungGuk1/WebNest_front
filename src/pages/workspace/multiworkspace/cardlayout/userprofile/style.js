@@ -9,14 +9,45 @@ import theme from "../../../../../styles/theme";
 
 const S = {};
 
+const colors = {
+  purple: {
+    boxShadow: "inset 0px 0px 12px #E0DBFC",
+  },
+  yellow: {
+    boxShadow: "inset 0px 0px 12px #FDF1CC",
+  },
+  green: {
+    boxShadow: "inset 0px 0px 12px #D1F4CC",
+  },
+  blue: {
+    boxShadow: "inset 0px 0px 12px #d3e8ff",
+  },
+  red: {
+    boxShadow: "inset 0px 0px 12px #fdd7d2",
+  },
+  aqua: {
+    boxShadow: "inset 0px 0px 12px #e0eeff",
+  },
+  black: {
+    boxShadow: "inset 0px 0px 12px #eae8e8",
+  },
+  orange: {
+    boxShadow: "inset 0px 0px 12px #fde6d2",
+  },
+};
+
 S.UserProfileWrapper = styled.div`
   width: 120px;
   height: 160px;
   border-radius: 10px;
-  border: 1px solid #000;
   position: relative;
   ${flexCenterColumn}
   gap: 3px;
+  backdrop-filter: blur(2px);
+  background: "rgba(255, 255, 255, 0.2)";
+  box-shadow: ${({ color }) => {
+    return colors[`${color}`]?.boxShadow ?? colors.black.boxShadow;
+  }};
 `;
 
 S.ResignButton = styled.div`
