@@ -19,19 +19,14 @@ const UPDATE_COMMENT       = `${API_BASE}/comment/modify`;     // 댓글 수정
 const CREATE_SUBCOMMENT    = `${API_BASE}/subcomment/write`;   // 대댓글 작성
 const DELETE_SUBCOMMENT    = `${API_BASE}/subcomment/remove`; // 대댓글 삭제
 
-<<<<<<< HEAD
-/** ✅ 좋아요 토글(백엔드 규약에 맞게 필요시 경로 수정) */
-const TOGGLE_POST_LIKE       = (postId, userId) => `${API_BASE}/post/like?postId=${postId}&userId=${userId}`;             // POST
-const TOGGLE_COMMENT_LIKE    = (commentId, postId, userId) => `${API_BASE}/commentLike/toggle?commentId=${commentId}&postId=${postId}&userId=${userId}`; // POST
-=======
+
 /** ✅ 좋아요 토글(백엔드 규약에 맞게 수정) */
 const TOGGLE_POST_LIKE       = (postId, userId) => `${API_BASE}/post/like?postId=${postId}&userId=${userId}`; // POST (Query Parameter)
 const CREATE_COMMENT_LIKE    = `${API_BASE}/commentLike/commentlike`; // POST (body에 { userId, postId, commentId })
 const DELETE_COMMENT_LIKE    = `${API_BASE}/commentLike/remove`; // DELETE (body에 { id, userId, commentId })
->>>>>>> 3b329b764f60db19c9a77771ec4cc1535d5630fb
 
-/** ✅ 대댓글 작성 */
-const CREATE_SUBCOMMENT = `${API_BASE}/subcomment/write`; // POST (body에 { userId, commentId, subcommentDescription, subcommentCreateAt })
+
+
 
 /** ✅ 대댓글 좋아요 토글 (POST /subcommentLike/subcommentlike, body: { userId, subcommentId }) */
 const TOGGLE_SUBCOMMENT_LIKE = `${API_BASE}/subcommentLike/subcommentlike`;
@@ -240,14 +235,6 @@ const PostReadContainer = () => {
         method: "POST",
         credentials: "include",
       });
-<<<<<<< HEAD
-      if (!res.ok) throw new Error("post like failed");
-      const data = await res.json();
-      // 백엔드에서 반환하는 최신 상태로 업데이트
-      if (data.data) {
-        setIsPostLiked(data.data.liked);
-        setPostLikeCount(data.data.likeCount);
-=======
       
       if (!res.ok) {
         const errorText = await res.text().catch(() => "");
@@ -266,7 +253,6 @@ const PostReadContainer = () => {
         if (typeof result.likeCount === "number") {
           setPostLikeCount(result.likeCount);
         }
->>>>>>> 3b329b764f60db19c9a77771ec4cc1535d5630fb
       }
     } catch (e) {
       // 실패 시 롤백
@@ -296,25 +282,6 @@ const PostReadContainer = () => {
     setCommentLikePending((prev) => ({ ...prev, [cid]: true }));
 
     try {
-<<<<<<< HEAD
-      const res = await fetch(TOGGLE_COMMENT_LIKE(cid, post?.id || pid, currentUser?.id), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("comment like failed");
-      
-      // 백엔드에서 반환하는 최신 상태로 업데이트
-      const data = await res.json();
-      if (data.data) {
-        setLikedComments((prev) => ({ ...prev, [cid]: data.data.liked }));
-        // 댓글 좋아요 개수 업데이트
-        setComments((prev) =>
-          prev.map((c) =>
-            c.id === cid ? { ...c, likes: data.data.likeCount } : c
-          )
-        );
-=======
       if (willLike) {
         // ✅ 좋아요 추가
         const res = await fetch(CREATE_COMMENT_LIKE, {
@@ -418,7 +385,6 @@ const PostReadContainer = () => {
         } catch (e) {
           console.error("좋아요 수 조회 실패", e);
         }
->>>>>>> 3b329b764f60db19c9a77771ec4cc1535d5630fb
       }
     } catch (e) {
       // 실패하면 UI 롤백
@@ -570,14 +536,7 @@ const PostReadContainer = () => {
 
     const mapped = list.map(mapComment);
     
-    // ✅ 댓글 좋아요 상태 초기화
-    const likedMap = {};
-    mapped.forEach((c) => {
-      if (c.liked) {
-        likedMap[c.id] = true;
-      }
-    });
-    setLikedComments((prev) => ({ ...likedMap, ...prev })); // 기존 상태와 병합
+    
 
     // ✅ 댓글 좋아요 상태 설정
     const likedMap = {};
@@ -591,11 +550,7 @@ const PostReadContainer = () => {
     const enriched = await Promise.all(
       mapped.map(async (c) => {
         const [likeCnt, subs] = await Promise.all([
-<<<<<<< HEAD
-          // 댓글 좋아요 수 (백엔드에서 받은 값 사용)
-=======
-          // 댓글 좋아요 수 (백엔드에서 이미 likeCount 반환하지만, 별도 조회로 최신화)
->>>>>>> 3b329b764f60db19c9a77771ec4cc1535d5630fb
+
           (async () => {
             // 백엔드에서 이미 likeCount를 반환하므로 사용
             const originalItem = list.find(item => (item.id ?? item.commentId) === c.id);
@@ -754,11 +709,9 @@ const PostReadContainer = () => {
   const handleAddSubcomment = async (commentId) => {
     const text = (replyTextMap[commentId] || "").trim();
     if (!text) {
-<<<<<<< HEAD
+
       alert("대댓글 내용을 입력해주세요.");
-=======
-      alert("답글 내용을 입력해주세요.");
->>>>>>> 3b329b764f60db19c9a77771ec4cc1535d5630fb
+
       return;
     }
     if (!isLogin) {
@@ -768,20 +721,12 @@ const PostReadContainer = () => {
     }
 
     try {
-<<<<<<< HEAD
-      const now = new Date();
-      const payload = {
-        commentId: Number(commentId),
-        userId: currentUser?.id,
-        subcommentDescription: text,
-        subcommentCreateAt: now,
-=======
+
       const payload = {
         userId: currentUser?.id,
         commentId: Number(commentId),
         subcommentDescription: text,
         subcommentCreateAt: new Date(),
->>>>>>> 3b329b764f60db19c9a77771ec4cc1535d5630fb
       };
 
       const res = await fetch(CREATE_SUBCOMMENT, {
@@ -805,7 +750,6 @@ const PostReadContainer = () => {
     }
   };
 
-<<<<<<< HEAD
   /** ✅ 대댓글 삭제 */
   const handleDeleteSubcomment = async (subcommentId) => {
     if (!isLogin) {
@@ -858,8 +802,6 @@ const PostReadContainer = () => {
     }
   };
 
-=======
->>>>>>> 3b329b764f60db19c9a77771ec4cc1535d5630fb
  /** 데이터 로드 */
 useEffect(() => {
   if (!pid) return;
