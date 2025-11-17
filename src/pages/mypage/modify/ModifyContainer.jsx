@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from '../../../modules/user';
+import useFileUpload from '../../../hooks/useFileUpload';
+import { getFilePath, getFileDisplayUrl } from '../../../utils/fileUtils';
 import S from './style';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash, faCalendar } from '@fortawesome/free-solid-svg-icons';
@@ -34,6 +36,8 @@ const ModifyContainer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [isPasswordVerified, setIsPasswordVerified] = useState(false);
+  
+  const { uploadFiles, uploading: fileUploading } = useFileUpload();
 
   // Redux에서 사용자 정보를 가져와서 폼에 설정
   useEffect(() => {
@@ -47,7 +51,13 @@ const ModifyContainer = () => {
           : '',
         userPhone: currentUser.userPhone || '',
       });
-      setProfilePreview(currentUser.userThumbnailUrl || '/assets/images/defalutpro.svg');
+      // 프로필 이미지 URL 설정 (파일 경로인 경우 display URL로 변환)
+      const thumbnailUrl = currentUser.userThumbnailUrl;
+      if (thumbnailUrl && thumbnailUrl !== '/default' && !thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/assets')) {
+        setProfilePreview(getFileDisplayUrl(thumbnailUrl));
+      } else {
+        setProfilePreview(thumbnailUrl || '/assets/images/defalutpro.svg');
+      }
     }
   }, [currentUser]);
 
@@ -216,13 +226,31 @@ const ModifyContainer = () => {
         userPhone: formData.userPhone || null,
       };
 
-      // 프로필 이미지가 변경된 경우 (현재는 URL만 유지, 파일 업로드는 추후 구현)
-      // TODO: 프로필 이미지 파일 업로드 API 구현 필요
+      // 프로필 이미지가 변경된 경우 파일 업로드
       if (profileImage) {
-        // 프로필 이미지 파일이 선택되었지만, 업로드 API가 없으므로
-        // 현재는 기존 URL을 유지합니다.
-        // 추후 프로필 이미지 업로드 API가 구현되면 여기에 추가하세요.
-        console.log('프로필 이미지 업로드 기능은 추후 구현 예정입니다.');
+        const uuids = await uploadFiles([profileImage]);
+        if (uuids && uuids.length > 0) {
+          const uuid = uuids[0];
+          const today = new Date();
+          const year = today.getFullYear();
+          const month = String(today.getMonth() + 1).padStart(2, '0');
+          const day = String(today.getDate()).padStart(2, '0');
+          const datePath = `${year}/${month}/${day}/`;
+          
+          const fileName = `${uuid}_${profileImage.name}`;
+          const filePath = getFilePath(uuid, profileImage.name, datePath);
+          
+          updateData.userThumbnailName = fileName;
+          updateData.userThumbnailUrl = filePath;
+        } else {
+          alert('프로필 이미지 업로드에 실패했습니다.');
+          setIsLoading(false);
+          return;
+        }
+      } else if (profilePreview === '/assets/images/defalutpro.svg') {
+        // 기본 이미지로 변경하는 경우
+        updateData.userThumbnailName = 'default.jpg';
+        updateData.userThumbnailUrl = '/default';
       }
 
       // 비밀번호 변경이 있는 경우 추가
