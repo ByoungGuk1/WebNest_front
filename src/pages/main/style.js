@@ -344,7 +344,7 @@ S.lvWrap =styled.div`
     }
     & .lv8 {
       position: absolute;
-      top: -86px;
+      top: -84px;
       left: 23px;
       width: 73.2px;
       height: 88.8px;
@@ -352,16 +352,16 @@ S.lvWrap =styled.div`
     }
     & .lv9 {
       position: absolute;
-      left: 26px;
-      top : -68px;
+      left: 16px;
+      top : -102px;
       width: 109.8px;
       height: 133.2px;
       object-fit: contain;
     }
     & .lv10 {
       position: absolute;
-      top: -72px;
-      left: 18px;
+      top: -104px;
+      left: 8px;
       width: 109.8px;
       height: 133.2px;
       object-fit: contain;

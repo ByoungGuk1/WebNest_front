@@ -1,10 +1,9 @@
-import React from "react";
 import S from "../style";
 
-const UserInputContainer = () => {
+const UserInputContainer = ({ inputWord }) => {
   return (
     <S.UserInputSection>
-      사용자 입력 단어
+      {inputWord || "\u00A0"}
     </S.UserInputSection>
   );
 };
