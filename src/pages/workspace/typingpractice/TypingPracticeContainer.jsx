@@ -7,7 +7,6 @@ const TypingPracticeContainer = () => {
    const location = useLocation();
     // 현재 경로가 long이면 긴글연습 active
   const isLong = location.pathname.includes("long");
-  console.log("🔥 렌더링, isLong =", isLong);
 
   const [lang, setLang] = useState("ko");
   const [isOpen, setIsOpen] = useState(false);
@@ -56,28 +55,51 @@ const TypingPracticeContainer = () => {
   const [selected, setSelected] = useState("");
 
   // 리스트 가져오기
+  // const fetchLongTitleList = async () => {
+  //   try {
+  //     const res = await fetch(`http://localhost:10000/typing/long/list?language=${lang === "ko" ? "한국어" : "영어"}`);
+      
+  //     if (!res.ok) {
+  //       throw new Error(`HTTP error! status: ${res.status}`);
+  //     }
+      
+  //     const data = await res.json();   
+
+  //     const list = data.data || [];
+  //     setTitleList(list);
+
+  //     if (list.length > 0) {
+  //       setSelected(list[0].title);
+  //       navigate(`long?id=${list[0].id}`);
+  //     }
+  //   } catch (error) {
+  //     console.error("긴글 목록 로드 실패:", error);
+  //     setTitleList([]);
+  //   }
+  // };
+
   const fetchLongTitleList = async () => {
     try {
       const res = await fetch(`http://localhost:10000/typing/long/list?language=${lang === "ko" ? "한국어" : "영어"}`);
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      const data = await res.json();   
+      const data = await res.json();
 
       const list = data.data || [];
       setTitleList(list);
 
-      if (list.length > 0) {
+      // 🔥 핵심: URL에 id가 없을 때만 navigate 실행
+      const currentId = new URLSearchParams(window.location.search).get("id");
+
+      if (!currentId && list.length > 0) {
         setSelected(list[0].title);
-        navigate(`long?id=${list[0].id}`);
+        navigate(`long?id=${list[0].id}`, { replace: true });
       }
+
     } catch (error) {
       console.error("긴글 목록 로드 실패:", error);
       setTitleList([]);
     }
   };
+
 
   const fetchShortTitleList = async () => {
     try {

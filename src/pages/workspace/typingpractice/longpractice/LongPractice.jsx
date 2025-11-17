@@ -39,67 +39,90 @@ const LongPractice = () => {
   // 이전 계산값 저장 (불필요한 업데이트 방지)
   const prevAccuracyRef = useRef(100);
   const prevWPMRef = useRef(0);
+  
+  // 오타 발생 여부 추적 (한 번이라도 틀리면 100% 불가능)
+  const hasWrongTypedRef = useRef(false);
+  
+  // 타이머 업데이트 최적화를 위한 ref
+  const lastUpdateTimeRef = useRef(0);
 
 
 
-  // 정확도 / 타수 계산 
+  // C 코드 방식: 정확도 / 타수 계산 (오타 개수 기반)
   useEffect(() => {
     // 연습이 완료되면 더 이상 계산하지 않음
     if (isFinished) {
       return;
     }
 
-    // 현재까지 입력한 전체 텍스트 (완료된 문장 + 현재 입력 중인 문장)
-    const currentAllText = totalTyped + inputValue;
+    // 전체 정답 텍스트 길이 (C 코드의 30에 해당 - 고정값)
+    const totalLength = fullText.length;
     
     // 입력이 없으면 계산하지 않음
-    if (currentAllText.length === 0) {
-      if (prevAccuracyRef.current !== 100 || prevWPMRef.current !== 0) {
-        setPracticeAccuracy(100);
-        setPracticeWPM(0);
-        prevAccuracyRef.current = 100;
-        prevWPMRef.current = 0;
-      }
+    if (totalLength === 0) {
       return;
     }
 
-    // 총 입력한 글자 수
-    const totalTypedLength = currentAllText.length;
-
-    // 현재까지 입력해야 할 정답 텍스트 (fullText의 처음부터 총 입력 길이만큼)
-    const expectedText = fullText.substring(0, Math.min(totalTypedLength, fullText.length));
-
-    // 정확도 계산: 정확히 입력한 글자 수 / 총 입력한 글자 수
-    let correct = 0;
-    const compareLength = Math.min(currentAllText.length, expectedText.length);
+    // 현재까지 입력한 전체 텍스트 (완료된 문장 + 현재 입력 중인 문장)
+    const currentAllText = totalTyped + inputValue;
+    const typedLength = currentAllText.length; // 입력한 글자 수
     
-    for (let i = 0; i < compareLength; i++) {
-      if (currentAllText[i] === expectedText[i]) {
-        correct++;
+    // 상태 업데이트를 다음 틱으로 지연 (렌더링 중 상태 업데이트 방지)
+    const updateState = () => {
+      // 입력이 없으면 100% 유지
+      if (typedLength === 0) {
+        if (prevAccuracyRef.current !== 100) {
+          setPracticeAccuracy(100);
+          prevAccuracyRef.current = 100;
+          hasWrongTypedRef.current = false; // 초기화
+        }
+      } else {
+        // 맞게 입력한 글자 수 세기
+        let correctCount = 0;
+        const compareLength = Math.min(typedLength, totalLength);
+        
+        for (let i = 0; i < compareLength; i++) {
+          if (currentAllText[i] === fullText[i]) {
+            correctCount++;
+          } else {
+            // 오타 발생 - 한 번이라도 틀리면 100% 불가능
+            hasWrongTypedRef.current = true;
+          }
+        }
+        
+        // 정확도 계산: (맞게 입력한 글자 수 ÷ 입력한 글자 수) × 100
+        // 이렇게 하면 입력이 적을 때도 정확도가 급격히 떨어지지 않음
+        // 예: 10자 입력했는데 1자 틀리면 (9/10) × 100 = 90%
+        // 예: 100자 입력했는데 1자 틀리면 (99/100) × 100 = 99%
+        const accuracy = typedLength > 0 
+          ? Number(((correctCount / typedLength) * 100).toFixed(2))
+          : 100;
+        
+        // 값이 변경된 경우에만 업데이트 (불필요한 리렌더링 방지)
+        if (Math.abs(prevAccuracyRef.current - accuracy) > 0.01) {
+          setPracticeAccuracy(accuracy);
+          prevAccuracyRef.current = accuracy;
+        }
       }
-    }
 
-    // 정확도 = (정확히 입력한 글자 수 / 총 입력한 글자 수) * 100
-    const accuracy = totalTypedLength > 0 
-      ? Number(((correct / totalTypedLength) * 100).toFixed(2))
-      : 100;
+      // C 코드 방식: 타수 = (60초 / 소요시간) * 총 글자 수 = (총 글자 수 / 분)
+      // C 코드: (60 / t) * 30
+      const timeInMin = currentTime / 60;
+      const wpm = timeInMin > 0 && totalLength > 0
+        ? Number((totalLength / timeInMin).toFixed(2))
+        : 0;
 
-    // 타수 계산 (한국어 기준: 글자 수 / 분)
-    const timeInMin = currentTime / 60;
-    const wpm = timeInMin > 0 && totalTypedLength > 0
-      ? Number((totalTypedLength / timeInMin).toFixed(2))
-      : 0;
+      // 값이 변경된 경우에만 업데이트 (불필요한 리렌더링 방지)
+      if (Math.abs(prevWPMRef.current - wpm) > 0.01) {
+        setPracticeWPM(wpm);
+        prevWPMRef.current = wpm;
+      }
+    };
 
-    // 값이 변경된 경우에만 업데이트 (불필요한 리렌더링 방지)
-    if (Math.abs(prevAccuracyRef.current - accuracy) > 0.01) {
-      setPracticeAccuracy(accuracy);
-      prevAccuracyRef.current = accuracy;
-    }
-
-    if (Math.abs(prevWPMRef.current - wpm) > 0.01) {
-      setPracticeWPM(wpm);
-      prevWPMRef.current = wpm;
-    }
+    // 다음 이벤트 루프에서 실행 (렌더링 중 상태 업데이트 방지)
+    const timeoutId = setTimeout(updateState, 0);
+    
+    return () => clearTimeout(timeoutId);
   }, [totalTyped, inputValue, currentTime, fullText, isFinished, setPracticeAccuracy, setPracticeWPM]);
 
 
@@ -142,6 +165,7 @@ const LongPractice = () => {
       setPracticeWPM(0);
       prevAccuracyRef.current = 100;
       prevWPMRef.current = 0;
+      hasWrongTypedRef.current = false;
     } catch (error) {
       console.error("데이터 로드 실패:", error);
       // 에러 발생 시 기본값 설정
@@ -155,13 +179,33 @@ const LongPractice = () => {
   //   타이머
   useEffect(() => {
     if (startTime && !isFinished) {
+      lastUpdateTimeRef.current = 0;
       timerRef.current = setInterval(() => {
-        setCurrentTime(prev => prev + 0.1);
-        setPracticeTime(prev => Number((prev + 0.1).toFixed(1)));
+        setCurrentTime(prev => {
+          const newTime = prev + 0.1;
+          const roundedTime = Number(newTime.toFixed(1));
+          // 부모 컴포넌트 업데이트는 0.5초마다만 (화면 흔들림 방지)
+          if (roundedTime - lastUpdateTimeRef.current >= 0.5) {
+            setPracticeTime(roundedTime);
+            lastUpdateTimeRef.current = roundedTime;
+          }
+          return newTime;
+        });
       }, 100);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      lastUpdateTimeRef.current = 0;
     }
 
-    return () => clearInterval(timerRef.current);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
   }, [startTime, isFinished]);
 
 
@@ -200,26 +244,29 @@ const LongPractice = () => {
         timerRef.current = null;
       }
 
-      // 최종 정확도와 타수 계산 (마지막 문장 포함)
+      // 최종 정확도와 타수 계산
       const finalAllText = totalTyped + inputValue;
-      const finalExpectedText = fullText.substring(0, Math.min(finalAllText.length, fullText.length));
+      const totalLength = fullText.length; // 제시된 글자 수
       
-      let finalCorrect = 0;
-      const finalCompareLength = Math.min(finalAllText.length, finalExpectedText.length);
+      // 맞게 입력한 글자 수 세기
+      let correctCount = 0;
+      const compareLength = Math.min(finalAllText.length, totalLength);
       
-      for (let i = 0; i < finalCompareLength; i++) {
-        if (finalAllText[i] === finalExpectedText[i]) {
-          finalCorrect++;
+      for (let i = 0; i < compareLength; i++) {
+        if (finalAllText[i] === fullText[i]) {
+          correctCount++;
         }
       }
-
-      const finalAccuracy = finalAllText.length > 0 
-        ? Number(((finalCorrect / finalAllText.length) * 100).toFixed(2))
+      
+      // 타자연습 정확도 산출 방법: 정확도(%) = (맞게 입력한 글자 수 ÷ 제시된 글자 수) × 100
+      const finalAccuracy = totalLength > 0 
+        ? Number(((correctCount / totalLength) * 100).toFixed(2))
         : 100;
 
+      // C 코드 방식: 타수 = (총 글자 수 / 분)
       const timeInMin = currentTime / 60;
-      const finalWPM = timeInMin > 0 && finalAllText.length > 0
-        ? Number((finalAllText.length / timeInMin).toFixed(2))
+      const finalWPM = timeInMin > 0 && totalLength > 0
+        ? Number((totalLength / timeInMin).toFixed(2))
         : 0;
 
       // 최종 시간 
