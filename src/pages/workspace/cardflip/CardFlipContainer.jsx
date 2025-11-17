@@ -1,5 +1,5 @@
 // src/pages/cardflip/CardFlipContainer.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import S from "./style";
 
 const IMAGE_BASE_PATH = "/assets/images/level";
@@ -40,6 +40,9 @@ const IMAGE_PAIRS = [
   { id: 5, image: "X.svg" },
   { id: 6, image: "1.svg" },
 ];
+
+// 총 카드 쌍 수 (문제 4쌍 + 그림 6쌍 = 10쌍)
+const TOTAL_PAIRS = 10;
 
 // 카드 생성 함수
 const createInitialCards = () => {
@@ -106,6 +109,54 @@ const CardFlipContainer = () => {
   const [firstIndex, setFirstIndex] = useState(null);
   const [secondIndex, setSecondIndex] = useState(null);
   const [disableDeck, setDisableDeck] = useState(false);
+  
+  // 게임 상태
+  const [isGameStarted, setIsGameStarted] = useState(false);
+  const [isGameFinished, setIsGameFinished] = useState(false);
+  const [matchedPairs, setMatchedPairs] = useState(0);
+  const [startTime, setStartTime] = useState(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [finishTime, setFinishTime] = useState(null);
+  
+  const timerIntervalRef = useRef(null);
+
+  // 타이머 시작
+  useEffect(() => {
+    if (isGameStarted && !isGameFinished && startTime) {
+      timerIntervalRef.current = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        setElapsedTime(elapsed);
+      }, 100);
+    } else {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, [isGameStarted, isGameFinished, startTime]);
+
+  // 게임 시작 (첫 카드 클릭 시)
+  const handleGameStart = () => {
+    if (!isGameStarted && !isGameFinished) {
+      setIsGameStarted(true);
+      setStartTime(Date.now());
+    }
+  };
+
+  // 게임 완료 처리
+  const handleGameFinish = () => {
+    if (isGameFinished) return;
+
+    setIsGameFinished(true);
+    const finalTime = elapsedTime;
+    setFinishTime(finalTime);
+  };
 
   const resetSelection = () => {
     setFirstIndex(null);
@@ -115,6 +166,12 @@ const CardFlipContainer = () => {
 
   const handleCardClick = (index) => {
     if (disableDeck) return;
+    if (isGameFinished) return;
+
+    // 게임 시작 (첫 카드 클릭 시)
+    if (!isGameStarted) {
+      handleGameStart();
+    }
 
     const clicked = cards[index];
     if (clicked.isFlipped || clicked.isMatched) return;
@@ -173,6 +230,18 @@ const CardFlipContainer = () => {
               : card
           )
         );
+        
+        // 매칭된 쌍 수 증가
+        const newMatchedPairs = matchedPairs + 1;
+        setMatchedPairs(newMatchedPairs);
+
+        // 게임 완료 체크
+        if (newMatchedPairs >= TOTAL_PAIRS) {
+          setTimeout(() => {
+            handleGameFinish();
+          }, 100);
+        }
+
         resetSelection();
       }, 300);
     } else {
@@ -200,8 +269,31 @@ const CardFlipContainer = () => {
     }
   };
 
+  // 시간 포맷팅 (초를 mm:ss로)
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
   return (
     <S.PageWrap>
+      <S.GameHeader>
+        <S.GameInfo>
+          <S.TimerDisplay>
+            ⏱️ {formatTime(elapsedTime)}
+          </S.TimerDisplay>
+          <S.ProgressDisplay>
+            매칭: {matchedPairs} / {TOTAL_PAIRS}
+          </S.ProgressDisplay>
+        </S.GameInfo>
+        {isGameFinished && finishTime !== null && (
+          <S.WinnerDisplay $isMe>
+            🎉 완료! 기록: {formatTime(finishTime)}
+          </S.WinnerDisplay>
+        )}
+      </S.GameHeader>
+
       <S.CardInner>
         <S.Cards>
           {cards.map((card, index) => {
@@ -218,6 +310,7 @@ const CardFlipContainer = () => {
                 className={liClassNames}
                 onClick={() => handleCardClick(index)}
                 $cardType={card.type}
+                $disabled={isGameFinished}
               >
                 <S.View className="front">
                   <img src={card.frontImg} alt="card-front" />

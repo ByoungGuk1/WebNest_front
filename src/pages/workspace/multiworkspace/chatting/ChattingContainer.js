@@ -199,6 +199,18 @@ const ChattingContainer = () => {
     setShowFriendList(false);
   };
 
+  // 초대하기 이벤트 수신
+  useEffect(() => {
+    const handleShowFriendList = () => {
+      setShowFriendList(true);
+    };
+
+    window.addEventListener('showFriendList', handleShowFriendList);
+    return () => {
+      window.removeEventListener('showFriendList', handleShowFriendList);
+    };
+  }, []);
+
   // 친구 목록이 표시될 때는 친구 목록 컴포넌트를 보여줌
   if (showFriendList) {
     return <FriendListContainer onCancel={handleFriendListCancel} />;
