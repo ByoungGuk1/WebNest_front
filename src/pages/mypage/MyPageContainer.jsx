@@ -2,6 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import S from "./style"; 
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { getFileDisplayUrl } from "../../utils/fileUtils";
 
 const MyPageContainer = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -60,7 +61,11 @@ console.log(myData)
       <S.Wrapper>
         <S.ProfileArea>
           <S.ProfileImg 
-            src={currentUser?.userThumbnailUrl || "/assets/images/defalutpro.svg"} 
+            src={
+              currentUser?.userThumbnailUrl && currentUser.userThumbnailUrl !== '/default' && !currentUser.userThumbnailUrl.startsWith('http') && !currentUser.userThumbnailUrl.startsWith('/assets')
+                ? getFileDisplayUrl(currentUser.userThumbnailUrl)
+                : (currentUser?.userThumbnailUrl || "/assets/images/defalutpro.svg")
+            } 
             alt="프로필" 
           />
           <div>

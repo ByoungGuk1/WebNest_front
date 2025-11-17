@@ -113,7 +113,7 @@ S.BarSegment = styled.span`
   width: 100%;
   height: 100%;
   border-radius: 99px;
-  background: ${({ $filled, $color }) => ($filled ? $color : "#E9E9EE")};
+  background: ${({ $filled, $color }) => ($filled ? $color : "#ffffffff")};
   transition: background 160ms ease;
 `;
 
