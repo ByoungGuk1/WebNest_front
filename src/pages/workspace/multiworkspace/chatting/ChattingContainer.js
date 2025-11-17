@@ -151,8 +151,11 @@ const ChattingContainer = () => {
     return () => {
       handleBeforeUnload();
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (stompClientRef.current && stompClientRef.current.connected) {
+        stompClientRef.current.deactivate();
+      }
     };
-  }, [roomId, userSenderId, userNickname, userTeamColor]);
+  }, [roomId, userSenderId, userNickname]); // userTeamColor 제거 - 변경 시 재연결 방지
 
   // 엔터키 입력 시 메시지 전송
   const [isComposing, setIsComposing] = useState(false);
@@ -164,12 +167,15 @@ const ChattingContainer = () => {
     // 일부 브라우저: nativeEvent.isComposing 도 같이 방어
     if (e.nativeEvent?.isComposing) return;
 
+    // Enter 키이고 메시지가 있을 때
     if (e.key === 'Enter' && message.trim() !== '') {
+      e.preventDefault(); // 기본 동작(줄바꿈) 방지
+      
       const chatData = {
         gameRoomId: roomId,
         userSenderId: userSenderId,
         userReceiverId: null,
-        chatMessageContent: message,
+        chatMessageContent: message.trim(),
         chatMessageType: 'MESSAGE',
       };
 
