@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import S from '../style';
 import { TypingContext } from 'context/TypingContext';
+import Bar from './Bar';
 
 const RunningAccuracy = () => {
   const { state } = useContext(TypingContext);
@@ -11,6 +12,8 @@ const RunningAccuracy = () => {
       ? ((correctTypedCount / totalTypedCount) * 100).toFixed(1)
       : 100;
 
+   //  percent 계산 (0~100 그대로 사용)
+  const percent = Math.min(Number(accuracyValue), 100);
   return (
     <S.ProgressBox>
       <S.ProgressTime>
@@ -18,8 +21,8 @@ const RunningAccuracy = () => {
         <span className="value">{accuracyValue}</span>
       </S.ProgressTime>
 
-      <S.Bar
-      />
+      {/* <S.Bar/> */}
+      {/* <Bar percent={percent} color="blue" /> */}
     </S.ProgressBox>
   );
 };
