@@ -7,17 +7,19 @@ const RunningTyping = () => {
   const { state } = useContext(TypingContext);
   const { runningTime, wordCount } = state;
 
-  // 안전 처리 (초기 값 undefined 방지)
   const totalSeconds = Number(runningTime?.totalSeconds ?? 0);
   const wc = Number(wordCount ?? 0);
 
-  const wpm = totalSeconds > 0
-    ? ((wc / totalSeconds) * 60).toFixed(1)
-    : 0;
+  const wpmNumber = totalSeconds > 0 ? (wc / totalSeconds) * 60 : 0;
+  const wpm = wpmNumber.toFixed(1);
 
-   //  최대 타수 기준 바 width 계산
-  const MAX_WPM = 500; 
-  const percent = Math.min((wpm / MAX_WPM) * 100, 100); 
+  const MAX_WPM = 500;
+
+  // percent를 정수로 고정 (미세한 변동 방지)
+  const percent = Math.min(
+    Math.floor((wpmNumber / MAX_WPM) * 100),
+    100
+  );
 
   return (
     <S.ProgressBox>
@@ -25,7 +27,8 @@ const RunningTyping = () => {
         <span>타수 (타/분)</span>
         <span>{wpm}</span>
       </S.ProgressTime>
-      {/* <S.Bar /> */}
+
+      {/* Bar 컴포넌트 */}
       <Bar percent={percent} color="blue" />
     </S.ProgressBox>
   );

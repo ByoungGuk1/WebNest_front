@@ -51,10 +51,6 @@ const TypingPracticeContainer = () => {
             </S.ModeButton>
           )}
         </S.ModeSelect>
-
-
-
-
         <S.LanguageSelect>
           <S.ToggleWrapper $lang={language} $isShort={isShort}>
             <S.ToggleButton $lang={language} $isShort={isShort} />
