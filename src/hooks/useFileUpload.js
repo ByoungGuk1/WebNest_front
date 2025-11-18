@@ -88,32 +88,14 @@ const useFileUpload = () => {
     return `${path}${uuid}_${originalFileName}`;
   }, []);
 
-  /**
-   * 썸네일 파일 경로 생성
-   * @param {string} uuid - 파일 UUID
-   * @param {string} originalFileName - 원본 파일명
-   * @param {string} datePath - 날짜 경로 (yyyy/MM/dd/)
-   * @returns {string} - 썸네일 파일 경로
-   */
-  const getThumbnailPath = useCallback((uuid, originalFileName, datePath = '') => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const path = datePath || `${year}/${month}/${day}/`;
-    return `${path}t_${uuid}_${originalFileName}`;
-  }, []);
-
   return {
     uploadFiles,
     getFileDisplayUrl,
     getFilePath,
-    getThumbnailPath,
     uploading,
     error,
   };
 };
 
 export default useFileUpload;
-
 

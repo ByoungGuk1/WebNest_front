@@ -293,21 +293,30 @@ const ModifyContainer = () => {
       setPasswordError('');
       setIsPasswordVerified(false);
 
-      // Redux 업데이트를 위해 사용자 정보 다시 가져오기
-      const userResponse = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/private/users/me`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      // modify API 응답에서 업데이트된 사용자 정보 가져오기 (썸네일 포함)
+      const updatedUserData = result?.data ?? result;
+      if (updatedUserData && updatedUserData.id != null) {
+        // 백엔드에서 반환한 업데이트된 사용자 정보(썸네일 포함)를 Redux에 저장
+        dispatch(setUser(updatedUserData));
+      } else {
+        // 응답에 데이터가 없는 경우 /users/me로 다시 가져오기
+        const userResponse = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/private/users/me`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
 
-      if (userResponse.ok) {
-        const userResult = await userResponse.json();
-        const updatedUser = userResult?.data ?? userResult;
-        dispatch(setUser(updatedUser));
+        if (userResponse.ok) {
+          const userResult = await userResponse.json();
+          const userData = userResult?.data ?? userResult;
+          if (userData && userData.id != null) {
+            dispatch(setUser(userData));
+          }
+        }
       }
 
       alert('정보가 성공적으로 수정되었습니다.');

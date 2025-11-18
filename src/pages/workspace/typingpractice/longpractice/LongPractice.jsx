@@ -1,407 +1,167 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
-import S from "./style";
-import { useSearchParams } from 'react-router-dom';
-import { useOutletContext } from "react-router-dom";
-import { useSelector } from 'react-redux';
+import React, { useContext, useEffect, useState, useMemo } from 'react';
+import S from "./longStyle";
+import { TypingContext } from 'context/TypingContext';
+
 
 const LongPractice = () => {
-  const { 
-    setPracticeTime,
-    setPracticeAccuracy,
-    setPracticeWPM,
-    setPracticeFinish
-  } = useOutletContext();
-
-  const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
+  const { state, actions } = useContext(TypingContext);
+    const { typingList, currentTypingId } = state;
+    const { 
+      setIsTypingStart, 
+      setIsShowModal, 
+      setTotalTypedCount, 
+      setCorrectTypedCount 
+    } = actions;
   
-  // Redux에서 userId 가져오기
-  const currentUser = useSelector((state) => state.user.currentUser);
-  const userId = currentUser?.id;
-
-  const [inputValue, setInputValue] = useState("");
-  const [sentenceList, setSentenceList] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [currentText, setCurrentText] = useState("");
-
-  // 타이머
-  const [startTime, setStartTime] = useState(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [isFinished, setIsFinished] = useState(false);
-  const timerRef = useRef(null);
-
-  // 누적 입력 (완료된 문장들)
-  const [totalTyped, setTotalTyped] = useState("");
-
-  // 전체 정답 텍스트 (제목 + 본문)
-  const [fullText, setFullText] = useState("");
-
-  // 이전 계산값 저장 (불필요한 업데이트 방지)
-  const prevAccuracyRef = useRef(100);
-  const prevWPMRef = useRef(0);
+    // 현재 타이핑 데이터
+    const currentTyping = typingList[currentTypingId];
   
-  // 오타 발생 여부 추적 (한 번이라도 틀리면 100% 불가능)
-  const hasWrongTypedRef = useRef(false);
+    // 줄 데이터
+    const typingArray = currentTyping?.subject?.split("#") || [];
   
-  // 타이머 업데이트 최적화를 위한 ref
-  const lastUpdateTimeRef = useRef(0);
-
-
-
-  // C 코드 방식: 정확도 / 타수 계산 (오타 개수 기반)
-  useEffect(() => {
-    // 연습이 완료되면 더 이상 계산하지 않음
-    if (isFinished) {
-      return;
-    }
-
-    // 전체 정답 텍스트 길이 (C 코드의 30에 해당 - 고정값)
-    const totalLength = fullText.length;
-    
-    // 입력이 없으면 계산하지 않음
-    if (totalLength === 0) {
-      return;
-    }
-
-    // 현재까지 입력한 전체 텍스트 (완료된 문장 + 현재 입력 중인 문장)
-    const currentAllText = totalTyped + inputValue;
-    const typedLength = currentAllText.length; // 입력한 글자 수
-    
-    // 상태 업데이트를 다음 틱으로 지연 (렌더링 중 상태 업데이트 방지)
-    const updateState = () => {
-      // 입력이 없으면 100% 유지
-      if (typedLength === 0) {
-        if (prevAccuracyRef.current !== 100) {
-          setPracticeAccuracy(100);
-          prevAccuracyRef.current = 100;
-          hasWrongTypedRef.current = false; // 초기화
-        }
-      } else {
-        // 맞게 입력한 글자 수 세기
-        let correctCount = 0;
-        const compareLength = Math.min(typedLength, totalLength);
-        
-        for (let i = 0; i < compareLength; i++) {
-          if (currentAllText[i] === fullText[i]) {
-            correctCount++;
-          } else {
-            // 오타 발생 - 한 번이라도 틀리면 100% 불가능
-            hasWrongTypedRef.current = true;
-          }
-        }
-        
-        // 정확도 계산: (맞게 입력한 글자 수 ÷ 입력한 글자 수) × 100
-        // 이렇게 하면 입력이 적을 때도 정확도가 급격히 떨어지지 않음
-        // 예: 10자 입력했는데 1자 틀리면 (9/10) × 100 = 90%
-        // 예: 100자 입력했는데 1자 틀리면 (99/100) × 100 = 99%
-        const accuracy = typedLength > 0 
-          ? Number(((correctCount / typedLength) * 100).toFixed(2))
-          : 100;
-        
-        // 값이 변경된 경우에만 업데이트 (불필요한 리렌더링 방지)
-        if (Math.abs(prevAccuracyRef.current - accuracy) > 0.01) {
-          setPracticeAccuracy(accuracy);
-          prevAccuracyRef.current = accuracy;
-        }
-      }
-
-      // C 코드 방식: 타수 = (60초 / 소요시간) * 총 글자 수 = (총 글자 수 / 분)
-      // C 코드: (60 / t) * 30
-      const timeInMin = currentTime / 60;
-      const wpm = timeInMin > 0 && totalLength > 0
-        ? Number((totalLength / timeInMin).toFixed(2))
-        : 0;
-
-      // 값이 변경된 경우에만 업데이트 (불필요한 리렌더링 방지)
-      if (Math.abs(prevWPMRef.current - wpm) > 0.01) {
-        setPracticeWPM(wpm);
-        prevWPMRef.current = wpm;
-      }
-    };
-
-    // 다음 이벤트 루프에서 실행 (렌더링 중 상태 업데이트 방지)
-    const timeoutId = setTimeout(updateState, 0);
-    
-    return () => clearTimeout(timeoutId);
-  }, [totalTyped, inputValue, currentTime, fullText, isFinished, setPracticeAccuracy, setPracticeWPM]);
-
-
-  // 데이터 불러왹
-  useEffect(() => {
-    if (id) fetchContent();
-  }, [id]);
-
-  const fetchContent = async () => {
-    try {
-      const res = await fetch(`http://localhost:10000/typing/long/${id}`);
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      const data = await res.json();
-      const content = data.data;
-
-      const list = (content.subject || "")
-        .split("#")
-        .filter(v => v.trim() !== "");
-
-      setSentenceList(list);
-
-      // 전체 정답 텍스트 완성
-      const joined = [content.title, ...list].join("");
-      setFullText(joined);
-
-      // 초기화
-      setCurrentText(content.title);
+    // 현재 타이핑 관련 state
+    const [currentIndex, setCurrentIndex] = useState(0);  // 현재 문장
+    const [inputValue, setInputValue] = useState("");     // 입력값
+  
+    // 현재 보여줄 문장
+    const currentLine = currentIndex === 0 
+      ? currentTyping?.title 
+      : typingArray[currentIndex - 1];
+  
+    // 다음에 보여줄 문장 4개
+    const nextLines = typingArray.slice(currentIndex, currentIndex + 5);
+  
+    // 현재 타이핑 바뀌면 초기화
+    useEffect(() => {
       setCurrentIndex(0);
       setInputValue("");
-      setTotalTyped("");
-      setStartTime(null);
-      setPracticeTime(0);
-      setCurrentTime(0);
-      setIsFinished(false);
-      setPracticeAccuracy(100);
-      setPracticeWPM(0);
-      prevAccuracyRef.current = 100;
-      prevWPMRef.current = 0;
-      hasWrongTypedRef.current = false;
-    } catch (error) {
-      console.error("데이터 로드 실패:", error);
-      // 에러 발생 시 기본값 설정
-      setSentenceList([]);
-      setFullText("");
-      setCurrentText("");
-    }
-  };
-
-
-  //   타이머
-  useEffect(() => {
-    if (startTime && !isFinished) {
-      lastUpdateTimeRef.current = 0;
-      timerRef.current = setInterval(() => {
-        setCurrentTime(prev => {
-          const newTime = prev + 0.1;
-          const roundedTime = Number(newTime.toFixed(1));
-          // 부모 컴포넌트 업데이트는 0.5초마다만 (화면 흔들림 방지)
-          if (roundedTime - lastUpdateTimeRef.current >= 0.5) {
-            setPracticeTime(roundedTime);
-            lastUpdateTimeRef.current = roundedTime;
-          }
-          return newTime;
-        });
-      }, 100);
-    } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      lastUpdateTimeRef.current = 0;
-    }
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [startTime, isFinished]);
-
-
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setInputValue(value);
-
-    if (!startTime) setStartTime(Date.now());
-  };
-
-
-  // 엔터로 문장 이동
-  const handleKeyDown = async (e) => {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
-
-    // 방금 입력한 문장을 totalTyped에 누적
-    setTotalTyped(prev => prev + inputValue);
-
-    const isLast = currentIndex === sentenceList.length - 1;
-    
-    console.log("🔥 엔터 입력:", { 
-      currentIndex, 
-      sentenceListLength: sentenceList.length, 
-      isLast,
-      inputValueLength: inputValue.length 
-    });
-
-    if (isLast) {
-      console.log("🔥 마지막 문장 완료!");
-      
-      // 연습 완료 처리 - 타이머 즉시 정지
-      setIsFinished(true);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-
-      // 최종 정확도와 타수 계산
-      const finalAllText = totalTyped + inputValue;
-      const totalLength = fullText.length; // 제시된 글자 수
-      
-      // 맞게 입력한 글자 수 세기
-      let correctCount = 0;
-      const compareLength = Math.min(finalAllText.length, totalLength);
-      
-      for (let i = 0; i < compareLength; i++) {
-        if (finalAllText[i] === fullText[i]) {
-          correctCount++;
-        }
-      }
-      
-      // 타자연습 정확도 산출 방법: 정확도(%) = (맞게 입력한 글자 수 ÷ 제시된 글자 수) × 100
-      const finalAccuracy = totalLength > 0 
-        ? Number(((correctCount / totalLength) * 100).toFixed(2))
-        : 100;
-
-      // C 코드 방식: 타수 = (총 글자 수 / 분)
-      const timeInMin = currentTime / 60;
-      const finalWPM = timeInMin > 0 && totalLength > 0
-        ? Number((totalLength / timeInMin).toFixed(2))
-        : 0;
-
-      // 최종 시간 
-      const finalTime = Number(currentTime.toFixed(1));
-      
-      console.log("🔥 최종 결과:", { wpm: finalWPM, accuracy: finalAccuracy, time: finalTime });
-
-      // DB에 저장
-      const saveAndShowModal = async () => {
-        try {
-          if (!userId) {
-            // console.error("🔥 userId가 없습니다. 로그인이 필요합니다.");
-            // userId가 없어도 결과는 표시
-            const finishData = {
-              wpm: finalWPM,
-              accuracy: finalAccuracy,
-              time: finalTime
-            };
-            // console.log("🔥 setPracticeFinish 호출 (userId 없음):", finishData);
-            setPracticeFinish(finishData);
-            return;
-          }
-
-          // 백엔드에 전송할 데이터 준비
-          const requestBody = {
-            wpm: Number(finalWPM),
-            accuracy: Number(finalAccuracy),
-            time: Number(finalTime),
-            userId: Number(userId),
-            typingContentsId: Number(id)
-          };
-          
-          // console.log("🔥 DB 저장 요청 데이터:", requestBody);
-          // console.log("🔥 요청 URL:", `http://localhost:10000/typing/save`);
-
-          const response = await fetch(`http://localhost:10000/typing/save`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Accept": "application/json"
-            },
-            body: JSON.stringify(requestBody)
-          });
-
-          if (response.ok) {
-            const result = await response.json();
-            // console.log("🔥 결과 저장 성공:", result);
-            // 저장된 결과를 부모에게 전달하여 모달 표시
-            const finishData = {
-              wpm: finalWPM,
-              accuracy: finalAccuracy,
-              time: finalTime
-            };
-            // console.log("🔥 setPracticeFinish 호출 (저장 성공):", finishData);
-            setPracticeFinish(finishData);
-          } else {
-            const errorText = await response.text();
-            // console.log("🔥 결과 저장 실패 (HTTP 오류):", response.status, errorText);
-            // 저장 실패해도 결과는 표시
-            const finishData = {
-              wpm: finalWPM,
-              accuracy: finalAccuracy,
-              time: finalTime
-            };
-            console.log("🔥 setPracticeFinish 호출 (저장 실패):", finishData);
-            setPracticeFinish(finishData);
-          }
-        } catch (error) {
-          console.error("🔥 결과 저장 실패 (네트워크 오류):", error);
-          // 저장 실패해도 결과는 표시
-          const finishData = {
-            wpm: finalWPM,
-            accuracy: finalAccuracy,
-            time: finalTime
-          };
-          console.log("🔥 setPracticeFinish 호출 (네트워크 오류):", finishData);
-          setPracticeFinish(finishData);
-        }
-      };
-      saveAndShowModal();
-      return;
-    }
-
-    // 다음 문장
-    setCurrentIndex(prev => {
-      const next = prev + 1;
-      setCurrentText(sentenceList[next]);
-      return next;
-    });
-
-    setInputValue("");
-  };
-
-
+      setTotalTypedCount(0);
+      setCorrectTypedCount(0);
+    }, [currentTypingId]);
   
-  //  문장 비교
-  const renderTitle = useMemo(() => {
-    return currentText.split("").map((char, index) => {
-      const typedChar = inputValue[index];
-      let color = "white";
-
-      if (typedChar !== undefined) {
-        color = typedChar === char ? "black" : "red";
+    // 입력 처리
+    const onChange = (e) => {
+      const value = e.target.value;
+      const old = inputValue;
+  
+      // 입력 시작 표시
+      setIsTypingStart(true);
+  
+      // 총 타이핑 수 계산
+      if (value.length > old.length) {
+        // 추가된 글자
+        const added = value.slice(old.length);
+        const addedLength = added.length;
+  
+          //  타수 증가 (단어수 → 글자수)
+        actions.setWordCount((prev) => prev + addedLength);
+  
+        let correctCount = 0;
+        for (let i = 0; i < addedLength; i++) {
+          const addedChar = added[i];
+          const correctChar = currentLine[old.length + i] || "";
+  
+          if (addedChar === correctChar) correctCount++;
+        }
+  
+        setTotalTypedCount((p) => p + addedLength);
+        setCorrectTypedCount((p) => p + correctCount);
+      } else {
+        // 삭제된 글자
+        const deletedLength = old.length - value.length;
+        // 삭제 시 wordCount 감소
+        actions.setWordCount((prev) => Math.max(0, prev - deletedLength));
+        let correctCount = 0;
+  
+        for (let i = 0; i < deletedLength; i++) {
+          const deletedChar = old[value.length + i];
+          const correctChar = currentLine[value.length + i];
+  
+          if (deletedChar === correctChar) correctCount++;
+        }
+  
+        setTotalTypedCount((p) => Math.max(0, p - deletedLength));
+        setCorrectTypedCount((p) => Math.max(0, p - correctCount));
       }
-
-      return <span key={index} style={{ color }}>{char}</span>;
-    });
-  }, [currentText, inputValue]);
+  
+      setInputValue(value);
+    };
+  
+    // 엔터키 처리
+    const onKeyDown = (e) => {
+      if (e.key !== "Enter") return;
+  
+      e.preventDefault();
+  
+      const isLast = currentIndex === typingArray.length;
+  
+      if (isLast) {
+        // 1) 타이머 STOP
+        setIsTypingStart(false);
+  
+        // 2) finalResult 저장
+        actions.setFinalResult({
+          wpm: ((state.wordCount / state.runningTime.totalSeconds) * 60).toFixed(1),
+          accuracy: ((state.correctTypedCount / state.totalTypedCount) * 100).toFixed(1),
+          time: state.runningTime.totalSeconds.toFixed(1)
+        });
+  
+        // 3) 모달 열기
+        setIsShowModal(true);
+        return;
+      }
+  
+  
+      // 다음 문장
+      setCurrentIndex((prev) => prev + 1);
+      setInputValue("");
+    };
+  
+    // 글자 비교해서 색깔 넣기
+    const coloredLine = useMemo(() => {
+      if (!currentLine) return null;
+  
+      return currentLine.split("").map((char, i) => {
+        const typed = inputValue[i];
+  
+        let color = "white"; // 아직 안침
+        if (typed !== undefined) {
+          color = typed === char ? "black" : "red";
+        }
+  
+        return (
+          <span key={i} style={{ color }}>
+            {char}
+          </span>
+        );
+      });
+    }, [currentLine, inputValue]);
 
 
   return (
     <>
-      <S.TypingSection>
+    <S.TypingSection>
 
-        <S.SectionTitle>
-          {renderTitle}
-        </S.SectionTitle>
+      <S.SectionTitle>
+          {coloredLine}
+      </S.SectionTitle>
 
-        <S.InputWrapper>
-          <img src="/assets/icons/pencil.svg" alt="edit" />
-          <S.InputBox
-            type="text"
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-          />
-        </S.InputWrapper>
+      <S.InputWrapper>
+        <img src="/assets/icons/pencil.svg" alt="edit" />
+        <S.InputBox
+          value={inputValue}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+        />
+      </S.InputWrapper>
 
-        <S.SentenceList>
-          {sentenceList.slice(currentIndex + 1, currentIndex + 6).map((line, idx) => (
-            <div key={idx}>{line}</div>
-          ))}
-        </S.SentenceList>
+      <S.SentenceList>
+        {nextLines.map((line, i) => (
+          <div key={i}>{line}</div>
+        ))}
+      </S.SentenceList>
 
-      </S.TypingSection>
+    </S.TypingSection>
     </>
     
   );
