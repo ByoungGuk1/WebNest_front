@@ -18,7 +18,7 @@ const ChessBoard = (props) => {
     const timerRef = useRef(null);
     const remainingRef = useRef(timeoutSec);
     const [remaining, setRemaining] = useState(timeoutSec);
-    
+
     const [winning, setWinning] = useState(null);
     // 게임시작버튼 누르면 타이머가동
     const [start, setStart] = useState(false);
@@ -27,11 +27,11 @@ const ChessBoard = (props) => {
         if (inputRef.current) inputRef.current.focus();
     }, []);
 
+    // 방장이 게임시작누르면 타이머발동
     function gameStart(host) {
     }
 
     function clearTimer() {
-        console.log("콘솔", timerRef.current)
         if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
@@ -39,7 +39,7 @@ const ChessBoard = (props) => {
     }
     // 착수 제한시간
     function startTimer(start) {
-        if(start){
+        if (start) {
             clearTimer();
             remainingRef.current = timeoutSec;
             setRemaining(timeoutSec);
@@ -72,9 +72,10 @@ const ChessBoard = (props) => {
     }
 
     function validAndIndex({ row, colum }) {
-        if (!row || !colum) return null;
-        if (row < 1 || row > boardSize || colum < 1 || colum > boardSize) return null;
-        return { rowIdx: row - 1, columIdx: colum - 1 };
+        console.log("row", row)
+        console.log("colum", colum)
+        if (row < 0 || row > boardSize - 1 || colum < 0 || colum > boardSize - 1) return null;
+        return { rowIdx: row, columIdx: colum };
     }
 
     function placeAt(row0, colum0) {
@@ -89,7 +90,7 @@ const ChessBoard = (props) => {
         });
         setLastMove({ row: row0, colum: colum0 });
         setTurn(turn => (turn === 1 ? 2 : 1));
-        setMessage(`두었습니다: (${row0 + 1}|${colum0 + 1}) - ${turn === 1 ? "흑" : "백"}`);
+        setMessage(`두었습니다: (${row0}|${colum0}) - ${turn === 1 ? "흑" : "백"}`);
         startTimer();
         if (inputRef.current) {
             inputRef.current.value = "";
@@ -119,7 +120,7 @@ const ChessBoard = (props) => {
         setMessage(`시간 초과: 무작위 착수 (${pick.i + 1}|${pick.j + 1}) - ${turn === 1 ? "흑" : "백"}`);
         startTimer();
     }
-        // 입력값을 받고 핸들링
+    // 입력값을 받고 핸들링
     function handleSubmit(e) {
         // 걸려있는 이벤트 무효화
         e.preventDefault();
@@ -135,9 +136,10 @@ const ChessBoard = (props) => {
             return;
         }
         const idx = validAndIndex(parsed);
+        console.log("발리드", validAndIndex(parsed))
         console.log("idx", idx)
         if (!idx) {
-            setMessage(`좌표는 1부터 ${boardSize} 사이여야 합니다.`);
+            setMessage(`좌표는 0부터 ${boardSize - 1} 사이여야 합니다.`);
             if (inputRef.current) inputRef.current.focus();
             return;
         }
@@ -161,7 +163,7 @@ const ChessBoard = (props) => {
         <S.Wrap>
             <S.LeftPanel>
                 <S.Logo>WebNest</S.Logo>
-                <S.Timer>{String(remaining).padStart(2, "0")}:00</S.Timer>
+                <S.Timer>{String(remaining).padStart(2, "0")}초</S.Timer>
                 <S.Day>토요일</S.Day>
 
                 <S.HelpBlock>
@@ -189,22 +191,25 @@ const ChessBoard = (props) => {
             </S.LeftPanel>
 
             <S.BoardPanel>
-                <S.BoardOuter>
-                    <S.Board gridSize={boardSize}>
-                        {board.map((row, rowIdx) =>
-                            row.map((cell, columIdx) => {
-                                const isLast = lastMove && lastMove.rowIdx === rowIdx && lastMove.columIdx === columIdx;
-                                return (
-                                    <S.Cell key={`${rowIdx}-${columIdx}`}>
-                                        <S.Intersection />
-                                        {cell !== 0 && <S.Stone color={cell === 1 ? "black" : "white"} />}
-                                        {isLast && <S.LastMark />}
-                                    </S.Cell>
-                                );
-                            })
-                        )}
-                    </S.Board>
-                </S.BoardOuter>
+                <div>
+                    <S.BoardImg src="/assets/gameroom/concaveboard.png" />
+                    <S.BoardOuter>
+                        <S.Board gridSize={boardSize}>
+                            {board.map((row, rowIdx) =>
+                                row.map((cell, columIdx) => {
+                                    const isLast = lastMove && lastMove.rowIdx === rowIdx && lastMove.columIdx === columIdx;
+                                    return (
+                                        <S.Cell key={`${rowIdx}-${columIdx}`}>
+                                            <S.Intersection />
+                                            {cell !== 0 && <S.Stone color={cell === 1 ? "black" : "white"} />}
+                                            {isLast && <S.LastMark />}
+                                        </S.Cell>
+                                    );
+                                })
+                            )}
+                        </S.Board>
+                    </S.BoardOuter>
+                </div>
             </S.BoardPanel>
         </S.Wrap>
     );
