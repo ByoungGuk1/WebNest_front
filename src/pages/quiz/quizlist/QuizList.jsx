@@ -3,12 +3,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import S from './style';
 import Pagination from '../pagination/Pagination';
-import { clickTitle } from '../function/getQuiz';
 import QuizRead from 'pages/workspace/singleworkspace/quizread/QuizRead';
 
-
 const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = [], solveIds = new Set(), quizTotalCount = 0, requesting = new Set() }) => {
-
     const quizList = Array.isArray(quizs) ? quizs.map((item, index) => {
         // item이 이미 퀴즈 객체인지, 혹은 { quiz: {...} } 구조인지 안전하게 처리
         const quiz = item.quiz ?? item; // item.quiz가 있으면 그 안의 실제 객체, 아니면 item 자체
@@ -25,9 +22,8 @@ const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = []
         const isActive = Array.isArray(bookMarkId) ? bookMarkId.includes(idNum) : false;
         const isLoading = requesting.has(idNum);
 
-        console.log("isSolved", isSolved)
         const { quizDifficult, quizLanguage, quizTitle, quizCategory } = quiz;
-        <QuizRead isSolved={isSolved} />
+        <QuizRead isSolved={isSolved} bookMarkId={bookMarkId} />
         return (
             <S.Row key={idNum ?? `quiz-${index}`}>
                 <S.BookMark onClick={() => !isLoading && toggleBookmark(idNum)}>
