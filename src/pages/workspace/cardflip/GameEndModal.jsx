@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import S from "./style";
 import { getFileDisplayUrl } from "../../../utils/fileUtils";
 
@@ -11,6 +12,13 @@ const GameEndModal = ({
   formatTime,
   getExpGain,
 }) => {
+  const navigate = useNavigate();
+
+  const handleClose = () => {
+    onClose();
+    navigate("/workspace/rooms");
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -18,7 +26,7 @@ const GameEndModal = ({
       <S.ModalContent onClick={(e) => e.stopPropagation()}>
         <S.ModalHeader>
           <S.ModalTitle>🎉 게임 완료! 🎉</S.ModalTitle>
-          <S.CloseButton onClick={onClose}>✕</S.CloseButton>
+          <S.CloseButton onClick={handleClose}>✕</S.CloseButton>
         </S.ModalHeader>
 
         {gameResult && (
@@ -50,15 +58,13 @@ const GameEndModal = ({
               <S.ResultRow key={result.id} $isMe={result.userId === currentUserId}>
                 <S.Rank>{result.rankInRoom || index + 1}</S.Rank>
                 <S.UserInfo>
-                  {result.userThumbnailUrl && (
-                    <S.UserThumbnail
-                      src={getFileDisplayUrl(result.userThumbnailUrl)}
-                      alt={result.userNickname}
-                      onError={(e) => {
-                        e.target.src = "/assets/images/defalutpro.svg";
-                      }}
-                    />
-                  )}
+                  <S.UserThumbnail
+                    src={result.userThumbnailUrl ? getFileDisplayUrl(result.userThumbnailUrl) : "/assets/images/defalutpro.svg"}
+                    alt={result.userNickname}
+                    onError={(e) => {
+                      e.target.src = "/assets/images/defalutpro.svg";
+                    }}
+                  />
                   <S.UserName>{result.userNickname}</S.UserName>
                   {result.userLevel && (
                     <S.UserLevel>Lv.{result.userLevel}</S.UserLevel>
