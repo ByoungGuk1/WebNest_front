@@ -110,7 +110,7 @@ const createInitialCards = () => {
 const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
 
 const CardFlipContainer = () => {
-  const { roomId } = useParams();
+  const { roomId: gameRoomId } = useParams();
   const currentUser = useSelector((state) => state.user.currentUser);
   const userId = currentUser?.id;
 
@@ -202,7 +202,7 @@ const CardFlipContainer = () => {
 
   // 게임 완료 감지 및 API 호출
   useEffect(() => {
-    if (matchedPairs === 10 && !isGameCompleted && userId && roomId && gameStartTime) {
+    if (matchedPairs === 10 && !isGameCompleted && userId && gameRoomId && gameStartTime) {
       setIsGameCompleted(true);
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -217,12 +217,11 @@ const CardFlipContainer = () => {
         try {
           const accessToken = localStorage.getItem("accessToken");
           if (!accessToken) {
-            console.error("로그인이 필요합니다.");
             return;
           }
 
           // 결과 저장 API 호출
-          const response = await fetch(`${API_BASE}/private/game-rooms/${roomId}/cardflip/finish`, {
+          const response = await fetch(`${API_BASE}/private/game-rooms/${gameRoomId}/cardflip/finish`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -244,7 +243,7 @@ const CardFlipContainer = () => {
           setGameResult(result.data);
 
           // 결과 조회 API 호출 (순위 확인)
-          const resultsResponse = await fetch(`${API_BASE}/private/game-rooms/${roomId}/cardflip/results`, {
+          const resultsResponse = await fetch(`${API_BASE}/private/game-rooms/${gameRoomId}/cardflip/results`, {
             method: "GET",
             headers: {
               "Authorization": `Bearer ${accessToken}`,
@@ -258,7 +257,6 @@ const CardFlipContainer = () => {
           }
 
         } catch (error) {
-          console.error("게임 완료 처리 중 오류:", error);
           alert("게임 완료 처리 중 오류가 발생했습니다.");
         }
       };
@@ -266,7 +264,7 @@ const CardFlipContainer = () => {
       finishGame();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchedPairs, isGameCompleted, userId, roomId, gameStartTime]);
+  }, [matchedPairs, isGameCompleted, userId, gameRoomId, gameStartTime]);
 
   const handleCardClick = (index) => {
     if (disableDeck || isGameCompleted) return;

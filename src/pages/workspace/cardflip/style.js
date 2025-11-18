@@ -13,21 +13,19 @@ const shake = keyframes`
 const S = {};
 
 S.PageWrap = styled.div`
-  width: 100%;
-  min-height: 100vh;
-  background: #7345fd;
+
+  height: 700px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 20px;
   box-sizing: border-box;
 `;
 
 S.CardInner = styled.div`
-  width: 700px;
+  width: 800px;
   height: 700px;
-  background-color: #ffffff;
+  // background-color: #ffffff;
   border-radius: 20px;
   padding: 30px;
 `;
@@ -36,7 +34,7 @@ S.Cards = styled.ul`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(4, 1fr);
-  gap: 16px;
+  gap: 10px;
   width: 100%;
   height: 100%;
   list-style: none;
@@ -216,10 +214,9 @@ S.PlayerProgress = styled.div`
 
 // 게임 정보 헤더
 S.GameHeader = styled.div`
-  width: 100%;
   padding: 20px;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 20px 20px 0 0;
+  border-radius: 20px;
   margin-bottom: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 `;
@@ -237,7 +234,7 @@ S.TimerDisplay = styled.div`
   color: #7345fd;
   display: flex;
   align-items: center;
-  gap: 8px;
+
 `;
 
 S.ProgressDisplay = styled.div`
