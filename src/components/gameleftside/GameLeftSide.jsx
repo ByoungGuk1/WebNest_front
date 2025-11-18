@@ -66,7 +66,6 @@ const GameLeftSide = (props) => {
               // const formattedMessage = JSON.stringify(body, null, 2);
               // setMessage(formattedMessage);
 
-              console.log("게임 상태 수신:", body);
               if (body.type === "WORD_SUBMITTED")
                 setWordList((prev) => {
                   const updated = [...prev, body.word]; // 새 단어 추가
@@ -136,7 +135,6 @@ const GameLeftSide = (props) => {
   }, [roomId, userSenderId]);
 
   function clearTimer() {
-    console.log("콘솔", timerRef.current);
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;

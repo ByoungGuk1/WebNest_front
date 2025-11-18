@@ -101,8 +101,8 @@ S.WordContainer = styled.div`
   height: 80px;
   min-height: 80px;
   width: 100%;
-  background: ${({ color, isFocus }) => {
-    if (isFocus) {
+  background: ${({ color, recentword }) => {
+    if (recentword) {
       return colors[`${color}`]?.background ?? colors.purple.background;
     }
     return "rgba(255, 255, 255, 0.2)";
@@ -126,8 +126,8 @@ S.ExplanationContainer = styled.div`
   width: 100%;
   flex-grow: 1;
   ${flexCenterColumn}
-  background: ${({ color, isFocus }) => {
-    if (isFocus) {
+  background: ${({ color, recentword }) => {
+    if (recentword) {
       return colors[`${color}`]?.background ?? colors.purple.background;
     }
     return "rgba(255, 255, 255, 0.2)";
