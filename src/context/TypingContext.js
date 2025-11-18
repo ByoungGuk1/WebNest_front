@@ -52,6 +52,11 @@ export const TypingProvider = ({ children }) => {
 
   };
 
+  useEffect(() => {
+    resetTyping();
+  }, [isShort, language, currentTypingId]);
+
+
   // value (state + actions)
 
   const value = useMemo(

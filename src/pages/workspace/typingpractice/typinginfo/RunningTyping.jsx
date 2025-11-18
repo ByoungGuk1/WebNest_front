@@ -26,7 +26,7 @@ const RunningTyping = () => {
         <span>{wpm}</span>
       </S.ProgressTime>
       {/* <S.Bar /> */}
-      {/* <Bar percent={percent} color="blue" /> */}
+      <Bar percent={percent} color="blue" />
     </S.ProgressBox>
   );
 };
