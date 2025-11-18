@@ -7,7 +7,7 @@ const S = {};
 /* 전체 래퍼: 좌측 메시지 315×700, 우측 바둑판 700×700 */
 S.Wrap = styled.div`
   display: flex;
-  gap: 20px;
+  gap: 29px;
   align-items: flex-start;
   width: 1045px; /* 315 + 700 + gap(20) */
 `;
@@ -19,7 +19,7 @@ S.LeftPanel = styled.aside`
   background: #ffffff;
   border-radius: 8px;
   padding: 18px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  box-shadow: inset 0 6px 18px rgba(0,0,0,0.06);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -120,18 +120,33 @@ S.BoardPanel = styled.div`
   height: 700px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 `;
+
+S.BoardWrap = styled.div`
+  position: relative;
+`
+
+S.BoardImg = styled.img`
+    width: 700px;
+    height: 700px;
+  top: 26.8%;
+    left: 30;
+  position: absolute;
+  z-index: 900;
+    box-shadow: 0px 0px 20px 13px rgba(0,0,0,0.06)
+`
 
 S.BoardOuter = styled.div`
   width: 700px;
   height: 700px;
-  padding: 12px;
   background: #D9D9D9;
   border: 2px solid #7b5e3b;
   box-sizing: border-box;
   display: grid;
   place-items: center;
+  overflow: hidden;
+
 `;
 
 /* 실제 교차점 그리드 */
@@ -172,7 +187,7 @@ S.Stone = styled.div`
   height: 30px;
   border-radius: 50%;
   box-shadow: inset -3px -3px 8px rgba(0,0,0,0.3);
-  z-index: 2;
+  z-index: 1000;
     background: ${(p) =>
     p.color === "black"
       ? `radial-gradient(circle at 20% 25%,
@@ -183,7 +198,7 @@ S.Stone = styled.div`
           rgba(18,18,18,1) 100%)`
       : `radial-gradient(circle at 30% 25%,
           rgba(255,255,255,0.95) 0%,
-          rgba(255,255,255,0.9) 40%,
+          rgba(235,255,255,0.9) 40%,
           rgba(120,120,120,0.12) 80%,
           rgba(120,120,120,0.16) 100%)`};
 

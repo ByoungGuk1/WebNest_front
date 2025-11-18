@@ -3,16 +3,23 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import useDropDown from '../../../hooks/useDropDown';
 import S from './style';
+import { keyboard } from '@testing-library/user-event/dist/keyboard';
 
 const QiuzDropDown = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [wordOpen, wordRef, wordHandler] = useDropDown();
-    const [langOpen, langRef, langHandler] = useDropDown();
-    const [levelOpen, levelRef, levelHandler] = useDropDown();
-    const [isClearOpen, isClearRef, isClearHandler] = useDropDown();
+    const [wordOpen, wordRef, wordHandler, wordClose] = useDropDown();
+    const [langOpen, langRef, langHandler, langClose] = useDropDown();
+    const [levelOpen, levelRef, levelHandler, levelClose] = useDropDown();
+    const [isClearOpen, isClearRef, isClearHandler, isClearClose] = useDropDown();
 
+    const closeAll = () => {
+        wordClose();
+        langClose();
+        levelClose();
+        isClearClose();
+    }
     // 로컬 표시 상태 (UI)
     const [selectLang, setSelectLang] = useState(null);
     const [selectDifficult, setSelectDifficult] = useState(null);
@@ -30,86 +37,68 @@ const QiuzDropDown = () => {
         else setSelectIsSolve(null);
 
         const langParam = params.get('quizLanguage');
-        setSelectLang(langParam || null);
+        setSelectLang(langParam && langParam.trim() !== "" ? langParam : null);
 
         const diffParam = params.get('quizDifficult');
-        setSelectDifficult(diffParam || null);
+        setSelectDifficult(diffParam && diffParam.trim() !== "" ? diffParam : null);
 
         const kwParam = params.get('keyword');
-        setSelectKeyword(kwParam || null);
-
-        // 구식/잘못된 키가 남아있으면 정리
-        let needReplace = false;
-        if (params.has('solve')) { params.delete('solve'); needReplace = true; }
-        if (params.has('quizPersonalSolve')) { params.delete('quizPersonalSolve'); needReplace = true; }
-
-        if (needReplace) {
-            // 유지할 값만 다시 세팅
-            const next = new URLSearchParams();
-            if (langParam) next.set('quizLanguage', langParam);
-            if (diffParam) next.set('quizDifficult', diffParam);
-            if (solveParam) next.set('quizPersonalIsSolve', solveParam);
-            if (kwParam) next.set('keyword', kwParam);
-            next.set('page', '1');
-            navigate({ pathname: '/quiz', search: `?${next.toString()}` }, { replace: true });
-        }
-        // location이 바뀔 때도 동기화하길 원하면 location을 dependency에 추가
-    }, [location.search, navigate]);
+        setSelectKeyword(kwParam && kwParam.trim() !== "" ? kwParam : null);
+    }, [location.search]);
 
     // buildAndNavigate: 현재 UI 상태 기반으로 새 쿼리 생성
-    const buildAndNavigate = (overrides = {}) => {
+    const buildAndNavigate = ({ quizLanguage, quizDifficult, quizPersonalIsSolve, keyword }) => {
+
         const params = new URLSearchParams();
 
-        const lang = overrides.quizLanguage !== undefined ? overrides.quizLanguage : selectLang;
-        const diff = overrides.quizDifficult !== undefined ? overrides.quizDifficult : selectDifficult;
-
-        const solve = overrides.quizPersonalIsSolve !== undefined
-            ? overrides.quizPersonalIsSolve
-            : (selectIsSolve === '해결' ? '1' : selectIsSolve === '미해결' ? '0' : undefined);
-
-        const keyword = overrides.keyword !== undefined ? overrides.keyword : selectKeyword;
-
-        if (lang) params.set('quizLanguage', String(lang));
-        if (diff) params.set('quizDifficult', String(diff));
-        if (solve === '0' || solve === '1') params.set('quizPersonalIsSolve', String(solve));
-        if (keyword) params.set('keyword', String(keyword));
+        if (quizLanguage && quizLanguage.trim() !== "") params.set('quizLanguage', quizLanguage);
+        if (quizDifficult && quizDifficult.trim() !== "") params.set('quizDifficult', quizDifficult);
+        if (quizPersonalIsSolve === '0' || quizPersonalIsSolve === '1') params.set('quizPersonalIsSolve', quizPersonalIsSolve);
+        if (keyword && keyword.trim() !== "") params.set('keyword', keyword);
 
         params.set('page', '1');
 
-        navigate({ pathname: '/quiz', search: `?${params.toString()}` });
+        navigate({ pathname: '/quiz', search: `?${params.toString()}` }, { replace: true });
     };
+
 
     // 선택 핸들러: local state 업데이트 + URL 즉시 반영
     const handleSelect = (type, value) => {
+        let nextLang = selectLang;
+        let nextDiff = selectDifficult;
+        let nextSolve = selectIsSolve === '해결' ? '1' : selectIsSolve === '미해결' ? '0' : undefined;
+        let nextKeyword = selectKeyword
         switch (type) {
             case 'Lang': {
-                const next = selectLang === value ? undefined : value;
-                setSelectLang(next);
-                buildAndNavigate({ quizLanguage: next });
+                nextLang = selectLang === value ? undefined : value;
+                setSelectLang(nextLang);
                 break;
             }
             case 'Defficult': {
-                const next = selectDifficult === value ? undefined : value;
-                setSelectDifficult(next);
-                buildAndNavigate({ quizDifficult: next });
+                nextDiff = selectDifficult === value ? undefined : value;
+                setSelectDifficult(nextDiff);
                 break;
             }
             case 'IsSolve': {
-                const next = selectIsSolve === value ? undefined : value;
-                setSelectIsSolve(next);
-                const solveParam = next === '해결' ? '1' : next === '미해결' ? '0' : undefined;
-                buildAndNavigate({ quizPersonalIsSolve: solveParam });
+                const tempSolve = selectIsSolve === value ? undefined : value;
+                setSelectIsSolve(tempSolve);
+                nextSolve = tempSolve === '해결' ? '1' : tempSolve === '미해결' ? '0' : undefined;
                 break;
             }
             case 'Keyword': {
-                const next = selectKeyword === value ? undefined : value;
-                setSelectKeyword(next);
-                buildAndNavigate({ keyword: next });
+                nextKeyword = selectKeyword === value ? undefined : value;
+                setSelectKeyword(nextKeyword);
                 break;
             }
             default:
                 break;
         }
+        buildAndNavigate({
+            quizLanguage: nextLang,
+            quizDifficult: nextDiff,
+            quizPersonalIsSolve: nextSolve,
+            keyword: nextKeyword
+        });
     };
 
     const refreshToggle = () => {
@@ -117,21 +106,24 @@ const QiuzDropDown = () => {
         setSelectDifficult(null);
         setSelectIsSolve(null);
         setSelectKeyword(null);
+        closeAll();
         buildAndNavigate({ quizLanguage: undefined, quizDifficult: undefined, quizPersonalIsSolve: undefined, keyword: undefined });
     };
 
     return (
         <S.DropContainer>
             <S.ButtonWrap ref={langRef}>
-                <S.DropDownButton onClick={langHandler} select={!!selectLang}>
+                <S.DropDownButton onClick={() => { langHandler(); }} select={!!selectLang}>
                     {selectLang || '언어'}
                     <S.DropDownIconWrap><S.DropDownIcon /></S.DropDownIconWrap>
                 </S.DropDownButton>
-                <S.DropDownMenuWrap isDropped={langOpen}>
-                    <S.DropDownMenu onClick={() => handleSelect('Lang', 'JAVA')}>JAVA</S.DropDownMenu>
-                    <S.DropDownMenu onClick={() => handleSelect('Lang', 'JS')}>JS</S.DropDownMenu>
-                    <S.DropDownMenu onClick={() => handleSelect('Lang', 'ORACLE')}>ORACLE</S.DropDownMenu>
-                </S.DropDownMenuWrap>
+                {langOpen && (
+                    <S.DropDownMenuWrap isDropped={langOpen} >
+                        {['JAVA', 'JS', 'ORACLE'].map(lang => (
+                            <S.DropDownMenu key={lang} onClick={() => { handleSelect('Lang', lang); closeAll() }}>{lang}</S.DropDownMenu>
+                        ))}
+                    </S.DropDownMenuWrap>
+                )}
             </S.ButtonWrap>
 
             <S.ButtonWrap ref={levelRef}>
@@ -140,38 +132,33 @@ const QiuzDropDown = () => {
                     <S.DropDownIconWrap><S.DropDownIcon /></S.DropDownIconWrap>
                 </S.DropDownButton>
                 <S.DropDownMenuWrap isDropped={levelOpen}>
-                    <S.DropDownMenu onClick={() => handleSelect('Defficult', '초급')}>초급</S.DropDownMenu>
-                    <S.DropDownMenu onClick={() => handleSelect('Defficult', '중급')}>중급</S.DropDownMenu>
-                    <S.DropDownMenu onClick={() => handleSelect('Defficult', '중상급')}>중상급</S.DropDownMenu>
-                    <S.DropDownMenu onClick={() => handleSelect('Defficult', '상급')}>상급</S.DropDownMenu>
-                    <S.DropDownMenu onClick={() => handleSelect('Defficult', '최상급')}>최상급</S.DropDownMenu>
+                    {['초급', '중급', '중상급', '상급', '최상급'].map(level => (
+                        <S.DropDownMenu key={level} onClick={() => { handleSelect('Defficult', level); closeAll() }}>{level}</S.DropDownMenu>
+                    ))}
                 </S.DropDownMenuWrap>
             </S.ButtonWrap>
-
             <S.ButtonWrap ref={isClearRef}>
                 <S.DropDownButton onClick={isClearHandler} select={!!selectIsSolve}>
                     {selectIsSolve || '해결여부'}
                     <S.DropDownIconWrap><S.DropDownIcon /></S.DropDownIconWrap>
                 </S.DropDownButton>
                 <S.DropDownMenuWrap isDropped={isClearOpen}>
-                    <S.DropDownMenu onClick={() => handleSelect('IsSolve', '미해결')}>미해결</S.DropDownMenu>
-                    <S.DropDownMenu onClick={() => handleSelect('IsSolve', '해결')}>해결</S.DropDownMenu>
+                    {['미해결', '해결'].map(isSolve => (
+                        <S.DropDownMenu key={isSolve} onClick={() => { handleSelect('IsSolve', isSolve); closeAll() }}>{isSolve}</S.DropDownMenu>
+                    ))}
                 </S.DropDownMenuWrap>
             </S.ButtonWrap>
-
             <S.ButtonWrap ref={wordRef}>
                 <S.DropDownButton onClick={wordHandler} select={!!selectKeyword}>
                     {selectKeyword || '키워드'}
                     <S.DropDownIconWrap><S.DropDownIcon /></S.DropDownIconWrap>
                 </S.DropDownButton>
                 <S.DropDownMenuWrap isDropped={wordOpen}>
-                    <S.DropDownMenu onClick={() => handleSelect('Keyword', '반복문')}>반복문</S.DropDownMenu>
-                    <S.DropDownMenu onClick={() => handleSelect('Keyword', '배열')}>배열</S.DropDownMenu>
-                    <S.DropDownMenu onClick={() => handleSelect('Keyword', '조건식')}>조건식</S.DropDownMenu>
-                    <S.DropDownMenu onClick={() => handleSelect('Keyword', '함수')}>함수</S.DropDownMenu>
+                    {['반복문', '배열', '조건식', '함수'].map(keyword => (
+                        <S.DropDownMenu key={keyword} onClick={() => { handleSelect('Keyword', keyword); closeAll() }}>{keyword}</S.DropDownMenu>
+                    ))}
                 </S.DropDownMenuWrap>
             </S.ButtonWrap>
-
             <S.DropDownRefreshWrap onClick={refreshToggle}>
                 <img src="/assets/icons/refresh.svg" alt="토글 전체선택해제" />
                 <S.DropDownRefreshText>전체 선택해제</S.DropDownRefreshText>
