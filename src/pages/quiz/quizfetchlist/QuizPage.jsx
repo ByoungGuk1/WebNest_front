@@ -154,8 +154,12 @@ const QuizPage = () => {
             }
         };
         fetchByFilters();
+<<<<<<< HEAD
     }, [location.search]);
 
+=======
+    }, [location.search]); // 쿼리스트링에 값이 추가될 때마다 == 토글 선택마다 or 페이지 넘어갈때마다
+>>>>>>> develop
     return (
         <div>
             <QuizList

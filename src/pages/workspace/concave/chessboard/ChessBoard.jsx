@@ -1,31 +1,118 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import S from "./style";
-import LeftSide from "../../../../components/gameleftside/GameLeftSide";
+import GameContext from "context/GameContext";
 
 const ChessBoard = (props) => {
+
+    const context = useContext(GameContext)
+
+    const { isGameStarted = {}, isHost = {}, onStartGame, onReady, onInvite, roomId, userSenderId } = context;
     const boardSize = props.boardSize === undefined ? 15 : props.boardSize;
     const timeoutSec = props.timeoutSec === undefined ? 30 : props.timeoutSec;
 
-    const [board, setBoard] = useState(
+    const [chessBoard, setChessBoard] = useState(
         () => Array.from({ length: boardSize }, () => Array(boardSize).fill(0))
     );
-    // 유저턴 0 또는 1
+    // 유저턴 흑 또는 백백
     const [turn, setTurn] = useState(1);
     const [message, setMessage] = useState("좌표를 입력하세요. 예: [3|1] 또는 3,1");
     const [inGameMessage, setInGameMessage] = useState("게임 시작");
     const [lastMove, setLastMove] = useState(null);
+    const [winLine, setWinLine] = useState([]);
+    const [isGameOver, setIsGameOver] = useState(false);
+
     const inputRef = useRef(null);
     const timerRef = useRef(null);
     const remainingRef = useRef(timeoutSec);
     const [remaining, setRemaining] = useState(timeoutSec);
+    const boardRef = useRef(null);
+    const [boardPx, setBoardPx] = useState({ width: 0, height: 0 });
 
-    const [winning, setWinning] = useState(null);
-    // 게임시작버튼 누르면 타이머가동
-    const [start, setStart] = useState(false);
+    useEffect(() => {
+        function measure() {
+            const el = boardRef.current
+            if (!el) return;
+            const rect = el.getBoundingClientRect();
+            setBoardPx({ width: rect.width, height: rect.height });
+        }
+        measure();
+        window.addEventListener("resize", measure);
+        return () => window.removeEventListener("resize", measure);
+    }, [])
+
+    function cellCenterX(col) {
+        const w = boardPx.width || 700;
+        const cellSize = w / boardSize;
+        return cellSize * col + cellSize / 2;
+    }
+    function cellCenterY(row) {
+        const h = boardPx.height || 700;
+        const cellSize = h / boardSize;
+        return cellSize * row + cellSize / 2;
+    }
 
     useEffect(() => {
         if (inputRef.current) inputRef.current.focus();
     }, []);
+
+    // 5목 탐지
+    function detectFiveInARow(board, row, col, winLen = 5) {
+        const numRows = board.length;
+        if (numRows === 0) return { win: false, winner: null, line: [] };
+        const numCols = board[0].length;
+        if (row < 0 || row >= numRows || col < 0 || col > numCols) {
+            return { win: false, winner: null, line: [] };
+        }
+
+        const player = board[row][col];
+        if (!player) return { win: false, winner: null, line: [] };
+
+        const directions = [
+            [0, 1],
+            [1, 0],
+            [1, 1],
+            [1, -1],
+        ];
+        for (const [dr, dc] of directions) {
+            const line = [{ row, col }];
+
+            let r = row + dr;
+            let c = col + dc;
+            while (r >= 0 && r < numRows && c >= 0 && c < numCols && board[r][c] === player) {
+                line.push({ row: r, col: c });
+                r += dr;
+                c += dc;
+            }
+            r = row - dr;
+            c = col - dc;
+            while (r >= 0 && r < numRows && c >= 0 && c < numCols && board[r][c] === player) {
+                line.unshift({ row: r, col: c });
+                r -= dr;
+                c -= dc;
+            }
+            if (line.length >= winLen) {
+                return { win: true, winner: player, line };
+            }
+        }
+        return { win: false, winner: null, line: [] }
+    }
+
+    function parseCoords(row) {
+        if (!row) return null;
+        const s = row.trim().replace(/\|/g, ",");
+        const bracketMatch = s.match(/^\[?\s*(\d+)[,\s|]+\s*(\d+)\s*\]?$/);
+        if (bracketMatch) return { row: Number(bracketMatch[1]), col: Number(bracketMatch[2]) };
+        const parts = s.split(/[, ]+/).filter(Boolean);
+        if (parts.length >= 2 && parts[0].match(/^\d+$/) && parts[1].match(/^\d+$/)) {
+            return { row: Number(parts[0]), col: Number(parts[1]) };
+        }
+        return null;
+    }
+
+    function validAndIndex({ row, col }) {
+        if (row < 0 || row > boardSize - 1 || col < 0 || col > boardSize - 1) return null;
+        return { row, col };
+    }
 
     // 방장이 게임시작누르면 타이머발동
     function gameStart(host) {
@@ -54,55 +141,42 @@ const ChessBoard = (props) => {
         }
     }
 
-    useEffect(() => {
-        startTimer();
-        return () => clearTimer();
-    }, []);
-
-    function parseCoords(raw) {
-        if (!raw) return null;
-        const s = raw.trim().replace(/\|/g, ",");
-        const bracketMatch = s.match(/^\[?\s*(\d+)[,\s|]+\s*(\d+)\s*\]?$/);
-        if (bracketMatch) return { row: Number(bracketMatch[1]), colum: Number(bracketMatch[2]) };
-        const parts = s.split(/[, ]+/).filter(Boolean);
-        if (parts.length >= 2 && parts[0].match(/^\d+$/) && parts[1].match(/^\d+$/)) {
-            return { r: Number(parts[0]), c: Number(parts[1]) };
-        }
-        return null;
-    }
-
-    function validAndIndex({ row, colum }) {
-        console.log("row", row)
-        console.log("colum", colum)
-        if (row < 0 || row > boardSize - 1 || colum < 0 || colum > boardSize - 1) return null;
-        return { rowIdx: row, columIdx: colum };
-    }
-
-    function placeAt(row0, colum0) {
-        setBoard(prev => {
-            if (prev[row0][colum0] !== 0) {
+    function placeAt(row0, col0) {
+        setChessBoard(prev => {
+            if (prev[row0][col0] !== 0) {
                 setMessage("이미 돌이 있습니다. 다른 좌표를 입력하세요.");
                 return prev;
             }
             const next = prev.map(row => row.slice());
-            next[row0][colum0] = turn;
+            next[row0][col0] = turn;
+            const detect = detectFiveInARow(next, row0, col0);
+            console.log("detect", detect)
+            if (detect.win) {
+                setWinLine(detect.line);
+                setIsGameOver(true);
+                clearTimer();
+                setMessage(`게임 종료: ${detect.winner === 1 ? "흑" : "백"} 승리`);
+                setLastMove({ row: row0, col: col0 });
+                return next;
+            }
+            setLastMove({ row: row0, col: col0 });
+            setTurn(turn => (turn === 1 ? 2 : 1));
+            const placedColor = turn === 1 ? "흑" : "백";
+            setMessage(`두었습니다: (${row0}|${col0}) - ${placedColor}`);
+            startTimer(true);
+            if (inputRef.current) {
+                inputRef.current.value = "";
+                inputRef.current.focus();
+            }
             return next;
         });
-        setLastMove({ row: row0, colum: colum0 });
-        setTurn(turn => (turn === 1 ? 2 : 1));
-        setMessage(`두었습니다: (${row0}|${colum0}) - ${turn === 1 ? "흑" : "백"}`);
-        startTimer();
-        if (inputRef.current) {
-            inputRef.current.value = "";
-            inputRef.current.focus();
-        }
     }
 
     function placeRandomMove() {
         const empties = [];
         for (let i = 0; i < boardSize; i++) {
             for (let j = 0; j < boardSize; j++) {
-                if (board[i][j] === 0) empties.push({ i, j });
+                if (chessBoard[i][j] === 0) empties.push({ i, j });
             }
         }
         if (empties.length === 0) {
@@ -110,24 +184,32 @@ const ChessBoard = (props) => {
             return;
         }
         const pick = empties[Math.floor(Math.random() * empties.length)];
-        setBoard(prev => {
+        setChessBoard(prev => {
             const next = prev.map(row => row.slice());
             next[pick.i][pick.j] = turn;
+            const detect = detectFiveInARow(next, pick.i, pick.j);
+            console.log("detect", detect)
+            setLastMove({ row: pick.i, col: pick.j });
+            if (detect.win) {
+                setWinLine(detect.line);
+                setIsGameOver(true);
+                clearTimer();
+                setMessage(`시간 초과: 착수 후 ${detect.winner === 1 ? "흑" : "백"} 승리`)
+                return next;
+            }
+            const placedColor = turn === "백" ? "흑" : "백";
+            setTurn(turn => (turn === 1 ? 2 : 1));
+            setMessage(`시간 초과: 무작위 착수 (${pick.i + 1}|${pick.j + 1}) - ${placedColor}`);
+            startTimer(true);
             return next;
         });
-        setLastMove({ row: pick.i, colum: pick.j });
-        setTurn(turn => (turn === 1 ? 2 : 1));
-        setMessage(`시간 초과: 무작위 착수 (${pick.i + 1}|${pick.j + 1}) - ${turn === 1 ? "흑" : "백"}`);
-        startTimer();
     }
     // 입력값을 받고 핸들링
     function handleSubmit(e) {
         // 걸려있는 이벤트 무효화
         e.preventDefault();
-
         // 실제 좌표 입력값 ex 3,1
         const val = inputRef.current ? inputRef.current.value : "";
-
         // 입력좌표받고고 파싱 row 또는 colum
         const parsed = parseCoords(val);
         if (!parsed) {
@@ -136,24 +218,22 @@ const ChessBoard = (props) => {
             return;
         }
         const idx = validAndIndex(parsed);
-        console.log("발리드", validAndIndex(parsed))
-        console.log("idx", idx)
         if (!idx) {
             setMessage(`좌표는 0부터 ${boardSize - 1} 사이여야 합니다.`);
             if (inputRef.current) inputRef.current.focus();
             return;
         }
-        const { rowIdx, columIdx } = idx;
-        if (board[rowIdx][columIdx] !== 0) {
+        const { row, col } = idx;
+        if (chessBoard[row][col] !== 0) {
             setMessage("이미 돌이 있습니다. 다른 좌표를 입력하세요.");
             if (inputRef.current) inputRef.current.focus();
             return;
         }
-        placeAt(rowIdx, columIdx);
-        console.log("inputRef", inputRef.current.value)
-        console.log("val", val)
-        console.log("parsed", parsed)
+        placeAt(row, col);
     }
+
+
+
 
     function handleKeyDown(e) {
         if (e.key === "Enter") handleSubmit(e);
@@ -195,24 +275,36 @@ const ChessBoard = (props) => {
                     <S.BoardImg src="/assets/gameroom/concaveboard.png" />
                     <S.BoardOuter>
                         <S.Board gridSize={boardSize}>
-                            {board.map((row, rowIdx) =>
+                            {chessBoard.map((row, rowIdx) =>
                                 row.map((cell, columIdx) => {
+                                    const isWinCell = winLine.some(line => line.row === rowIdx && line.col === columIdx);
                                     const isLast = lastMove && lastMove.rowIdx === rowIdx && lastMove.columIdx === columIdx;
                                     return (
                                         <S.Cell key={`${rowIdx}-${columIdx}`}>
                                             <S.Intersection />
-                                            {cell !== 0 && <S.Stone color={cell === 1 ? "black" : "white"} />}
+                                            {cell !== 0 && <S.Stone color={cell === 1 ? "black" : "white"} isWin={isWinCell} />}
                                             {isLast && <S.LastMark />}
                                         </S.Cell>
                                     );
                                 })
                             )}
                         </S.Board>
+                        {winLine && winLine.length >= 2 && boardPx.width > 0 && (
+                            <S.WinSvg viewBox={`0 0 ${boardPx.width} ${boardPx.height}`} preserveAspectRatio="none">
+                                <S.WinPolyline
+                                    points={winLine.map(p => `${cellCenterX(p.col)} ${cellCenterY(p.row)}`).join(" ")}
+                                    stroke="gold"
+                                    strokeWidth="8"
+                                    fill="none"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                />
+                            </S.WinSvg>
+                        )}
                     </S.BoardOuter>
                 </div>
             </S.BoardPanel>
         </S.Wrap>
     );
-};
-
+}
 export default ChessBoard;
