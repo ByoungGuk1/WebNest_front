@@ -7,11 +7,11 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
   const navigate = useNavigate();
   
   if(isLoading){
-    return <div>게임방 목록을 불러오는 중...😅</div>
+    return <S.RoomListWrap>게임방 목록을 불러오는 중...😅</S.RoomListWrap>
   }
 
   if(!rooms || !rooms.length){
-    return <div>게임방 목록이 없습니다.😥</div>
+    return <S.RoomListWrap>게임방 목록이 없습니다.😥</S.RoomListWrap>
   }
   
   const getLevelColor = (level) => {
@@ -92,17 +92,25 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
     const lockIconSrc = isLocked ? '/assets/gameroom/common/locker.png' : '/assets/gameroom/common/check.png';
     
     return (
-      <div onClick={handleEnter} key={i}>
+      <S.RoomListPosition onClick={handleEnter} key={i}>
         <S.RoomList $isDisabled={isDisabled}>
         <S.RoomLeft>
-          <img src='/assets/gameroom/common/play.png' alt='flag' className='flag'></img>
+          <img src='/assets/gameroom/common/group.svg' alt='flag' className='flag'></img>
           <S.RoomTitleWrapper>
             <p>{gameRoomTitle}</p>
             <span>『 {gameRoomLanguage && <S.RoomLanguage>{gameRoomLanguage} 』</S.RoomLanguage>} 
               {gameRoomType.toLowerCase === "lastword" ? "끝말 잇기" : gameRoomType.toLowerCase === "cardflip" ? "카드 뒤집기" : gameRoomType.toLowerCase === "concave" ? "오목" : gameRoomType.toLowerCase === "lastword" ? "끝말잇기" : "뱀 주사위 놀이"}</span>
           </S.RoomTitleWrapper>
         </S.RoomLeft>
-        <img src={lockIconSrc} alt={isLocked ? '잠금' : '오픈'} className='locker' />
+        
+        {isLocked ? (
+          <img className='locker' src={"/assets/gameroom/common/locker.png"} alt='비공개방' />
+        ) : (<></>)}
+
+        {isDisabled ? (
+          <S.RoomBg></S.RoomBg>
+        ): (<></>)}
+        
         <S.RoomRight>
           <S.ProfileWrapper>
             <S.ProfileWrap>
@@ -125,7 +133,7 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
         </S.RoomRight>
       </S.RoomList>
       <S.PasswordHidden className='password'>{gameRoomPassKey}</S.PasswordHidden>
-      </div>
+      </S.RoomListPosition>
     );
   })
 

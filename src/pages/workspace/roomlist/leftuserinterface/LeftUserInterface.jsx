@@ -10,13 +10,23 @@ const LeftUserInterface = ({ myInfos = {}, myWinCount = 0 }) => {
             <S.LeftUserCardWrap>
                     {/* 유저카드헤더 */}
                     <S.LeftUserHeaderWrap>
-                        <S.LeftUserHeaderLeft><img src="/assets/icons/usericon.svg" />내정보</S.LeftUserHeaderLeft>
-                        {myWinCount ? (<div>
-                            
-                            <span><img src="/assets/icons/fire.png" /> {myWinCount} 연승 중</span>
-                        </div>) : <span><img src="/assets/icons/trophy.png" />업적이 아직 없습니다.</span>}
+                        <S.LeftUserHeaderLeft>
+                            <img src="/assets/icons/usericon.svg" />
+                            <span>내 정보</span>
+                        </S.LeftUserHeaderLeft>
+                        {myWinCount ? (
+                            <S.LeftUserHeaderLeft>
+                                <img src="/assets/icons/fire.png" /> 
+                                <span>{myWinCount}연승 중</span>
+                            </S.LeftUserHeaderLeft>
+                        ) : (
+                            <S.LeftUserHeaderLeft>
+                                <img src="/assets/icons/trophy.png" />
+                                <span>업적이 아직 없습니다.</span>
+                            </S.LeftUserHeaderLeft>
+                        )}
                         
-                        <img src="/assets/icons/setting.svg" />
+                        <S.SettingImage src="/assets/icons/setting.svg" />
                     </S.LeftUserHeaderWrap>
                     {/* 유저카드바디 */}
                     <S.LeftUserMiddleWrap>
