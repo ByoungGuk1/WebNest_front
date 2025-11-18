@@ -31,7 +31,6 @@ const QuizReadFetch = () => {
                         body: JSON.stringify({}) // 토글이나 페이져가 없기떄문에 필터링없이 조회
                     });
                     const json = await res.json();
-                    console.log("json", json)
                     quizList = json.data;
                 }
 
@@ -55,7 +54,6 @@ const QuizReadFetch = () => {
     const currentIndex = quizs.findIndex(q => q.id === Number(quizid))
     const prevQuiz = quizs[currentIndex - 1];
     const nextQuiz = quizs[currentIndex + 1];
-    console.log("userId", userId)
     useEffect(() => {
         const readQuiz = async () => {
             setLoading(true)
