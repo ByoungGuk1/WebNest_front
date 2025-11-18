@@ -5,51 +5,41 @@ import { TypingContext } from 'context/TypingContext';
 const RunningTime = () => {
   
   const { state, actions } = useContext(TypingContext)
-  const { isTypingStart } = state;
+  const { isTypingStart, runningTime } = state;
   const { setRunningTime } = actions;
 
-  const [time, setTime] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
+  // const [time, setTime] = useState(0);
+
+  const [time, setTime] = useState(0); // 이거는 내부 카운터만
+  const totalSeconds = time / 100;   
 
   useEffect(() => {
     let intervalId;
-    if (isRunning) {
-      intervalId = setInterval(() => setTime(time + 1), 10);
+    if (isTypingStart) {
+      intervalId = setInterval(() => setTime(prev => prev + 1), 10);
     }
     return () => clearInterval(intervalId);
-  }, [isRunning, time]);
+  }, [isTypingStart]);
+
+  // runningTime 업데이트
+  useEffect(() => {
+    if (isTypingStart) {
+      setRunningTime({ totalSeconds });
+    }
+  }, [time]);
 
   const minutes = Math.floor((time % 360000) / 6000);
   const seconds = Math.floor((time % 6000) / 100);
   const milliseconds = time % 100;
 
-  const startAndStop = () => {
-    setIsRunning(!isRunning);
-  };
-
-  const reset = () => {
-    setTime(0);
-  };
-  
+  //  resetTyping 시 Context에서 runningTime 초기화 → time도 초기화
   useEffect(() => {
-    if(isTypingStart){
-      setIsRunning(true)
-    } else {
-      setIsRunning(false)
-       
-      let finishRunningTime = {
-        minutes: minutes.toString().padStart(2, "0"),
-        seconds: seconds.toString().padStart(2, "0"),
-        millisecond: milliseconds.toString().padStart(2, "0"), 
-      }
-      setRunningTime(finishRunningTime)
+    if (!isTypingStart && runningTime.totalSeconds === 0) {
+      setTime(0);
     }
-  }, [isTypingStart])
-
+  }, [isTypingStart, runningTime.totalSeconds]);
 
   return (
-    <>
-      
     <S.ProgressBox>
       <S.ProgressTime>
         <span>진행 시간 (초)</span>
@@ -61,7 +51,6 @@ const RunningTime = () => {
       </S.ProgressTime>
       <S.Bar className="blue" />
     </S.ProgressBox>
-    </>
   );
 };
 

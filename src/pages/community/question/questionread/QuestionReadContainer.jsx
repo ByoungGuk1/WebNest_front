@@ -420,6 +420,7 @@ const QuestionReadContainer = () => {
           ? commentData
           : [];
 
+        console.log("🔥 댓글 리스트:", commentList);
         setComments(commentList);
 
         // 댓글 좋아요 상태/개수/ID 맵
@@ -608,7 +609,7 @@ const QuestionReadContainer = () => {
           <S.AnswerSection>
             {comments.map((ans) => (
               <S.AnswerCard key={ans.id}>
-                <S.AnswerTop>
+                <S.AnswerTop $accepted={ans.commentIsAccept === 1}>
                   <S.UserInfo>
                     <S.AnswerProfile
                       src={"/assets/images/defalutpro.svg"}

@@ -8,7 +8,7 @@ import { TypingContext } from 'context/TypingContext';
 const TypingInfo = () => {
 
   const {state, actions } = useContext(TypingContext)
-  const { typingList, currentTypingId } = state;
+  const { typingList, currentTypingId, isShort } = state;
   const { setCurrentTypingId } = actions;
   const titles = typingList.map(({title}) => title)
   const [selectTitle, setSelectTitle] = useState("")
@@ -53,6 +53,7 @@ const TypingInfo = () => {
         )}
 
         <S.ModeOption>
+          {isShort === "short" ? "짧은 글 연습" : "긴 글 연습"}
         </S.ModeOption>
 
         <S.MyCharacter>
