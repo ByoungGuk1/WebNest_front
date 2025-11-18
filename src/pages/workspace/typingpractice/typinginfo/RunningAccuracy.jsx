@@ -10,7 +10,7 @@ const RunningAccuracy = () => {
   const accuracyValue =
     totalTypedCount > 0 
       ? ((correctTypedCount / totalTypedCount) * 100).toFixed(1)
-      : 100;
+      : 0;
 
    //  percent 계산 (0~100 그대로 사용)
   const percent = Math.min(Number(accuracyValue), 100);
@@ -22,7 +22,7 @@ const RunningAccuracy = () => {
       </S.ProgressTime>
 
       {/* <S.Bar/> */}
-      {/* <Bar percent={percent} color="blue" /> */}
+      <Bar percent={percent} color="blue" />
     </S.ProgressBox>
   );
 };
