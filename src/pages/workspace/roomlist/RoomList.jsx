@@ -89,13 +89,13 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
 
     // 아이콘: 비밀번호 있거나 비공개면 잠금, 그 외에는 열림
     const isLocked = (gameRoomPassKey != null && String(gameRoomPassKey).trim() !== '') || !gameRoomIsOpen;
-    const lockIconSrc = isLocked ? '/assets/images/game-room/lock.png' : '/assets/images/game-room/unlock.png';
+    const lockIconSrc = isLocked ? '/assets/gameroom/common/locker.png' : '/assets/gameroom/common/check.png';
     
     return (
       <div onClick={handleEnter} key={i}>
         <S.RoomList $isDisabled={isDisabled}>
         <S.RoomLeft>
-          <img src='/assets/images/game-room/flag.png' alt='flag' className='flag'></img>
+          <img src='/assets/gameroom/common/play.png' alt='flag' className='flag'></img>
           <S.RoomTitleWrapper>
             <p>{gameRoomTitle}</p>
             <span>『 {gameRoomLanguage && <S.RoomLanguage>{gameRoomLanguage} 』</S.RoomLanguage>} 
@@ -110,7 +110,7 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
                 const isHost = user.isHost === true || user.isHost === 1 || user.gameJoinIsHost === true || user.gameJoinIsHost === 1;
                 return (
                   <S.ProfileImgWrap key={user.id || user.userId}>
-                    {isHost && <S.CrownIcon src="/assets/icons/crown.png" alt="host" />}
+                    {isHost && <S.CrownIcon src="/assets/gameroom/common/crown.png" alt="host" />}
                     <S.ProfileImg src={user.userThumbnailURL || user.userThumbnailUrl} alt='userProfile'></S.ProfileImg>
                   </S.ProfileImgWrap>
                 )
