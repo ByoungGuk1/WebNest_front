@@ -420,7 +420,7 @@ const QuestionReadContainer = () => {
           ? commentData
           : [];
 
-        console.log("🔥 댓글 리스트:", commentList);
+        console.log(" 댓글 리스트:", commentList);
         setComments(commentList);
 
         // 댓글 좋아요 상태/개수/ID 맵
