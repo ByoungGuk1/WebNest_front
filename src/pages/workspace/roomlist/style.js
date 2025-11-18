@@ -197,7 +197,7 @@ S.CrownIcon = styled.img`
     z-index: 1;
     top: -14px;
     left: 20%;
-    transform: translateX(-50%) rotate(-15deg);
+    transform: translateX(-50%) rotate(-30deg);
     width: 27px;
     height: auto;
 `
