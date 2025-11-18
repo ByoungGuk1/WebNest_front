@@ -263,7 +263,7 @@ S.AnswerTop = styled.div`
 
   /* 🔥 채택된 답변은 빨간색 강조 */
   background-color: ${({ $accepted }) =>
-    $accepted ? "#eae7fc" : "#f1f1f1"}; /* 연한 빨강 */
+    $accepted ? "#f1effcff" : "#f1f1f1"}; /* 연한 빨강 */
 `;
 
 

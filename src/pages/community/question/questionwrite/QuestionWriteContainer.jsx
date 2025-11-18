@@ -208,14 +208,14 @@ const QuestionWriteContainer = () => {
               <S.ButtonWrap onClick={handleSubmitComment}>답변등록</S.ButtonWrap>
             </S.InfoAndWrite>
 
-            <S.CodeBox>
+            {/* <S.CodeBox>
               <S.CodeBtn>
                 <S.CodeImg>
                   <img src="/assets/icons/code.svg" alt="{}" />
                 </S.CodeImg>
                 <S.SorceCode>소스코드</S.SorceCode>
               </S.CodeBtn>
-            </S.CodeBox>
+            </S.CodeBox> */}
 
             {/*  답변 입력창 (기존 유지, 단 초기값만 수정됨) */}
             <S.InputResponse
