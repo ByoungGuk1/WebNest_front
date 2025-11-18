@@ -3,14 +3,27 @@ import S from './style';
 import Modal from './modal/Modal';
 import { useNavigate } from 'react-router-dom';
 
-const HeaderToggle = ({ teamMode, onTeamModeChange, rooms }) => {
+const HeaderToggle = ({ 
+    teamMode, 
+    onTeamModeChange, 
+    rooms,
+    // 게임방 내부 모드 props
+    isInGameRoom = false,
+    isHost = false,
+    isGameStarted = false,
+    onStartGame,
+    onReady,
+    onInvite
+}) => {
     // const [defficultOpen, defficultRef, defficultHandler] = useDropDown();
     const [difficult, setDifficult] = useState(0);
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // 입장 가능 방: 시작 안 함 + 공개
-    const entrancableRooms = rooms.filter((list) => !list.gameRoomIsStart).filter((room) => room.gameRoomIsOpen)
+    // 입장 가능 방: 시작 안 함 + 공개 (rooms가 있을 때만)
+    const entrancableRooms = rooms && Array.isArray(rooms) 
+        ? rooms.filter((list) => !list.gameRoomIsStart).filter((room) => room.gameRoomIsOpen)
+        : [];
 
     const randomIndex = Math.floor(Math.random() * entrancableRooms.length)
         
@@ -93,23 +106,55 @@ const HeaderToggle = ({ teamMode, onTeamModeChange, rooms }) => {
         setDifficult((i) => (i + 1) % difficultSelect.length);
     }
 
+    // 게임방 내부 모드: 게임 시작 중이면 숨김
+    if (isInGameRoom && isGameStarted) {
+        return <div></div>;
+    }
+
+    // 게임방 내부 모드: 게임 시작 전 버튼 표시
+    if (isInGameRoom) {
+        console.log('🎮 HeaderToggle 게임방 내부 모드:', { isHost, isGameStarted, onStartGame, onReady, onInvite });
+        
+        return (
+            <S.GameRoomToggleWrap>
+                {isHost ? (
+                    <>
+                        <S.GameRoomToggle onClick={onStartGame}>
+                            <S.IconCircle><img src="/assets/gameroom/common/ready.png" alt='게임시작'/></S.IconCircle>
+                            <S.GameRoomToggleInnerText>게임 시작</S.GameRoomToggleInnerText>
+                        </S.GameRoomToggle>
+                        <S.GameRoomToggle onClick={onInvite}>
+                            <S.IconCircle><img src="/assets/gameroom/common/invite.png" alt='초대하기'/></S.IconCircle>
+                            <S.GameRoomToggleInnerText>초대하기</S.GameRoomToggleInnerText>
+                        </S.GameRoomToggle>
+                    </>
+                ) : (
+                    <S.GameRoomToggle onClick={onReady}>
+                        <S.IconCircle><img src="/assets/gameroom/common/ready.png" alt='준비하기' /></S.IconCircle>
+                        <S.GameRoomToggleInnerText>준비하기</S.GameRoomToggleInnerText>
+                    </S.GameRoomToggle>
+                )}
+            </S.GameRoomToggleWrap>
+        );
+    }
+
+    // 방 목록 모드: 기존 버튼들
     return (
         <S.GameRoomToggleWrap>
-            <S.GameRoomToggle><S.IconCircle><img src="/assets/icons/plus2.png" alt='방만들기기' /></S.IconCircle><S.GameRoomToggleInnerText onClick={toggleModal}>방 만들기</S.GameRoomToggleInnerText>{isModalOpen && (
+            <S.GameRoomToggle><S.IconCircle><img src="/assets/gameroom/common/gamepad.png" alt='방만들기' /></S.IconCircle><S.GameRoomToggleInnerText onClick={toggleModal}>방 만들기</S.GameRoomToggleInnerText>{isModalOpen && (
                 <>
                     <Modal toggleModal={toggleModal} />
                     <S.ModalBG />
                 </>
             )}</S.GameRoomToggle>
-            <S.GameRoomToggle onClick={goToRandomRoom}><S.IconCircle><img src="/assets/icons/flash.png" alt='빠른입장'/></S.IconCircle><S.GameRoomToggleInnerText>빠른 입장</S.GameRoomToggleInnerText></S.GameRoomToggle>
-            <S.GameRoomToggle onClick={nextLevel}><S.IconCircle><img src="/assets/icons/star.png" alt='난이도' /></S.IconCircle><S.GameRoomToggleInnerText>{currentDifficult.value}</S.GameRoomToggleInnerText></S.GameRoomToggle>
+            <S.GameRoomToggle onClick={goToRandomRoom}><S.IconCircle><img src="/assets/gameroom/common/flash.png" alt='빠른입장'/></S.IconCircle><S.GameRoomToggleInnerText>빠른 입장</S.GameRoomToggleInnerText></S.GameRoomToggle>
+            <S.GameRoomToggle onClick={nextLevel}><S.IconCircle><img src="/assets/gameroom/common/star.png" alt='난이도' /></S.IconCircle><S.GameRoomToggleInnerText>{currentDifficult.value}</S.GameRoomToggleInnerText></S.GameRoomToggle>
             <S.GameRoomToggle $isSelected={teamMode !== null} onClick={handleTeamToggle}>
-                <S.IconCircle><img src="/assets/icons/people.png" alt='개인전' /></S.IconCircle>
+                <S.IconCircle><img src="/assets/gameroom/common/human.png" alt='개인전' /></S.IconCircle>
                 <S.GameRoomToggleInnerText $isSelected={teamMode !== null}>
                     {teamMode === null ? '전체' : (teamMode === false ? '개인전' : '팀전')}
                 </S.GameRoomToggleInnerText>
             </S.GameRoomToggle>
-            <S.GameRoomToggle><S.IconCircle><img src="/assets/icons/computer.png" alt='게임방방'/></S.IconCircle><S.GameRoomToggleInnerText>게임방</S.GameRoomToggleInnerText></S.GameRoomToggle>
         </S.GameRoomToggleWrap>
     );
 };

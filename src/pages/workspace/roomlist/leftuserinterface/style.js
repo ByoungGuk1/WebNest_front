@@ -6,60 +6,50 @@ const S = {};
 
 S.LeftInterFaceWrap = styled.div`
     width: 100%;
-    height: 168px;
     display: flex;
     flex-direction: column;
-    margin-top: 24px;
 `
 
 S.LeftUserCardWrap = styled.div`
     width: 242px;
-    height: 100%;
+    height: 180px;
     background-color: #FFFFFF;
     box-shadow: 0px 0px 5px 0px #00000011;
     border-radius: 8px;
     border-color: ${theme.PALETTE.primary.red.lightGray};
     display: flex;
     flex-direction: column;
+    position: relative;
 `
 S.LeftUserHeaderWrap = styled.div`
+    margin: 0 10px 0 10px;
     background-color: #FFFFFF;
     box-shadow: 0px 0px 5px 0px #00000011;
     border-radius: 8px;
     border-color: ${theme.PALETTE.primary.red.lightGray};
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 45px;
-    span {
-        ${h9Medium};
-        align-items: center;
-        gap: 2px;
+    justify-content: space-between;
+`
+S.LeftUserHeaderLeft = styled.div`
+    display: flex;
+    align-items: center;
+    & img {
+        width: 14px;
+        height: 14px;
+        margin: 0 4px 0 0;
     }
 
-    div {
-        font: ${h9Bold};
-        font-size: 8px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-    }
-    div > span {
-        display: flex;
-        gap: 4px;
-    }
-    img {
-        width: 10px;
-        height: 8px
+    & span {
+        ${h7Medium};
     }
 `
-S.LeftUserHeaderLeft = styled.span`
-        ${h9Medium};
-        align-items: center;
-        gap: 2px;
-        margin: 0 0 0 12px;
+
+S.SettingImage = styled.img`
+    width: 14px;
+    height: 14px;
 `
+
 S.UserProfileImgWrap = styled.div`
     display: flex;
     justify-content: center;
@@ -84,12 +74,14 @@ S.LeftUserMiddleTextWrap = styled.div`
     justify-content: center;
 `
 S.LeftUserCardName = styled.span`
-    font: ${h9Bold};
-    font-size: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
 `
 S.UserInfoWrap = styled.div`
     display: flex;
     flex-direction: column;
+    gap: 6px;
 `;
 S.UserInfoRow = styled.div`
     display: flex;
@@ -98,24 +90,16 @@ S.UserInfoRow = styled.div`
     width: 80px;
 `;
 S.UserInfoTitle = styled.span`
-    font: ${h9Light};
-    font-size: 10px;
     color: ${theme.PALETTE.primary.red.gray};
-    position: relative;
-    img {
-        position: absolute;
-        left: -50%;
-        top: 10%;
-    }
+    font-size: 14px;
+    font-weight: 300;
 `;
 S.UserInfoContent = styled.span`
-    font: ${({ $level}) => $level ? h9Bold : h9Medium};
-    font-size: 9px;
-    color: ${({ $level}) => $level ? theme.PALETTE.primary.green.main : "#222"};
-    &.grade {
-        font: 800;
-    }
+    color: ${theme.PALETTE.primary.green.main};
+    font-size: 14px;
+    font-weight: 700;
 `;
+
 S.LeftUserCheerUp = styled.div`
     font: ${h8Medium};
     line-height: 8px;
@@ -124,15 +108,17 @@ S.LeftUserCheerUp = styled.div`
     margin-bottom: 6px;
     text-align: center;
 `;
-S.LeftUserFooterWrap = styled.div`
-`;
+
 S.ExpBarWrap = styled.div`
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
     height: 12px;
     background-color: #eee;
     border-radius: 6px;
 `;
 S.ExpBarFill = styled.div`
-    height: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;

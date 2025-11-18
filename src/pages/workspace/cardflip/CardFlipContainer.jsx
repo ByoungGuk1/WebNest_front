@@ -1,6 +1,9 @@
 // src/pages/cardflip/CardFlipContainer.jsx
 import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import S from "./style";
+import { getFileDisplayUrl } from "../../../utils/fileUtils";
 
 const IMAGE_BASE_PATH = "/assets/images/level";
 
@@ -104,21 +107,32 @@ const createInitialCards = () => {
   return cards.sort(() => Math.random() - 0.5);
 };
 
+const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
+
 const CardFlipContainer = () => {
+  const { roomId: gameRoomId } = useParams();
+  const currentUser = useSelector((state) => state.user.currentUser);
+  const userId = currentUser?.id;
+
   const [cards, setCards] = useState(createInitialCards);
   const [firstIndex, setFirstIndex] = useState(null);
   const [secondIndex, setSecondIndex] = useState(null);
   const [disableDeck, setDisableDeck] = useState(false);
   
   // 게임 상태
-  const [isGameStarted, setIsGameStarted] = useState(false);
   const [isGameFinished, setIsGameFinished] = useState(false);
+  const [isGameStarted, setIsGameStarted] = useState(false);
+  const [isGameCompleted, setIsGameCompleted] = useState(false);
   const [matchedPairs, setMatchedPairs] = useState(0);
+
+  // 게임 시간 측정
+  const [gameStartTime, setGameStartTime] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [elapsedTime, setElapsedTime] = useState(0);
   const [finishTime, setFinishTime] = useState(null);
   
   const timerIntervalRef = useRef(null);
+  const intervalRef = useRef(null);
 
   // 타이머 시작
   useEffect(() => {
@@ -158,23 +172,112 @@ const CardFlipContainer = () => {
     setFinishTime(finalTime);
   };
 
+  // 게임 결과
+  const [gameResult, setGameResult] = useState(null);
+  const [results, setResults] = useState([]);
+  const [showResultModal, setShowResultModal] = useState(false);
+
   const resetSelection = () => {
     setFirstIndex(null);
     setSecondIndex(null);
     setDisableDeck(false);
   };
 
-  const handleCardClick = (index) => {
-    if (disableDeck) return;
-    if (isGameFinished) return;
+  // 게임 시작 시간 측정 (첫 카드 클릭 시)
+  useEffect(() => {
+    if (isGameStarted && gameStartTime && !isGameCompleted) {
+      intervalRef.current = setInterval(() => {
+        const now = Date.now();
+        const elapsed = Math.floor((now - gameStartTime) / 1000);
+        setElapsedTime(elapsed);
+      }, 1000);
 
-    // 게임 시작 (첫 카드 클릭 시)
-    if (!isGameStarted) {
-      handleGameStart();
+      return () => {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
+      };
     }
+  }, [isGameStarted, gameStartTime, isGameCompleted]);
+
+  // 게임 완료 감지 및 API 호출
+  useEffect(() => {
+    if (matchedPairs === 10 && !isGameCompleted && userId && gameRoomId && gameStartTime) {
+      setIsGameCompleted(true);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      
+      // 완료 시간 계산
+      const finishTime = Math.floor((Date.now() - gameStartTime) / 1000);
+      setElapsedTime(finishTime);
+      
+      // 게임 완료 처리
+      const finishGame = async () => {
+        try {
+          const accessToken = localStorage.getItem("accessToken");
+          if (!accessToken) {
+            return;
+          }
+
+          // 결과 저장 API 호출
+          const response = await fetch(`${API_BASE}/private/game-rooms/${gameRoomId}/cardflip/finish`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({
+              userId: userId,
+              finishTime: finishTime,
+              matchedPairs: 10,
+              score: Math.max(0, 1000 - finishTime * 10), // 점수 계산 (시간이 짧을수록 높은 점수)
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`결과 저장 실패: ${response.status}`);
+          }
+
+          const result = await response.json();
+          setGameResult(result.data);
+
+          // 결과 조회 API 호출 (순위 확인)
+          const resultsResponse = await fetch(`${API_BASE}/private/game-rooms/${gameRoomId}/cardflip/results`, {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${accessToken}`,
+            },
+          });
+
+          if (resultsResponse.ok) {
+            const resultsData = await resultsResponse.json();
+            setResults(resultsData.data || []);
+            setShowResultModal(true);
+          }
+
+        } catch (error) {
+          alert("게임 완료 처리 중 오류가 발생했습니다.");
+        }
+      };
+
+      finishGame();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchedPairs, isGameCompleted, userId, gameRoomId, gameStartTime]);
+
+  const handleCardClick = (index) => {
+    if (disableDeck || isGameCompleted) return;
 
     const clicked = cards[index];
     if (clicked.isFlipped || clicked.isMatched) return;
+
+    // 첫 카드 클릭 시 게임 시작
+    if (!isGameStarted) {
+      setIsGameStarted(true);
+      setGameStartTime(Date.now());
+      setElapsedTime(0);
+    }
 
     // 클릭한 카드 뒤집기
     setCards((prev) =>
@@ -223,25 +326,19 @@ const CardFlipContainer = () => {
     if (isMatched) {
       // 맞으면 매칭 처리
       setTimeout(() => {
-        setCards((prev) =>
-          prev.map((card, i) =>
+        setCards((prev) => {
+          const updated = prev.map((card, i) =>
             i === firstIndex || i === index
               ? { ...card, isMatched: true }
               : card
-          )
-        );
-        
-        // 매칭된 쌍 수 증가
-        const newMatchedPairs = matchedPairs + 1;
-        setMatchedPairs(newMatchedPairs);
-
-        // 게임 완료 체크
-        if (newMatchedPairs >= TOTAL_PAIRS) {
-          setTimeout(() => {
-            handleGameFinish();
-          }, 100);
-        }
-
+          );
+          
+          // 매칭된 쌍 수 계산
+          const matchedCount = updated.filter((card) => card.isMatched).length / 2;
+          setMatchedPairs(matchedCount);
+          
+          return updated;
+        });
         resetSelection();
       }, 300);
     } else {
@@ -269,29 +366,34 @@ const CardFlipContainer = () => {
     }
   };
 
-  // 시간 포맷팅 (초를 mm:ss로)
+
+  // 시간 포맷팅 (초를 mm:ss로 변환)
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // 경험치 계산
+  const getExpGain = (rank) => {
+    if (rank === 1) return 200;
+    if (rank === 2) return 150;
+    if (rank === 3) return 100;
+    return 50;
   };
 
   return (
     <S.PageWrap>
+      {/* 게임 정보 헤더 */}
       <S.GameHeader>
         <S.GameInfo>
           <S.TimerDisplay>
             ⏱️ {formatTime(elapsedTime)}
           </S.TimerDisplay>
           <S.ProgressDisplay>
-            매칭: {matchedPairs} / {TOTAL_PAIRS}
+            매칭 완료: {matchedPairs} / 10 쌍
           </S.ProgressDisplay>
         </S.GameInfo>
-        {isGameFinished && finishTime !== null && (
-          <S.WinnerDisplay $isMe>
-            🎉 완료! 기록: {formatTime(finishTime)}
-          </S.WinnerDisplay>
-        )}
       </S.GameHeader>
 
       <S.CardInner>
@@ -327,6 +429,65 @@ const CardFlipContainer = () => {
           })}
         </S.Cards>
       </S.CardInner>
+
+      {/* 결과 모달 */}
+      {showResultModal && (
+        <S.ModalOverlay onClick={() => setShowResultModal(false)}>
+          <S.ModalContent onClick={(e) => e.stopPropagation()}>
+            <S.ModalHeader>
+              <S.ModalTitle>🎉 게임 완료! 🎉</S.ModalTitle>
+              <S.CloseButton onClick={() => setShowResultModal(false)}>✕</S.CloseButton>
+            </S.ModalHeader>
+
+            {gameResult && (
+              <S.MyResult>
+                <S.ResultTitle>내 결과</S.ResultTitle>
+                <S.ResultInfo>
+                  <S.ResultItem>
+                    <S.ResultLabel>완료 시간:</S.ResultLabel>
+                    <S.ResultValue>{formatTime(gameResult.finishTime)}</S.ResultValue>
+                  </S.ResultItem>
+                  <S.ResultItem>
+                    <S.ResultLabel>순위:</S.ResultLabel>
+                    <S.ResultValue>{gameResult.rankInRoom || "계산 중..."}위</S.ResultValue>
+                  </S.ResultItem>
+                  <S.ResultItem>
+                    <S.ResultLabel>획득 경험치:</S.ResultLabel>
+                    <S.ResultValue>
+                      +{getExpGain(gameResult.rankInRoom)} EXP
+                    </S.ResultValue>
+                  </S.ResultItem>
+                </S.ResultInfo>
+              </S.MyResult>
+            )}
+
+            {results && results.length > 0 && (
+              <S.ResultsList>
+                <S.ResultsTitle>순위표</S.ResultsTitle>
+                {results.map((result, index) => (
+                  <S.ResultRow key={result.id} $isMe={result.userId === userId}>
+                    <S.Rank>{result.rankInRoom || index + 1}</S.Rank>
+                    <S.UserInfo>
+                      {result.userThumbnailUrl && (
+                        <S.UserThumbnail
+                          src={getFileDisplayUrl(result.userThumbnailUrl)}
+                          alt={result.userNickname}
+                        />
+                      )}
+                      <S.UserName>{result.userNickname}</S.UserName>
+                      {result.userLevel && (
+                        <S.UserLevel>Lv.{result.userLevel}</S.UserLevel>
+                      )}
+                    </S.UserInfo>
+                    <S.ResultTime>{formatTime(result.finishTime)}</S.ResultTime>
+                    <S.ResultExp>+{getExpGain(result.rankInRoom)} EXP</S.ResultExp>
+                  </S.ResultRow>
+                ))}
+              </S.ResultsList>
+            )}
+          </S.ModalContent>
+        </S.ModalOverlay>
+      )}
     </S.PageWrap>
   );
 };

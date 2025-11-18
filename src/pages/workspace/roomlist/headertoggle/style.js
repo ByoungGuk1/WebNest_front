@@ -10,7 +10,7 @@ S.GameRoomToggleWrap = styled.div`
     display: flex;
     justify-content: flex-start;
     gap: 10px;
-    padding: 51px 0px;
+    margin: 36px 0;
 `
 S.GameRoomToggleInnerText = styled.span`
         font: ${h6Bold};

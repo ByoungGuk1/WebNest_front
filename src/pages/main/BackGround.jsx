@@ -9,39 +9,39 @@ const BackGround = () => {
       <S.CardWrap>
         <S.SelfCard>
           <S.CardText>
-            <p class="title">혼자서 배우기</p>
+            <p className="title">혼자서 배우기</p>
             <p>모르는 부분은 게시글에 작성해,</p>
             <p>프로그래밍을 혼자서 공부할 수 있어요.</p>
           </S.CardText>
 
           <S.CardThumSelf>
-            <img src='assets/images/chicken.png' class='cardImage'></img>
+            <img src='assets/images/chicken.png' className='cardImage'></img>
           </S.CardThumSelf>
 
-          <Link to={"/"}>
+          <Link to={"/quiz"}>
             <S.SelfButton>혼자서 시작하기</S.SelfButton>
           </Link>
         </S.SelfCard>
 
         <S.TogetherCard>
           <S.CardText>
-            <p class="title">친구들과 함께하기</p>
+            <p className="title">친구들과 함께하기</p>
             <p>코딩 문제를 친구들과 함께,</p>
             <p>프로그램을 공부할 수 있어요.</p>
           </S.CardText>
 
           <S.CardThumTogether>
-            <img src='/assets/images/chickens.png' class='cardImage'></img>
+            <img src='/assets/images/chickens.png' className='cardImage'></img>
           </S.CardThumTogether>
 
           <S.CardButtonWrap>
             <div>
-              <Link to={"/"}>
+              <Link to={"/workspace/rooms"}>
                 <S.CardButton>방장으로 시작</S.CardButton>
               </Link>
             </div>
             <div>
-              <Link to={"/"}>
+              <Link to={"/workspace/rooms"}>
                 <S.CardButton>빠른 입장</S.CardButton>
               </Link>
             </div>

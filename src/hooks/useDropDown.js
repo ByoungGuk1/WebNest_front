@@ -4,9 +4,9 @@ const useDropDown = () => {
     const [isOpen, setIsOpen] = useState(false);
     const ref = useRef(null);
 
-    const removeHandler = () => {
-        setIsOpen((prev) => !prev)
-    }
+    const removeHandler = () => setIsOpen((prev) => !prev)
+    const open = () => setIsOpen(true);
+    const close = () => setIsOpen(false);
 
     useEffect(() => {
         const drop = (e) => {
@@ -19,7 +19,7 @@ const useDropDown = () => {
             window.removeEventListener("click", drop)
         };
     }, []);
-    return [isOpen, ref, removeHandler];
+    return [isOpen, ref, removeHandler, close];
 };
 
 export default useDropDown;

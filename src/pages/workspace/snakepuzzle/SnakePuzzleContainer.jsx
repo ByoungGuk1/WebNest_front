@@ -1,16 +1,19 @@
 // BoardOnly.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import S from "./style";
 import DiceContainer from "./dice/DiceContainer";
+import { getGameChannelFromPath } from "../../../utils/gameChannel";
 
 const SnakePuzzleContainer = () => {
   const { roomId } = useParams();
+  const location = useLocation();
   const currentUser = useSelector((state) => state.user.currentUser);
   const userId = currentUser?.id;
+  const gameChannel = getGameChannelFromPath(location.pathname);
   
   // 게임 상태 관리
   const [gameState, setGameState] = useState(null);
@@ -129,13 +132,17 @@ const SnakePuzzleContainer = () => {
         const getGameStateMessage = {
           gameRoomId: parseInt(roomId),
         };
+        const stateDestination = `/pub/game/${gameChannel}/state`;
+        console.log('📡 게임 상태 조회 요청 경로:', stateDestination);
         client.publish({
-          destination: '/pub/game/snake/state',
+          destination: stateDestination,
           body: JSON.stringify(getGameStateMessage),
         });
 
         // 게임 상태 구독
-        client.subscribe(`/sub/game/snake/room/${roomId}`, (message) => {
+        const subscribePath = `/sub/game/${gameChannel}/room/${roomId}`;
+        console.log('📡 게임 상태 구독 경로:', subscribePath);
+        client.subscribe(subscribePath, (message) => {
           const body = JSON.parse(message.body);
           console.log('🎮 게임 상태 수신:', body);
 
@@ -145,8 +152,27 @@ const SnakePuzzleContainer = () => {
             setWinner(null);
           }
           
-          // 게임 종료 이벤트 확인
-          if (body.type === 'GAME_ENDED' || body.gameEnded === true || body.gameEnded === 1) {
+          // 게임 종료 이벤트 확인 (DICE_ROLLED에도 gameEnded가 포함될 수 있음)
+          const isGameEndedEvent = body.type === 'GAME_ENDED' || body.gameEnded === true || body.gameEnded === 1;
+          
+          // 게임 상태에서 포지션이 100 이상인 플레이어 확인 (게임 종료 체크)
+          let shouldEndGame = false;
+          if (body.gameState && Array.isArray(body.gameState)) {
+            const winnerPlayer = body.gameState.find(p => (p.gameJoinPosition || 0) >= 100);
+            if (winnerPlayer) {
+              shouldEndGame = true;
+              setIsGameEnded(true);
+              setIsGameStarted(false);
+              setIsMyTurn(false);
+              setIsReady(false);
+              
+              const winnerName = winnerPlayer.userNickname || winnerPlayer.nickname || '플레이어';
+              setWinner(winnerName);
+              alert(`${winnerName}님이 승리하셨습니다! 게임이 종료되었습니다.`);
+            }
+          }
+          
+          if (isGameEndedEvent) {
             setIsGameEnded(true);
             setIsGameStarted(false); // 게임 시작 상태를 false로 변경
             setIsMyTurn(false);
@@ -158,19 +184,17 @@ const SnakePuzzleContainer = () => {
               if (winnerPlayer) {
                 const winnerName = winnerPlayer.userNickname || winnerPlayer.nickname || '플레이어';
                 setWinner(winnerName);
-                alert(`${winnerName}님이 승리하셨습니다! 게임이 종료되었습니다.`);
+                if (!shouldEndGame) {
+                  alert(`${winnerName}님이 승리하셨습니다! 게임이 종료되었습니다.`);
+                }
               } else {
                 alert("게임이 종료되었습니다!");
               }
             }
-            
-            // 게임 종료 후 초기화: 플레이어 위치 리셋 등
-            setUserLocation(0);
-            setDiceA(null);
-            setDiceB(null);
           }
 
-          if (body.type === 'GAME_STARTED' || body.type === 'DICE_ROLLED' || body.type === 'GAME_STATE') {
+          // 게임 상태 업데이트 (게임 종료 후에도 백엔드에서 리셋한 포지션 0을 반영하기 위해)
+          if (body.type === 'GAME_STARTED' || body.type === 'DICE_ROLLED' || body.type === 'GAME_STATE' || isGameEndedEvent || shouldEndGame) {
             if (body.gameState && Array.isArray(body.gameState)) {
               // 주사위 결과가 있으면 먼저 alert 표시
               if (body.type === 'DICE_ROLLED' && body.dice1 && body.dice2) {
@@ -222,7 +246,11 @@ const SnakePuzzleContainer = () => {
                 const previousPosition = previousPositionsRef.current[currentPlayer.userId] || currentPlayer.gameJoinPosition || 0;
                 const currentPosition = currentPlayer.gameJoinPosition || 0;
                 
-                if (previousPosition !== currentPosition && currentPosition > 0) {
+                // 게임 종료 후 포지션이 0으로 리셋된 경우 처리
+                if ((isGameEndedEvent || shouldEndGame) && currentPosition === 0) {
+                  previousPositionsRef.current[currentPlayer.userId] = 0;
+                  setUserLocation(0);
+                } else if (previousPosition !== currentPosition && currentPosition > 0) {
                   // 이동 후 이벤트 체크
                   if (body.boardType === 'TRAP') {
                     const trapPlayer = body.gameState.find(p => 
@@ -257,9 +285,13 @@ const SnakePuzzleContainer = () => {
                   previousPositionsRef.current[currentPlayer.userId] = currentPosition;
                 }
                 
-                // 내 위치 업데이트
+                // 내 위치 업데이트 (게임 종료 후 0으로 리셋된 경우도 포함)
                 if (currentPlayer.gameJoinPosition !== undefined && currentPlayer.gameJoinPosition !== null) {
                   setUserLocation(currentPlayer.gameJoinPosition);
+                  // 게임 종료 후 포지션 0으로 리셋된 경우 previousPosition도 업데이트
+                  if ((isGameEndedEvent || shouldEndGame) && currentPlayer.gameJoinPosition === 0) {
+                    previousPositionsRef.current[currentPlayer.userId] = 0;
+                  }
                 }
               }
               
@@ -316,11 +348,13 @@ const SnakePuzzleContainer = () => {
     };
 
     try {
+      const startDestination = `/pub/game/${gameChannel}/start`;
+      console.log('📡 게임 시작 요청 경로:', startDestination);
+      console.log('🎮 게임 시작 요청 전송:', startGameMessage);
       gameStompClientRef.current.publish({
-        destination: '/pub/game/snake/start',
+        destination: startDestination,
         body: JSON.stringify(startGameMessage),
       });
-      console.log('🎮 게임 시작 요청 전송:', startGameMessage);
     } catch (err) {
       console.error('게임 시작 요청 전송 실패:', err);
       alert('게임 시작에 실패했습니다.');
@@ -335,6 +369,12 @@ const SnakePuzzleContainer = () => {
   };
 
   const handleRollDice = () => {
+    // 게임이 시작되지 않았으면 알림 표시
+    if (!isGameStarted) {
+      alert("게임이 시작되지 않았습니다.");
+      return;
+    }
+
     if (isRolling || !isMyTurn || isGameEnded) return;
     if (!gameStompClientRef.current || !gameStompClientRef.current.connected) {
       alert("게임 서버에 연결되지 않았습니다.");
@@ -352,31 +392,14 @@ const SnakePuzzleContainer = () => {
     lastProcessedRef.current = null;
     hasProcessedLocationRef.current = false;
 
-    // 백엔드로 주사위 굴리기 요청 전송
-    const rollDiceMessage = {
-      gameRoomId: parseInt(roomId),
-      userId: userId,
-    };
-
-    try {
-      gameStompClientRef.current.publish({
-        destination: '/pub/game/snake/roll-dice',
-        body: JSON.stringify(rollDiceMessage),
-      });
-      console.log('🎲 주사위 굴리기 요청 전송:', rollDiceMessage);
-    } catch (err) {
-      console.error('주사위 굴리기 요청 전송 실패:', err);
-      setIsRolling(false);
-      return;
-    }
-
-    // 3D 주사위 굴리기
+    // 3D 주사위 굴리기 (결과는 onDiceResult 콜백에서 받아서 백엔드로 전송)
     setTimeout(() => {
       if (window.throwDice3D) {
         console.log('🎲 Calling throwDice3D from handleRollDice');
         window.throwDice3D();
       } else {
         console.warn('🎲 throwDice3D not found');
+        setIsRolling(false);
       }
     }, 100);
 
@@ -436,64 +459,29 @@ const SnakePuzzleContainer = () => {
   return (
     <S.Section>
       <S.DiceArea>
-        {!isGameStarted ? (
-          // 게임 시작 전
-          isHost ? (
-            // 방장: 게임 시작 버튼
-            <S.RollBtn
-              type="button"
-              onClick={handleStartGame}
-              onMouseDown={handlePressStart}
-              onMouseUp={handlePressEnd}
-              onMouseLeave={handlePressEnd}
-              onTouchStart={handlePressStart}
-              onTouchEnd={handlePressEnd}
-              onTouchCancel={handlePressEnd}
-              disabled={isRolling}
-              data-pressing={isPressing}
-            >
-              게임 시작
-            </S.RollBtn>
-          ) : (
-            // 일반 유저: 준비하기 버튼
-            <S.RollBtn
-              type="button"
-              onClick={handleReady}
-              onMouseDown={handlePressStart}
-              onMouseUp={handlePressEnd}
-              onMouseLeave={handlePressEnd}
-              onTouchStart={handlePressStart}
-              onTouchEnd={handlePressEnd}
-              onTouchCancel={handlePressEnd}
-              disabled={isReady || isRolling}
-              data-pressing={isPressing}
-            >
-              {isReady ? "준비 완료" : "준비하기"}
-            </S.RollBtn>
-          )
-        ) : (
-          // 게임 시작 후: 주사위 굴리기 버튼
-          <S.RollBtn
-            type="button"
-            onClick={handleRollDice}
-            onMouseDown={handlePressStart}
-            onMouseUp={handlePressEnd}
-            onMouseLeave={handlePressEnd}
-            onTouchStart={handlePressStart}
-            onTouchEnd={handlePressEnd}
-            onTouchCancel={handlePressEnd}
-            disabled={isRolling || !isMyTurn || isGameEnded}
-            data-pressing={isPressing}
-          >
-            {isGameEnded 
-              ? (winner ? `게임 종료 - ${winner}님이 승리!` : "게임 종료") 
-              : isRolling 
-                ? "Rolling..." 
+        {/* 항상 주사위 굴리기 버튼만 표시 */}
+        <S.RollBtn
+          type="button"
+          onClick={handleRollDice}
+          onMouseDown={handlePressStart}
+          onMouseUp={handlePressEnd}
+          onMouseLeave={handlePressEnd}
+          onTouchStart={handlePressStart}
+          onTouchEnd={handlePressEnd}
+          onTouchCancel={handlePressEnd}
+          disabled={isRolling || (isGameStarted && (!isMyTurn || isGameEnded))}
+          data-pressing={isPressing}
+        >
+          {isGameEnded 
+            ? (winner ? `게임 종료 - ${winner}님이 승리!` : "게임 종료") 
+            : isRolling 
+              ? "Rolling..." 
+              : !isGameStarted
+                ? "주사위 굴리기"
                 : !isMyTurn 
                   ? "다른 플레이어의 턴입니다" 
                   : "주사위 굴리기"}
-          </S.RollBtn>
-        )}
+        </S.RollBtn>
       </S.DiceArea>
 
     <S.BoardWrap>
@@ -503,8 +491,36 @@ const SnakePuzzleContainer = () => {
               console.log('🎲 3D 주사위 결과:', results);
               setDiceResult(results);
               if (results && results.length === 2) {
-                setDiceA(results[0]);
-                setDiceB(results[1]);
+                const dice1 = results[0];
+                const dice2 = results[1];
+                setDiceA(dice1);
+                setDiceB(dice2);
+                
+                // 주사위 결과를 백엔드로 전송
+                if (gameStompClientRef.current && gameStompClientRef.current.connected) {
+                  const rollDiceMessage = {
+                    gameRoomId: parseInt(roomId),
+                    userId: userId,
+                    dice1: dice1,
+                    dice2: dice2,
+                  };
+                  
+                  try {
+                    const rollDiceDestination = `/pub/game/${gameChannel}/roll-dice`;
+                    console.log('📡 주사위 굴리기 요청 경로:', rollDiceDestination);
+                    console.log('🎲 주사위 결과 백엔드 전송:', rollDiceMessage);
+                    gameStompClientRef.current.publish({
+                      destination: rollDiceDestination,
+                      body: JSON.stringify(rollDiceMessage),
+                    });
+                  } catch (err) {
+                    console.error('주사위 결과 전송 실패:', err);
+                    alert('주사위 결과 전송에 실패했습니다.');
+                  }
+                } else {
+                  console.error('게임 서버에 연결되지 않았습니다.');
+                  alert('게임 서버에 연결되지 않았습니다.');
+                }
               }
             }} />
           </S.Dice3DContainer>

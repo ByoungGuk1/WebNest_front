@@ -62,13 +62,20 @@ S.CardLayout = styled.div`
   gap: auto;
 `;
 
-S.HelperWwrap = styled.div`
-  width: 320px;
+S.HeaderContainer = styled.div`
+  /* width: 1160px; */
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-left: auto;
-  margin-top: 20px;
+  gap: 10px;
+`;
+
+S.HelperWwrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 320px;
+  margin: 36px 0;
 `;
 
 S.HelperItems = styled.div`

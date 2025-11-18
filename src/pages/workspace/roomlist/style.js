@@ -6,6 +6,21 @@ import theme from "../../../styles/theme";
 const S = {};
 
 
+S.RoomListPosition = styled.div`
+    position: relative;
+`
+
+S.RoomBg = styled.div`
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+
+`
+
+
 S.GameRoomBackGround = styled.div`
     height: 1080px;
     background-image: url("/assets/background/workspacebackground.png");
@@ -31,11 +46,9 @@ S.ListWrapper = styled.div`
 
 S.LeftSection = styled.div`
     width: 242px;
-    height: 680px;
     display: flex;
     flex-direction: column;
-    /* justify-content: space-between; */
-    /* border: 2px solid black; */
+    gap: 20px;
 `
 
 S.RoomListWrapper = styled.div`
@@ -46,7 +59,7 @@ S.RoomListWrap = styled.div`
     width: 890px;
     height: 630px;
     background-color: #fff;
-    border: 1px solid #C1A8F9;
+    border: 2px solid #C1A8F9;
     border-radius:10px;
     padding: 20px 10px;
     overflow-y: auto;
@@ -89,18 +102,17 @@ S.RoomList = styled.div`
     width: 850px;
     height: 90px;
     box-sizing: border-box;
-    background-color: ${({ $isDisabled }) => $isDisabled ? '#999' : '#F7F8F9'};
     border-radius:10px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-content: center;
+    align-items: center;
     transition: background-color 0.2s ease;
     cursor: ${({ $isDisabled }) => $isDisabled ? 'not-allowed' : 'pointer'};
     
     &:hover {
         background-color: ${({ $isDisabled }) => 
-            $isDisabled ? '#999' : 'rgba(149, 133, 242, 0.1)'
+            $isDisabled ? 'rgba(0, 0, 0, 0.1)' : 'rgba(149, 133, 242, 0.1)'
         };
     }
     
@@ -155,13 +167,16 @@ S.RoomLeft = styled.div`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
 `
 
 S.RoomTitleWrapper = styled.div`
     display: flex;
     flex-direction: column;
     ${h5Bold}
+    line-height: 12px;
+    margin-top: 12px;
+    gap: 4px;
 `
 
 S.RoomLanguage = styled.span`
@@ -185,17 +200,17 @@ S.ProfileImg = styled.img`
     width: 24px;
     height: 24px;
     border-radius: 100%;
-    background-color: green;
+    border: solid 1px #d9d9d9;
     object-fit: cover;
 `
 
 S.CrownIcon = styled.img`
     position: absolute;
     z-index: 1;
-    top: -14px;
-    left: 20%;
-    transform: translateX(-50%) rotate(-15deg);
-    width: 27px;
+    top: -6px;
+    left: 3px;
+    transform: translateX(-50%) rotate(-40deg);
+    width: 12px;
     height: auto;
 `
 S.ColWrap = styled.div`
@@ -205,28 +220,25 @@ S.ColWrap = styled.div`
 S.TeamWrap = styled.div`
     display: flex;
     flex-direction: column;
-    gap: 6px;
     align-items: center;
+    justify-content: center;
     min-width: 50px;
-    
     p {
         ${h8Bold}
-        text-align: center;
-        margin: 0;
-        min-width: 40px;
     }
 `
 S.FollowWrap = styled.div`
     padding-top: 12px;
     width: 100%;
-    height: 423px;
+    height: 410px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     align-items: center;
     background-color: #fff;
     border-radius: 12px;
-    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
+    flex: 1;
 `
 S.Followlist = styled.div`
     width: 200px;
@@ -237,7 +249,8 @@ S.Followlist = styled.div`
     align-items: center;
     margin-bottom: 4px;
     p {
-        ${h9Medium};
+        font-size: 12px;
+        line-height: 16px;
     }
 `
 
@@ -261,19 +274,16 @@ S.LevelImg = styled.img`
 S.LevelWrap = styled.div`
     display: flex;
     flex-direction: row;
-    gap: 3px;
-    width: 30px;
-    height: 15px;
+    gap: 4px;
     background-color: #fff;
     border-radius: 12px;
-    box-shadow: 0px 0px 1.75px rgba(0, 0, 0, 0.1);
     align-items: center;
-    justify-content: center;
 `
 
 S.LevelText = styled.p`
-    font-size: 8px;
+    font-size: 10px;
     line-height: 12px;
+    white-space: nowrap;
     font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
     letter-spacing: -0.5px;
     margin: 0;
@@ -295,12 +305,10 @@ S.StatusDot = styled.div`
 `
 
 S.StatusText = styled.p`
-    font-size: 8px;
-    line-height: 12px;
-    font-weight: ${({ theme }) => theme.FONT_WEIGHT.medium};
+    ${h6Medium}
     letter-spacing: -0.5px;
+    font-size: 12px;
     color: #808080;
-    margin: 0;
 `
 
 S.FollowLeftWrap = styled.div`
@@ -311,6 +319,10 @@ S.FollowLeftWrap = styled.div`
 S.FollowNameWrap = styled.div`
     display: flex;
     flex-direction: column;
+
+    & p {
+        font-size: 13px;
+    }
 `
 S.RoomHeaderWrap = styled.div`
     display: flex;
@@ -340,6 +352,7 @@ S.IconBox = styled.div`
 S.RightWrap = styled.div`
     padding-left: 10px;
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     gap: 4px;
@@ -350,6 +363,7 @@ S.RightArrayWrap = styled.div`
     gap: 4px;
     ${h7Light};
     cursor: pointer;
+    
 `
 S.RightRefreshWrap = styled.div`
     height: 25px;
@@ -360,33 +374,44 @@ S.RightRefreshWrap = styled.div`
     cursor: pointer;
 `
 S.RightInputWrap = styled.div`
+    border: ${({ $focused }) => $focused ? `2px solid ${theme.PALETTE.primary.purple.main}` : 'none'};
+    background-color: #fff;
+    border-radius: 8px;
+    font-size: 10px;
     width: 160px;
-    height: -webkit-fill-available;
+    height: 33px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     position: relative;
-    img {
-        position: absolute;
-        right: 5%;
-        top: 40%;
+    & button {
+        width: 8px;
+        height: 8px;
+        background-image: url("/assets/icons/search.png");
+        background-repeat: no-repeat;
+        background-color: transparent;
+        border: none;
+        padding: 0;
         cursor: pointer;
     }
     `
     S.RightInput = styled.input`
-        width: 160px;
+        background-color: transparent;
+        width: 80%;
         height: -webkit-fill-available;
-        border: #FFFFFF;
-        box-shadow: 0px 0px 5px 0px #00000011;
+        border: none;
         border-radius: 8px;
         font-size: 10px;
+        outline: none;
         &::placeholder {
-            ${h9Medium}
-            padding: 0 0 0 8px;
+            ${h7Light}
         }
         &:focus {
-            outline: 2px solid ${theme.PALETTE.primary.purple.main};
+            outline: none;
         }
     `
 S.LeftWrap = styled.div`
-    margin-bottom: 10px;
     width: 240px;
     height: 33px;
     display: flex;
@@ -394,9 +419,11 @@ S.LeftWrap = styled.div`
     align-items: center;
     position: relative;
         img {
+        width: 12px;
         position: absolute;
-        bottom: 35%;
-        right: 4%;
+        right: 10px;
+        top: 50%;
+        transform: translate(0, -50%);
         cursor: pointer;
     };
 `;
@@ -407,7 +434,7 @@ S.LeftInput = styled.input`
     background-color: #FFFFFF;
     box-shadow: 0px 0px 5px 0px #00000011;
     border-radius: 8px;
-    ${h9Medium};
+    ${h8Medium};
     &::placeholder{
         padding: 0 0 0 8px;
     }
@@ -422,7 +449,8 @@ S.SelectBox = styled.div`
     border-top-left-radius: 24px;
     border-top-right-radius: 24px;
     background-color: rgba(255,255,255,0.5);
-    color: #999;
+    font-weight: ${({ $isSelected }) => $isSelected ? 700 : 500};
+    color: ${({ $isSelected }) => $isSelected ? theme.PALETTE.primary.purple.main : "#999"};
     border-top: ${({ $isSelected }) => $isSelected ? `2px solid ${theme.PALETTE.primary.purple.main}` : '2px solid transparent'};
     border-left: ${({ $isSelected }) => $isSelected ? `2px solid ${theme.PALETTE.primary.purple.main}` : '2px solid transparent'};
     border-right: ${({ $isSelected }) => $isSelected ? `2px solid ${theme.PALETTE.primary.purple.main}` : '2px solid transparent'};
@@ -447,7 +475,7 @@ S.FilterWrap = styled.div`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin-bottom: 14px;
+    margin-bottom: 8px;
     margin-right: 10px;
     gap: 12px;
 `
@@ -464,7 +492,7 @@ S.MenuFont = styled.span`
     font-size: 22px;
 `
 S.FooterText = styled.span`
-    ${h9Light}
+    ${h7Light}
 `
 S.FooterItems = styled.div`
     display: flex;
@@ -483,7 +511,7 @@ S.FollowListWarp = styled.div`
     height: 85%;
     display: flex;
     flex-direction: column;
-    justify-content: baseline;
     align-items: center;
+    flex: 1;
 `
 export default S;

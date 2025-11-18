@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import QuizList from '../quizlist/QuizList';
 import { useSelector } from 'react-redux';
+import QuizReadFetch from 'pages/workspace/singleworkspace/quizreadfetch/QuizReadFetch';
 
 const parseFiltersFromSearch = (search) => {
     const params = new URLSearchParams(search);
@@ -21,6 +22,7 @@ const QuizPage = () => {
     const { currentUser, isLogined } = user;
     const userId = currentUser.id;
 
+    const { quizid } = useParams();
     const location = useLocation();
     const [quizs, setQuizs] = useState([]);
     const [bookMarkId, setBookMarkId] = useState([]);
@@ -55,7 +57,6 @@ const QuizPage = () => {
                 })
             })
             const data = await response.json();
-            console.log("data", data)
             let personal = null;
             const quizPersonal = data?.data?.quizPersonal;
             if (!quizPersonal) {
@@ -65,8 +66,7 @@ const QuizPage = () => {
             } else {
                 personal = quizPersonal;
             }
-            
-            
+
             console.log('serverBookmark, serverIsSolve:', serverBookmark, serverIsSolve);
             const serverBookmark = Number(personal?.quizPersonalIsBookmark ?? 0);
             const serverIsSolve = Number(personal?.quizPersonalIsSolve ?? 0);
@@ -106,7 +106,7 @@ const QuizPage = () => {
             })
         }
     }
-    // 문제리스트 요청청
+
     useEffect(() => {
         const filters = parseFiltersFromSearch(location.search);
         const fetchByFilters = async () => {
@@ -154,7 +154,7 @@ const QuizPage = () => {
             }
         };
         fetchByFilters();
-    }, [location.search]); // 쿼리스트링에 값이 추가될 때마다 == 토글 선택마다 or 페이지 넘어갈때마다
+    }, [location.search]);
 
     return (
         <div>
@@ -167,6 +167,7 @@ const QuizPage = () => {
                 quizTotalCount={quizTotalCount}
                 requesting={requesting}
             />
+
         </div>
     );
 };

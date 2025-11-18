@@ -3,8 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import S from './style';
 import { h4Bold, h7Bold, h7Light, h7Medium, h9Bold } from '../../../styles/common';
-import UnfollowConfirmModal from '../../../components/UnfollowConfirmModal/UnfollowConfirmModal';
-import FollowConfirmModal from '../../../components/FollowConfirmModal/FollowConfirmModal';
+import { getFileDisplayUrl } from '../../../utils/fileUtils';
 
 const Following = () => {
   const { following, refreshData } = useOutletContext();
@@ -13,8 +12,6 @@ const Following = () => {
   const [followerCounts, setFollowerCounts] = useState({}); // 각 사용자의 팔로워 수 저장
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const [unfollowModalState, setUnfollowModalState] = useState({ isOpen: false, user: null, currentIsFollow: false });
-  const [followModalState, setFollowModalState] = useState({ isOpen: false, user: null, currentIsFollow: false });
 
   // 팔로잉 데이터가 없거나 배열이 아닌 경우 처리
   const followingList = Array.isArray(following) ? following : [];
@@ -74,43 +71,6 @@ const Following = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentFollowing = followingList.slice(startIndex, endIndex);
-
-  // 팔로우 버튼 클릭 핸들러
-  const handleFollowClick = (user, currentIsFollow) => {
-    if (currentIsFollow) {
-      // 팔로우 취소 시 언팔로우 모달 표시
-      setUnfollowModalState({ isOpen: true, user, currentIsFollow });
-    } else {
-      // 팔로우 추가 시 팔로우 모달 표시
-      setFollowModalState({ isOpen: true, user, currentIsFollow });
-    }
-  };
-
-  // 언팔로우 모달 닫기
-  const handleUnfollowModalClose = () => {
-    setUnfollowModalState({ isOpen: false, user: null, currentIsFollow: false });
-  };
-
-  // 언팔로우 모달에서 확인 버튼 클릭 시 실제 팔로우 취소 실행
-  const handleUnfollowModalConfirm = () => {
-    if (unfollowModalState.user) {
-      toggleFollow(unfollowModalState.user, unfollowModalState.currentIsFollow);
-      handleUnfollowModalClose();
-    }
-  };
-
-  // 팔로우 모달 닫기
-  const handleFollowModalClose = () => {
-    setFollowModalState({ isOpen: false, user: null, currentIsFollow: false });
-  };
-
-  // 팔로우 모달에서 확인 버튼 클릭 시 실제 팔로우 추가 실행
-  const handleFollowModalConfirm = () => {
-    if (followModalState.user) {
-      toggleFollow(followModalState.user, followModalState.currentIsFollow);
-      handleFollowModalClose();
-    }
-  };
 
   // 팔로우 토글 함수
   const toggleFollow = async (user, currentIsFollow) => {
@@ -239,7 +199,11 @@ const Following = () => {
               const level = user.userLevel || user.level || 1;
               // API에서 가져온 팔로워 수를 사용, 없으면 기본값 0
               const followerCount = followerCounts[userId] !== undefined ? followerCounts[userId] : (user.followerCount || 0);
-              const profileUrl = user.userThumbnailUrl || user.userProfile || user.profileUrl || "/assets/images/defalutpro.svg";
+              const rawProfileUrl = user.userThumbnailUrl || user.userProfile || user.profileUrl || '/assets/images/defalutpro.svg';
+              // 파일 경로인 경우 display URL로 변환
+              const profileUrl = (rawProfileUrl && !rawProfileUrl.startsWith('http') && !rawProfileUrl.startsWith('/assets') && rawProfileUrl !== '/assets/images/defalutpro.svg')
+                ? getFileDisplayUrl(rawProfileUrl)
+                : rawProfileUrl;
               const levelImageUrl = `/assets/images/test-grade/grade${level}.png`;
 
               return (
@@ -263,7 +227,7 @@ const Following = () => {
                       <S.FollowingButton
                         as="button"
                         type="button"
-                        onClick={() => handleFollowClick(user, isFollow)}
+                        onClick={() => toggleFollow(user, isFollow)}
                       >
                         <span>팔로잉</span>
                       </S.FollowingButton>
@@ -271,7 +235,7 @@ const Following = () => {
                       <S.FollowButton
                         as="button"
                         type="button"
-                        onClick={() => handleFollowClick(user, isFollow)}
+                        onClick={() => toggleFollow(user, isFollow)}
                       >
                         <span>팔로우</span>
                       </S.FollowButton>
@@ -324,18 +288,6 @@ const Following = () => {
           )}
         </>
       )}
-      <UnfollowConfirmModal
-        isOpen={unfollowModalState.isOpen}
-        onClose={handleUnfollowModalClose}
-        onConfirm={handleUnfollowModalConfirm}
-        nickname={unfollowModalState.user ? (unfollowModalState.user.userNickname || unfollowModalState.user.nickname || "이 사용자") : ""}
-      />
-      <FollowConfirmModal
-        isOpen={followModalState.isOpen}
-        onClose={handleFollowModalClose}
-        onConfirm={handleFollowModalConfirm}
-        nickname={followModalState.user ? (followModalState.user.userNickname || followModalState.user.nickname || "이 사용자") : ""}
-      />
     </S.FollowerContainer>
   );
 };
