@@ -195,18 +195,18 @@ S.CommentWriteBox = styled.div`
   border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
   border-radius: 10px;
   padding: 10px 12px;
-  background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+  background-color: white;
 `;
 
 S.CommentInput = styled.textarea`
   flex: 1;
   min-height: 44px;
   max-height: 160px;
-  resize: vertical;
   border: none;
   outline: none;
   ${h7Medium}
   color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+  resize: none;
 `;
 
 S.CommentSubmit = styled.button`
@@ -372,14 +372,15 @@ S.ReplyBox = styled.div`
   border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
   border-radius: 10px;
   padding: 10px 12px;
-  background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+  background-color: white;
+  resize: none;
 `;
 
 S.ReplyInput = styled.textarea`
   flex: 1;
   min-height: 40px;
   max-height: 140px;
-  resize: vertical;
+  resize: none;
   border: none;
   outline: none;
   ${h7Medium}

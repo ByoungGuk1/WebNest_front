@@ -4,7 +4,9 @@ import { TypingContext } from 'context/TypingContext';
 
 const ShortPractice = () => {
   const { state, actions } = useContext(TypingContext);
-  const { typingList, currentTypingId } = state;
+  // const { typingList, currentTypingId } = state;
+  const { typingList, currentTypingId, language, isShort } = state;
+
   const { 
     setIsTypingStart, 
     setIsShowModal, 
@@ -135,6 +137,12 @@ const ShortPractice = () => {
       );
     });
   }, [currentLine, inputValue]);
+  
+  useEffect(() => {
+    setInputValue("");
+    setCurrentIndex(0);
+  }, [currentTypingId, language, isShort]);
+
 
   return (
     <S.TypingSection>
