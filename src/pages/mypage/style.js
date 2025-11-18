@@ -47,12 +47,12 @@ S.ProfileArea = styled.section`
 `;
 
 S.ProfileImg = styled.img`
-  width: 118px;
-  height: 118px;
+  width: 130px;
+  height: 130px;
   border-radius: 50%;
-  background: #e5e7eb;
+  object-fit: cover;
   z-index: 2;
-  margin-top: -101px;
+  margin-top: -113px;
   margin-left: -59px;
 `;
 
