@@ -1,36 +1,14 @@
 import React, { useEffect } from 'react';
 import S from './style';
 import CodeEditor from '../codeeditor/CodeEditor';
-import { clickTitle } from 'pages/quiz/function/getQuiz';
 
-const QuizRead = ({
-    isSolved,
-    quiz = {},
-    prevQuiz = {},
-    nextQuiz = {},
-}) => {
+const QuizRead = ({ isSolved, quiz = {}, prevQuiz = {}, nextQuiz = {} }) => {
     isSolved = {isSolved};
-    const {
-        id: quizId,
-        quizTitle,
-        quizDescription,
-        quizLanguage,
-        quizExp,
-        quizExpectation
-    } = quiz;
+    const { id: quizId, quizTitle, quizDescription, quizLanguage, quizExp, quizExpectation } = quiz;
 
-    const {
-        id: prevId,
-        quizTitle: prevQuizTitle,
-        quizDifficult: prevQuizDifficult,
-    } = prevQuiz;
+    const { id: prevId, quizTitle: prevQuizTitle, quizDifficult: prevQuizDifficult } = prevQuiz;
 
-    const {
-        id: nextId,
-        quizTitle: nextQuizTitle,
-        quizDifficult: nextQuizDifficult,
-    } = nextQuiz;
-
+    const { id: nextId, quizTitle: nextQuizTitle, quizDifficult: nextQuizDifficult } = nextQuiz;
 
     return (
         <S.QuizReadWrap>

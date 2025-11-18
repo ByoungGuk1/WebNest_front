@@ -152,8 +152,27 @@ const SnakePuzzleContainer = () => {
             setWinner(null);
           }
           
-          // 게임 종료 이벤트 확인
-          if (body.type === 'GAME_ENDED' || body.gameEnded === true || body.gameEnded === 1) {
+          // 게임 종료 이벤트 확인 (DICE_ROLLED에도 gameEnded가 포함될 수 있음)
+          const isGameEndedEvent = body.type === 'GAME_ENDED' || body.gameEnded === true || body.gameEnded === 1;
+          
+          // 게임 상태에서 포지션이 100 이상인 플레이어 확인 (게임 종료 체크)
+          let shouldEndGame = false;
+          if (body.gameState && Array.isArray(body.gameState)) {
+            const winnerPlayer = body.gameState.find(p => (p.gameJoinPosition || 0) >= 100);
+            if (winnerPlayer) {
+              shouldEndGame = true;
+              setIsGameEnded(true);
+              setIsGameStarted(false);
+              setIsMyTurn(false);
+              setIsReady(false);
+              
+              const winnerName = winnerPlayer.userNickname || winnerPlayer.nickname || '플레이어';
+              setWinner(winnerName);
+              alert(`${winnerName}님이 승리하셨습니다! 게임이 종료되었습니다.`);
+            }
+          }
+          
+          if (isGameEndedEvent) {
             setIsGameEnded(true);
             setIsGameStarted(false); // 게임 시작 상태를 false로 변경
             setIsMyTurn(false);
@@ -165,19 +184,17 @@ const SnakePuzzleContainer = () => {
               if (winnerPlayer) {
                 const winnerName = winnerPlayer.userNickname || winnerPlayer.nickname || '플레이어';
                 setWinner(winnerName);
-                alert(`${winnerName}님이 승리하셨습니다! 게임이 종료되었습니다.`);
+                if (!shouldEndGame) {
+                  alert(`${winnerName}님이 승리하셨습니다! 게임이 종료되었습니다.`);
+                }
               } else {
                 alert("게임이 종료되었습니다!");
               }
             }
-            
-            // 게임 종료 후 초기화: 플레이어 위치 리셋 등
-            setUserLocation(0);
-            setDiceA(null);
-            setDiceB(null);
           }
 
-          if (body.type === 'GAME_STARTED' || body.type === 'DICE_ROLLED' || body.type === 'GAME_STATE') {
+          // 게임 상태 업데이트 (게임 종료 후에도 백엔드에서 리셋한 포지션 0을 반영하기 위해)
+          if (body.type === 'GAME_STARTED' || body.type === 'DICE_ROLLED' || body.type === 'GAME_STATE' || isGameEndedEvent || shouldEndGame) {
             if (body.gameState && Array.isArray(body.gameState)) {
               // 주사위 결과가 있으면 먼저 alert 표시
               if (body.type === 'DICE_ROLLED' && body.dice1 && body.dice2) {
@@ -229,7 +246,11 @@ const SnakePuzzleContainer = () => {
                 const previousPosition = previousPositionsRef.current[currentPlayer.userId] || currentPlayer.gameJoinPosition || 0;
                 const currentPosition = currentPlayer.gameJoinPosition || 0;
                 
-                if (previousPosition !== currentPosition && currentPosition > 0) {
+                // 게임 종료 후 포지션이 0으로 리셋된 경우 처리
+                if ((isGameEndedEvent || shouldEndGame) && currentPosition === 0) {
+                  previousPositionsRef.current[currentPlayer.userId] = 0;
+                  setUserLocation(0);
+                } else if (previousPosition !== currentPosition && currentPosition > 0) {
                   // 이동 후 이벤트 체크
                   if (body.boardType === 'TRAP') {
                     const trapPlayer = body.gameState.find(p => 
@@ -264,9 +285,13 @@ const SnakePuzzleContainer = () => {
                   previousPositionsRef.current[currentPlayer.userId] = currentPosition;
                 }
                 
-                // 내 위치 업데이트
+                // 내 위치 업데이트 (게임 종료 후 0으로 리셋된 경우도 포함)
                 if (currentPlayer.gameJoinPosition !== undefined && currentPlayer.gameJoinPosition !== null) {
                   setUserLocation(currentPlayer.gameJoinPosition);
+                  // 게임 종료 후 포지션 0으로 리셋된 경우 previousPosition도 업데이트
+                  if ((isGameEndedEvent || shouldEndGame) && currentPlayer.gameJoinPosition === 0) {
+                    previousPositionsRef.current[currentPlayer.userId] = 0;
+                  }
                 }
               }
               
