@@ -7,9 +7,7 @@ const S = {};
 /* 전체 래퍼: 좌측 메시지 315×700, 우측 바둑판 700×700 */
 S.Wrap = styled.div`
   display: flex;
-  gap: 29px;
-  align-items: flex-start;
-  width: 1045px; /* 315 + 700 + gap(20) */
+  gap: 55px;
 `;
 
 /* 왼쪽 패널 (메세지 입출력창) */
@@ -19,10 +17,10 @@ S.LeftPanel = styled.aside`
   background: #ffffff;
   border-radius: 8px;
   padding: 18px;
-  box-shadow: inset 0 6px 18px rgba(0,0,0,0.06);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 `;
 
 S.Logo = styled.div`
@@ -121,6 +119,7 @@ S.BoardPanel = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
 `;
 
 S.BoardWrap = styled.div`
@@ -128,13 +127,13 @@ S.BoardWrap = styled.div`
 `
 
 S.BoardImg = styled.img`
-    width: 700px;
-    height: 700px;
-    top: 26.8%;
-    left: 30;
+  width: 700px;
+  height: 700px;
   position: absolute;
+  top: 0;
+  left: 0;
   z-index: 900;
-    box-shadow: 0px 0px 20px 13px rgba(0,0,0,0.06)
+  box-shadow: 0px 0px 20px 13px rgba(0,0,0,0.06)
 `
 
 S.BoardOuter = styled.div`
