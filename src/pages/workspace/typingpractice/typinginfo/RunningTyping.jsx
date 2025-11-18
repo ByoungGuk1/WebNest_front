@@ -3,18 +3,22 @@ import S from '../style';
 import { TypingContext } from 'context/TypingContext';
 
 const RunningTyping = () => {
-
-  const { state, actions } = useContext(TypingContext)
+  const { state } = useContext(TypingContext);
   const { runningTime, wordCount } = state;
-  const { minutes } = runningTime
 
-  console.log(Number(wordCount) / (Number(minutes) || 1))
+  // 안전 처리 (초기 값 undefined 방지)
+  const totalSeconds = Number(runningTime?.totalSeconds ?? 0);
+  const wc = Number(wordCount ?? 0);
+
+  const wpm = totalSeconds > 0
+    ? ((wc / totalSeconds) * 60).toFixed(1)
+    : 0;
 
   return (
     <S.ProgressBox>
       <S.ProgressTime>
         <span>타수 (타/분)</span>
-        <span>{Number(wordCount) / (Number(minutes) || 1)}</span>
+        <span>{wpm}</span>
       </S.ProgressTime>
       <S.Bar />
     </S.ProgressBox>

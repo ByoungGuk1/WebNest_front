@@ -98,7 +98,7 @@ const Intro = () => {
                 </S.TextArea>
                 <Link to={"/"}>
                   <S.ButtonBox>
-                    훈련장 바로가기
+                    훈련장 바로가기 &gt;
                   </S.ButtonBox>
                 </Link>
               </div>
@@ -116,7 +116,7 @@ const Intro = () => {
               </S.TextArea>
               <Link to={"/"}>
                 <S.ButtonBox>
-                  문제둥지 바로가기
+                  문제둥지 바로가기 &gt;
                 </S.ButtonBox>
               </Link>
             </div>
@@ -135,7 +135,7 @@ const Intro = () => {
               <Link to={"/"}>
                 <S.ButtonBox>
                   <span>
-                    게임장 바로가기
+                    게임장 바로가기 &gt;
                   </span>
                 </S.ButtonBox>
               </Link>

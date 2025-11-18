@@ -30,7 +30,6 @@ const Pagination = ({ totalCount }) => {
     <S.NavigateWrap>
       <S.Navigate aria-label="Pagination">
         <S.NavigateBtn
-          leftBtn
           onClick={() => countParam(current - 1)}
           disabled={current === 1}
         >
@@ -42,7 +41,7 @@ const Pagination = ({ totalCount }) => {
             key={p}
             onClick={() => countParam(p)}
             aria-current={p === current ? 'page' : undefined}
-            active={p === current}
+            $active={p === current}
             style={p === current ? { fontWeight: 'bold' } : undefined}
           >
             {p}
@@ -50,7 +49,6 @@ const Pagination = ({ totalCount }) => {
         ))}
 
         <S.NavigateBtn
-          rightBtn
           onClick={() => countParam(current + 1)}
           disabled={current === maxPageCount}
         >

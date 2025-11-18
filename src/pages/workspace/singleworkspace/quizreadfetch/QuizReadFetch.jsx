@@ -1,22 +1,23 @@
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import S from './style';
 import QuizRead from '../quizread/QuizRead';
 import { useSelector } from 'react-redux';
 
 const QuizReadFetch = () => {
-// 화면에서 값을 전달 -> 컨트롤러에서 쿼리전송 후 응답반환 -> 
+    // 화면에서 값을 전달 -> 컨트롤러에서 쿼리전송 후 응답반환 -> 
     const { quizid } = useParams();
     const location = useLocation();
     const [quizs, setQuizs] = useState([]);
     const [quiz, setQuiz] = useState({});
     const [loading, setLoading] = useState(false);
-    const [isBookmark, setIsBookmark] = useState();
-    const [isSolve, setIsSolve] = useState();
+
+    const [requesting, setRequesting] = useState(new Set());
+    const [bookmarkId, setBookmarkId] = useState();
     const getUser = useSelector(state => state.user)
     const currentUser = getUser.currentUser
-    const { id } = currentUser;
+    const userId = currentUser.id
 
     useEffect(() => {
         const fetchQuizListAndCurrent = async () => {
@@ -30,11 +31,12 @@ const QuizReadFetch = () => {
                         body: JSON.stringify({}) // 토글이나 페이져가 없기떄문에 필터링없이 조회
                     });
                     const json = await res.json();
+                    console.log("json", json)
                     quizList = json.data;
                 }
-                
+
                 setQuizs(quizList);
-                
+
                 const current = quizList.find(q => q.id === Number(quizid));
                 if (current) {
                     setQuiz(current);
@@ -48,12 +50,12 @@ const QuizReadFetch = () => {
 
         fetchQuizListAndCurrent();
     }, [loading]);
-    
-    
+
+
     const currentIndex = quizs.findIndex(q => q.id === Number(quizid))
     const prevQuiz = quizs[currentIndex - 1];
     const nextQuiz = quizs[currentIndex + 1];
-    
+    console.log("userId", userId)
     useEffect(() => {
         const readQuiz = async () => {
             setLoading(true)
@@ -65,11 +67,11 @@ const QuizReadFetch = () => {
                     },
                     body: JSON.stringify({
                         "quizId": quizid,
-                        "userId": id
+                        "userId": userId
                     })
                 })
                 if (!response.ok) throw new Error("퀴즈 요청 실패")
-                    const data = await response.json()
+                const data = await response.json()
                 setQuiz(data.data)
             } catch (err) {
                 console.error(err)
@@ -79,7 +81,7 @@ const QuizReadFetch = () => {
         }
         readQuiz()
     }, [quizid])
-    
+
     if (loading || !quiz.id) {
         return (
             <S.Bg>
@@ -90,13 +92,15 @@ const QuizReadFetch = () => {
 
     return (
 
-        <QuizRead 
+        <QuizRead
             quiz={quiz}
             prevQuiz={prevQuiz}
-            nextQuiz={nextQuiz} 
-            isBookmark={isBookmark}
-            isSolve={isSolve}
-            />
+            nextQuiz={nextQuiz}
+            quizs={quizs}
+            loading={loading}
+            bookmarkId={bookmarkId}
+            requesting={requesting}
+        />
 
     );
 };

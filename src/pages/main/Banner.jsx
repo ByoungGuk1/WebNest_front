@@ -13,10 +13,10 @@ const Banner = () => {
         <div>
           <S.textWrap>
           {/* #37ffa9 */}
-            <span class ="purple every">모두를 위한 코딩</span>
+            <span className="purple every">모두를 위한 코딩</span>
             <div>
-              <span class="logo-web blue">Web</span>
-              <span class="logo-web green">Nest</span>
+              <span className="logo-web blue">Web</span>
+              <span className="logo-web green">Nest</span>
             </div>
           </S.textWrap>
         <S.fstLing>
@@ -25,17 +25,17 @@ const Banner = () => {
         </div>
         <S.secLine>
           <span>프로그래밍</span>
-          <img src="/assets/images/main-page/console.png" class="console"></img>
+          <img src="/assets/images/main-page/console.png" className="console"></img>
           <S.vectorWrap>
-            <img src="/assets/images/main-page/vector.png" class = "vector"></img>
-            <img src="/assets/images/main-page/vector.png" class = "vector"></img>
-            <img src="/assets/images/main-page/vector.png" class = "vector last"></img>
+            <img src="/assets/images/main-page/vector.png" className= "vector"></img>
+            <img src="/assets/images/main-page/vector.png" className= "vector"></img>
+            <img src="/assets/images/main-page/vector.png" className= "vector last"></img>
           </S.vectorWrap>
         </S.secLine>
         <S.trdLine>
-          <img src="/assets/images/main-page/trophy.png" class = "trophy"></img>
+          <img src="/assets/images/main-page/trophy.png" className= "trophy"></img>
           <span>첫 도전도 환영해요</span>
-          <img src="/assets/images/main-page/charactor.png" class = "charactor"></img>
+          <img src="/assets/images/main-page/charactor.png" className= "charactor"></img>
         </S.trdLine>
       </S.Banner>
       <S.KeepGoing onClick={moveToWorkSpace}>
