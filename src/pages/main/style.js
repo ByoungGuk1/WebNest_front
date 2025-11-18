@@ -1,3 +1,4 @@
+import { arrow } from "keyframes/keyframes";
 import { Link } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import { h2Bold } from "styles/common";
@@ -112,7 +113,22 @@ S.vectorWrap = styled.div`
   flex-direction: row;
   gap: 20px;
   align-items: center;
+
+  & img:nth-child(1) {
+    animation: ${arrow} 1s 4 forwards;
+  }
+
+  & img:nth-child(2) {
+    animation: ${arrow} 1s 0.2s 4 forwards;
+  }
+
+  & img:nth-child(3) {
+    animation: ${arrow} 1s 0.4s 4 forwards;
+  }
+
 `
+
+
 S.secLine = styled.div`
   width: 100%;
   height: 128px;
@@ -305,17 +321,24 @@ S.StepWrap = styled.div`
   
 `
 S.ButtonBox = styled.div`
-  border: 1px solid #E3E6E4;
-  width: 150px;
-  height: 50px;
-  display: flex;
+  background-color: #f7f8f9;
+  border-radius: 60px;
+  padding: 16px 20px;
+  display: inline-flex;
   justify-content: center;
   align-items: center;
   & {
     font-size: ${({ theme }) => theme.FONT_SIZE.h7};
-    font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+    font-weight: ${({ theme }) => theme.FONT_WEIGHT.medium};
     color: #000;
   }
+
+  transition: all 0.2s ease-in;
+  &:hover {
+    transform: translate(0, -4px);
+    background-color: ${({ theme }) => theme.PALETTE.primary.purple.lightGray};
+  }
+
 `
 // ------------------------- 레벨 레이아웃 -----------
 S.LevelImageWrapper = styled.div`
@@ -654,6 +677,15 @@ S.CardButton = styled.div`
   height: 50px;
   font-size: ${({ theme }) => theme.FONT_SIZE.h7};
   font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
+
+  transition: all 0.2s ease-in;
+
+  &:hover {
+    transform: translate(0, -4px);
+    background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+    color: white;
+    border: none;
+  }
 `
 S.SelfButton = styled.div`
   width: 310px;
@@ -666,6 +698,15 @@ S.SelfButton = styled.div`
   font-size: ${({ theme }) => theme.FONT_SIZE.h7};
   font-weight: ${({ theme }) => theme.FONT_WEIGHT.bold};
   color: black;
+  transition: all 0.2s ease-in;
+
+  &:hover {
+    transform: translate(0, -4px);
+    background-color: ${({ theme }) => theme.PALETTE.primary.purple.main};
+    color: white;
+    border: none;
+  }
+
 `
 
 export default S;
