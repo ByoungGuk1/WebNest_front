@@ -130,6 +130,7 @@ const UserProfileBehind = ({
   return (
     <div>
       <S.UserProfileWrapper
+        color={user.gameJoinTeamcolor}
         onClick={handleBackgroundClick}
         style={{
           backgroundImage: `url(${teamColor})`,
