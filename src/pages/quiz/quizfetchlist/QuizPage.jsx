@@ -105,9 +105,8 @@ const QuizPage = () => {
                 return next;
             })
         }
-
     }
-    // 문제리스트 요청청
+
     useEffect(() => {
         const filters = parseFiltersFromSearch(location.search);
         const fetchByFilters = async () => {
@@ -155,8 +154,8 @@ const QuizPage = () => {
             }
         };
         fetchByFilters();
-    }, [location.search]); // 쿼리스트링에 값이 추가될 때마다 == 토글 선택마다 or 페이지 넘어갈때마다
-    console.log("BookMarkdi", bookMarkId)
+    }, [location.search]);
+
     return (
         <div>
             <QuizList

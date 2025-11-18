@@ -124,6 +124,7 @@ const PostListContainer = () => {
 
   const postsPerPage = 7;
 
+  const swiperRef = useRef(null);
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
@@ -285,6 +286,18 @@ const PostListContainer = () => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [currentPage]);
 
+  // Swiper 네비게이션 버튼 연결
+  useEffect(() => {
+    if (!swiperRef.current) return;
+    const swiper = swiperRef.current.swiper;
+    if (swiper && prevRef.current && nextRef.current) {
+      swiper.params.navigation.prevEl = prevRef.current;
+      swiper.params.navigation.nextEl = nextRef.current;
+      swiper.navigation.init();
+      swiper.navigation.update();
+    }
+  }, []);
+
   return (
     <>
       {/* 배너 */}
@@ -308,31 +321,22 @@ const PostListContainer = () => {
 
         <S.PopularWrap>
           <Swiper
+            ref={swiperRef}
             modules={[Navigation]}
             slidesPerView={3.6}
             spaceBetween={12}
-            loop
+            loop={true}
             slidesPerGroup={1}
             centeredSlides={false}
-            slidesOffsetBefore={0}
-            slidesOffsetAfter={0}
             navigation={{
               prevEl: prevRef.current,
               nextEl: nextRef.current,
             }}
-            onSwiper={(swiper) => {
-              setTimeout(() => {
-                swiper.params.navigation.prevEl = prevRef.current;
-                swiper.params.navigation.nextEl = nextRef.current;
-                swiper.navigation.init();
-                swiper.navigation.update();
-              });
-            }}
             className="popularSwiper"
           >
-            {popularPosts.map((post) => (
+            {/* {popularPosts.map((post) => (
               <SwiperSlide key={post.postId}>
-                {/* 인기글 카드 전체 클릭 -> /post/:id */}
+                {/* 인기글 카드 전체 클릭 -> /post/:id *
                 <S.Link
                   to={`/post/${post.postId}`}
                   aria-label={`${post.postTitle} 상세보기`}
@@ -365,7 +369,40 @@ const PostListContainer = () => {
                   </S.PopularCard>
                 </S.Link>
               </SwiperSlide>
+            ))} */}
+            {popularPosts.map((post) => (
+              <SwiperSlide key={post.postId}>
+                <S.Link to={`/post/${post.postId}`}>
+                  <S.PopularCard>
+                    <S.PopularTitle>{post.postTitle}</S.PopularTitle>
+
+                    <S.PopularPreview>{post.postContent}</S.PopularPreview>
+
+                    <S.Info>
+                      <S.MetaWrap>
+                        <S.ProfileImg
+                          src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
+                          alt={post.author?.name || ""}
+                        />
+                        {post.author?.name && (
+                          <>
+                            <span>{post.author.name}</span>
+                            <b>·</b>
+                          </>
+                        )}
+                        <span>조회 {post.views}</span>
+                      </S.MetaWrap>
+
+                      <S.Response>
+                        <img src="/assets/icons/talktalk.svg" alt="댓글" />
+                        {post.commentsCount}
+                      </S.Response>
+                    </S.Info>
+                  </S.PopularCard>
+                </S.Link>
+              </SwiperSlide>
             ))}
+
           </Swiper>
           <S.GradientRight />
         </S.PopularWrap>

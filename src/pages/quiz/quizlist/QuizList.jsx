@@ -27,25 +27,25 @@ const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = []
         return (
             <S.Row key={idNum ?? `quiz-${index}`}>
                 <S.BookMark onClick={() => !isLoading && toggleBookmark(idNum)}>
-                    <S.BookMarkIcon active={isActive} />
+                    <S.BookMarkIcon $active={isActive} />
                 </S.BookMark>
-                <S.Cell flex={0.6} style={{ textAlign: 'left' }}>
+                <S.Cell $flex={0.6} style={{ textAlign: 'left' }}>
                     {idNum > 0 ? `000${idNum}` : rawId}
                 </S.Cell>
-                <S.Cell flex={1}>
-                    <S.Difficulty level={quizDifficult}>
+                <S.Cell $flex={1}>
+                    <S.Difficulty $level={quizDifficult}>
                         {quizDifficult || 'L1'}
                     </S.Difficulty>
                 </S.Cell>
-                <S.Cell flex={1}>{quizLanguage}</S.Cell>
-                <S.Cell flex={3.5}>
+                <S.Cell $flex={1}>{quizLanguage}</S.Cell>
+                <S.Cell $flex={3.5}>
                     <S.TitleLink as={Link} to={`/workspace/quiz/${idNum}`} >
                         {quizTitle}
                     </S.TitleLink>
                 </S.Cell>
-                <S.Cell flex={2}>{quizCategory}</S.Cell>
-                <S.Cell flex={1}>
-                    <S.Status isSolved={isSolved} isClear={!isSolved}>
+                <S.Cell $flex={2}>{quizCategory}</S.Cell>
+                <S.Cell $flex={1}>
+                    <S.Status $isSolved={isSolved} $isClear={!isSolved}>
                         {isSolved ? '해결됨' : '미해결'}
                     </S.Status>
                 </S.Cell>
@@ -57,12 +57,12 @@ const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = []
         <>
             <S.ListContainer>
                 <S.Header>
-                    <S.Cell flex={0.6} style={{ textAlign: 'left' }}>#문제</S.Cell>
-                    <S.Cell flex={1} paddingLeft>난이도</S.Cell>
-                    <S.Cell flex={1}>언어</S.Cell>
-                    <S.Cell flex={3.5}>제목</S.Cell>
-                    <S.Cell flex={2}>유형</S.Cell>
-                    <S.Cell flex={1}>해결 여부</S.Cell>
+                    <S.Cell $flex={0.6} style={{ textAlign: 'left' }}>#문제</S.Cell>
+                    <S.Cell $flex={1} $paddingLeft={"paddingLeft"}>난이도</S.Cell>
+                    <S.Cell $flex={1}>언어</S.Cell>
+                    <S.Cell $flex={3.5}>제목</S.Cell>
+                    <S.Cell $flex={2}>유형</S.Cell>
+                    <S.Cell $flex={1}>해결 여부</S.Cell>
                 </S.Header>
 
                 {loading && <div>로딩중...</div>}

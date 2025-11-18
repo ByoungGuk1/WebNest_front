@@ -1,7 +1,6 @@
 import React from 'react';
 import { usePlane } from '@react-three/cannon';
 
-// 백그라운드
 const Ground = () => {
   const [ref] = usePlane(() => ({
     rotation: [-Math.PI / 2, 0, 0],
