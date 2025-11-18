@@ -609,7 +609,9 @@ const QuestionReadContainer = () => {
           <S.AnswerSection>
             {comments.map((ans) => (
               <S.AnswerCard key={ans.id}>
-                <S.AnswerTop $accepted={ans.commentIsAccept === 1}>
+                {/* <S.AnswerTop $accepted={ans.commentIsAccept === 1}> */}
+                <S.AnswerTop $accepted={ans.commentIsAccept === true || ans.commentIsAccept === 1}>
+
                   <S.UserInfo>
                     <S.AnswerProfile
                       src={"/assets/images/defalutpro.svg"}
