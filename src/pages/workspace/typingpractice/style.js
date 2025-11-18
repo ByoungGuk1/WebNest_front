@@ -264,18 +264,17 @@ S.ProgressTime = styled.div`
 `;
 
 
-S.Bar = styled.div`
-  /* width: 100%; */
-  width: ${({ $width }) => $width || "100%"};
-  height: 4px;
+  S.Bar = styled.div`
+    width: ${({ $width }) => ($width != null ? `${$width}%` : "100%")};
+    height: 4px;
 
-  &.blue {
-    background-color: #4aa7ff;
-  }
-  &.red {
-    background-color: #ff5e5e;
-  }
-`;
+    &.blue {
+      background-color: #4aa7ff;
+    }
+    &.red {
+      background-color: #ff5e5e;
+    }
+  `;
 // S.ProgressBox = styled.div`
 //   position: relative;
 //   height: 25px;  /* 고정 높이 */

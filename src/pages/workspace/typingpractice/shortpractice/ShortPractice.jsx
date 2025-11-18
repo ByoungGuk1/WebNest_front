@@ -137,8 +137,7 @@ const ShortPractice = () => {
       );
     });
   }, [currentLine, inputValue]);
-  // 🔥 모드/언어/제목이 바뀌면 입력창과 currentIndex도 초기화
-  // 🔥 모드/언어/제목이 바뀌면 입력창과 currentIndex도 초기화
+  
   useEffect(() => {
     setInputValue("");
     setCurrentIndex(0);
