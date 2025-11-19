@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useOutletContext } from "react-router-dom";
 import S from "./style";
@@ -67,12 +67,76 @@ const GradeContainer = () => {
     total: 50,
   };
 
-  // 타자 데이터 (임시 데이터 - 실제로는 API에서 가져와야 함)
-  const typingData = {
-    speed: 510,
-    accuracy: 94,
-    maxSpeed: 587,
-  };
+  // 타자 데이터 상태
+  const [typingData, setTypingData] = useState({
+    speed: 0,
+    accuracy: 0,
+    maxSpeed: 0,
+  });
+
+  // 타자 기록 조회 API 호출
+  useEffect(() => {
+    const fetchTypingRecords = async () => {
+      const accessToken = localStorage.getItem("accessToken");
+      
+      if (!accessToken) {
+        console.error("accessToken이 없습니다. 로그인이 필요합니다.");
+        return;
+      }
+
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/typing/records`, {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          method: "GET",
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`타자 기록 조회 실패: ${response.status}`, errorText);
+          return;
+        }
+
+        const result = await response.json();
+        const records = result?.data || [];
+
+        // 타자 데이터 계산
+        if (records.length > 0) {
+          // 평균 타자수 (WPM)
+          const avgSpeed = records.reduce((sum, record) => {
+            return sum + (record.typingRecordTypist || 0);
+          }, 0) / records.length;
+
+          // 평균 정확도
+          const avgAccuracy = records.reduce((sum, record) => {
+            return sum + (record.typingRecordAccuracy || 0);
+          }, 0) / records.length;
+
+          // 최고 타자수
+          const maxSpeed = Math.max(...records.map(record => record.typingRecordTypist || 0));
+
+          setTypingData({
+            speed: Math.round(avgSpeed),
+            accuracy: Math.round(avgAccuracy * 10) / 10, // 소수점 첫째자리까지
+            maxSpeed: Math.round(maxSpeed),
+          });
+        } else {
+          // 기록이 없을 경우 기본값
+          setTypingData({
+            speed: 0,
+            accuracy: 0,
+            maxSpeed: 0,
+          });
+        }
+      } catch (err) {
+        console.error("타자 기록 조회 중 오류:", err);
+      }
+    };
+
+    fetchTypingRecords();
+  }, []);
 
   // 문제 해결 현황 데이터 - API에서 가져온 quizMyPageLanguage 사용
   const problemProgress = useMemo(() => {

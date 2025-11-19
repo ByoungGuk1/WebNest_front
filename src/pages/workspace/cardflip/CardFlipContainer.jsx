@@ -107,8 +107,6 @@ const createInitialCards = () => {
   return cards.sort(() => Math.random() - 0.5);
 };
 
-const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
-
 const CardFlipContainer = () => {
   const { roomId: gameRoomId } = useParams();
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -172,9 +170,7 @@ const CardFlipContainer = () => {
     setFinishTime(finalTime);
   };
 
-  // 게임 결과
-  const [gameResult, setGameResult] = useState(null);
-  const [results, setResults] = useState([]);
+  // 게임 결과 모달
   const [showResultModal, setShowResultModal] = useState(false);
 
   const resetSelection = () => {
@@ -200,7 +196,7 @@ const CardFlipContainer = () => {
     }
   }, [isGameStarted, gameStartTime, isGameCompleted]);
 
-  // 게임 완료 감지 및 API 호출
+  // 게임 완료 감지 및 모달 표시
   useEffect(() => {
     if (matchedPairs === 10 && !isGameCompleted && userId && gameRoomId && gameStartTime) {
       setIsGameCompleted(true);
@@ -212,56 +208,8 @@ const CardFlipContainer = () => {
       const finishTime = Math.floor((Date.now() - gameStartTime) / 1000);
       setElapsedTime(finishTime);
       
-      // 게임 완료 처리
-      const finishGame = async () => {
-        try {
-          const accessToken = localStorage.getItem("accessToken");
-          if (!accessToken) {
-            return;
-          }
-
-          // 결과 저장 API 호출
-          const response = await fetch(`${API_BASE}/private/game-rooms/${gameRoomId}/cardflip/finish`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({
-              userId: userId,
-              finishTime: finishTime,
-              matchedPairs: 10,
-              score: Math.max(0, 1000 - finishTime * 10), // 점수 계산 (시간이 짧을수록 높은 점수)
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`결과 저장 실패: ${response.status}`);
-          }
-
-          const result = await response.json();
-          setGameResult(result.data);
-
-          // 결과 조회 API 호출 (순위 확인)
-          const resultsResponse = await fetch(`${API_BASE}/private/game-rooms/${gameRoomId}/cardflip/results`, {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${accessToken}`,
-            },
-          });
-
-          if (resultsResponse.ok) {
-            const resultsData = await resultsResponse.json();
-            setResults(resultsData.data || []);
-            setShowResultModal(true);
-          }
-
-        } catch (error) {
-          alert("게임 완료 처리 중 오류가 발생했습니다.");
-        }
-      };
-
-      finishGame();
+      // 게임 종료 모달 표시 (모달 내부에서 API 호출 처리)
+      setShowResultModal(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchedPairs, isGameCompleted, userId, gameRoomId, gameStartTime]);
@@ -431,15 +379,16 @@ const CardFlipContainer = () => {
       </S.CardInner>
 
       {/* 결과 모달 */}
-      <GameEndModal
-        isOpen={showResultModal}
-        onClose={() => setShowResultModal(false)}
-        gameResult={gameResult}
-        results={results}
-        currentUserId={userId}
-        formatTime={formatTime}
-        getExpGain={getExpGain}
-      />
+      {showResultModal && (
+        <GameEndModal
+          isOpen={showResultModal}
+          onClose={() => setShowResultModal(false)}
+          finishTime={elapsedTime}
+          matchedPairs={matchedPairs}
+          formatTime={formatTime}
+          getExpGain={getExpGain}
+        />
+      )}
     </S.PageWrap>
   );
 };
