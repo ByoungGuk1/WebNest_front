@@ -428,4 +428,12 @@ S.ResultExp = styled.div`
   text-align: right;
 `;
 
+S.LoadingMessage = styled.div`
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #7345fd;
+  padding: 40px 20px;
+`;
+
 export default S;
