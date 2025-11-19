@@ -223,13 +223,13 @@ const Follower = () => {
                     <S.FollowerLeft>
                       <S.FollowerAvatar>
                         <img src={profileUrl} alt="" />
-                        <S.LevelBadge className="lv">
-                          <img src={levelImageUrl} className="lvImg" alt="" />
-                          <span>Lv {level === 10 ? "X" : level}</span>
-                        </S.LevelBadge>
                       </S.FollowerAvatar>
+                      <S.LevelBadge className="lv">
+                        <img src={levelImageUrl} className="lvImg" alt="" />
+                        <span>Lv {level === 10 ? "X" : level}</span>
+                      </S.LevelBadge>
                       <p>{nickname}</p>
-                      <span className="follower">팔로워 : </span>
+                      <span className="follower">팔로워: </span>
                       <span className="count">
                         {followerCount > 1000 ? (followerCount / 1000).toFixed(1) + "k" : followerCount}
                       </span>
