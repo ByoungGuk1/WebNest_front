@@ -1,9 +1,145 @@
-// PostList.jsx
+// src/pages/community/post/postlist/PostList.jsx
 import React from "react";
-import { Link } from "react-router-dom";
 import S from "./style";
+import {
+  getFileDisplayUrl,
+  getFileDisplayUrlFromPathAndName,
+} from "../../../../utils/fileUtils";
 
-// 날짜 → 상대시간
+const DEFAULT_PROFILE_IMAGE = "/assets/images/defalutpro.svg";
+
+/** 🔥 글쓴이 프로필 이미지 URL 만들기 */
+const buildAuthorProfileImg = (post) => {
+  const author = post.author || {};
+
+  // 1) path 후보들: post 루트 + author 둘 다 커버
+  const path =
+    post.userThumbnailUrl ||
+    post.authorThumbnailUrl ||
+    author.userThumbnailUrl ||
+    author.authorThumbnailUrl ||
+    post.profilePath ||
+    author.profilePath ||
+    "";
+
+  // 2) name 후보들
+  const name =
+    post.userThumbnailName ||
+    post.authorThumbnailName ||
+    author.userThumbnailName ||
+    author.authorThumbnailName ||
+    post.profileName ||
+    author.profileName ||
+    "";
+
+  // 3) 예전 구조: 한 필드에 전체 경로 or 파일명만 들어오는 경우
+  const legacyRaw =
+    author.profileImg ||
+    post.profileImg ||
+    post.profileUrl ||
+    author.profileUrl ||
+    post.userThumbnailUrl || // img/1.jpg 같은 옛날 패턴일 수도 있음
+    "";
+
+  // (1) path/name도 없고 legacyRaw도 없으면 → 기본 이미지
+  if (
+    (!path || path === "/default" || path === "null" || path === "undefined") &&
+    !legacyRaw
+  ) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  // (2) path + name 둘 다 있으면 → 우리가 만든 util 사용
+  if (path && name) {
+    // 예: path="img/", name="1.jpg" → "img/1.jpg" → /file/display?fileName=...
+    return (
+      getFileDisplayUrlFromPathAndName(path, name) || DEFAULT_PROFILE_IMAGE
+    );
+  }
+
+  // (3) path만 있거나 legacyRaw만 있을 때
+  const raw = legacyRaw || path;
+  if (!raw) return DEFAULT_PROFILE_IMAGE;
+
+  // 외부 URL / assets 경로면 그대로 사용
+  if (raw.startsWith("http") || raw.startsWith("/assets")) {
+    return raw;
+  }
+
+  // "/uploads/xxx" / "uploads/xxx" / "/img/1.jpg" 같은 것들 정리
+  let fileName = raw;
+  if (fileName.startsWith("/uploads/")) {
+    fileName = fileName.replace("/uploads/", "");
+  } else if (fileName.startsWith("uploads/")) {
+    fileName = fileName.replace("uploads/", "");
+  }
+  if (fileName.startsWith("/")) {
+    fileName = fileName.slice(1);
+  }
+
+  // 최종적으로 /file/display?fileName=... 형태로 변환
+  return getFileDisplayUrl(fileName);
+};
+
+/** 🔥 댓글 작성자 프로필 이미지 URL */
+const buildCommentProfileImg = (c) => {
+  const author = c.author || {};
+
+  const path =
+    c.userThumbnailUrl ||
+    c.authorThumbnailUrl ||
+    author.userThumbnailUrl ||
+    author.authorThumbnailUrl ||
+    "";
+
+  const name =
+    c.userThumbnailName ||
+    c.authorThumbnailName ||
+    author.userThumbnailName ||
+    author.authorThumbnailName ||
+    "";
+
+  const legacyRaw =
+    author.profileImg ||
+    c.profileImg ||
+    c.profileUrl ||
+    c.userThumbnailUrl ||
+    "";
+
+  if (
+    (!path || path === "/default" || path === "null" || path === "undefined") &&
+    !legacyRaw
+  ) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  if (path && name) {
+    return (
+      getFileDisplayUrlFromPathAndName(path, name) || DEFAULT_PROFILE_IMAGE
+    );
+  }
+
+  const raw = legacyRaw || path;
+  if (!raw) return DEFAULT_PROFILE_IMAGE;
+
+  if (raw.startsWith("http") || raw.startsWith("/assets")) {
+    return raw;
+  }
+
+  let fileName = raw;
+  if (fileName.startsWith("/uploads/")) {
+    fileName = fileName.replace("/uploads/", "");
+  } else if (fileName.startsWith("uploads/")) {
+    fileName = fileName.replace("uploads/", "");
+  }
+  if (fileName.startsWith("/")) {
+    fileName = fileName.slice(1);
+  }
+
+  return getFileDisplayUrl(fileName);
+};
+
+/** 날짜 → 상대시간 */
 const toRelativeTime = (dateLike) => {
   if (!dateLike) return "방금";
   const d = new Date(dateLike);
@@ -22,24 +158,32 @@ const toRelativeTime = (dateLike) => {
   return `${y}년`;
 };
 
-// 댓글 베스트 선택
+/** 댓글 베스트 선택 */
 const getTopComment = (post) => {
   const comments = post?.comments || post?.answers || [];
   if (!Array.isArray(comments) || comments.length === 0) return null;
-  const byBest = comments.find((c) => c?.isBest || c?.best || c?.selected) || null;
+
+  const byBest =
+    comments.find((c) => c?.isBest || c?.best || c?.selected) || null;
   if (byBest) return byBest;
+
   const sorted = [...comments].sort(
     (a, b) => (b?.likes ?? b?.up ?? 0) - (a?.likes ?? a?.up ?? 0)
   );
   return sorted[0] || null;
 };
 
-// 댓글 수 표기
+/** 댓글 수 표기 */
 const getReplyCount = (post) =>
   post?.commentsCount ??
   (Array.isArray(post?.answers) ? post.answers.length : 0) ??
   0;
 
+/** ✅ 공용 PostList 컴포넌트
+ *  - props.posts : [{ postId, postTitle, postContent, postLangTag, views, createdAt, author, ... }]
+ *  - props.loading : 불러오는 중 여부
+ *  - props.linkTo : 상세 링크 prefix (기본 "/post")
+ */
 const PostList = ({ posts = [], loading = false, linkTo = "/post" }) => {
   if (loading) return <p>불러오는 중...</p>;
 
@@ -59,11 +203,24 @@ const PostList = ({ posts = [], loading = false, linkTo = "/post" }) => {
 
         const topCmt = getTopComment(post);
 
+        const authorName =
+          post.userNickname ||
+          post.userName ||
+          post.author?.name ||
+          post.author?.userNickname ||
+          post.author?.nickname ||
+          "";
+
+        const profileImgSrc =
+          post.author?.profileImg || buildAuthorProfileImg(post);
+
         return (
           <S.Link to={`${linkTo}/${post.postId}`} key={post.postId}>
             <S.Row>
+              {/* 언어/타입 태그 */}
               <S.Tag lang={post.postLangTag}>{post.postLangTag}</S.Tag>
 
+              {/* 제목/내용/메타 정보 */}
               <S.QuestionInfo>
                 <S.QuestionTitle>{post.postTitle}</S.QuestionTitle>
                 <S.QuestionPreview>{post.postContent}</S.QuestionPreview>
@@ -72,12 +229,15 @@ const PostList = ({ posts = [], loading = false, linkTo = "/post" }) => {
                   <S.ListMetaRow>
                     <S.MetaWrap>
                       <S.ProfileImg
-                        src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
-                        alt={post.author?.name || ""}
+                        src={profileImgSrc || DEFAULT_PROFILE_IMAGE}
+                        alt={authorName}
+                        onError={(e) => {
+                          e.currentTarget.src = DEFAULT_PROFILE_IMAGE;
+                        }}
                       />
-                      {post.author?.name && (
+                      {authorName && (
                         <>
-                          <span>{post.author?.name}</span>
+                          <span>{authorName}</span>
                           <b>·</b>
                         </>
                       )}
@@ -93,13 +253,14 @@ const PostList = ({ posts = [], loading = false, linkTo = "/post" }) => {
                     </S.Response>
                   </S.ListMetaRow>
 
+                  {/* 베스트 댓글 영역 */}
                   {topCmt && (
                     <S.TopCommentRow>
                       <S.ProfileImg
                         src={
                           topCmt.author?.profileImg ||
-                          topCmt.profileImg ||
-                          "/assets/images/defalutpro.svg"
+                          buildCommentProfileImg(topCmt) ||
+                          DEFAULT_PROFILE_IMAGE
                         }
                         alt={
                           topCmt.author?.name ||
@@ -107,6 +268,9 @@ const PostList = ({ posts = [], loading = false, linkTo = "/post" }) => {
                           topCmt.userName ||
                           "user"
                         }
+                        onError={(e) => {
+                          e.currentTarget.src = DEFAULT_PROFILE_IMAGE;
+                        }}
                       />
                       <S.TopCmtName>
                         {topCmt.author?.name ||
@@ -129,7 +293,9 @@ const PostList = ({ posts = [], loading = false, linkTo = "/post" }) => {
                           topCmt.comment ||
                           ""}
                       </S.TopCmtContent>
-                      {(topCmt.isBest || topCmt.best || topCmt.selected) && (
+                      {(topCmt.isBest ||
+                        topCmt.best ||
+                        topCmt.selected) && (
                         <S.BestBadge>best</S.BestBadge>
                       )}
                     </S.TopCommentRow>
