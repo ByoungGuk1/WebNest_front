@@ -4,131 +4,93 @@ export const TypingContext = createContext();
 
 export const TypingProvider = ({ children }) => {
   const [isTypingStart, setIsTypingStart] = useState(false);
-
   const [runningTime, setRunningTime] = useState({
     totalSeconds: 0,
     minutes: "00",
     seconds: "00",
     millisecond: "00",
   });
-
   const [wordCount, setWordCount] = useState(0);
-  const [wordPerMinute, setWordPerMinute] = useState(0);
-  const [accuracy, setAccuracy] = useState(100);
-
+  const [totalTypedCount, setTotalTypedCount] = useState(0);
+  const [totalCorrectCount, setTotalCorrectCount] = useState(0);
+  const [totalWrongCount, setTotalWrongCount] = useState(0);
   const [isShort, setIsShort] = useState("short");
   const [language, setLanguage] = useState("한국어");
   const [typingList, setTypingList] = useState([]);
-  const [isUpdate, setIsUpdate] = useState(false);
   const [currentTypingId, setCurrentTypingId] = useState(0);
   const [finalResult, setFinalResult] = useState(null);
-
-  // 모달
   const [isShowModal, setIsShowModal] = useState(false);
   const handleShowModal = () => setIsShowModal(!isShowModal);
 
-  // 정확도
-  const [totalTypedCount, setTotalTypedCount] = useState(0);
-  const [correctTypedCount, setCorrectTypedCount] = useState(0);
-
-
-  // 전체 초기화 함수 (다시하기/그만하기에서 사용)
   const resetTyping = () => {
     setIsTypingStart(false);
-
-    setRunningTime({
-      totalSeconds: 0,
-      minutes: "00",
-      seconds: "00",
-      millisecond: "00",
-    });
-
+    setRunningTime({ totalSeconds: 0, minutes: "00", seconds: "00", millisecond: "00" });
     setWordCount(0);
-    setWordPerMinute(0);
-    setAccuracy(100);
     setTotalTypedCount(0);
-    setCorrectTypedCount(0);
+    setTotalCorrectCount(0);
+    setTotalWrongCount(0);
     setFinalResult(null);
-
   };
 
   useEffect(() => {
-    resetTyping();
-  }, [isShort, language, currentTypingId]);
+    let intervalId;
+    if (isTypingStart) {
+      intervalId = setInterval(() => {
+        setRunningTime(prev => {
+          const totalSeconds = prev.totalSeconds + 0.1;
+          const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+          const seconds = String(Math.floor(totalSeconds % 60)).padStart(2, "0");
+          const millisecond = String(Math.floor((totalSeconds % 1) * 100)).padStart(2, "0");
+          return { totalSeconds, minutes, seconds, millisecond };
+        });
+      }, 100);
+    }
+    return () => clearInterval(intervalId);
+  }, [isTypingStart]);
 
+  // 초기 데이터 fetch
+  useEffect(() => {
+    const getList = async () => {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/typing/${isShort}/list?language=${language}`);
+      if (!response.ok) throw new Error(`getList fetching error ${response.status}`);
+      const { data } = await response.json();
+      setTypingList(data);
+    };
+    getList().catch(console.error);
+  }, [isShort, language]);
 
-  // value (state + actions)
-
-  const value = useMemo(
-    () => ({
-      state: {
-        isShort,
-        typingList,
-        isTypingStart,
-        runningTime,
-        wordCount,
-        wordPerMinute,
-        accuracy,
-        language,
-        currentTypingId,
-        isShowModal,
-        totalTypedCount,
-        correctTypedCount,
-        finalResult,
-      },
-      actions: {
-        setIsShort,
-        setIsUpdate,
-        setIsTypingStart,
-        setRunningTime,
-        setWordCount,
-        setWordPerMinute,
-        setAccuracy,
-        setLanguage,
-        setCurrentTypingId,
-        setIsShowModal,
-        handleShowModal,
-        setTotalTypedCount,
-        setCorrectTypedCount,
-        setFinalResult,
-        resetTyping,
-      },
-    }),
-    [
+  // context value
+  const value = useMemo(() => ({
+    state: {
       isShort,
       typingList,
       isTypingStart,
       runningTime,
       wordCount,
-      wordPerMinute,
-      accuracy,
       language,
       currentTypingId,
       isShowModal,
       totalTypedCount,
-      correctTypedCount,
+      totalCorrectCount,
+      totalWrongCount,
+      finalResult,
+    },
+    actions: {
+      setIsShort,
+      setIsTypingStart,
+      setWordCount,
+      setLanguage,
+      setCurrentTypingId,
+      setIsShowModal,
+      handleShowModal,
+      setTotalTypedCount,
+      setTotalCorrectCount,
+      setTotalWrongCount,
+      setFinalResult,
       resetTyping,
-    ]
-  );
-
-
-  useEffect(() => {
-    const getList = async () => {
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/typing/${isShort}/list?language=${
-          language || "한국어"
-        }`
-      );
-      if (!response.ok)
-        throw new Error(`getList fetching error ${response.status}`);
-
-      const typingList = await response.json();
-      const { data } = typingList;
-      setTypingList(data);
-    };
-
-    getList().catch(console.error);
-  }, [isUpdate, language, isShort]);
+      setRunningTime,
+    },
+  }), [typingList, isTypingStart, runningTime, wordCount, language, currentTypingId, isShowModal, totalTypedCount, totalCorrectCount, totalWrongCount, finalResult]);
 
   return (
     <TypingContext.Provider value={value}>
