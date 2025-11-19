@@ -64,8 +64,15 @@ const MyPageContainer = () => {
     if (thumbnailUrl.startsWith('http') || thumbnailUrl.startsWith('/assets')) {
       return thumbnailUrl;
     }
+    // 잘못된 경로 형식 처리 (/uploads/로 시작하는 경우 제거)
+    let cleanUrl = thumbnailUrl;
+    if (cleanUrl.startsWith('/uploads/')) {
+      cleanUrl = cleanUrl.replace('/uploads/', '');
+    } else if (cleanUrl.startsWith('uploads/')) {
+      cleanUrl = cleanUrl.replace('uploads/', '');
+    }
     // 파일 경로인 경우 display URL로 변환
-    return getFileDisplayUrl(thumbnailUrl);
+    return getFileDisplayUrl(cleanUrl);
   }, [currentUser?.userThumbnailUrl]);
 
   // 이미지 로드 실패 시 기본 프로필 사진으로 대체

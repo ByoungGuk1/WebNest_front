@@ -35,8 +35,6 @@ const Chatting01 = () => {
       reconnectDelay: 5000,
       onConnect: () => {
         // 채팅방 연결 시
-        console.log('WebSocket 연결 성공!');
-
         // 1. 입장 메세지
         const joinMessage = {
             myChatRoomId: roomId,
@@ -53,7 +51,6 @@ const Chatting01 = () => {
         // 2. 채팅방 구독(구독 경로는 sub)
         client.subscribe(`/sub/chat/room/${roomId}`, (message) => {
           const body = JSON.parse(message.body);
-          console.log('받은 메시지:', body);
           setChatList((prev) => [...prev, body]);
         });
       },
