@@ -110,7 +110,7 @@ S.BoardButton = styled.button`
       $active ? (theme?.PALETTE?.primary?.blue?.main || "#2F6BFF") : (theme?.PALETTE?.neutral?.gray?.[300] || "#E5E7EB")};
   background:
     ${({ theme, $active }) =>
-      $active ? (theme?.PALETTE?.primary?.blue?.tinted || "#EAF2FF") : (theme?.PALETTE?.neutral?.white || "#FFFFFF")};
+      $active ? (theme?.PALETTE?.primary?.blue?.tinted || "#EAF2FF") : "#FFFFFF"};
   color:
     ${({ theme, $active }) =>
       $active ? (theme?.PALETTE?.primary?.blue?.main || "#2F6BFF") : (theme?.PALETTE?.neutral?.black?.primary || "#111827")};
@@ -118,6 +118,16 @@ S.BoardButton = styled.button`
   padding: 0;                /* 크기 고정을 위해 내부 패딩 제거 */
   cursor: pointer;
   line-height: 1;
+
+  &:hover {
+    border-color: ${({ theme }) => theme?.PALETTE?.primary?.blue?.main || "#1e90ff"};
+  }
+  
+  &:focus-visible {
+    outline: 0;
+    box-shadow: 0 0 0 3px
+      ${({ theme }) => (theme?.PALETTE?.primary?.blue?.main || "#1e90ff") + "33"};
+  }
 `;
 
 

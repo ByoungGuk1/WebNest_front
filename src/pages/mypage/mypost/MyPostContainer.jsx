@@ -86,7 +86,7 @@ const MyPostContainer = () => {
           >
             열린둥지
           </S.BoardButton>
-          <S.BoardButton
+          <S.BoardButton 
             $active={postType === "QUESTION"}
             onClick={() => setPostType("QUESTION")}
           >
