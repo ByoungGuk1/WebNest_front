@@ -23,7 +23,7 @@ const QuizRead = ({ isSolved, quiz = {}, prevQuiz = {}, nextQuiz = {} }) => {
                             {quizTitle}
                         </S.QuizLeftText>
                         <S.QuizLeftText>
-                            <S.QuizLeftTextLink to={"/question/write"}>
+                            <S.QuizLeftTextLink to={"/question/write"} state={{ quizLanguage, quizTitle }}>
                                 질문하기
                             </S.QuizLeftTextLink>
                         </S.QuizLeftText>

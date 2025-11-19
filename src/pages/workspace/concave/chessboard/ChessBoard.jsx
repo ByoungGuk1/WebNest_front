@@ -1,44 +1,39 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import S from "./style";
 import GameContext from "context/GameContext";
+import SockJS from "sockjs-client";
+import { Client } from "@stomp/stompjs";
 
 const ChessBoard = (props) => {
 
     const context = useContext(GameContext)
+    const { roomId, userSenderId } = context;
+    const myUserId = userSenderId;
 
-    const { isGameStarted = {}, isHost = {}, onStartGame, onReady, onInvite, roomId, userSenderId } = context;
     const boardSize = props.boardSize === undefined ? 15 : props.boardSize;
     const timeoutSec = props.timeoutSec === undefined ? 30 : props.timeoutSec;
 
     const [chessBoard, setChessBoard] = useState(
         () => Array.from({ length: boardSize }, () => Array(boardSize).fill(0))
     );
-    // 유저턴 흑 또는 백백
-    const [turn, setTurn] = useState(1);
+    // 유저턴 흑 또는 백
+    const [turnOwnerId, setTurnOwnerId] = useState(null);
+
+    const [isMyTurn, setIsMyTurn] = useState(1);
     const [message, setMessage] = useState("좌표를 입력하세요. 예: [3|1] 또는 3,1");
-    const [inGameMessage, setInGameMessage] = useState("게임 시작");
     const [lastMove, setLastMove] = useState(null);
     const [winLine, setWinLine] = useState([]);
     const [isGameOver, setIsGameOver] = useState(false);
 
     const inputRef = useRef(null);
     const timerRef = useRef(null);
+    // remainingRef: 제한시간 설정
     const remainingRef = useRef(timeoutSec);
     const [remaining, setRemaining] = useState(timeoutSec);
+
+    const stompRef = useRef(null);
     const boardRef = useRef(null);
     const [boardPx, setBoardPx] = useState({ width: 0, height: 0 });
-
-    useEffect(() => {
-        function measure() {
-            const el = boardRef.current
-            if (!el) return;
-            const rect = el.getBoundingClientRect();
-            setBoardPx({ width: rect.width, height: rect.height });
-        }
-        measure();
-        window.addEventListener("resize", measure);
-        return () => window.removeEventListener("resize", measure);
-    }, [])
 
     function cellCenterX(col) {
         const w = boardPx.width || 700;
@@ -114,19 +109,26 @@ const ChessBoard = (props) => {
         return { row, col };
     }
 
+    // console.log("inputRef:", inputRef)
     // 방장이 게임시작누르면 타이머발동
-    function gameStart(host) {
-    }
-
+    // 제한시간 셋 초기화
     function clearTimer() {
         if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
         }
     }
+    // 게임시작 true 이되면 마이턴이 1인 사람부터 제한시간작동
+
+    // 마이턴 1인사람이 착수 후 마이턴이 0이되고 다음 유저가 마이턴 1 그 후 반복
+    // console.log("remainingRef,", remainingRef)
+    // console.log("remainingR,", remaining)
+    // console.log("clearTime,", timerRef)
+    // console.log("clearTime,", timeoutSec)
+
     // 착수 제한시간
-    function startTimer(start) {
-        if (start) {
+    function startTimer(turn) {
+        if (turn) {
             clearTimer();
             remainingRef.current = timeoutSec;
             setRemaining(timeoutSec);
@@ -136,11 +138,13 @@ const ChessBoard = (props) => {
                 if (remainingRef.current <= 0) {
                     clearTimer();
                     placeRandomMove();
+                    setIsMyTurn(0);
                 }
             }, 1000);
         }
     }
 
+    // 돌 놓는로직
     function placeAt(row0, col0) {
         setChessBoard(prev => {
             if (prev[row0][col0] !== 0) {
@@ -148,7 +152,7 @@ const ChessBoard = (props) => {
                 return prev;
             }
             const next = prev.map(row => row.slice());
-            next[row0][col0] = turn;
+            next[row0][col0] = isMyTurn;
             const detect = detectFiveInARow(next, row0, col0);
             console.log("detect", detect)
             if (detect.win) {
@@ -160,8 +164,8 @@ const ChessBoard = (props) => {
                 return next;
             }
             setLastMove({ row: row0, col: col0 });
-            setTurn(turn => (turn === 1 ? 2 : 1));
-            const placedColor = turn === 1 ? "흑" : "백";
+            setIsMyTurn(isMyTurn => (isMyTurn === 1 ? 1 : 2));
+            const placedColor = isMyTurn === 1 ? "흑" : "백";
             setMessage(`두었습니다: (${row0}|${col0}) - ${placedColor}`);
             startTimer(true);
             if (inputRef.current) {
@@ -184,22 +188,23 @@ const ChessBoard = (props) => {
             return;
         }
         const pick = empties[Math.floor(Math.random() * empties.length)];
+        console.log("pick", pick)
         setChessBoard(prev => {
             const next = prev.map(row => row.slice());
-            next[pick.i][pick.j] = turn;
+            next[pick.i][pick.j] = isMyTurn;
             const detect = detectFiveInARow(next, pick.i, pick.j);
             console.log("detect", detect)
             setLastMove({ row: pick.i, col: pick.j });
             if (detect.win) {
                 setWinLine(detect.line);
                 setIsGameOver(true);
-                clearTimer();
                 setMessage(`시간 초과: 착수 후 ${detect.winner === 1 ? "흑" : "백"} 승리`)
+                clearTimer();
                 return next;
             }
-            const placedColor = turn === "백" ? "흑" : "백";
-            setTurn(turn => (turn === 1 ? 2 : 1));
-            setMessage(`시간 초과: 무작위 착수 (${pick.i + 1}|${pick.j + 1}) - ${placedColor}`);
+            setIsMyTurn(isMyTurn => (isMyTurn === 1 ? 1 : 2));
+            const placedColor = isMyTurn === 1 ? "흑" : "백";
+            setMessage(`시간 초과: 무작위 착수 (${pick.i}|${pick.j}) - ${placedColor}`);
             startTimer(true);
             return next;
         });
@@ -231,9 +236,6 @@ const ChessBoard = (props) => {
         }
         placeAt(row, col);
     }
-
-
-
 
     function handleKeyDown(e) {
         if (e.key === "Enter") handleSubmit(e);
@@ -306,5 +308,6 @@ const ChessBoard = (props) => {
             </S.BoardPanel>
         </S.Wrap>
     );
+    
 }
 export default ChessBoard;
