@@ -3,6 +3,7 @@ import S from "./style";
 import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getFileDisplayUrl } from "../../utils/fileUtils";
+import { getFileDisplayUrlFromPathAndName } from "../../utils/fileUtils";
 
 const MyPageContainer = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -53,9 +54,11 @@ const MyPageContainer = () => {
   // 기본 프로필 이미지 경로
   const DEFAULT_PROFILE_IMAGE = "/assets/images/defalutpro.svg";
 
-  // 프로필 이미지 URL 변환 (파일 경로인 경우 display URL로 변환)
+  // 프로필 이미지 URL 변환 
   const profileImageUrl = useMemo(() => {
     const thumbnailUrl = currentUser?.userThumbnailUrl;
+    const thumbnailName = currentUser?.userThumbnailName;
+    
     // 사진이 없거나 빈 값인 경우 기본 프로필 사진 반환
     if (!thumbnailUrl || thumbnailUrl === '' || thumbnailUrl === '/default' || thumbnailUrl === 'null' || thumbnailUrl === 'undefined') {
       return DEFAULT_PROFILE_IMAGE;
@@ -64,16 +67,15 @@ const MyPageContainer = () => {
     if (thumbnailUrl.startsWith('http') || thumbnailUrl.startsWith('/assets')) {
       return thumbnailUrl;
     }
-    // 잘못된 경로 형식 처리 (/uploads/로 시작하는 경우 제거)
-    let cleanUrl = thumbnailUrl;
-    if (cleanUrl.startsWith('/uploads/')) {
-      cleanUrl = cleanUrl.replace('/uploads/', '');
-    } else if (cleanUrl.startsWith('uploads/')) {
-      cleanUrl = cleanUrl.replace('uploads/', '');
+    
+    // userThumbnailUrl과 userThumbnailName이 모두 있는 경우 새로운 형식 사용
+    if (thumbnailUrl && thumbnailName) {
+      return getFileDisplayUrlFromPathAndName(thumbnailUrl, thumbnailName) || DEFAULT_PROFILE_IMAGE;
     }
-    // 파일 경로인 경우 display URL로 변환
-    return getFileDisplayUrl(cleanUrl);
-  }, [currentUser?.userThumbnailUrl]);
+    
+    // 기존 형식 호환성 유지 (전체 경로가 하나의 필드에 있는 경우)
+    return DEFAULT_PROFILE_IMAGE;
+  }, [currentUser?.userThumbnailUrl, currentUser?.userThumbnailName]);
 
   // 이미지 로드 실패 시 기본 프로필 사진으로 대체
   const handleImageError = (e) => {
