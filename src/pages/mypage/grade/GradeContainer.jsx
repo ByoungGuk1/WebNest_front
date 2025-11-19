@@ -2,6 +2,7 @@ import React, { useMemo, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useOutletContext } from "react-router-dom";
 import S from "./style";
+import { ResponsivePie } from "@nivo/pie";
 
 const COLOR = {
   red: "#FF5A5A", // Lv1~2
@@ -34,17 +35,19 @@ const GradeContainer = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
   const fullReduxState = useSelector((state) => state);
   const myData = useOutletContext();
+  const { records } = myData;
+  console.log(myData)
   const safeLevel = clampLevel(currentUser?.userLevel || 1);
   const userExp = currentUser?.userExp || 0;
 
+  const sortedRecords = records?.sort((a, b) => b.typingRecordTypist - a.typingRecordTypist)[0]
+  console.log("sortedRecords", sortedRecords)
+
   // 리덕스 상태 콘솔 출력
   useEffect(() => {
-    console.log("=== 리덕스 전체 상태 ===", fullReduxState);
-    console.log("=== 리덕스 user 상태 ===", fullReduxState.user);
     console.log("=== currentUser 정보 ===", currentUser);
   }, [fullReduxState, currentUser]);
 
-  // 10칸 세그먼트 메모이제이션
   const segments = useMemo(
     () =>
       Array.from({ length: 10 }, (_, i) => {
@@ -74,72 +77,17 @@ const GradeContainer = () => {
     maxSpeed: 0,
   });
 
-  // 타자 기록 조회 API 호출
   useEffect(() => {
-    const fetchTypingRecords = async () => {
-      const accessToken = localStorage.getItem("accessToken");
-      
-      if (!accessToken) {
-        console.error("accessToken이 없습니다. 로그인이 필요합니다.");
-        return;
-      }
+    setTypingData({
+      speed: sortedRecords?.typingRecordTime,
+      accuracy: sortedRecords?.typingRecordAccuracy,
+      maxSpeed: sortedRecords?.typingRecordTypist,
+    })
+  }, [sortedRecords])
 
-      try {
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/typing/records`, {
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
-          method: "GET",
-        });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`타자 기록 조회 실패: ${response.status}`, errorText);
-          return;
-        }
-
-        const result = await response.json();
-        const records = result?.data || [];
-
-        // 타자 데이터 계산
-        if (records.length > 0) {
-          // 평균 타자수 (WPM)
-          const avgSpeed = records.reduce((sum, record) => {
-            return sum + (record.typingRecordTypist || 0);
-          }, 0) / records.length;
-
-          // 평균 정확도
-          const avgAccuracy = records.reduce((sum, record) => {
-            return sum + (record.typingRecordAccuracy || 0);
-          }, 0) / records.length;
-
-          // 최고 타자수
-          const maxSpeed = Math.max(...records.map(record => record.typingRecordTypist || 0));
-
-          setTypingData({
-            speed: Math.round(avgSpeed),
-            accuracy: Math.round(avgAccuracy * 10) / 10, // 소수점 첫째자리까지
-            maxSpeed: Math.round(maxSpeed),
-          });
-        } else {
-          // 기록이 없을 경우 기본값
-          setTypingData({
-            speed: 0,
-            accuracy: 0,
-            maxSpeed: 0,
-          });
-        }
-      } catch (err) {
-        console.error("타자 기록 조회 중 오류:", err);
-      }
-    };
-
-    fetchTypingRecords();
-  }, []);
-
-  // 문제 해결 현황 데이터 - API에서 가져온 quizMyPageLanguage 사용
-  const problemProgress = useMemo(() => {
+    // 문제 해결 현황 데이터 - API에서 가져온 quizMyPageLanguage 사용
+    const problemProgress = useMemo(() => {
     const quizMyPageLanguage = myData?.quizMyPageLanguage || [];
     
     // 언어명 매핑 (백엔드에서 오는 언어 코드를 한글로 변환)
@@ -175,42 +123,68 @@ const GradeContainer = () => {
   }, [myData?.quizMyPageLanguage]);
 
   // 파이 차트 계산
-  const pieChartGradient = useMemo(() => {
-    const total = expData.total || 1;
-    const cardFlip = expData.game || 0;
-    const omok = expData.game || 0;
-    const training = expData.problem || 0;
-    const wordChain = expData.game || 0;
+  // const pieChartGradient = useMemo(() => {
+  //   const total = expData.total || 1;
+  //   const cardFlip = expData.game || 0;
+  //   const omok = expData.game || 0;
+  //   const training = expData.problem || 0;
+  //   const wordChain = expData.game || 0;
     
-    let currentAngle = 0;
-    const segments = [];
+  //   let currentAngle = 0;
+  //   const segments = [];
     
-    if (cardFlip > 0) {
-      const endAngle = currentAngle + (cardFlip / total) * 360;
-      segments.push(`#7255EE ${currentAngle}deg ${endAngle}deg`);
-      currentAngle = endAngle;
-    }
+  //   if (cardFlip > 0) {
+  //     const endAngle = currentAngle + (cardFlip / total) * 360;
+  //     segments.push(`#7255EE ${currentAngle}deg ${endAngle}deg`);
+  //     currentAngle = endAngle;
+  //   }
     
-    if (omok > 0) {
-      const endAngle = currentAngle + (omok / total) * 360;
-      segments.push(`#9585F2 ${currentAngle}deg ${endAngle}deg`);
-      currentAngle = endAngle;
-    }
+  //   if (omok > 0) {
+  //     const endAngle = currentAngle + (omok / total) * 360;
+  //     segments.push(`#9585F2 ${currentAngle}deg ${endAngle}deg`);
+  //     currentAngle = endAngle;
+  //   }
     
-    if (training > 0) {
-      const endAngle = currentAngle + (training / total) * 360;
-      segments.push(`#AB4BFF ${currentAngle}deg ${endAngle}deg`);
-      currentAngle = endAngle;
-    }
+  //   if (training > 0) {
+  //     const endAngle = currentAngle + (training / total) * 360;
+  //     segments.push(`#AB4BFF ${currentAngle}deg ${endAngle}deg`);
+  //     currentAngle = endAngle;
+  //   }
     
-    if (wordChain > 0) {
-      const endAngle = currentAngle + (wordChain / total) * 360;
-      segments.push(`#C4B5FD ${currentAngle}deg ${endAngle}deg`);
-      currentAngle = endAngle;
-    }
+  //   if (wordChain > 0) {
+  //     const endAngle = currentAngle + (wordChain / total) * 360;
+  //     segments.push(`#C4B5FD ${currentAngle}deg ${endAngle}deg`);
+  //     currentAngle = endAngle;
+  //   }
     
-    return segments.length > 0 ? segments.join(", ") : "#E9E9EE";
-  }, [expData]);
+  //   return segments.length > 0 ? segments.join(", ") : "#E9E9EE";
+  // }, [expData]);
+  
+  const data = [
+    { id: 'problem', value: 40, color:"#7255EE" },
+    { id: 'answer', value: 5, color:"#9585F2" },
+    { id: 'game', value: 10, color:"#AB4BFF" },
+    { id: 'total', value: 50, color:"#C4B5FD" },
+  ];
+
+  // 1. 애니메이션을 위한 상태 추가
+  const [pieAngles, setPieAngles] = useState({
+    startAngle: -90,
+    endAngle: -90, // 초기에는 닫힌 상태 (0)
+  });
+
+  // 2. 컴포넌트 마운트 시 애니메이션 시작
+  useEffect(() => {
+   // 짧은 지연 시간 후 목표 각도로 업데이트하여 애니메이션 시작
+  const timeout = setTimeout(() => {
+      setPieAngles({
+      startAngle: -90,
+      endAngle: 270, // 펼쳐지는 각도 (360도 회전)
+    });
+  }, 200); // 200ms 지연
+
+  return () => clearTimeout(timeout);
+  }, []);
 
   return (
     <S.Page>
@@ -249,12 +223,40 @@ const GradeContainer = () => {
           </S.GradeRow>
         </S.GradeCard>
 
+
         {/* 경험치 섹션 */}
         <S.ExpCard>
           <S.SectionTitle>경험치</S.SectionTitle>
           <S.ExpContent>
             <S.PieChartContainer>
-              <S.PieChart $gradient={pieChartGradient} />
+              {/* <S.PieChart $gradient={pieChartGradient} /> */}
+              <div style={{ height: "200px", width: "100%" }}>
+              <ResponsivePie
+                  margin={{top: 15, right: 15, bottom: 15, left: 1}}
+                  data={data}
+                  innerRadius={0.5} // 도넛 모양 비율
+                  padAngle={1}// 조각 사이 간격
+                  colors={(datum) => datum.data.color} // 데이터별 색상
+                  borderWidth={1}
+                  borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
+                  arcLabel={(d) => `${d.id}: ${d.value}`}
+                  arcLabelsRadiusOffset={0.7} // 라벨 위치 조정
+                  enableArcLinkLabels={false} // 외부 라벨 끄기
+                  theme={{
+                    labels: {
+                      text: {
+                        fontSize: 12,
+                        fontWeight: 'bold',
+                      },
+                    },
+                  }}
+                  animate={true}                   // 애니메이션 활성화
+                  motionConfig="slow"            // 애니메이션 스타일을 좀 더 느리게 변경
+                  // 3. 상태로 관리되는 각도 사용
+                  startAngle={pieAngles.startAngle}                 // 시작 각도
+                  endAngle={pieAngles.endAngle}                   // 끝 각도
+                />
+              </div>
             </S.PieChartContainer>
             <S.ExpList>
               <S.ExpItem>
@@ -290,7 +292,7 @@ const GradeContainer = () => {
             </S.TypingItem>
             <S.TypingItem>
               <S.TypingIcon>↑</S.TypingIcon>
-              <S.TypingValue>{typingData.maxSpeed}타</S.TypingValue>
+              <S.TypingValue>{typingData.maxSpeed}</S.TypingValue>
               <S.TypingLabel>최고 속도</S.TypingLabel>
             </S.TypingItem>
           </S.TypingContent>
