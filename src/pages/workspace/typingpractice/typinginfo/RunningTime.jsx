@@ -7,10 +7,7 @@ const RunningTime = () => {
   const { state, actions } = useContext(TypingContext)
   const { isTypingStart, runningTime } = state;
   const { setRunningTime } = actions;
-
-  // const [time, setTime] = useState(0);
-
-  const [time, setTime] = useState(0); // 이거는 내부 카운터만
+  const [time, setTime] = useState(0);
   const totalSeconds = time / 100;   
 
   useEffect(() => {
@@ -21,7 +18,6 @@ const RunningTime = () => {
     return () => clearInterval(intervalId);
   }, [isTypingStart]);
 
-  // runningTime 업데이트
   useEffect(() => {
     if (isTypingStart) {
       setRunningTime({ totalSeconds });
@@ -32,7 +28,6 @@ const RunningTime = () => {
   const seconds = Math.floor((time % 6000) / 100);
   const milliseconds = time % 100;
 
-  //  resetTyping 시 Context에서 runningTime 초기화 → time도 초기화
   useEffect(() => {
     if (!isTypingStart && runningTime.totalSeconds === 0) {
       setTime(0);
@@ -49,7 +44,7 @@ const RunningTime = () => {
           {milliseconds.toString().padStart(2, "0")}
         </span>
       </S.ProgressTime>
-      <S.Bar className="blue" />
+      {/* <S.Bar className="blue" /> */}
     </S.ProgressBox>
   );
 };

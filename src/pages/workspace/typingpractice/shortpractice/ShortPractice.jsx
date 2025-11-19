@@ -4,166 +4,82 @@ import { TypingContext } from 'context/TypingContext';
 
 const ShortPractice = () => {
   const { state, actions } = useContext(TypingContext);
-  // const { typingList, currentTypingId } = state;
-  const { typingList, currentTypingId, language, isShort } = state;
+  const { typingList, currentTypingId, language, isShort, totalTypedCount, totalCorrectCount, totalWrongCount} = state;
+  const { setIsTypingStart, setTotalTypedCount, setTotalCorrectCount, setTotalWrongCount, setWordCount, setIsShowModal, setFinalResult } = actions;
 
-  const { 
-    setIsTypingStart, 
-    setIsShowModal, 
-    setTotalTypedCount, 
-    setCorrectTypedCount 
-  } = actions;
-
-  // 현재 타이핑 데이터
   const currentTyping = typingList[currentTypingId];
-
-  // 줄 데이터
   const typingArray = currentTyping?.subject?.split("#") || [];
 
-  // 현재 타이핑 관련 state
-  const [currentIndex, setCurrentIndex] = useState(0);  // 현재 문장
-  const [inputValue, setInputValue] = useState("");     // 입력값
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [inputValue, setInputValue] = useState("");
 
-  // 현재 보여줄 문장
-  const currentLine = currentIndex === 0 
-    ? currentTyping?.title 
-    : typingArray[currentIndex - 1];
-
-  // 다음에 보여줄 문장 4개
+  const currentLine = currentIndex === 0 ? currentTyping?.title : typingArray[currentIndex - 1];
   const nextLines = typingArray.slice(currentIndex, currentIndex + 5);
 
-  // 현재 타이핑 바뀌면 초기화
-  useEffect(() => {
-    setCurrentIndex(0);
-    setInputValue("");
-    setTotalTypedCount(0);
-    setCorrectTypedCount(0);
-  }, [currentTypingId]);
-
-  // 입력 처리
   const onChange = (e) => {
-    const value = e.target.value;
-    const old = inputValue;
-
-    // 입력 시작 표시
+    setInputValue(e.target.value);
     setIsTypingStart(true);
-
-    // 총 타이핑 수 계산
-    if (value.length > old.length) {
-      // 추가된 글자
-      const added = value.slice(old.length);
-      const addedLength = added.length;
-
-        //  타수 증가 (단어수 → 글자수)
-      actions.setWordCount((prev) => prev + addedLength);
-
-      let correctCount = 0;
-      for (let i = 0; i < addedLength; i++) {
-        const addedChar = added[i];
-        const correctChar = currentLine[old.length + i] || "";
-
-        if (addedChar === correctChar) correctCount++;
-      }
-
-      setTotalTypedCount((p) => p + addedLength);
-      setCorrectTypedCount((p) => p + correctCount);
-    } else {
-      // 삭제된 글자
-      const deletedLength = old.length - value.length;
-      //  삭제 시 wordCount 감소
-      actions.setWordCount((prev) => Math.max(0, prev - deletedLength));
-      let correctCount = 0;
-
-      for (let i = 0; i < deletedLength; i++) {
-        const deletedChar = old[value.length + i];
-        const correctChar = currentLine[value.length + i];
-
-        if (deletedChar === correctChar) correctCount++;
-      }
-
-      setTotalTypedCount((p) => Math.max(0, p - deletedLength));
-      setCorrectTypedCount((p) => Math.max(0, p - correctCount));
-    }
-
-    setInputValue(value);
+    setWordCount(prev => prev + 1);
   };
 
-  // 엔터키 처리
   const onKeyDown = (e) => {
     if (e.key !== "Enter") return;
-
     e.preventDefault();
 
+    let correctCount = 0;
+    let wrongCount = 0;
+
+    for (let i = 0; i < currentLine.length; i++) {
+      const typed = inputValue[i] || "";
+      if (typed === currentLine[i]) correctCount++;
+      else wrongCount++;
+    }
+
+    const newTotalTyped = totalTypedCount + currentLine.length;
+    const newTotalCorrect = totalCorrectCount + correctCount;
+    const newTotalWrong = totalWrongCount + wrongCount;
+
+    setTotalTypedCount(newTotalTyped);
+    setTotalCorrectCount(newTotalCorrect);
+    setTotalWrongCount(newTotalWrong);
+
     const isLast = currentIndex === typingArray.length;
-
     if (isLast) {
-      // 1) 타이머 STOP
       setIsTypingStart(false);
-
-      // 2) finalResult 저장
-      actions.setFinalResult({
+      setFinalResult({
         wpm: ((state.wordCount / state.runningTime.totalSeconds) * 60).toFixed(1),
-        accuracy: ((state.correctTypedCount / state.totalTypedCount) * 100).toFixed(1),
+        accuracy: ((newTotalCorrect / newTotalTyped) * 100).toFixed(1), // ← 여기
         time: state.runningTime.totalSeconds.toFixed(1)
       });
-
-      // 3) 모달 열기
       setIsShowModal(true);
       return;
     }
 
-
-    // 다음 문장
-    setCurrentIndex((prev) => prev + 1);
+    setCurrentIndex(prev => prev + 1);
     setInputValue("");
   };
 
-  // 글자 비교해서 색깔 넣기
+
   const coloredLine = useMemo(() => {
     if (!currentLine) return null;
-
     return currentLine.split("").map((char, i) => {
       const typed = inputValue[i];
-
-      let color = "white"; // 아직 안침
-      if (typed !== undefined) {
-        color = typed === char ? "black" : "red";
-      }
-
-      return (
-        <span key={i} style={{ color }}>
-          {char}
-        </span>
-      );
+      let color = "white";
+      if (typed !== undefined) color = typed === char ? "black" : "red";
+      return <span key={i} style={{ color }}>{char}</span>;
     });
   }, [currentLine, inputValue]);
-  
-  useEffect(() => {
-    setInputValue("");
-    setCurrentIndex(0);
-  }, [currentTypingId, language, isShort]);
 
+  useEffect(() => {
+    setCurrentIndex(0);
+    setInputValue("");
+  }, [currentTypingId, language, isShort]);
 
   return (
     <S.TypingSection>
-      {/* 현재 타이핑할 문장 */}
-      <S.SectionTitle>
-        {coloredLine}
-      </S.SectionTitle>
-
-      {/* 입력창 */}
-      <S.InputBox
-        value={inputValue}
-        onChange={onChange}
-        onKeyDown={onKeyDown}
-      />
-
-      {/* 다음 문장 미리보기 */}
-      <S.SentenceList>
-        {nextLines.map((line, i) => (
-          <div key={i}>{line}</div>
-        ))}
-      </S.SentenceList>
+      <S.SectionTitle>{coloredLine}</S.SectionTitle>
+      <S.InputBox value={inputValue} onChange={onChange} onKeyDown={onKeyDown} />
+      <S.SentenceList>{nextLines.map((line, i) => <div key={i}>{line}</div>)}</S.SentenceList>
     </S.TypingSection>
   );
 };
