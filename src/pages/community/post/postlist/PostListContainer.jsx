@@ -9,6 +9,7 @@ import "swiper/css/navigation";
 
 /* 최신순 드롭다운 */
 import ThreeDropDown from "../../../../components/dropdown/ThreeDropDown";
+import Postpopulars from "./Postpopulars";
 
 /* =========================
    🔧 백엔드 연동용 상수
@@ -287,16 +288,17 @@ const PostListContainer = () => {
   }, [currentPage]);
 
   // Swiper 네비게이션 버튼 연결
-  useEffect(() => {
-    if (!swiperRef.current) return;
-    const swiper = swiperRef.current.swiper;
-    if (swiper && prevRef.current && nextRef.current) {
-      swiper.params.navigation.prevEl = prevRef.current;
-      swiper.params.navigation.nextEl = nextRef.current;
-      swiper.navigation.init();
-      swiper.navigation.update();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!swiperRef.current) return;
+  //   const swiper = swiperRef.current.swiper;
+  //   if (swiper && prevRef.current && nextRef.current) {
+  //     swiper.params.navigation.prevEl = prevRef.current;
+  //     swiper.params.navigation.nextEl = nextRef.current;
+  //     swiper.navigation.init();
+  //     swiper.navigation.update();
+  //   }
+  // }, []);
+  
 
   return (
     <>
@@ -314,7 +316,7 @@ const PostListContainer = () => {
       </S.BannerWrap>
 
       {/* 인기 카드 Swiper */}
-      <S.Container>
+      {/* <S.Container>
         <S.ArrowBtn ref={prevRef} className="left">
           <img src="/assets/icons/leftarrow.svg" alt="왼쪽" />
         </S.ArrowBtn>
@@ -369,7 +371,7 @@ const PostListContainer = () => {
                   </S.PopularCard>
                 </S.Link>
               </SwiperSlide>
-            ))} */}
+            ))} ///////
             {popularPosts.map((post) => (
               <SwiperSlide key={post.postId}>
                 <S.Link to={`/post/${post.postId}`}>
@@ -410,7 +412,13 @@ const PostListContainer = () => {
         <S.ArrowBtn ref={nextRef} className="right">
           <img src="/assets/icons/rightarrow.svg" alt="오른쪽" />
         </S.ArrowBtn>
-      </S.Container>
+      </S.Container> */}
+
+       <Postpopulars
+        popularPosts={popularPosts}
+        prevRef={prevRef}
+        nextRef={nextRef}
+      />
 
       {/* 정렬 / 글쓰기 */}
       <S.SortWrap>
