@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import S from '../style';
 import { TypingContext } from 'context/TypingContext';
-import Bar from './Bar';
+// import Bar from './Bar';
 
 const RunningTyping = () => {
   const { state } = useContext(TypingContext);
@@ -14,13 +14,8 @@ const RunningTyping = () => {
   const wpm = wpmNumber.toFixed(1);
 
   const MAX_WPM = 500;
-
-  // percent를 정수로 고정 (미세한 변동 방지)
-  const percent = Math.min(
-    Math.floor((wpmNumber / MAX_WPM) * 100),
-    100
-  );
-
+  // const percent = useMemo(() => Math.min(Math.floor((wpmNumber / MAX_WPM) * 100), 100), [wpmNumber]);
+  
   return (
     <S.ProgressBox>
       <S.ProgressTime>
@@ -28,8 +23,7 @@ const RunningTyping = () => {
         <span>{wpm}</span>
       </S.ProgressTime>
 
-      {/* Bar 컴포넌트 */}
-      <Bar percent={percent} color="blue" />
+      {/* <Bar percent={percent} color="blue" /> */}
     </S.ProgressBox>
   );
 };

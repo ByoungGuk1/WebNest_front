@@ -53,12 +53,12 @@ const ResultModal = () => {
 
         <S.Row>
           <span>정확도(%)</span>
-          <span>{accuracy}%</span>
+          <span>{accuracy} %</span>
         </S.Row>
 
         <S.Row>
           <span>소요시간</span>
-          <span>{time}</span>
+          <span>{time} 초</span>
         </S.Row>
 
         <S.ButtonWrapper>

@@ -219,6 +219,7 @@ S.FollowerItem = styled.div`
 `;
 
 S.FollowerLeft = styled.div`
+  position: relative;
   width: 320px;
   display: flex;
   flex-direction: row;
@@ -228,15 +229,11 @@ S.FollowerLeft = styled.div`
     ${h9Bold}
     color: #2F96FD;
   }
-  & img {
-    width: 66px;
-    height: 66px;
-    border-radius: 100%;
-    background-color: gray;
-  }
+
   & p{
     ${h4Bold}
   }
+  
   & .follower {
     ${h7Light}
     color: #555;
@@ -249,9 +246,24 @@ S.FollowerLeft = styled.div`
 
 S.FollowerAvatar = styled.div` 
   position: relative;
+  width: 66px;
+  height: 66px;
+  overflow: hidden;
+  border-radius: 50%;
+
+  & img {
+    width: 100%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 `;
 
 S.LevelBadge = styled.div`
+  position: absolute;
+  left: 40px;
+  bottom: 0;
   width: 35px;
   height: 15px;
   display: flex;
