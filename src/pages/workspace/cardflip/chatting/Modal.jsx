@@ -23,9 +23,7 @@ const Modal = ({handleModal}) => {
   const roomType = watch("myChatRoomType");
 
   const handleSumbmitForm = handleSubmit(async (data) => {
-    console.log(data)
     // 리덕스에 아이디 추가
-    console.log(customerId)
     data.customerId = customerId
     await fetch(`${process.env.REACT_APP_BACKEND_URL}/chat-rooms/create-rooms`, {
       headers: {
@@ -36,7 +34,6 @@ const Modal = ({handleModal}) => {
     })
     .then(res => res.json())
     .then(({message, data}) => {
-      console.log(data)
       const {newRoomId} = data;
       handleModal()
       naviagate(`/chat/${newRoomId}`)
