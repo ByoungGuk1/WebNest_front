@@ -244,7 +244,7 @@ S.AnswerCard = styled.div`
 S.AnswerTop = styled.div`
   display: flex;  
   align-items: center;
-  background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
+  background-color: ${({ $commentIsAccept }) => ($commentIsAccept ? "blue" : "#f1f1f1")};
   border-radius: 8px;
   padding: 10px;
   justify-content: space-between;

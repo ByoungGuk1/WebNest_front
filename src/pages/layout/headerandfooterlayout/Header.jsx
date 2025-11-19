@@ -193,9 +193,6 @@ if(notifications.data){
   comment = comments
   follow = follows
 }
-const display = [
-  ...post, ...comment, follow
-]
  const formatDate = (dateString) => {
     const now = new Date();
     const date = new Date(dateString);
@@ -212,51 +209,86 @@ const display = [
       .padStart(2, "0")}.${date.getDate().toString().padStart(2, "0")}`;
   };
 
-const arrangeDisplay = [
+// 모든 알림을 하나의 배열로 합치기
+const allNotifications = [
   ...post.map(p => ({ ...p, type: "POST" })),
   ...comment.map(c => ({ ...c, type: "COMMENT" })),
   ...follow.map(f => ({ ...f, type: "FOLLOW" })),
-].sort((a,b) => new Date(b.notificationCreateAt) - new Date(a.notificationCreateAt));
+];
 
+// 읽음 여부 확인 함수 (타입별 필드명 확인)
+const isNotificationRead = (notice) => {
+  // 타입별로 다른 필드명 사용 가능성 확인
+  let readValue;
+  if (notice.type === "POST") {
+    readValue = notice.postNotificationIsRead ?? notice.notificationIsRead;
+  } else if (notice.type === "COMMENT") {
+    readValue = notice.commentNotificationIsRead ?? notice.notificationIsRead;
+  } else if (notice.type === "FOLLOW") {
+    readValue = notice.followNotificationIsRead ?? notice.notificationIsRead;
+  } else {
+    readValue = notice.notificationIsRead;
+  }
+  
+  return readValue === true || readValue === 1;
+};
+
+// 읽지 않은 알림과 읽은 알림으로 분리
+const unreadNotifications = allNotifications.filter(n => !isNotificationRead(n));
+const readNotifications = allNotifications.filter(n => isNotificationRead(n));
+
+// 각각을 createAt으로 최신순 정렬
+const sortedUnread = unreadNotifications.sort(
+  (a, b) => new Date(b.notificationCreateAt) - new Date(a.notificationCreateAt)
+);
+const sortedRead = readNotifications.sort(
+  (a, b) => new Date(b.notificationCreateAt) - new Date(a.notificationCreateAt)
+);
+
+// 읽지 않은 알림 먼저, 읽은 알림 나중에 합치기
+const arrangeDisplay = [...sortedUnread, ...sortedRead];
 // 액션 → 문구 (댓글도 New Like == 좋아요)
 const msgFromAction = (action) =>
   action === "New Like" ? "좋아요를 남겼어요" : "새 댓글을 남겼어요";
 
 // 리스트 렌더 (레이아웃만)
 const notificationLists = () =>
-  (arrangeDisplay ?? []).map((n, i) => {
-    const key = `${n.type}-${n.id ?? i}`;
-    const timeText = formatDate?.(n.notificationCreateAt) ?? "";
-
-    if (n.type === "FOLLOW") {
+  (arrangeDisplay ?? []).map((notice, i) => {
+    const key = `${notice.type}-${notice.id ?? i}`;
+    const timeText = formatDate?.(notice.notificationCreateAt) ?? "";
+    const isRead = isNotificationRead(notice);
+    
+    if (notice.type === "FOLLOW") {
       return (
         <S.NotificationItems
           key={key}
-          onClick={() => onReadOne(n)}      // ← 객체 통째로 전달
+          $isRead={isRead}
+          onClick={() => onReadOne(notice)}      // ← 객체 통째로 전달
           style={{ cursor: "pointer" }}
         >
           <S.TimeText>{timeText}</S.TimeText>
           <S.OneLine>
-            <span className="name">{n.userNickname}</span>
+            <span className="name">{notice.userNickname}</span>
             <span className="msg">님이 회원님을 새로 팔로우했습니다.</span>
           </S.OneLine>
         </S.NotificationItems>
       );
     }
 
-    if (n.type === "POST") {
-      const tail = msgFromAction(n.postNotificationAction);
+    if (notice.type === "POST") {
+      const tail = msgFromAction(notice.postNotificationAction);
       return (
         <S.NotificationItems
           key={key}
-          onClick={() => onReadOne(n)}      // ← 객체 통째로 전달
+          $isRead={isRead}
+          onClick={() => onReadOne(notice)}      // ← 객체 통째로 전달
           style={{ cursor: "pointer" }}
         >
           <S.TimeText>{timeText}</S.TimeText>
           <S.OneLine>
-            <span className="name">{n.userNickname}</span>
+            <span className="name">{notice.userNickname}</span>
             <span className="msg">
-              님이 회원님의 게시글 「{n.postTitle ?? ""}」에 {tail}
+              님이 회원님의 게시글 「{notice.postTitle ?? ""}」에 {tail}
             </span>
           </S.OneLine>
         </S.NotificationItems>
@@ -264,19 +296,20 @@ const notificationLists = () =>
     }
 
     // COMMENT
-    const tail = msgFromAction(n.commentNotificationAction);
+    const tail = msgFromAction(notice.commentNotificationAction);
     return (
       <S.NotificationItems
           key={key}
-          onClick={() => onReadOne(n)}      // ← 객체 통째로 전달
+          $isRead={isRead}
+          onClick={() => onReadOne(notice)}      // ← 객체 통째로 전달
           style={{ cursor: "pointer" }}
         >
         <S.TimeText>{timeText}</S.TimeText>
         <S.OneLine>
-          <span className="name">{n.userNickname}</span>
+          <span className="name">{notice.userNickname}</span>
           <span className="msg">
             님이 회원님의 댓글
-            {n.postTitle ? ` 「${n.postTitle}」` : ""}에 {tail}
+            {notice.postTitle ? ` 「${notice.postTitle}」` : ""}에 {tail}
           </span>
         </S.OneLine>
       </S.NotificationItems>

@@ -238,15 +238,14 @@ const S = {}
     padding: 0px;
   `
   S.NotificationItems = styled.div`
-    /* background-color: blue; */
     ${h8Medium}
-     min-width: 0;
+    min-width: 0;
     width: 100%;
     word-break: break-word;
     display: flex;
     flex-direction: row;
     justify-content: baseline;
-    /* justify-content: center; */
+    background-color: ${({ $isRead }) => ($isRead ? "#f6f6f6" : "transparent")};
   `
   S.NotificationItemsWrap = styled.div`
     width: 373px;
@@ -415,9 +414,10 @@ S.NotificationItems = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 10px;
+  background-color: ${({ $isRead }) => ($isRead ? "#f6f6f6" : "transparent")};
 
   &:not(:last-child){ border-bottom: 1px solid #eee; }
-  &:hover { background: #f6f6ff; } /* 너가 지정한 hover 컬러 유지 */
+  &:hover { background: #f6f6f6; } /* 너가 지정한 hover 컬러 유지 */
   ${h8Medium}
 `;
 

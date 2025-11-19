@@ -98,7 +98,7 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
           <img src='/assets/gameroom/common/play.png' alt='flag' className='flag'></img>
           <S.RoomTitleWrapper>
             <p>{gameRoomTitle}</p>
-            <span>『 {gameRoomLanguage && <S.RoomLanguage>{gameRoomLanguage} 』</S.RoomLanguage>} 
+            <span> ｢ {gameRoomLanguage && <S.RoomLanguage>{gameRoomLanguage} ｣</S.RoomLanguage>} 
               {gameRoomType.toLowerCase === "lastword" ? "끝말 잇기" : gameRoomType.toLowerCase === "cardflip" ? "카드 뒤집기" : gameRoomType.toLowerCase === "concave" ? "오목" : gameRoomType.toLowerCase === "lastword" ? "끝말잇기" : "뱀 주사위 놀이"}</span>
           </S.RoomTitleWrapper>
         </S.RoomLeft>
@@ -107,6 +107,7 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
           <S.ProfileWrapper>
             <S.ProfileWrap>
               {players.map((user) => {
+                console.log(user)
                 const isHost = user.isHost === true || user.isHost === 1 || user.gameJoinIsHost === true || user.gameJoinIsHost === 1;
                 return (
                   <S.ProfileImgWrap key={user.id || user.userId}>
