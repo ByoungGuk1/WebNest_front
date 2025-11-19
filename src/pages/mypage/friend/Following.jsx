@@ -5,6 +5,7 @@ import S from './style';
 import { h4Bold, h7Bold, h7Light, h7Medium, h9Bold } from '../../../styles/common';
 import { getFileDisplayUrl } from '../../../utils/fileUtils';
 
+
 const Following = () => {
   const { following, refreshData } = useOutletContext();
   const currentUser = useSelector((state) => state.user.currentUser);
