@@ -3,8 +3,9 @@ import { useOutletContext } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import S from './style';
 import { h4Bold, h7Bold, h7Light, h7Medium, h9Bold } from '../../../styles/common';
-import { getFileDisplayUrl } from '../../../utils/fileUtils';
+import { getFileDisplayUrl, getFileDisplayUrlFromPathAndName } from '../../../utils/fileUtils';
 
+const DEFAULT_PROFILE_IMAGE = "/assets/images/defalutpro.svg"; // ✅ 공통 기본 이미지
 
 const Following = () => {
   const { following, refreshData } = useOutletContext();
@@ -16,6 +17,7 @@ const Following = () => {
 
   // 팔로잉 데이터가 없거나 배열이 아닌 경우 처리
   const followingList = Array.isArray(following) ? following : [];
+
 
   // 사용자 ID 추출 함수
   const getId = (user) => {
@@ -119,7 +121,7 @@ const Following = () => {
         }
       } else {
         // 팔로우 삭제 (언팔로우)
-        // 팔로잉 목록에서 user.id는 팔로우 관계의 ID
+        // 팔로잉 목록에서 user.id는 팔로우 관계의 ID일 수도 있음
         const followId = user.id;
 
         if (followId) {
@@ -189,6 +191,11 @@ const Following = () => {
         <>
           <S.FollowerList>
             {currentFollowing.map((user) => {
+    
+
+
+
+
               const userId = getId(user);
               // 팔로우 상태 확인: UI 상태 > 기본값 true (팔로잉 목록이므로 이미 팔로우한 상태)
               const isFollow = (userId in followUI) 
@@ -198,13 +205,61 @@ const Following = () => {
               // 팔로잉 목록에서 사용자 정보 추출
               const nickname = user.userNickname || user.nickname || "익명";
               const level = user.userLevel || user.level || 1;
+
               // API에서 가져온 팔로워 수를 사용, 없으면 기본값 0
-              const followerCount = followerCounts[userId] !== undefined ? followerCounts[userId] : (user.followerCount || 0);
-              const rawProfileUrl = user.userThumbnailUrl || user.userProfile || user.profileUrl || '/assets/images/defalutpro.svg';
-              // 파일 경로인 경우 display URL로 변환
-              const profileUrl = (rawProfileUrl && !rawProfileUrl.startsWith('http') && !rawProfileUrl.startsWith('/assets') && rawProfileUrl !== '/assets/images/defalutpro.svg')
-                ? getFileDisplayUrl(rawProfileUrl)
-                : rawProfileUrl;
+              const followerCount =
+                followerCounts[userId] !== undefined
+                  ? followerCounts[userId]
+                  : (user.followerCount || 0);
+
+              // ✅ 프로필 이미지 경로 계산 (path + name 우선)
+              const thumbnailPath =
+                user.userThumbnailUrl ||
+                user.profilePath ||
+                "";
+
+              const thumbnailName =
+                user.userThumbnailName ||
+                user.profileName ||
+                "";
+
+              const legacyRaw =
+                user.profileUrl ||
+                "";
+
+              let profileUrl;
+
+              if (
+                !thumbnailPath ||
+                thumbnailPath === "" ||
+                thumbnailPath === "/default" ||
+                thumbnailPath === "null" ||
+                thumbnailPath === "undefined"
+              ) {
+                profileUrl = DEFAULT_PROFILE_IMAGE;
+              } else if (
+                thumbnailPath.startsWith("http") ||
+                thumbnailPath.startsWith("/assets")
+              ) {
+                profileUrl = thumbnailPath;
+              } else if (thumbnailPath && thumbnailName) {
+                profileUrl =
+                  getFileDisplayUrlFromPathAndName(thumbnailPath, thumbnailName) ||
+                  DEFAULT_PROFILE_IMAGE;
+              } else if (legacyRaw) {
+                let fileName = legacyRaw;
+
+                if (fileName.startsWith("/uploads/")) {
+                  fileName = fileName.replace("/uploads/", "");
+                } else if (fileName.startsWith("uploads/")) {
+                  fileName = fileName.replace("uploads/", "");
+                }
+
+                profileUrl = getFileDisplayUrl(fileName);
+              } else {
+                profileUrl = DEFAULT_PROFILE_IMAGE;
+              }
+
               const levelImageUrl = `/assets/images/test-grade/grade${level}.png`;
 
               return (
@@ -212,18 +267,29 @@ const Following = () => {
                   <S.FollowerItem>
                     <S.FollowerLeft>
                       <S.FollowerAvatar>
-                        <img src={profileUrl} alt="" />
-                        <S.LevelBadge className="lv">
-                          <img src={levelImageUrl} className="lvImg" alt="" />
-                          <span>Lv {level === 10 ? "X" : level}</span>
-                        </S.LevelBadge>
+                        <img
+                          src={profileUrl}
+                          alt={`${nickname} 프로필`}
+                          onError={(e) => {
+                            e.currentTarget.src = DEFAULT_PROFILE_IMAGE;
+                          }}
+                        />
                       </S.FollowerAvatar>
+
+                      <S.LevelBadge className="lv">
+                        <img src={levelImageUrl} className="lvImg" alt="" />
+                        <span>Lv {level === 10 ? "X" : level}</span>
+                      </S.LevelBadge>
+
                       <p>{nickname}</p>
                       <span className="follower">팔로워 : </span>
                       <span className="count">
-                        {followerCount > 1000 ? (followerCount / 1000).toFixed(1) + "k" : followerCount}
+                        {followerCount > 1000
+                          ? (followerCount / 1000).toFixed(1) + "k"
+                          : followerCount}
                       </span>
                     </S.FollowerLeft>
+
                     {isFollow ? (
                       <S.FollowingButton
                         as="button"

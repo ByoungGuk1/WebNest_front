@@ -273,6 +273,19 @@ const PostListContainer = () => {
     [posts]
   );
 
+  // Loop 모드를 위한 슬라이드 복제 (최소 8개 필요: slidesPerView 3.6 * 2)
+  const loopSlides = useMemo(() => {
+    if (popularPosts.length === 0) return [];
+    if (popularPosts.length >= 8) return popularPosts;
+    
+    // 슬라이드가 부족하면 복제하여 최소 8개 이상 만들기
+    const duplicated = [];
+    while (duplicated.length < 8) {
+      duplicated.push(...popularPosts);
+    }
+    return duplicated.slice(0, Math.max(8, popularPosts.length * 2));
+  }, [popularPosts]);
+
   // 페이지 이동
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage((p) => p - 1);
@@ -286,7 +299,7 @@ const PostListContainer = () => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [currentPage]);
 
-  // Swiper 네비게이션 버튼 연결
+  // Swiper 네비게이션 버튼 연결 및 업데이트
   useEffect(() => {
     if (!swiperRef.current) return;
     const swiper = swiperRef.current.swiper;
@@ -295,8 +308,10 @@ const PostListContainer = () => {
       swiper.params.navigation.nextEl = nextRef.current;
       swiper.navigation.init();
       swiper.navigation.update();
+      // loop 모드 업데이트
+      swiper.update();
     }
-  }, []);
+  }, [loopSlides]);
 
   return (
     <>
@@ -325,7 +340,8 @@ const PostListContainer = () => {
             modules={[Navigation]}
             slidesPerView={3.6}
             spaceBetween={12}
-            loop={true}
+            loop={loopSlides.length >= 8}
+            loopAdditionalSlides={loopSlides.length >= 8 ? 2 : 0}
             slidesPerGroup={1}
             centeredSlides={false}
             navigation={{
@@ -334,74 +350,47 @@ const PostListContainer = () => {
             }}
             className="popularSwiper"
           >
-            {/* {popularPosts.map((post) => (
-              <SwiperSlide key={post.postId}>
-                {/* 인기글 카드 전체 클릭 -> /post/:id *
-                <S.Link
-                  to={`/post/${post.postId}`}
-                  aria-label={`${post.postTitle} 상세보기`}
-                >
-                  <S.PopularCard role="button">
-                    <S.PopularTitle>{post.postTitle}</S.PopularTitle>
-                    <S.PopularPreview>{post.postContent}</S.PopularPreview>
-                    <S.Info>
-                      <S.MetaWrap>
-                        <S.ProfileImg
-                          src={
-                            post.author?.profileImg ||
-                            "/assets/images/defalutpro.svg"
-                          }
-                          alt={post.author?.name || ""}
-                        />
-                        {post.author?.name && (
-                          <>
-                            <span>{post.author?.name}</span>
-                            <b>·</b>
-                          </>
-                        )}
-                        <span>조회 {post.views || 0}</span>
-                      </S.MetaWrap>
-                      <S.Response>
-                        <img src="/assets/icons/talktalk.svg" alt="댓글" />
-                        {getReplyCount(post)}
-                      </S.Response>
-                    </S.Info>
-                  </S.PopularCard>
-                </S.Link>
+            {loopSlides.length > 0 ? (
+              loopSlides.map((post, index) => (
+                <SwiperSlide key={`${post.postId}-${index}`}>
+                  <S.Link to={`/post/${post.postId}`}>
+                    <S.PopularCard>
+                      <S.PopularTitle>{post.postTitle}</S.PopularTitle>
+
+                      <S.PopularPreview>{post.postContent}</S.PopularPreview>
+
+                      <S.Info>
+                        <S.MetaWrap>
+                          <S.ProfileImg
+                            src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
+                            alt={post.author?.name || ""}
+                          />
+                          {post.author?.name && (
+                            <>
+                              <span>{post.author.name}</span>
+                              <b>·</b>
+                            </>
+                          )}
+                          <span>조회 {post.views}</span>
+                        </S.MetaWrap>
+
+                        <S.Response>
+                          <img src="/assets/icons/talktalk.svg" alt="댓글" />
+                          {post.commentsCount}
+                        </S.Response>
+                      </S.Info>
+                    </S.PopularCard>
+                  </S.Link>
+                </SwiperSlide>
+              ))
+            ) : (
+              <SwiperSlide>
+                <S.PopularCard>
+                  <S.PopularTitle>인기 게시글이 없습니다.</S.PopularTitle>
+                  <S.PopularPreview>아직 조회된 글이 없어요 🐣</S.PopularPreview>
+                </S.PopularCard>
               </SwiperSlide>
-            ))} */}
-            {popularPosts.map((post) => (
-              <SwiperSlide key={post.postId}>
-                <S.Link to={`/post/${post.postId}`}>
-                  <S.PopularCard>
-                    <S.PopularTitle>{post.postTitle}</S.PopularTitle>
-
-                    <S.PopularPreview>{post.postContent}</S.PopularPreview>
-
-                    <S.Info>
-                      <S.MetaWrap>
-                        <S.ProfileImg
-                          src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
-                          alt={post.author?.name || ""}
-                        />
-                        {post.author?.name && (
-                          <>
-                            <span>{post.author.name}</span>
-                            <b>·</b>
-                          </>
-                        )}
-                        <span>조회 {post.views}</span>
-                      </S.MetaWrap>
-
-                      <S.Response>
-                        <img src="/assets/icons/talktalk.svg" alt="댓글" />
-                        {post.commentsCount}
-                      </S.Response>
-                    </S.Info>
-                  </S.PopularCard>
-                </S.Link>
-              </SwiperSlide>
-            ))}
+            )}
 
           </Swiper>
           <S.GradientRight />
