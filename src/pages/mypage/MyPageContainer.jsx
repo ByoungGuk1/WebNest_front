@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useParams } from "react-router-dom";
 import S from "./style"; 
 import { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
@@ -6,16 +6,54 @@ import { getFileDisplayUrl } from "../../utils/fileUtils";
 import { getFileDisplayUrlFromPathAndName } from "../../utils/fileUtils";
 
 const MyPageContainer = () => {
+  const { userId } = useParams(); // URL에서 userId 가져오기
   const currentUser = useSelector((state) => state.user.currentUser);
-  const [myData, setMyData] = useState(null)
+  const [myData, setMyData] = useState(null);
+  const [pageUser, setPageUser] = useState(null); // 페이지에 표시할 유저 정보
 
   // 마이페이지 데이터를 한 번에 불러온다.
   const getMyDatas = async () => {
     const accessToken = localStorage.getItem("accessToken");
     
+    // userId가 있으면 다른 유저의 페이지, 없으면 내 페이지
+    if (userId) {
+      // 다른 유저의 페이지 조회
+      try {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/private/user/user-page/${userId}`, {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          method: "GET",
+        });
+
+        if(!response.ok) {
+          const errorText = await response.text();
+          console.error(`getUserPage error: ${response.status}`, errorText);
+          setMyData({});
+          setPageUser(null);
+          return;
+        }
+        
+        const datas = await response.json();
+        setMyData(datas.data || {});
+        // 페이지 유저 정보 설정 (API 응답에서 유저 정보 추출)
+        if (datas.data) {
+          setPageUser(datas.data);
+        }
+      } catch (err) {
+        console.error(`getUserPage ${err}`);
+        setMyData({});
+        setPageUser(null);
+      }
+      return;
+    }
+
+    // 내 페이지 조회 (기존 로직)
     if (!accessToken) {
       console.error("accessToken이 없습니다. 로그인이 필요합니다.");
       setMyData({});
+      setPageUser(null);
       return;
     }
 
@@ -41,15 +79,17 @@ const MyPageContainer = () => {
       
       const datas = await response.json();
       setMyData(datas.data || {});
+      setPageUser(null); // 내 페이지이므로 pageUser는 null
     } catch (err) {
       console.error(`getMyDatas ${err}`);
       setMyData({}); // 빈 객체로 설정하여 에러 발생 시에도 기본값 제공
+      setPageUser(null);
     }
   }
 
   useEffect(() => {
     getMyDatas();
-  }, [])
+  }, [userId]) // userId가 변경될 때마다 다시 로드
 
   // 기본 프로필 이미지 경로
   const DEFAULT_PROFILE_IMAGE = "/assets/images/defalutpro.svg";

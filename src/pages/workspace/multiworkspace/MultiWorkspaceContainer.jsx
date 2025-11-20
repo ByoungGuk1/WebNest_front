@@ -9,7 +9,6 @@ import InviteRoomModal from "./invite/InviteRoomModal";
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { getGameChannelFromPath } from "../../../utils/gameChannel";
-import ChessBoard from "../concave/chessboard/ChessBoard";
 import GameContext from "context/GameContext";
 
 const MultiWorkspaceRoomContainer = () => {
@@ -277,18 +276,12 @@ const MultiWorkspaceRoomContainer = () => {
               onInvite={handleInvite}
             />
             <S.HelperWwrap>
-              <S.HelperItems data-type="help">
-                <span>도움말</span>
-                <img src="/assets/gameroom/info.png" alt="아이콘"></img>
-              </S.HelperItems>
-              <S.HelperItems data-type="settings">
-                <span>설정</span>
-                <img src="/assets/gameroom/setting.png" alt="아이콘"></img>
-              </S.HelperItems>
-              <S.HelperItems data-type="exit" onClick={handleExitClick}>
-                <span>나가기</span>
-                <img src="/assets/gameroom/exit.png" alt="아이콘"></img>
-              </S.HelperItems>
+              <S.GameRoomToggle data-type="exit" onClick={handleExitClick}>
+                <S.ExitIconWrap>
+                  <S.IconCircle><img src="/assets/gameroom/exit.png" alt="아이콘"></img></S.IconCircle>
+                </S.ExitIconWrap>
+                  <S.GameRoomToggleInnerText>나가기</S.GameRoomToggleInnerText>
+              </S.GameRoomToggle>
             </S.HelperWwrap>
           </S.HeaderContainer>
           <S.MainWrapper>

@@ -73,7 +73,7 @@ S.HeaderContainer = styled.div`
 
 S.HelperWwrap = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   width: 320px;
   margin: 36px 0;
 `;
@@ -139,5 +139,104 @@ S.HelperItems = styled.div`
   &:active {
     transform: scale(0.98);
   }
+`;
+S.GameRoomToggle = styled.div`
+    position: relative;
+    width: 142px;
+    height: 50px;
+    border-radius: 25px;
+    padding-left: 8px;
+    background: ${({ $isSelected }) => $isSelected 
+        ? 'linear-gradient(to right, #6D2FFD 0%, #7255EE 38%, #AB4BFF 100%)' 
+        : '#F5F7FD'};
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1;
+    
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 25px;
+        padding: 3px;
+        background: ${({ $isSelected }) => $isSelected 
+            ? 'transparent' 
+            : 'linear-gradient(to right, #AB4BFF, #7255EE, #2F58FD)'};
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box, 
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+                mask-composite: exclude;
+        z-index: 0;
+        pointer-events: none;
+        display: ${({ $isSelected }) => $isSelected ? 'none' : 'block'};
+    }
+    & > * {
+        z-index: 1;
+    }
+    &:hover {
+        background: ${({ $isSelected }) => $isSelected 
+            ? 'linear-gradient(to right, #6D2FFD 0%, #7255EE 38%, #AB4BFF 100%)' 
+            : 'linear-gradient(to left, #2F58FD, #7255EE, #AB4BFF)'};
+    }
+    &:hover ${S.GameRoomToggleInnerText} {
+        -webkit-text-fill-color: ${({ $isSelected }) => $isSelected ? '#FFFFFF' : '#FFFFFF'};
+        color: #FFFFFF;
+    }
+`;
+
+S.ExitIconWrap = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  & img {
+    width: 50%;
+  }
+`
+
+S.IconCircle = styled.div`
+    width: 40px;
+    height: 40px;
+    background-color: #FFFFFF;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+        width: 20px;
+        height: 20px;
+    }
+`;
+
+S.GameRoomToggleInnerText = styled.span`
+    ${h6Medium}
+    background: linear-gradient(to right, #AB4BFF, #7255EE, #2F58FD);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* gap: 12px; */
+`;
+
+S.ToggleIconCircle = styled.div`
+    width: 40px;
+    height: 40px;
+    background-color: #FFFFFF;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img {
+        width: 30px;
+        height: 30px;
+    }
 `;
 export default S;

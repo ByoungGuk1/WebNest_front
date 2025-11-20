@@ -5,6 +5,7 @@ import HeaderToggle from "./headertoggle/HeaderToggle";
 import LeftUserInterface from "./leftuserinterface/LeftUserInterface";
 import RoomList from "./RoomList";
 import Follow from "./Follow";
+import { Link } from "react-router-dom";
 
 
 const RoomListContainer = () => {
@@ -192,9 +193,16 @@ const RoomListContainer = () => {
                     <button></button>
                   </S.RightInputWrap>
                 </S.FilterWrap>
+                
               </S.RightWrap>
               <S.RoomListWrapper>
                 <RoomList rooms={filteredAndSortedRooms} isLoading={isLoading}/>
+                <Link to={"/workspace/rooms/typing"}>
+                  <S.MoveToTyping>
+                    <p>타자연습</p>
+                    <p>바로가기</p>
+                  </S.MoveToTyping>
+                </Link>
               </S.RoomListWrapper>
             </div>
           </S.ListWrapper>

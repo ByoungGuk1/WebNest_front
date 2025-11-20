@@ -21,8 +21,6 @@ const Modal = ({ toggleModal }) => {
     defaultValues: {
       myGameRoomType: "PUBLIC",
       gameType: null,
-      language: null,
-      difficulty: null,
       gameRoomMaxPlayer: 8,
       gameRoomTitle: "",
       gameRoomPassKey: "",
@@ -32,14 +30,11 @@ const Modal = ({ toggleModal }) => {
   // watch hookform의 상태 변경 감지
   const roomType = watch("myChatRoomType");
   const gameType = watch("gameType"); // 게임 유형: 게임 이름
-  const language = watch("language"); // 활용기술: 언어
-  const difficulty = watch("difficulty"); // 난이도
+  const gameRoomIsTeam = watch("gameRoomIsTeam"); // 팀전 여부
   const gameRoomMaxPlayer = watch("gameRoomMaxPlayer"); // 플레이어 수
 
   // 드롭다운 열림/닫힘 상태
   const [isGameTypeOpen, setIsGameTypeOpen] = useState(false);
-  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
-  const [isDifficultyOpen, setIsDifficultyOpen] = useState(false);
   // 인풋 포커스 상태
   const [isTitleFocused, setIsTitleFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
@@ -52,40 +47,18 @@ const Modal = ({ toggleModal }) => {
     { value: "lastword", label: "끝말잇기" },
   ];
 
-  const languageOptions = [
-    { value: "JAVA", label: "JAVA" },
-    { value: "JS", label: "JS" },
-    { value: "ORACLE", label: "ORACLE" },
-  ];
-
-  const difficultyOptions = [
-    { value: "초급", label: "초급" },
-    { value: "중급", label: "중급" },
-    { value: "중상급", label: "중상급" },
-    { value: "상급", label: "상급" },
-    { value: "최상급", label: "최상급" },
-  ];
 
   const handleGameTypeSelect = (value) => {
     setValue("gameType", value);
     setIsGameTypeOpen(false);
-    // 오목 또는 카드 뒤집기 선택 시 플레이어 수 2명으로 고정
+    // 오목 또는 카드 뒤집기 선택 시 플레이어 수 2명으로 고정 및 팀전 비활성화
     // 다른 게임 유형으로 변경되면 기본값(8명)으로 복원
     if (value === "concave" || value === "cardflip") {
       setValue("gameRoomMaxPlayer", 2);
+      setValue("gameRoomIsTeam", 0); // 팀전 불가
     } else {
       setValue("gameRoomMaxPlayer", 8);
     }
-  };
-
-  const handleLanguageSelect = (value) => {
-    setValue("language", value);
-    setIsLanguageOpen(false);
-  };
-
-  const handleDifficultySelect = (value) => {
-    setValue("difficulty", value);
-    setIsDifficultyOpen(false);
   };
 
   const getSelectedLabel = (value, options) => {
@@ -99,17 +72,8 @@ const Modal = ({ toggleModal }) => {
     setValue("gameRoomMaxPlayer", newValue);
   };
 
-  // 난이도를 숫자로 변환
-  const convertDifficultyToNumber = (difficulty) => {
-    const difficultyMap = {
-      초급: 1,
-      중급: 2,
-      중상급: 3,
-      상급: 4,
-      최상급: 5,
-    };
-    return difficultyMap[difficulty] || 1;
-  };
+  // 팀전 가능 여부 확인 (오목, 카드 게임은 팀전 불가)
+  const isTeamModeAvailable = gameType !== "concave" && gameType !== "cardflip";
 
   const handleSumbmitForm = handleSubmit(async (data) => {
     if (!userId) {
@@ -124,16 +88,6 @@ const Modal = ({ toggleModal }) => {
 
     if (!data.gameType) {
       alert("게임 유형을 선택해주세요.");
-      return;
-    }
-
-    if (!data.language) {
-      alert("활용기술을 선택해주세요.");
-      return;
-    }
-
-    if (!data.difficulty) {
-      alert("난이도를 선택해주세요.");
       return;
     }
 
@@ -152,8 +106,6 @@ const Modal = ({ toggleModal }) => {
       gameRoomTitle: data.gameRoomTitle.trim(),
       gameRoomIsTeam: data.gameRoomIsTeam || 0, // 0: 개인전, 1: 팀전
       gameRoomType: backendGameType, // SNAKE, OMOK, CARD, WORD
-      gameRoomLanguage: data.language, // JAVA, JS, ORACLE
-      gameRoomDifficult: convertDifficultyToNumber(data.difficulty), // 1~5
       gameRoomIsOpen: 1, // 기본값: 공개
       gameRoomMaxPlayer: parseInt(data.gameRoomMaxPlayer) || 8,
       gameRoomIsStart: 0, // 기본값: 시작 전
@@ -294,9 +246,8 @@ const Modal = ({ toggleModal }) => {
                 type="button"
                 onClick={() => {
                   setIsGameTypeOpen(!isGameTypeOpen);
-                  setIsLanguageOpen(false);
-                  setIsDifficultyOpen(false);
                 }}
+                $hasValue={!!gameType}
               >
                 {getSelectedLabel(gameType, gameTypeOptions)}
                 <S.DropdownArrow $isOpen={isGameTypeOpen}>▼</S.DropdownArrow>
@@ -346,64 +297,24 @@ const Modal = ({ toggleModal }) => {
               </S.NumberButton>
             </S.NumberInputWrapper>
           </S.Items>
-          <S.Items>
-            <p>활용기술</p>
-            <S.DropdownWrapper>
-              <S.DropdownButton
-                type="button"
-                onClick={() => {
-                  setIsLanguageOpen(!isLanguageOpen);
-                  setIsGameTypeOpen(false);
-                  setIsDifficultyOpen(false);
-                }}
-              >
-                {getSelectedLabel(language, languageOptions)}
-                <S.DropdownArrow $isOpen={isLanguageOpen}>▼</S.DropdownArrow>
-              </S.DropdownButton>
-              {isLanguageOpen && (
-                <S.DropdownMenu>
-                  {languageOptions.map((option) => (
-                    <S.DropdownItem
-                      key={option.value}
-                      onClick={() => handleLanguageSelect(option.value)}
-                      $isSelected={language === option.value}
-                    >
-                      {option.label}
-                    </S.DropdownItem>
-                  ))}
-                </S.DropdownMenu>
-              )}
-            </S.DropdownWrapper>
-          </S.Items>
-          <S.Items>
-            <p>난이도</p>
-            <S.DropdownWrapper>
-              <S.DropdownButton
-                type="button"
-                onClick={() => {
-                  setIsDifficultyOpen(!isDifficultyOpen);
-                  setIsGameTypeOpen(false);
-                  setIsLanguageOpen(false);
-                }}
-              >
-                {getSelectedLabel(difficulty, difficultyOptions)}
-                <S.DropdownArrow $isOpen={isDifficultyOpen}>▼</S.DropdownArrow>
-              </S.DropdownButton>
-              {isDifficultyOpen && (
-                <S.DropdownMenu>
-                  {difficultyOptions.map((option) => (
-                    <S.DropdownItem
-                      key={option.value}
-                      onClick={() => handleDifficultySelect(option.value)}
-                      $isSelected={difficulty === option.value}
-                    >
-                      {option.label}
-                    </S.DropdownItem>
-                  ))}
-                </S.DropdownMenu>
-              )}
-            </S.DropdownWrapper>
-          </S.Items>
+          {isTeamModeAvailable && (
+            <S.Items>
+              <p>팀전 여부</p>
+              <S.DropdownWrapper>
+                <S.DropdownButton
+                  type="button"
+                  onClick={() => {
+                    const newValue = gameRoomIsTeam === 0 ? 1 : 0;
+                    setValue("gameRoomIsTeam", newValue);
+                  }}
+                  $hasValue={true}
+                >
+                  {gameRoomIsTeam === 1 ? "팀전" : "개인전"}
+                  <S.DropdownArrow $isOpen={false}>▼</S.DropdownArrow>
+                </S.DropdownButton>
+              </S.DropdownWrapper>
+            </S.Items>
+          )}
         </S.LeftTitle>
         <S.FormBtn disabled={isSubmitting}>방 개설하기</S.FormBtn>
       </S.Form>

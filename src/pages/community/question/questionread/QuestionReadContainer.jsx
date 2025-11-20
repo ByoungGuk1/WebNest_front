@@ -521,7 +521,10 @@ const QuestionReadContainer = () => {
     userNickname,
     // postLikeCount
   } = currentPost;
-
+  console.log(comments)
+  const acceptedComment = comments.filter((comment) => {return comment.commentIsAccept})
+  const unAcceptedComment = comments.filter((comment) => {return !comment.commentIsAccept})
+  const display = [ ...acceptedComment ,...unAcceptedComment ]
   return (
     <>
       {/* 배너 */}
@@ -605,16 +608,14 @@ const QuestionReadContainer = () => {
         </S.AlarmBox>
 
         {/* 백엔드 댓글 매핑 */}
-        {comments && comments.length > 0 ? (
+        {display && display.length > 0 ? (
           <S.AnswerSection>
-            {comments.map((ans) => (
+            {display.map((ans) => (
               <S.AnswerCard key={ans.id}>
-                {/* <S.AnswerTop $accepted={ans.commentIsAccept === 1}> */}
-                <S.AnswerTop $accepted={ans.commentIsAccept === true || ans.commentIsAccept === 1}>
-
+                <S.AnswerTop $commentIsAccept={ans.commentIsAccept === 1 || ans.commentIsAccept === true}>
                   <S.UserInfo>
                     <S.AnswerProfile
-                      src={"/assets/images/defalutpro.svg"}
+                      src={ans.userThumbnailUrl}
                       alt={ans.userNickname || "익명"}
                     />
                     <S.AnswerInnerBox>
@@ -623,8 +624,12 @@ const QuestionReadContainer = () => {
                       </S.AnswerUser>
                       <S.AnswerMeta>
                         <span>Level</span>
+                        <span>{ans.userLevel}</span>
                       </S.AnswerMeta>
                     </S.AnswerInnerBox>
+                    <span>
+                      {ans.isAccepted ? "채택된 댓글입니다." : ""}
+                    </span>
                   </S.UserInfo>
 
                   {/* <S.ChooseAnswer onClick={handleChooseClick}>

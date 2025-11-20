@@ -241,9 +241,6 @@ const ChattingContainer = () => {
         </S.ChatList>
       </S.ChatListWrap>
       <S.RowWrap>
-        <S.ArrowButton onClick={handleArrowClick}>
-          <img src='/assets/images/chat/arrow_right.png' alt='초대용' className='arrow'></img>
-        </S.ArrowButton>
         <S.InputBox>
           <S.Input
             type="text"
