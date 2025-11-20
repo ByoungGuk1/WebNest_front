@@ -4,6 +4,9 @@ import { useSelector } from 'react-redux';
 import S from './style';
 import { h4Bold, h7Bold, h7Light, h7Medium, h9Bold } from '../../../styles/common';
 import { getFileDisplayUrl } from '../../../utils/fileUtils';
+import { getFileDisplayUrlFromPathAndName } from "../../../utils/fileUtils";
+
+const DEFAULT_PROFILE_IMAGE = "/assets/images/defalutpro.svg";
 
 const Follower = () => {
   const { followers, following, refreshData } = useOutletContext();
@@ -206,16 +209,84 @@ const Follower = () => {
                 : followingUserIds.has(userId);
 
               // 팔로워 목록에서 사용자 정보 추출
-              const nickname = user.followerNickname || user.userNickname || user.nickname || "익명";
-              const level = user.followerLevel || user.userLevel || user.level || 1;
-              // API에서 가져온 팔로워 수를 사용, 없으면 기본값 0
-              const followerCount = followerCounts[userId] !== undefined ? followerCounts[userId] : (user.followerCount || 0);
-              const rawProfileUrl = user.followerThumbnailUrl || user.userThumbnailUrl || user.profileUrl || '/assets/images/defalutpro.svg';
-              // 파일 경로인 경우 display URL로 변환
-              const profileUrl = (rawProfileUrl && !rawProfileUrl.startsWith('http') && !rawProfileUrl.startsWith('/assets') && rawProfileUrl !== '/assets/images/defalutpro.svg')
-                ? getFileDisplayUrl(rawProfileUrl)
-                : rawProfileUrl;
-              const levelImageUrl = `/assets/images/test-grade/grade${level}.png`;
+                const nickname = user.followerNickname || user.userNickname || user.nickname || "익명";
+                const level = user.followerLevel || user.userLevel || user.level || 1;
+
+                // API에서 가져온 팔로워 수를 사용, 없으면 기본값 0
+                const followerCount =
+                  followerCounts[userId] !== undefined
+                    ? followerCounts[userId]
+                    : (user.followerCount || 0);
+
+                // ✅ 1) 새 구조: path + name
+                const thumbnailPath =
+                  user.followerThumbnailUrl ||
+                  user.userThumbnailUrl ||
+                  user.profilePath || "";
+
+                const thumbnailName =
+                  user.followerThumbnailName ||
+                  user.userThumbnailName ||
+                  user.profileName || "";
+
+                // ✅ 2) 구 구조: 한 필드에 전체 경로가 들어있는 경우 대비
+                const legacyRaw =
+                  user.followerThumbnailUrl ||
+                  user.userThumbnailUrl ||
+                  user.profileUrl ||
+                  "";
+
+                // ✅ 3) 최종 프로필 이미지 URL 계산
+                let profileUrl;
+
+                // (1) 기본 이미지 조건
+                if (
+                  !thumbnailPath ||
+                  thumbnailPath === "" ||
+                  thumbnailPath === "/default" ||
+                  thumbnailPath === "null" ||
+                  thumbnailPath === "undefined"
+                ) {
+                  profileUrl = DEFAULT_PROFILE_IMAGE;
+                }
+                // (2) 외부 URL / assets 경로인 경우 그대로 사용
+                else if (
+                  thumbnailPath.startsWith("http") ||
+                  thumbnailPath.startsWith("/assets")
+                ) {
+                  profileUrl = thumbnailPath;
+                }
+                // (3) 새 구조: 경로 + 파일명이 모두 있을 때
+                else if (thumbnailPath && thumbnailName) {
+                  profileUrl =
+                    getFileDisplayUrlFromPathAndName(thumbnailPath, thumbnailName) ||
+                    DEFAULT_PROFILE_IMAGE;
+                }
+                // (4) 구 구조: path 하나에 전체 경로가 들어있는 경우 (ex: '2025/11/18/uuid_ara.jpg', 'uploads/ara.jpg')
+                else if (legacyRaw) {
+                  let fileName = legacyRaw;
+
+                  if (fileName.startsWith("/uploads/")) {
+                    fileName = fileName.replace("/uploads/", "");
+                  } else if (fileName.startsWith("uploads/")) {
+                    fileName = fileName.replace("uploads/", "");
+                  }
+
+                  profileUrl = getFileDisplayUrl(fileName);
+                } else {
+                  profileUrl = DEFAULT_PROFILE_IMAGE;
+                }
+
+                const levelImageUrl = `/assets/images/test-grade/grade${level}.png`;
+
+console.log("팔로워 썸네일", {
+  followerThumbnailUrl: user.followerThumbnailUrl,
+  followerThumbnailName: user.followerThumbnailName,
+  userThumbnailUrl: user.userThumbnailUrl,
+  userThumbnailName: user.userThumbnailName,
+  profileUrl,
+});
+
 
               return (
                 <div key={userId}>
@@ -223,13 +294,13 @@ const Follower = () => {
                     <S.FollowerLeft>
                       <S.FollowerAvatar>
                         <img src={profileUrl} alt="" />
-                        <S.LevelBadge className="lv">
-                          <img src={levelImageUrl} className="lvImg" alt="" />
-                          <span>Lv {level === 10 ? "X" : level}</span>
-                        </S.LevelBadge>
                       </S.FollowerAvatar>
+                      <S.LevelBadge className="lv">
+                        <img src={levelImageUrl} className="lvImg" alt="" />
+                        <span>Lv {level === 10 ? "X" : level}</span>
+                      </S.LevelBadge>
                       <p>{nickname}</p>
-                      <span className="follower">팔로워 : </span>
+                      <span className="follower">팔로워: </span>
                       <span className="count">
                         {followerCount > 1000 ? (followerCount / 1000).toFixed(1) + "k" : followerCount}
                       </span>
@@ -299,6 +370,7 @@ const Follower = () => {
           )}
         </>
       )}
+      
     </S.FollowerContainer>
   );
 };

@@ -3,9 +3,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from '../../../modules/user';
 import useFileUpload from '../../../hooks/useFileUpload';
 import { getFileDisplayUrl } from '../../../utils/fileUtils';
+import { getFilePath } from '../../../utils/fileUtils';
 import S from './style';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash, faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { getFileDisplayUrlFromPathAndName } from "../../../utils/fileUtils";
 
 const ModifyContainer = () => {
   const dispatch = useDispatch();
@@ -40,34 +42,45 @@ const ModifyContainer = () => {
   const { uploadFiles, uploading: fileUploading } = useFileUpload();
 
   // Redux에서 사용자 정보를 가져와서 폼에 설정
-  useEffect(() => {
-    if (currentUser && currentUser.id) {
-      setFormData({
-        userName: currentUser.userName || '',
-        userNickname: currentUser.userNickname || '',
-        userEmail: currentUser.userEmail || '',
-        userBirthday: currentUser.userBirthday 
-          ? new Date(currentUser.userBirthday).toISOString().split('T')[0]
-          : '',
-        userPhone: currentUser.userPhone || '',
-      });
+useEffect(() => {
+  if (currentUser && currentUser.id) {
+    setFormData({
+      userName: currentUser.userName || '',
+      userNickname: currentUser.userNickname || '',
+      userEmail: currentUser.userEmail || '',
+      userBirthday: currentUser.userBirthday 
+        ? new Date(currentUser.userBirthday).toISOString().split('T')[0]
+        : '',
+      userPhone: currentUser.userPhone || '',
+    });
 
-      // 프로필 이미지 URL 설정 (파일 경로인 경우 display URL로 변환)
-      const thumbnailUrl = currentUser.userThumbnailUrl;
-      if (thumbnailUrl && thumbnailUrl !== '/default' && !thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/assets')) {
-        // 잘못된 경로 형식 처리 (/uploads/로 시작하는 경우 제거)
-        let cleanUrl = thumbnailUrl;
-        if (cleanUrl.startsWith('/uploads/')) {
-          cleanUrl = cleanUrl.replace('/uploads/', '');
-        } else if (cleanUrl.startsWith('uploads/')) {
-          cleanUrl = cleanUrl.replace('uploads/', '');
-        }
-        setProfilePreview(getFileDisplayUrl(cleanUrl));
-      } else {
-        setProfilePreview(thumbnailUrl || '/assets/images/defalutpro.svg');
-      }
+    const thumbnailUrl = currentUser.userThumbnailUrl;
+    const thumbnailName = currentUser.userThumbnailName;
+
+    // 기본 이미지
+    if (!thumbnailUrl || thumbnailUrl === '/default') {
+      setProfilePreview('/assets/images/defalutpro.svg');
+      return;
     }
-  }, [currentUser]);
+
+    // 외부 URL / assets 경로
+    if (thumbnailUrl.startsWith('http') || thumbnailUrl.startsWith('/assets')) {
+      setProfilePreview(thumbnailUrl);
+      return;
+    }
+
+    // 폴더 + 파일명 조합
+    if (thumbnailUrl && thumbnailName) {
+      setProfilePreview(
+        getFileDisplayUrlFromPathAndName(thumbnailUrl, thumbnailName)
+      );
+      return;
+    }
+
+    setProfilePreview('/assets/images/defalutpro.svg');
+  }
+}, [currentUser]);
+
 
   // 입력 필드 변경 핸들러
   const handleInputChange = (e) => {
@@ -236,16 +249,19 @@ const ModifyContainer = () => {
 
       // 프로필 이미지가 변경된 경우 파일 업로드
       if (profileImage) {
-        // 백엔드에서 전체 경로(예: 2025/11/18/uuid_filename.jpg)를 반환
+
         const filePaths = await uploadFiles([profileImage]);
+
+
         if (filePaths && filePaths.length > 0) {
-          const filePath = filePaths[0]; // 예: 2025/11/18/uuid_ara.jpg
-          
-          // 파일명 추출 (경로에서 마지막 부분)
-          const fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
-          
-          updateData.userThumbnailName = fileName; // 예: uuid_ara.jpg
-          updateData.userThumbnailUrl = filePath;  // 예: 2025/11/18/uuid_ara.jpg
+          const filePath = filePaths[0];
+          const lastSlashIndex = filePath.lastIndexOf('/');
+          // 폴더 경로 (뒤에 / 포함)
+           const folderPath = filePath.substring(0, lastSlashIndex + 1); // "2025/11/18/"
+          // 파일 이름
+          const fileName = filePath.substring(lastSlashIndex + 1);      // "uuid_ara.jpg"
+            updateData.userThumbnailUrl = folderPath; // ✅ 폴더만
+            updateData.userThumbnailName = fileName;  // ✅ 파일명만
         } else {
           alert('프로필 이미지 업로드에 실패했습니다.');
           setIsLoading(false);

@@ -6,7 +6,10 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-
+import {
+  getFileDisplayUrl,                   // ✅ 추가: 파일 표시 URL util
+  getFileDisplayUrlFromPathAndName,    // ✅ 추가: path+name → fileName → display URL
+} from "../../../../utils/fileUtils";
 /* 최신순 드롭다운 */
 import ThreeDropDown from "../../../../components/dropdown/ThreeDropDown";
 
@@ -21,6 +24,135 @@ const POSTS_ENDPOINT = "/post/open"; // 열린둥지 전체 조회
 const BUILD_URL = () => `${API_BASE}${POSTS_ENDPOINT}`;
 // 댓글 API
 const COMMENT_URL = (postId) => `${API_BASE}/comment/${postId}`;
+const DEFAULT_PROFILE_IMAGE = "/assets/images/defalutpro.svg";   // ✅ 기본 프로필 이미지 상수
+
+/* =========================
+   🔥 프로필 이미지 URL 빌더
+   ========================= */
+
+// ✅ 게시글 작성자 프로필 이미지 URL 만들기
+const buildAuthorProfileImg = (p) => {
+  // 1) path / name 분리된 케이스 (추천 패턴)
+  const path =
+    p.userThumbnailUrl ||        // ex: "img/" 또는 "2025/11/20/"
+    p.authorThumbnailUrl ||
+    "";
+
+  const name =
+    p.userThumbnailName ||       // ex: "1.jpg" 또는 "uuid_ara.jpg"
+    p.authorThumbnailName ||
+    "";
+
+  // 2) 예전 구조: 한 필드에 전체 경로나 파일명만 있는 경우
+  const legacyRaw =
+    p.userThumbnailUrl ||        // ex: "img/1.jpg" or "/uploads/ara.jpg"
+    p.authorProfile ||
+    "";
+
+  // (1) path/name 둘 다 없고 legacyRaw도 없으면 → 기본 이미지
+  if (
+    (!path || path === "/default" || path === "null" || path === "undefined") &&
+    !legacyRaw
+  ) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  // ✅ (1-1) path만 있고, 이름은 없고, path가 폴더처럼 끝이 '/' 인 경우 → 폴더만 아는 상태라 기본 이미지
+  if (path && !name && path.endsWith("/")) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  // (2) path + name 둘 다 있으면 → 우리가 만든 util 사용
+  if (path && name) {
+    // ex: path="img/", name="1.jpg" → "img/1.jpg" → /file/display?fileName=...
+    return (
+      getFileDisplayUrlFromPathAndName(path, name) || DEFAULT_PROFILE_IMAGE
+    );
+  }
+
+  // (3) path만 있거나 legacyRaw만 있을 때
+  const raw = legacyRaw || path;
+  if (!raw) return DEFAULT_PROFILE_IMAGE;
+
+  // 외부 URL이나 assets 경로면 그대로 사용
+  if (raw.startsWith("http") || raw.startsWith("/assets")) {
+    return raw;
+  }
+
+  // "/uploads/xxxx" 같은 경우 → "xxxx"로 잘라내기
+  let fileName = raw;
+  if (fileName.startsWith("/uploads/")) {
+    fileName = fileName.replace("/uploads/", "");
+  } else if (fileName.startsWith("uploads/")) {
+    fileName = fileName.replace("uploads/", "");
+  }
+  if (fileName.startsWith("/")) {
+    fileName = fileName.slice(1);
+  }
+
+  // 최종적으로 /file/display?fileName=... 형태로 변환
+  return getFileDisplayUrl(fileName);
+};
+
+// ✅ 댓글 작성자(Top Comment) 프로필 이미지 URL
+const buildCommentProfileImg = (c) => {
+  const path =
+    c.userThumbnailUrl ||
+    c.authorThumbnailUrl ||
+    "";
+
+  const name =
+    c.userThumbnailName ||
+    c.authorThumbnailName ||
+    "";
+
+  const legacyRaw =
+    c.userThumbnailUrl ||
+    c.authorProfile ||
+    c.profileImg ||
+    "";
+
+  if (
+    (!path || path === "/default" || path === "null" || path === "undefined") &&
+    !legacyRaw
+  ) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  // ✅ 폴더만 들어온 경우 방어
+  if (path && !name && path.endsWith("/")) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  if (path && name) {
+    return (
+      getFileDisplayUrlFromPathAndName(path, name) || DEFAULT_PROFILE_IMAGE
+    );
+  }
+
+  const raw = legacyRaw || path;
+  if (!raw) return DEFAULT_PROFILE_IMAGE;
+
+  if (raw.startsWith("http") || raw.startsWith("/assets")) {
+    return raw;
+  }
+
+  let fileName = raw;
+  if (fileName.startsWith("/uploads/")) {
+    fileName = fileName.replace("/uploads/", "");
+  } else if (fileName.startsWith("uploads/")) {
+    fileName = fileName.replace("uploads/", "");
+  }
+  if (fileName.startsWith("/")) {
+    fileName = fileName.slice(1);
+  }
+
+  return getFileDisplayUrl(fileName);
+};
+
+/* =========================
+   🔁 댓글 / 게시글 매핑
+   ========================= */
 
 /* 댓글 매핑 */
 const mapComment = (c) => ({
@@ -35,7 +167,7 @@ const mapComment = (c) => ({
     false,
   author: {
     name: c.userNickname ?? c.authorNickname ?? c.userName ?? null,
-    profileImg: c.userThumbnailUrl ?? c.authorProfile ?? null,
+    profileImg: buildCommentProfileImg(c),   // ✅ 변경: util로 URL 생성
   },
 });
 
@@ -95,7 +227,7 @@ const mapPost = (p) => ({
       p.username ??
       p.user_email ??
       null,
-    profileImg: p.userThumbnailUrl ?? p.authorProfile ?? null,
+    profileImg: buildAuthorProfileImg(p),   // ✅ 변경: util로 URL 생성
   },
   commentsCount: p.commentCount ?? p.commentsCount ?? p.answersCount ?? 0,
   answers: Array.isArray(p.answers)
@@ -151,6 +283,15 @@ const PostListContainer = () => {
           : Array.isArray(json?.result)
           ? json.result
           : [];
+
+        // ✅ 디버깅용: 백엔드 응답에 썸네일 정보가 어떻게 오는지 확인 (확인 후 제거 가능)
+        if (rows.length > 0) {
+          console.log("[/post/open rows[0]]", {
+            userThumbnailUrl: rows[0].userThumbnailUrl,
+            userThumbnailName: rows[0].userThumbnailName,
+            raw: rows[0],
+          });
+        }
 
         const mapped = rows.map(mapPost).filter((p) => p.postId != null);
         setPosts(mapped);
@@ -273,6 +414,19 @@ const PostListContainer = () => {
     [posts]
   );
 
+  // Loop 모드를 위한 슬라이드 복제 (최소 8개 필요: slidesPerView 3.6 * 2)
+  const loopSlides = useMemo(() => {
+    if (popularPosts.length === 0) return [];
+    if (popularPosts.length >= 8) return popularPosts;
+    
+    // 슬라이드가 부족하면 복제하여 최소 8개 이상 만들기
+    const duplicated = [];
+    while (duplicated.length < 8) {
+      duplicated.push(...popularPosts);
+    }
+    return duplicated.slice(0, Math.max(8, popularPosts.length * 2));
+  }, [popularPosts]);
+
   // 페이지 이동
   const handlePrev = () => {
     if (currentPage > 1) setCurrentPage((p) => p - 1);
@@ -286,7 +440,7 @@ const PostListContainer = () => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [currentPage]);
 
-  // Swiper 네비게이션 버튼 연결
+  // Swiper 네비게이션 버튼 연결 및 업데이트
   useEffect(() => {
     if (!swiperRef.current) return;
     const swiper = swiperRef.current.swiper;
@@ -295,8 +449,10 @@ const PostListContainer = () => {
       swiper.params.navigation.nextEl = nextRef.current;
       swiper.navigation.init();
       swiper.navigation.update();
+      // loop 모드 업데이트
+      swiper.update();
     }
-  }, []);
+  }, [loopSlides]);
 
   return (
     <>
@@ -314,103 +470,87 @@ const PostListContainer = () => {
       </S.BannerWrap>
 
       {/* 인기 카드 Swiper */}
-      <S.Container>
-        <S.ArrowBtn ref={prevRef} className="left">
-          <img src="/assets/icons/leftarrow.svg" alt="왼쪽" />
-        </S.ArrowBtn>
+        <S.Container>
+          <S.ArrowBtn ref={prevRef} className="left">
+            <img src="/assets/icons/leftarrow.svg" alt="왼쪽" />
+          </S.ArrowBtn>
 
-        <S.PopularWrap>
-          <Swiper
-            ref={swiperRef}
-            modules={[Navigation]}
-            slidesPerView={3.6}
-            spaceBetween={12}
-            loop={true}
-            slidesPerGroup={1}
-            centeredSlides={false}
-            navigation={{
-              prevEl: prevRef.current,
-              nextEl: nextRef.current,
-            }}
-            className="popularSwiper"
-          >
-            {/* {popularPosts.map((post) => (
-              <SwiperSlide key={post.postId}>
-                {/* 인기글 카드 전체 클릭 -> /post/:id *
-                <S.Link
-                  to={`/post/${post.postId}`}
-                  aria-label={`${post.postTitle} 상세보기`}
-                >
-                  <S.PopularCard role="button">
-                    <S.PopularTitle>{post.postTitle}</S.PopularTitle>
-                    <S.PopularPreview>{post.postContent}</S.PopularPreview>
-                    <S.Info>
-                      <S.MetaWrap>
-                        <S.ProfileImg
-                          src={
-                            post.author?.profileImg ||
-                            "/assets/images/defalutpro.svg"
-                          }
-                          alt={post.author?.name || ""}
-                        />
-                        {post.author?.name && (
-                          <>
-                            <span>{post.author?.name}</span>
-                            <b>·</b>
-                          </>
-                        )}
-                        <span>조회 {post.views || 0}</span>
-                      </S.MetaWrap>
-                      <S.Response>
-                        <img src="/assets/icons/talktalk.svg" alt="댓글" />
-                        {getReplyCount(post)}
-                      </S.Response>
-                    </S.Info>
-                  </S.PopularCard>
-                </S.Link>
-              </SwiperSlide>
-            ))} */}
-            {popularPosts.map((post) => (
-              <SwiperSlide key={post.postId}>
-                <S.Link to={`/post/${post.postId}`}>
+          <S.PopularWrap>
+            <Swiper
+              ref={swiperRef}
+              modules={[Navigation]}
+              slidesPerView={3.6}
+              spaceBetween={12}
+              loop={loopSlides.length >= 8}
+              loopAdditionalSlides={loopSlides.length >= 8 ? 2 : 0}
+              slidesPerGroup={1}
+              centeredSlides={false}
+              navigation={{
+                prevEl: prevRef.current,
+                nextEl: nextRef.current,
+              }}
+              className="popularSwiper"
+            >
+              {loopSlides.length > 0 ? (
+                loopSlides.map((post, index) => {
+                  // ✅ 여기서 authorName 계산
+                  const authorName =
+                    post.author?.name ||
+                    post.userNickname ||
+                    post.userName ||
+                    post.username ||
+                    "";
+
+                  return (
+                    <SwiperSlide key={`${post.postId}-${index}`}>
+                      <S.Link to={`/post/${post.postId}`}>
+                        <S.PopularCard>
+                          <S.PopularTitle>{post.postTitle}</S.PopularTitle>
+
+                          <S.PopularPreview>{post.postContent}</S.PopularPreview>
+
+                          <S.Info>
+                            <S.MetaWrap>
+                              <S.ProfileImg
+                                src={post.author?.profileImg || DEFAULT_PROFILE_IMAGE}
+                                alt={authorName}
+                              />
+                              {authorName && (
+                                <>
+                                  <span>{authorName}</span>
+                                  <b>·</b>
+                                </>
+                              )}
+                              <span>조회 {post.views}</span>
+                            </S.MetaWrap>
+
+                            <S.Response>
+                              <img src="/assets/icons/talktalk.svg" alt="댓글" />
+                              {post.commentsCount}
+                            </S.Response>
+                          </S.Info>
+                        </S.PopularCard>
+                      </S.Link>
+                    </SwiperSlide>
+                  );
+                })
+              ) : (
+                <SwiperSlide>
                   <S.PopularCard>
-                    <S.PopularTitle>{post.postTitle}</S.PopularTitle>
-
-                    <S.PopularPreview>{post.postContent}</S.PopularPreview>
-
-                    <S.Info>
-                      <S.MetaWrap>
-                        <S.ProfileImg
-                          src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
-                          alt={post.author?.name || ""}
-                        />
-                        {post.author?.name && (
-                          <>
-                            <span>{post.author.name}</span>
-                            <b>·</b>
-                          </>
-                        )}
-                        <span>조회 {post.views}</span>
-                      </S.MetaWrap>
-
-                      <S.Response>
-                        <img src="/assets/icons/talktalk.svg" alt="댓글" />
-                        {post.commentsCount}
-                      </S.Response>
-                    </S.Info>
+                    <S.PopularTitle>인기 게시글이 없습니다.</S.PopularTitle>
+                    <S.PopularPreview>아직 조회된 글이 없어요 🐣</S.PopularPreview>
                   </S.PopularCard>
-                </S.Link>
-              </SwiperSlide>
-            ))}
+                </SwiperSlide>
+              )}
+            </Swiper>
+            <S.GradientRight />
+          </S.PopularWrap>
 
-          </Swiper>
-          <S.GradientRight />
-        </S.PopularWrap>
+          <S.ArrowBtn ref={nextRef} className="right">
+            <img src="/assets/icons/rightarrow.svg" alt="오른쪽" />
+          </S.ArrowBtn>
+        </S.Container>
 
-        <S.ArrowBtn ref={nextRef} className="right">
-          <img src="/assets/icons/rightarrow.svg" alt="오른쪽" />
-        </S.ArrowBtn>
-      </S.Container>
 
       {/* 정렬 / 글쓰기 */}
       <S.SortWrap>
@@ -468,7 +608,7 @@ const PostListContainer = () => {
                           <S.ProfileImg
                             src={
                               post.author?.profileImg ||
-                              "/assets/images/defalutpro.svg"
+                              DEFAULT_PROFILE_IMAGE
                             }
                             alt={post.author?.name || ""}
                           />
@@ -496,7 +636,7 @@ const PostListContainer = () => {
                             src={
                               topCmt.author?.profileImg ||
                               topCmt.profileImg ||
-                              "/assets/images/defalutpro.svg"
+                              DEFAULT_PROFILE_IMAGE
                             }
                             alt={
                               topCmt.author?.name ||

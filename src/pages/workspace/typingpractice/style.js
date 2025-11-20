@@ -267,6 +267,7 @@ S.ProgressTime = styled.div`
   S.Bar = styled.div`
     width: ${({ $width }) => ($width != null ? `${$width}%` : "100%")};
     height: 4px;
+    transition: width 0.1s linear;
 
     &.blue {
       background-color: #4aa7ff;
