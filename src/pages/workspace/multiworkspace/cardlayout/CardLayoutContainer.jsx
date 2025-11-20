@@ -31,10 +31,20 @@ const CardLayoutContainer = () => {
       setUsers((prevUsers) => {
         const userdatas = players.map((user) => {
           const existingUser = prevUsers.find((u) => u.userId === user.userId);
+          // gameJoinIsReady 값에 따라 gameJoinProfileText 설정 (가져온 데이터 최우선)
+          let profileText = user.gameJoinProfileText || "로딩 중";
+          if (user.gameJoinIsReady === true || user.gameJoinIsReady === 1) {
+            profileText = "준비 완료";
+          } else if (
+            user.gameJoinIsReady === false ||
+            user.gameJoinIsReady === 0
+          ) {
+            profileText = user.gameJoinProfileText || "준비중";
+          }
           return {
             ...user,
             profileFlip: existingUser?.profileFlip || false,
-            gameJoinProfileText: user.gameJoinProfileText || "로딩 중",
+            gameJoinProfileText: profileText,
           };
         });
         return userdatas;

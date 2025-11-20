@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useSelector } from "react-redux";
-import theme from "../../../styles/theme";
 import S from "./style";
 import HeaderToggle from "./headertoggle/HeaderToggle";
-import MiddleSearchBar from "./middlesearchbar/MiddleSearchBar";
 import LeftUserInterface from "./leftuserinterface/LeftUserInterface";
 import RoomList from "./RoomList";
-import { h9Bold, h9Medium } from "../../../styles/common";
 import Follow from "./Follow";
+import { Link } from "react-router-dom";
 
 
 const RoomListContainer = () => {
@@ -53,7 +51,7 @@ const RoomListContainer = () => {
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error("❌ 게임방 목록 조회 실패:", {
+          console.error("게임방 목록 조회 실패:", {
             status: response.status,
             statusText: response.statusText,
             error: errorText
@@ -62,26 +60,12 @@ const RoomListContainer = () => {
           return;
         }
 
-        const datas = await response.json();
-        console.log('📦 전체 응답 데이터:', datas);
-      
-      // 응답 구조 확인: ApiResponseDTO 형태 { message, data } 또는 직접 data일 수 있음
+      const datas = await response.json();
       const responseData = datas?.data || datas;
-      console.log('📋 responseData:', responseData);
-      
-      // data가 Map 형태일 수 있음 (Java의 Map을 JSON으로 변환하면 객체)
-      // 가능한 키 이름들 확인
       const following = responseData?.following || responseData?.myFollowings || responseData?.myFollowing || [];
       const myInfos = responseData?.myInfos || responseData?.myInfo || {};
       const winningCount = responseData?.winningCount || responseData?.winCount || responseData?.winingCount || 0;
       const roomList = responseData?.roomList || responseData?.rooms || (Array.isArray(responseData) ? responseData : []);
-      
-      console.log('👥 following:', following);
-      console.log('👤 myInfos:', myInfos);
-      console.log('🎯 winningCount:', winningCount);
-      console.log('🏠 roomList:', roomList);
-      
-      // rooms가 배열이 아닌 경우 빈 배열로 설정
       const validRoomList = Array.isArray(roomList) ? roomList : [];
       
       setRooms(validRoomList);
@@ -98,11 +82,9 @@ const RoomListContainer = () => {
     getRooms();
   }, [userId])
 
-  // 필터링 및 정렬된 rooms
   const filteredAndSortedRooms = useMemo(() => {
     let filtered = [...rooms];
 
-    // 검색어 필터링 (title 또는 방 번호)
     if (searchQuery.trim()) {
       filtered = filtered.filter(room => {
         const title = (room.gameRoomTitle || room.title || '').toLowerCase();
@@ -112,7 +94,6 @@ const RoomListContainer = () => {
       });
     }
 
-    // 언어 필터링
     if (selectedLanguage) {
       filtered = filtered.filter(room => {
         const roomLang = (room.gameRoomLanguage || '').toUpperCase();
@@ -120,7 +101,6 @@ const RoomListContainer = () => {
       });
     }
 
-    // 팀전/개인전 필터링
     if (teamMode !== null) {
       filtered = filtered.filter(room => {
         const isTeam = room.gameRoomIsTeam === true || room.gameRoomIsTeam === 1;
@@ -128,37 +108,30 @@ const RoomListContainer = () => {
       });
     }
 
-    // 입장 가능 여부 계산 함수
     const isEnterable = (room) => {
       const isFull = (room.gameRoomCurrentPlayer || 0) >= (room.gameRoomMaxPlayer || 0);
       return room.gameRoomIsOpen && !isFull;
     };
 
-    // 정렬: 입장 가능한 방이 최상위로, 그 다음 검색어면 title 정렬, 아니면 날짜 정렬
     filtered.sort((a, b) => {
       const aEnterable = isEnterable(a);
       const bEnterable = isEnterable(b);
       
-      // 입장 가능 여부 우선 비교
       if (aEnterable !== bEnterable) {
         return aEnterable ? -1 : 1; // 입장 가능한 방이 위로 (aEnterable이 true면 a가 위로)
       }
 
-      // 입장 가능 여부가 같으면 기존 정렬 기준 적용
       if (searchQuery.trim()) {
-        // 검색 시 title로 정렬
         const titleA = (a.gameRoomTitle || a.title || '').toLowerCase();
         const titleB = (b.gameRoomTitle || b.title || '').toLowerCase();
         return titleA.localeCompare(titleB);
       } else {
-        // 최신순/오래된순 정렬 (createAt 기준)
         const dateA = new Date(a.gameRoomCreateAt || a.createAt || 0);
         const dateB = new Date(b.gameRoomCreateAt || b.createAt || 0);
-        
         if (sortOrder === 'latest') {
-          return dateB - dateA; // 최신순 (내림차순)
+          return dateB - dateA;
         } else {
-          return dateA - dateB; // 오래된순 (오름차순)
+          return dateA - dateB;
         }
       }
     });
@@ -168,9 +141,9 @@ const RoomListContainer = () => {
 
   const handleLanguageClick = (lang) => {
     if (lang === 'ALL') {
-      setSelectedLanguage(null); // ALL 선택 시 필터 해제
+      setSelectedLanguage(null);
     } else if (selectedLanguage === lang) {
-      setSelectedLanguage(null); // 같은 언어 다시 클릭하면 필터 해제
+      setSelectedLanguage(null);
     } else {
       setSelectedLanguage(lang);
     }
@@ -181,27 +154,20 @@ const RoomListContainer = () => {
   };
 
   return (
-    // 백그라운드 이미지지
     <S.GameRoomBackGround>
       <div>
-        {/* 게임방 상단 토글 */}
-          <HeaderToggle teamMode={teamMode} onTeamModeChange={setTeamMode} rooms={rooms}/>
-          
+        <HeaderToggle teamMode={teamMode} onTeamModeChange={setTeamMode} rooms={rooms}/>
         <S.LayoutWrapper>
-          {/* 게임방리스트 왼쪽 유저 인터페이스(친구창, 유저카드) */}
           <S.ListWrapper >
-            {/* 중앙에  왼쪽 친구찾기검색바, 오른쪽 방 검색, 정렬버튼 */}
             <S.LeftSection>
               <S.LeftWrap>
                   <S.LeftInput placeholder="친구 찾기">
                   </S.LeftInput>
                   <img src="/assets/icons/search.png" />
               </S.LeftWrap>
-
               <Follow follow={myFollowing}></Follow>
               <LeftUserInterface myInfos={myInfos} myWinCount={myWinCount} />
             </S.LeftSection>
-            {/* 채팅방 목록 */}
             <div>
               <S.RightWrap>
                 <S.SelectBoxWrap>
@@ -219,25 +185,24 @@ const RoomListContainer = () => {
                   </S.RightRefreshWrap>
                   <S.RightInputWrap $focused={isSearchFocused}>
                    <S.RightInput  
-                      placeholder="방 번호 또는 제목을 입력하세요" 
+                      placeholder="게임방 검색" 
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onFocus={() => setIsSearchFocused(true)}
                       onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}></S.RightInput>
                     <button></button>
                   </S.RightInputWrap>
-                  {/* <S.RightInputWrap>
-                      <S.RightInput 
-                        placeholder="방 번호 또는 제목을 입력하세요" 
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                      <img className="lastImg" src="/assets/icons/search.png" />
-                  </S.RightInputWrap> */}
                 </S.FilterWrap>
+                
               </S.RightWrap>
               <S.RoomListWrapper>
                 <RoomList rooms={filteredAndSortedRooms} isLoading={isLoading}/>
+                <Link to={"/workspace/rooms/typing"}>
+                  <S.MoveToTyping>
+                    <p>타자연습</p>
+                    <p>바로가기</p>
+                  </S.MoveToTyping>
+                </Link>
               </S.RoomListWrapper>
             </div>
           </S.ListWrapper>

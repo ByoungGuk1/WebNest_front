@@ -104,7 +104,21 @@ const UserProfile = ({ userData, onClick, setUsers, users, getPlayers }) => {
 
   useEffect(() => {
     if (userData && userData.userId) {
-      setUser(userData);
+      // gameJoinIsReady 값에 따라 표시할 텍스트 결정 (가져온 데이터 최우선)
+      let displayText = userData.gameJoinProfileText?.trim() || "";
+      if (userData.gameJoinIsReady === true || userData.gameJoinIsReady === 1) {
+        displayText = "준비 완료";
+      } else if (
+        userData.gameJoinIsReady === false ||
+        userData.gameJoinIsReady === 0
+      ) {
+        displayText = userData.gameJoinProfileText?.trim() || "준비중";
+      }
+
+      setUser({
+        ...userData,
+        gameJoinProfileText: displayText,
+      });
       setTeamColor(
         teamColorUrl[userData.gameJoinTeamcolor] || teamColorUrl["black"]
       );
@@ -151,6 +165,7 @@ const UserProfile = ({ userData, onClick, setUsers, users, getPlayers }) => {
   return (
     <div>
       <S.UserProfileWrapper
+        color={user.gameJoinTeamcolor}
         onClick={onClick}
         style={{
           backgroundImage: `url(${teamColor})`,
@@ -180,7 +195,13 @@ const UserProfile = ({ userData, onClick, setUsers, users, getPlayers }) => {
                 ? "pointer"
                 : "default",
           }}>
-          {user.gameJoinProfileText?.trim() || "준비중"}
+          {(() => {
+            // gameJoinIsReady 값이 있으면 그것을 우선 (가져온 데이터 최우선)
+            if (user.gameJoinIsReady === true || user.gameJoinIsReady === 1) {
+              return "준비 완료";
+            }
+            return user.gameJoinProfileText?.trim() || "준비중";
+          })()}
         </S.UserTextWrap>
       </S.UserProfileWrapper>
     </div>

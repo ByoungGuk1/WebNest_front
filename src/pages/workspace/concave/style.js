@@ -3,9 +3,8 @@ import styled from "styled-components";
 const S = {};
 
 S.Wrap = styled.div`
-    background: #ffffff;
+    background: transparent;
     border-radius: 8px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 `;
 
 S.Header = styled.h2`

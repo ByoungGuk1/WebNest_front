@@ -23,20 +23,35 @@ S.Option = styled.div`
 S.ModeSelect = styled.div``;
 
 S.ModeButton = styled.button`
-  /* background-color: ${({ theme }) => theme.PALETTE.primary.green.main}; */
-  color: ${({ theme }) => theme.PALETTE.neutral.white.main};
   ${h5Bold}
   border: none;
   border-radius: 100px;
-  padding: 5px 30px;  
+  padding: 5px 30px;
   cursor: pointer;
+  color: ${({ theme }) => theme.PALETTE.neutral.white.main};
 
-  /* active 상태면 초록, 아니면 파랑 */
   background-color: ${({ $active, theme }) =>
     $active
-      ? theme.PALETTE.primary.green.main   // active = 초록
-      : theme.PALETTE.primary.blue.main};  // inactive = 파랑
+      ? theme.PALETTE.primary.green.main   // short 모드 버튼
+      : theme.PALETTE.primary.blue.main    // long 모드 버튼
+  };
 `;
+
+// S.ModeButton = styled.button`
+//   color: white;
+//   ${h5Bold}
+//   border: none;
+//   border-radius: 100px;
+//   padding: 5px 30px;
+//   cursor: pointer;
+
+//   background-color: ${({ $active, theme }) =>
+//     $active
+//       ? theme.PALETTE.primary.green.main   // 선택된 버튼
+//       : theme.PALETTE.primary.blue.main    // 선택 안 된 버튼
+//   };
+// `;
+
 
 S.LanguageSelect = styled.div`
   display: flex;
@@ -55,7 +70,6 @@ S.ToggleWrapper = styled.div`
   justify-content: space-between;
   padding: 0 6px;
   position: relative;
-  cursor: pointer;
   user-select: none;
 
   span {
@@ -63,42 +77,36 @@ S.ToggleWrapper = styled.div`
     text-align: center;
     ${h6Bold}
     z-index: 2;
-    color: ${({ theme }) => theme.PALETTE.neutral.gray.main};
+    cursor: pointer;
   }
 
   .ko {
-    color: ${({ $lang, theme }) =>
-      $lang === "ko"
-        ? "#FFFF"
-        : theme.PALETTE.neutral.gray.main};
+    color: ${({ $lang }) => ($lang === "한국어" ? "#fff" : "#666")};
   }
-
   .en {
-    color: ${({ $lang, theme }) =>
-      $lang === "en"
-        ? "#FFFF"
-        : theme.PALETTE.neutral.gray.main};
+    color: ${({ $lang }) => ($lang === "영어" ? "#fff" : "#666")};
   }
 `;
 
-
-/* 안에서 움직이는 버튼 */
 S.ToggleButton = styled.div`
   width: 70px;
   height: 30px;
-  background-color: ${({ theme, $mode }) =>
-    $mode === "long"
-      ? theme.PALETTE.primary.blue.main  // 긴 글 → 초록
-      : theme.PALETTE.primary.green.main   // 짧은 글 → 파랑
-  };
   border-radius: 40px;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  left: ${({ $lang }) => ($lang === "ko" ? "5px" : "68px")};
+  left: ${({ $lang }) => ($lang === "한국어" ? "5px" : "68px")};
   transition: left 0.25s ease;
   z-index: 1;
+
+  /* short → 초록 / long → 파랑 */
+  background-color: ${({ $isShort, theme }) =>
+    $isShort === "short"
+      ? theme.PALETTE.primary.green.main
+      : theme.PALETTE.primary.blue.main};
 `;
+
+
 
 
 
@@ -251,20 +259,22 @@ S.ProgressTime = styled.div`
   justify-content: space-between;
   ${h6Medium}
   margin-bottom: 10px;
+
+
 `;
 
-S.Bar = styled.div`
-  /* width: 100%; */
-  width: ${({ $width }) => $width || "100%"};
-  height: 4px;
 
-  &.blue {
-    background-color: #4aa7ff;
-  }
-  &.red {
-    background-color: #ff5e5e;
-  }
-`;
+  S.Bar = styled.div`
+    width: ${({ $width }) => ($width != null ? `${$width}%` : "100%")};
+    height: 4px;
+
+    &.blue {
+      background-color: #4aa7ff;
+    }
+    &.red {
+      background-color: #ff5e5e;
+    }
+  `;
 // S.ProgressBox = styled.div`
 //   position: relative;
 //   height: 25px;  /* 고정 높이 */

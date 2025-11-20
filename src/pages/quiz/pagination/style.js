@@ -48,15 +48,15 @@ S.PageButton = styled.button`
     height: 32px;
     border: none;
     border-radius: 50%;
-    background-color: ${({ active }) =>
-        active ? "#FFC107" : "transparent"};
-    color: ${({ active }) => (active ? "#fff" : "#000")};
+    background-color: ${({ $active }) =>
+        $active ? "#FFC107" : "transparent"};
+    color: ${({ $active }) => ($active ? "#fff" : "#000")};
     ${h6Medium}
     cursor: pointer;
 
     &:hover {
-        background-color: ${({ active }) =>
-        !active ? "rgba(0,0,0,0.05)" : "#FFC107"};
+        background-color: ${({ $active }) =>
+        !$active ? "rgba(0,0,0,0.05)" : "#FFC107"};
     }
 `;
 

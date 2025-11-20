@@ -120,7 +120,7 @@ const HeaderToggle = ({
                 {isHost ? (
                     <>
                         <S.GameRoomToggle onClick={onStartGame}>
-                            <S.IconCircle><img src="/assets/gameroom/common/ready.png" alt='게임시작'/></S.IconCircle>
+                            <S.IconCircle><img src="/assets/gameroom/common/read.png" alt='게임시작'/></S.IconCircle>
                             <S.GameRoomToggleInnerText>게임 시작</S.GameRoomToggleInnerText>
                         </S.GameRoomToggle>
                         <S.GameRoomToggle onClick={onInvite}>

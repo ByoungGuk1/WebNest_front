@@ -121,7 +121,7 @@ S.ChatWrap = styled.div`
   border-radius: 12px;
 `
 S.InputBox = styled.div`
-  width: 240px;
+  width: 280px;
   height: 36px;
   border-radius: 18px;
   background-color: rgba(0, 0, 0, 0.05);

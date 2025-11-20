@@ -64,20 +64,13 @@ const S = {}
     width: 185px;
     height: 32px;
     position: relative;
-    flex-direction: row;
-    justify-content: end;
     align-items: center;
     border-block-end: 1px solid black;
     margin-left: 301px;
 
-    & img {
-      width: 16px;
-      height: 16px;
-    }
-
     & input {
       border: none;
-      width: calc(185-16)px;
+      width: 160px;
       background-color: white;
       outline: none;
       font-family: 'pretendard';
@@ -86,6 +79,10 @@ const S = {}
     
     & button {
       background-image: url('/assets/images/header/search.png');
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translate(0, -50%);
       width: 16px;
       height: 16px;
       background-color: #fff;

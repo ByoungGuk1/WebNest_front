@@ -15,3 +15,13 @@ export const fadeIn = keyframes`
     transform: translate(0, 0);
   }
 `
+
+export const arrow = keyframes`
+  0%{
+    opacity: 0;
+  }
+  
+  100%{
+    opacity: 1;
+  }
+`

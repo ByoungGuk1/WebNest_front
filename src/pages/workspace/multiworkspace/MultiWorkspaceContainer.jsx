@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Outlet, useParams, useNavigate, useLocation } from "react-router-dom";
 import S from "./style";
 import ChattingContainer from "./chatting/ChattingContainer";
@@ -9,6 +9,7 @@ import InviteRoomModal from "./invite/InviteRoomModal";
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import { getGameChannelFromPath } from "../../../utils/gameChannel";
+import GameContext from "context/GameContext";
 
 const MultiWorkspaceRoomContainer = () => {
   const roomStatus = 1;
@@ -19,12 +20,13 @@ const MultiWorkspaceRoomContainer = () => {
   const userSenderId = currentUser?.id;
   const userNickname = currentUser?.userNickname;
   const gameChannel = getGameChannelFromPath(location.pathname);
-  
+
   // 게임 상태 관리
   const [isHost, setIsHost] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const gameStompClientRef = useRef(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
+
 
   // 게임방 상태 조회
   useEffect(() => {
@@ -33,7 +35,7 @@ const MultiWorkspaceRoomContainer = () => {
     const fetchGameRoomStatus = async () => {
       try {
         const accessToken = localStorage.getItem("accessToken");
-        
+
         // 게임 상태 API 사용 (더 정확한 정보) - 게임 타입별 경로
         const gameStateUrl = `${process.env.REACT_APP_BACKEND_URL}/private/game-rooms/${roomId}/game-state?gameType=${gameChannel}`;
         console.log('📡 게임 상태 조회 요청 경로:', gameStateUrl);
@@ -47,25 +49,25 @@ const MultiWorkspaceRoomContainer = () => {
             },
           }
         );
-        
+
         if (gameStateResponse.ok) {
           const gameStateData = await gameStateResponse.json();
           const gameState = gameStateData?.data || gameStateData;
           console.log('🎮 게임 상태 조회 응답:', gameState);
-          
+
           if (Array.isArray(gameState)) {
             const currentPlayer = gameState.find(p => {
               const playerId = p.userId || p.id || p.userSenderId;
               return String(playerId) === String(userSenderId);
             });
-            
+
             console.log('🎮 현재 플레이어 정보:', currentPlayer);
-            
+
             if (currentPlayer) {
-              const isHostPlayer = currentPlayer.gameJoinIsHost === true || 
-                                   currentPlayer.gameJoinIsHost === 1 ||
-                                   currentPlayer.isHost === true || 
-                                   currentPlayer.isHost === 1;
+              const isHostPlayer = currentPlayer.gameJoinIsHost === true ||
+                currentPlayer.gameJoinIsHost === 1 ||
+                currentPlayer.isHost === true ||
+                currentPlayer.isHost === 1;
               console.log('🎮 방장 여부:', isHostPlayer, {
                 gameJoinIsHost: currentPlayer.gameJoinIsHost,
                 isHost: currentPlayer.isHost
@@ -76,7 +78,7 @@ const MultiWorkspaceRoomContainer = () => {
             }
           }
         }
-        
+
         // 게임방 정보 조회 (게임 시작 여부 확인) - private API 사용
         const roomUrl = `${process.env.REACT_APP_BACKEND_URL}/private/game-rooms/${roomId}`;
         console.log('📡 게임방 정보 조회 요청 경로:', roomUrl);
@@ -90,12 +92,12 @@ const MultiWorkspaceRoomContainer = () => {
             },
           }
         );
-        
+
         if (roomResponse.ok) {
           const roomData = await roomResponse.json();
           const roomInfo = roomData?.data || roomData;
           console.log('🎮 게임방 정보 조회 응답:', roomInfo);
-          
+
           // 게임 시작 여부 확인
           if (roomInfo.gameRoomIsStart !== undefined) {
             setIsGameStarted(roomInfo.gameRoomIsStart === true || roomInfo.gameRoomIsStart === 1);
@@ -129,7 +131,7 @@ const MultiWorkspaceRoomContainer = () => {
         });
       },
     });
-    
+
     client.activate();
     gameStompClientRef.current = client;
 
@@ -242,54 +244,69 @@ const MultiWorkspaceRoomContainer = () => {
       navigate("/workspace/rooms");
     }
   };
+  const contextValue = useMemo(
+    () => ({
+      isHost,
+      isGameStarted,
+      onStartGame: handleStartGame,
+      onReady: handleReady,
+      onInvite: handleInvite,
+      showInviteModal,
+      setShowInviteModal,
+      gameStompClientRef,
+      roomId,
+      userSenderId,
+    }),
+    [isHost, isGameStarted, showInviteModal, roomId, userSenderId]
+  );
+
 
   return (
     <>
       <S.Background />
       <S.Wrapper>
-        <S.HeaderContainer>
-          <HeaderToggle 
-            isInGameRoom={true}
-            isHost={isHost}
-            isGameStarted={isGameStarted}
-            onStartGame={handleStartGame}
-            onReady={handleReady}
-            onInvite={handleInvite}
-          />
-          <S.HelperWwrap>
-            <S.HelperItems data-type="help">
-              <span>도움말</span>
-              <img src="/assets/gameroom/info.png" alt="아이콘"></img>
-            </S.HelperItems>
-            <S.HelperItems data-type="settings">
-              <span>설정</span>
-              <img src="/assets/gameroom/setting.png" alt="아이콘"></img>
-            </S.HelperItems>
-            <S.HelperItems data-type="exit" onClick={handleExitClick}>
-              <span>나가기</span>
-              <img src="/assets/gameroom/exit.png" alt="아이콘"></img>
-            </S.HelperItems>
-          </S.HelperWwrap>
-        </S.HeaderContainer>
-        <S.MainWrapper>
-          <S.Content>
-            <Outlet />
-          </S.Content>
-          <S.ChattingLayout>
-            <ChattingContainer />
-          </S.ChattingLayout>
-        </S.MainWrapper>
-        <S.CardLayout>
-          <CardLayoutContainer roomStatus={roomStatus} />
-        </S.CardLayout>
+        <GameContext.Provider value={contextValue}>
+          <S.HeaderContainer>
+            <HeaderToggle
+              isInGameRoom={true}
+              isHost={isHost}
+              isGameStarted={isGameStarted}
+              onStartGame={handleStartGame}
+              onReady={handleReady}
+              onInvite={handleInvite}
+            />
+            <S.HelperWwrap>
+              <S.GameRoomToggle data-type="exit" onClick={handleExitClick}>
+                <S.ExitIconWrap>
+                  <S.IconCircle><img src="/assets/gameroom/exit.png" alt="아이콘"></img></S.IconCircle>
+                </S.ExitIconWrap>
+                  <S.GameRoomToggleInnerText>나가기</S.GameRoomToggleInnerText>
+              </S.GameRoomToggle>
+            </S.HelperWwrap>
+          </S.HeaderContainer>
+          <S.MainWrapper>
+            <S.Content>
+              <Outlet />
+
+            </S.Content>
+            <S.ChattingLayout>
+              <ChattingContainer />
+            </S.ChattingLayout>
+          </S.MainWrapper>
+          <S.CardLayout>
+            <CardLayoutContainer roomStatus={roomStatus} />
+          </S.CardLayout>
+        </GameContext.Provider>
       </S.Wrapper>
       {showInviteModal && (
-        <InviteRoomModal 
+        <InviteRoomModal
           onClose={() => setShowInviteModal(false)}
           onInvite={handleInviteRooms}
         />
       )}
+
     </>
+
   );
 };
 

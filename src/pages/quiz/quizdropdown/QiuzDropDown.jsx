@@ -113,12 +113,12 @@ const QiuzDropDown = () => {
     return (
         <S.DropContainer>
             <S.ButtonWrap ref={langRef}>
-                <S.DropDownButton onClick={() => { langHandler(); }} select={!!selectLang}>
+                <S.DropDownButton onClick={() => { langHandler(); }} selected={selectLang}>
                     {selectLang || '언어'}
                     <S.DropDownIconWrap><S.DropDownIcon /></S.DropDownIconWrap>
                 </S.DropDownButton>
                 {langOpen && (
-                    <S.DropDownMenuWrap isDropped={langOpen} >
+                    <S.DropDownMenuWrap $isDropped={langOpen} >
                         {['JAVA', 'JS', 'ORACLE'].map(lang => (
                             <S.DropDownMenu key={lang} onClick={() => { handleSelect('Lang', lang); closeAll() }}>{lang}</S.DropDownMenu>
                         ))}
@@ -127,33 +127,33 @@ const QiuzDropDown = () => {
             </S.ButtonWrap>
 
             <S.ButtonWrap ref={levelRef}>
-                <S.DropDownButton onClick={levelHandler} select={!!selectDifficult}>
+                <S.DropDownButton onClick={levelHandler} selected={selectDifficult}>
                     {selectDifficult || '난이도'}
                     <S.DropDownIconWrap><S.DropDownIcon /></S.DropDownIconWrap>
                 </S.DropDownButton>
-                <S.DropDownMenuWrap isDropped={levelOpen}>
+                <S.DropDownMenuWrap $isDropped={levelOpen}>
                     {['초급', '중급', '중상급', '상급', '최상급'].map(level => (
                         <S.DropDownMenu key={level} onClick={() => { handleSelect('Defficult', level); closeAll() }}>{level}</S.DropDownMenu>
                     ))}
                 </S.DropDownMenuWrap>
             </S.ButtonWrap>
             <S.ButtonWrap ref={isClearRef}>
-                <S.DropDownButton onClick={isClearHandler} select={!!selectIsSolve}>
+                <S.DropDownButton onClick={isClearHandler} selected={selectIsSolve}>
                     {selectIsSolve || '해결여부'}
                     <S.DropDownIconWrap><S.DropDownIcon /></S.DropDownIconWrap>
                 </S.DropDownButton>
-                <S.DropDownMenuWrap isDropped={isClearOpen}>
+                <S.DropDownMenuWrap $isDropped={isClearOpen}>
                     {['미해결', '해결'].map(isSolve => (
                         <S.DropDownMenu key={isSolve} onClick={() => { handleSelect('IsSolve', isSolve); closeAll() }}>{isSolve}</S.DropDownMenu>
                     ))}
                 </S.DropDownMenuWrap>
             </S.ButtonWrap>
             <S.ButtonWrap ref={wordRef}>
-                <S.DropDownButton onClick={wordHandler} select={!!selectKeyword}>
+                <S.DropDownButton onClick={wordHandler} selected={selectKeyword}>
                     {selectKeyword || '키워드'}
                     <S.DropDownIconWrap><S.DropDownIcon /></S.DropDownIconWrap>
                 </S.DropDownButton>
-                <S.DropDownMenuWrap isDropped={wordOpen}>
+                <S.DropDownMenuWrap $isDropped={wordOpen}>
                     {['반복문', '배열', '조건식', '함수'].map(keyword => (
                         <S.DropDownMenu key={keyword} onClick={() => { handleSelect('Keyword', keyword); closeAll() }}>{keyword}</S.DropDownMenu>
                     ))}

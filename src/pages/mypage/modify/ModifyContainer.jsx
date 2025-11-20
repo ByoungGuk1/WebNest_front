@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser } from '../../../modules/user';
 import useFileUpload from '../../../hooks/useFileUpload';
-import { getFilePath, getFileDisplayUrl } from '../../../utils/fileUtils';
+import { getFileDisplayUrl } from '../../../utils/fileUtils';
 import S from './style';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash, faCalendar } from '@fortawesome/free-solid-svg-icons';
@@ -10,7 +10,7 @@ import { faEye, faEyeSlash, faCalendar } from '@fortawesome/free-solid-svg-icons
 const ModifyContainer = () => {
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.user.currentUser);
-  
+
   const [formData, setFormData] = useState({
     userName: '',
     userNickname: '',
@@ -51,10 +51,18 @@ const ModifyContainer = () => {
           : '',
         userPhone: currentUser.userPhone || '',
       });
+
       // 프로필 이미지 URL 설정 (파일 경로인 경우 display URL로 변환)
       const thumbnailUrl = currentUser.userThumbnailUrl;
       if (thumbnailUrl && thumbnailUrl !== '/default' && !thumbnailUrl.startsWith('http') && !thumbnailUrl.startsWith('/assets')) {
-        setProfilePreview(getFileDisplayUrl(thumbnailUrl));
+        // 잘못된 경로 형식 처리 (/uploads/로 시작하는 경우 제거)
+        let cleanUrl = thumbnailUrl;
+        if (cleanUrl.startsWith('/uploads/')) {
+          cleanUrl = cleanUrl.replace('/uploads/', '');
+        } else if (cleanUrl.startsWith('uploads/')) {
+          cleanUrl = cleanUrl.replace('uploads/', '');
+        }
+        setProfilePreview(getFileDisplayUrl(cleanUrl));
       } else {
         setProfilePreview(thumbnailUrl || '/assets/images/defalutpro.svg');
       }
@@ -228,20 +236,16 @@ const ModifyContainer = () => {
 
       // 프로필 이미지가 변경된 경우 파일 업로드
       if (profileImage) {
-        const uuids = await uploadFiles([profileImage]);
-        if (uuids && uuids.length > 0) {
-          const uuid = uuids[0];
-          const today = new Date();
-          const year = today.getFullYear();
-          const month = String(today.getMonth() + 1).padStart(2, '0');
-          const day = String(today.getDate()).padStart(2, '0');
-          const datePath = `${year}/${month}/${day}/`;
+        // 백엔드에서 전체 경로(예: 2025/11/18/uuid_filename.jpg)를 반환
+        const filePaths = await uploadFiles([profileImage]);
+        if (filePaths && filePaths.length > 0) {
+          const filePath = filePaths[0]; // 예: 2025/11/18/uuid_ara.jpg
           
-          const fileName = `${uuid}_${profileImage.name}`;
-          const filePath = getFilePath(uuid, profileImage.name, datePath);
+          // 파일명 추출 (경로에서 마지막 부분)
+          const fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
           
-          updateData.userThumbnailName = fileName;
-          updateData.userThumbnailUrl = filePath;
+          updateData.userThumbnailName = fileName; // 예: uuid_ara.jpg
+          updateData.userThumbnailUrl = filePath;  // 예: 2025/11/18/uuid_ara.jpg
         } else {
           alert('프로필 이미지 업로드에 실패했습니다.');
           setIsLoading(false);
@@ -271,6 +275,7 @@ const ModifyContainer = () => {
       );
 
       const result = await response.json();
+      console.log('Modify API 응답:', result);
 
       if (!response.ok) {
         // 현재 비밀번호가 일치하지 않는 경우
@@ -293,25 +298,40 @@ const ModifyContainer = () => {
       setPasswordError('');
       setIsPasswordVerified(false);
 
-      // Redux 업데이트를 위해 사용자 정보 다시 가져오기
-      const userResponse = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/private/users/me`,
-        {
-          headers: {
-            Accept: 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      // modify API 응답에서 업데이트된 사용자 정보 가져오기 (썸네일 포함)
+      const updatedUserData = result?.data ?? result;
+      console.log('업데이트된 사용자 데이터:', updatedUserData);
+      
+      if (updatedUserData && updatedUserData.id != null) {
+        // 백엔드에서 반환한 업데이트된 사용자 정보(썸네일 포함)를 Redux에 저장
+        dispatch(setUser(updatedUserData));
+        console.log('Redux 업데이트 완료');
+      } else {
+        // 응답에 데이터가 없는 경우 /users/me로 다시 가져오기
+        console.log('응답에 데이터가 없어 /users/me로 재요청');
+        const userResponse = await fetch(
+          `${process.env.REACT_APP_BACKEND_URL}/private/users/me`,
+          {
+            headers: {
+              Accept: 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
 
-      if (userResponse.ok) {
-        const userResult = await userResponse.json();
-        const updatedUser = userResult?.data ?? userResult;
-        dispatch(setUser(updatedUser));
+        if (userResponse.ok) {
+          const userResult = await userResponse.json();
+          const userData = userResult?.data ?? userResult;
+          console.log('재요청한 사용자 데이터:', userData);
+          if (userData && userData.id != null) {
+            dispatch(setUser(userData));
+            console.log('Redux 업데이트 완료 (재요청)');
+          }
+        }
       }
 
       alert('정보가 성공적으로 수정되었습니다.');
-      
+
       // 비밀번호 필드 초기화
       setPasswordData({
         currentPassword: '',
@@ -397,7 +417,7 @@ const ModifyContainer = () => {
               value={formData.userBirthday}
               onChange={handleInputChange}
             />
-           
+
           </S.DateInputWrapper>
         </S.FormSection>
 

@@ -252,6 +252,7 @@ S.AnswerTop = styled.div`
   margin-bottom: 25px;
 `;
 
+
 S.UserInfo = styled.div`
   display: flex;
   align-items: center; 
