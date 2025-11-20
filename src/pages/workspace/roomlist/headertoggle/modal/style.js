@@ -115,7 +115,8 @@ S.DropdownButton = styled.button`
   justify-content: space-between;
   align-items: center;
   padding: 0 13px;
-  color: ${theme.PALETTE.neutral.gray.main};
+  color: ${({ $hasValue }) =>
+    $hasValue ? theme.PALETTE.neutral.black.main : theme.PALETTE.neutral.gray.main};
   
   &:hover {
     border-color: ${theme.PALETTE.primary.purple.main};

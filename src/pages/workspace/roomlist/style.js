@@ -54,6 +54,7 @@ S.LeftSection = styled.div`
 S.RoomListWrapper = styled.div`
     width: 890px;
     height: 630px;
+    position: relative;
 `
 S.RoomListWrap = styled.div`
     width: 890px;
@@ -356,6 +357,21 @@ S.RightWrap = styled.div`
     align-items: center;
     justify-content: space-between;
     gap: 4px;
+`
+S.MoveToTyping = styled.div`
+    width: 93px;
+    height: 70px;
+    border-radius: 180px;
+    border: 2px solid #7255ee;
+    position: absolute;
+    bottom: 0px;
+    right: -140px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    ${h6Bold}
+    color: #7255ee;
 `
 S.RightArrayWrap = styled.div`
     display: flex;
