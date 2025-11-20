@@ -241,29 +241,15 @@ S.AnswerCard = styled.div`
   flex-direction: column;
 `;
 
-// S.AnswerTop = styled.div`
-//   display: flex;  
-//   align-items: center;
-//   background-color: ${({ theme }) => theme.PALETTE.neutral.white.main};
-//   border-radius: 8px;
-//   padding: 10px;
-//   justify-content: space-between;
-//   gap: 10px;
-//   margin-bottom: 25px;
-// `;
 S.AnswerTop = styled.div`
   display: flex;  
   align-items: center;
-  /* background-color: ${({ theme }) => theme.PALETTE.neutral.white.main}; */
+  background-color: ${({ $commentIsAccept }) => ($commentIsAccept ? "blue" : "#f1f1f1")};
   border-radius: 8px;
   padding: 10px;
   justify-content: space-between;
   gap: 10px;
   margin-bottom: 25px;
-
-  /* 🔥 채택된 답변은 빨간색 강조 */
-  background-color: ${({ $accepted }) =>
-    $accepted ? "#f1effcff" : "#f1f1f1"}; /* 연한 빨강 */
 `;
 
 
