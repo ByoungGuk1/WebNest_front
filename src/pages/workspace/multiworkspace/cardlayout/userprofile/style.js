@@ -67,12 +67,20 @@ S.ProfileImageWrap = styled.div`
   flex-flow: hidden;
   background-color: ${theme.PALETTE.neutral.gray.light};
   position: relative;
+
+  & > [name="userThumbnail"] {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
 `;
 
 S.CrownIcon = styled.img`
   position: absolute;
+  width: 24px;
+  height: 24px;
   z-index: 1;
-  top: -10px;
+  top: -16px;
 `;
 
 S.UserNameWrap = styled.div`
