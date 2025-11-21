@@ -7,6 +7,7 @@ import {
   flexCenterRow,
   h2Light,
   h4Light,
+  h6Light,
   h8Light,
 } from "../../../styles/common";
 
@@ -138,7 +139,11 @@ S.ExplanationContainer = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(2px);
   border-radius: 12px;
-  ${h8Light}
+  ${h6Light}
+
+  & > p {
+    padding: 16px;
+  }
 `;
 
 export default S;
