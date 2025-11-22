@@ -8,6 +8,7 @@ import {
   h6Light,
   h6Medium,
   h7Bold,
+  h5Bold,
   h7Medium,
   h7Light,
   h8Bold,
@@ -129,6 +130,11 @@ S.PopularCard = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  ${S.AuthorName} {
+    font-size: 12px;
+    font-weight: 500;
+  }
 `;
 
 S.PopularTitle = styled.div`
@@ -169,7 +175,7 @@ S.MetaWrap = styled.div`
   align-items: center;
   gap: 6px;
   color: ${({ theme }) => theme.PALETTE.neutral.black.secondary};
-  ${h8Medium}
+  ${h7Medium}
 
   b {
     font-weight: normal;
@@ -177,9 +183,14 @@ S.MetaWrap = styled.div`
   }
 `;
 
+S.AuthorName = styled.span`
+  ${h7Bold}
+  color: ${({ theme }) => theme.PALETTE.neutral.black.main};
+`;
+
 S.ProfileImg = styled.img`
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   object-fit: cover;
   background-color: #f5f5f5;
@@ -218,9 +229,32 @@ S.SortWrap = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  z-index: 100;
 
-  /* 드롭다운 루트 클래스 높이 보정 */
-  & .dd-ctrl { margin: -6px 0 6px 0; }
+  /* 드롭다운 루트 클래스 높이 보정 및 z-index 설정 */
+  & .dd-ctrl { 
+    margin: -6px 0 6px 0;
+    position: relative;
+    z-index: 100;
+  }
+  
+  /* ThreeDropDown 내부 요소들 z-index 보정 */
+  & .dd-ctrl > div {
+    position: relative;
+    z-index: 100;
+  }
+  
+  & .dd-ctrl button {
+    position: relative;
+    z-index: 100;
+    cursor: pointer;
+  }
+  
+  & .dd-ctrl > div > div {
+    position: relative;
+    z-index: 101;
+  }
 `;
 
 S.Select = styled.div`
@@ -231,7 +265,7 @@ S.Select = styled.div`
     border: 1px solid ${({ theme }) => theme.PALETTE.neutral.gray.light};
     border-radius: 10px;
     color: ${({ theme }) => theme.PALETTE.neutral.black.main};
-    ${h6Medium}
+    ${h6Bold}
     cursor: pointer;
     padding: 0 40px 0 14px;
     outline: none; appearance: none;
@@ -321,7 +355,7 @@ S.QuestionInfo = styled.div`
 `;
 
 S.QuestionTitle = styled.div`
-  ${h6Bold}
+  ${h5Bold}
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

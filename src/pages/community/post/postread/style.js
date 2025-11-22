@@ -87,8 +87,8 @@ S.AuthorBox = styled.div`
 `;
 
 S.ProfileImg = styled.img`
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
 `;
@@ -249,9 +249,10 @@ S.CommentRight = styled.div`
 `;
 
 S.CommentAvatar = styled.img`
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
+  object-fit: cover;
 `;
 
 S.CommentUserRow = styled.div`
@@ -328,9 +329,10 @@ S.SubcommentRight = styled.div`
 `;
 
 S.SubcommentAvatar = styled.img`
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
+  object-fit: cover;
 `;
 
 S.SubcommentUserRow = styled.div`
