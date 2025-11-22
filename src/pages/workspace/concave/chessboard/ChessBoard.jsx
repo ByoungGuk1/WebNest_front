@@ -3,12 +3,30 @@ import S from "./style";
 import GameContext from "context/GameContext";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
+import OmokEndModal from "../omokmodal/OmokEndModal";
 
 const ChessBoard = (props) => {
 
     const context = useContext(GameContext)
     const { roomId, userSenderId } = context;
     const myUserId = userSenderId;
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [winner, setWinner] = useState(null);
+    const [finishTime, setFinishTime] = useState(0);
+
+    const formatTime = (time) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        return `${minutes}분 ${seconds}초`;
+    };
+
+    // 게임 종료 시 호출
+    const handleGameOver = (winnerPlayer, timeTaken) => {
+        setWinner(winnerPlayer); // 1 = 흑, 2 = 백
+        setFinishTime(timeTaken);
+        setIsModalOpen(true);
+    };
+
 
     const boardSize = props.boardSize === undefined ? 15 : props.boardSize;
     const timeoutSec = props.timeoutSec === undefined ? 30 : props.timeoutSec;
@@ -17,8 +35,6 @@ const ChessBoard = (props) => {
         () => Array.from({ length: boardSize }, () => Array(boardSize).fill(0))
     );
     // 유저턴 흑 또는 백
-    const [turnOwnerId, setTurnOwnerId] = useState(null);
-
     const [isMyTurn, setIsMyTurn] = useState(1);
     const [message, setMessage] = useState("좌표를 입력하세요. 예: [3|1] 또는 3,1");
     const [lastMove, setLastMove] = useState(null);
@@ -31,8 +47,6 @@ const ChessBoard = (props) => {
     const remainingRef = useRef(timeoutSec);
     const [remaining, setRemaining] = useState(timeoutSec);
 
-    const stompRef = useRef(null);
-    const boardRef = useRef(null);
     const [boardPx, setBoardPx] = useState({ width: 0, height: 0 });
 
     function cellCenterX(col) {
@@ -109,7 +123,6 @@ const ChessBoard = (props) => {
         return { row, col };
     }
 
-    // console.log("inputRef:", inputRef)
     // 방장이 게임시작누르면 타이머발동
     // 제한시간 셋 초기화
     function clearTimer() {
@@ -118,13 +131,7 @@ const ChessBoard = (props) => {
             timerRef.current = null;
         }
     }
-    // 게임시작 true 이되면 마이턴이 1인 사람부터 제한시간작동
 
-    // 마이턴 1인사람이 착수 후 마이턴이 0이되고 다음 유저가 마이턴 1 그 후 반복
-    // console.log("remainingRef,", remainingRef)
-    // console.log("remainingR,", remaining)
-    // console.log("clearTime,", timerRef)
-    // console.log("clearTime,", timeoutSec)
 
     // 착수 제한시간
     function startTimer(turn) {
@@ -158,13 +165,16 @@ const ChessBoard = (props) => {
             if (detect.win) {
                 setWinLine(detect.line);
                 setIsGameOver(true);
+                setWinner(detect.winner);
+                setFinishTime(remainingRef.current ? timeoutSec - remainingRef.current : 0);
+                setIsModalOpen(true);
                 clearTimer();
                 setMessage(`게임 종료: ${detect.winner === 1 ? "흑" : "백"} 승리`);
                 setLastMove({ row: row0, col: col0 });
                 return next;
             }
             setLastMove({ row: row0, col: col0 });
-            setIsMyTurn(isMyTurn => (isMyTurn === 1 ? 1 : 2));
+            setIsMyTurn(isMyTurn => (isMyTurn === 1 ? 2 : 1));
             const placedColor = isMyTurn === 1 ? "흑" : "백";
             setMessage(`두었습니다: (${row0}|${col0}) - ${placedColor}`);
             startTimer(true);
@@ -188,21 +198,21 @@ const ChessBoard = (props) => {
             return;
         }
         const pick = empties[Math.floor(Math.random() * empties.length)];
-        console.log("pick", pick)
         setChessBoard(prev => {
             const next = prev.map(row => row.slice());
             next[pick.i][pick.j] = isMyTurn;
             const detect = detectFiveInARow(next, pick.i, pick.j);
-            console.log("detect", detect)
             setLastMove({ row: pick.i, col: pick.j });
             if (detect.win) {
                 setWinLine(detect.line);
                 setIsGameOver(true);
+                setWinner(detect.winner)
+                setIsModalOpen(true)
                 setMessage(`시간 초과: 착수 후 ${detect.winner === 1 ? "흑" : "백"} 승리`)
                 clearTimer();
                 return next;
             }
-            setIsMyTurn(isMyTurn => (isMyTurn === 1 ? 1 : 2));
+            setIsMyTurn(isMyTurn => (isMyTurn === 1 ? 2 : 1));
             const placedColor = isMyTurn === 1 ? "흑" : "백";
             setMessage(`시간 초과: 무작위 착수 (${pick.i}|${pick.j}) - ${placedColor}`);
             startTimer(true);
@@ -242,72 +252,81 @@ const ChessBoard = (props) => {
     }
     // render
     return (
-        <S.Wrap>
-            <S.LeftPanel>
-                <S.Logo>WebNest</S.Logo>
-                <S.Timer>{String(remaining).padStart(2, "0")}초</S.Timer>
-                <S.Day>토요일</S.Day>
+        <>
+            <S.Wrap>
+                <S.LeftPanel>
+                    <S.Logo>WebNest</S.Logo>
+                    <S.Timer>{String(remaining).padStart(2, "0")}초</S.Timer>
+                    <S.Day>토요일</S.Day>
 
-                <S.HelpBlock>
-                    <S.HelpTitle>설명</S.HelpTitle>
-                    <S.HelpText>이 오목게임은 키보드 입력으로 진행됩니다</S.HelpText>
-                    <S.HelpText>좌표 입력 예: [3|1]</S.HelpText>
-                    <S.HelpText>이미 돌이 있으면 입력 불가</S.HelpText>
-                    <S.HelpText>30초 지나면 무작위 배치됩니다</S.HelpText>
-                </S.HelpBlock>
+                    <S.HelpBlock>
+                        <S.HelpTitle>설명</S.HelpTitle>
+                        <S.HelpText>이 오목게임은 키보드 입력으로 진행됩니다</S.HelpText>
+                        <S.HelpText>좌표 입력 예: [3|1]</S.HelpText>
+                        <S.HelpText>이미 돌이 있으면 입력 불가</S.HelpText>
+                        <S.HelpText>30초 지나면 무작위 배치됩니다</S.HelpText>
+                    </S.HelpBlock>
+                    <S.Form onSubmit={handleSubmit}>
+                        <S.Input
+                            ref={inputRef}
+                            onKeyDown={handleKeyDown}
+                            placeholder="[r|c] 예: [3|1]"
+                            autoComplete="off"
+                        />
+                        <S.Submit>입력</S.Submit>
+                    </S.Form>
 
-                <S.Form onSubmit={handleSubmit}>
-                    <S.Input
-                        ref={inputRef}
-                        onKeyDown={handleKeyDown}
-                        placeholder="[r|c] 예: [3|1]"
-                        autoComplete="off"
-                    />
-                    <S.Submit>입력</S.Submit>
-                </S.Form>
+                    <S.MessageBox>
+                        <S.MsgHeader>메시지</S.MsgHeader>
+                        <S.MsgBody>{message}</S.MsgBody>
+                    </S.MessageBox>
+                </S.LeftPanel>
 
-                <S.MessageBox>
-                    <S.MsgHeader>메시지</S.MsgHeader>
-                    <S.MsgBody>{message}</S.MsgBody>
-                </S.MessageBox>
-            </S.LeftPanel>
-
-            <S.BoardPanel>
-                <div>
-                    <S.BoardImg src="/assets/gameroom/concaveboard.png" />
-                    <S.BoardOuter>
-                        <S.Board gridSize={boardSize}>
-                            {chessBoard.map((row, rowIdx) =>
-                                row.map((cell, columIdx) => {
-                                    const isWinCell = winLine.some(line => line.row === rowIdx && line.col === columIdx);
-                                    const isLast = lastMove && lastMove.rowIdx === rowIdx && lastMove.columIdx === columIdx;
-                                    return (
-                                        <S.Cell key={`${rowIdx}-${columIdx}`}>
-                                            <S.Intersection />
-                                            {cell !== 0 && <S.Stone color={cell === 1 ? "black" : "white"} isWin={isWinCell} />}
-                                            {isLast && <S.LastMark />}
-                                        </S.Cell>
-                                    );
-                                })
+                <S.BoardPanel>
+                    <div>
+                        <S.BoardImg src="/assets/gameroom/concaveboard.png" />
+                        <S.BoardOuter>
+                            <S.Board gridSize={boardSize}>
+                                {chessBoard.map((row, rowIdx) =>
+                                    row.map((cell, columIdx) => {
+                                        const isWinCell = winLine.some(line => line.row === rowIdx && line.col === columIdx);
+                                        const isLast = lastMove && lastMove.rowIdx === rowIdx && lastMove.columIdx === columIdx;
+                                        return (
+                                            <S.Cell key={`${rowIdx}-${columIdx}`}>
+                                                <S.Intersection />
+                                                {cell !== 0 && <S.Stone color={cell === 1 ? "black" : "white"} isWin={isWinCell} />}
+                                                {isLast && <S.LastMark />}
+                                            </S.Cell>
+                                        );
+                                    })
+                                )}
+                            </S.Board>
+                            {winLine && winLine.length >= 2 && boardPx.width > 0 && (
+                                <S.WinSvg viewBox={`0 0 ${boardPx.width} ${boardPx.height}`} preserveAspectRatio="none">
+                                    <S.WinPolyline
+                                        points={winLine.map(p => `${cellCenterX(p.col)} ${cellCenterY(p.row)}`).join(" ")}
+                                        stroke="gold"
+                                        strokeWidth="8"
+                                        fill="none"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </S.WinSvg>
                             )}
-                        </S.Board>
-                        {winLine && winLine.length >= 2 && boardPx.width > 0 && (
-                            <S.WinSvg viewBox={`0 0 ${boardPx.width} ${boardPx.height}`} preserveAspectRatio="none">
-                                <S.WinPolyline
-                                    points={winLine.map(p => `${cellCenterX(p.col)} ${cellCenterY(p.row)}`).join(" ")}
-                                    stroke="gold"
-                                    strokeWidth="8"
-                                    fill="none"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                            </S.WinSvg>
-                        )}
-                    </S.BoardOuter>
-                </div>
-            </S.BoardPanel>
-        </S.Wrap>
+                        </S.BoardOuter>
+                    </div>
+                </S.BoardPanel>
+            </S.Wrap>
+            {/* 게임 종료 모달 */}
+            <OmokEndModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                winner={winner}
+                finishTime={finishTime}
+                formatTime={formatTime}
+            />
+        </>
     );
-    
+
 }
 export default ChessBoard;
