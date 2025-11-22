@@ -10,7 +10,7 @@ const ContentContainer = ({ wordVO }) => {
       <S.ExplanationContainer
         color={wordVO?.color}
         recentword={wordVO?.recentword}>
-        {wordVO?.explanation}
+        <p>{wordVO?.explanation}</p>
       </S.ExplanationContainer>
     </S.ContentContainer>
   );

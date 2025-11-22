@@ -176,7 +176,11 @@ const UserProfile = ({ userData, onClick, setUsers, users, getPlayers }) => {
 
         <S.ProfileImageWrap>
           {hostCrown()}
-          <img src={user.userThumbnailURL} alt={user.userThumbnailName} />
+          <img
+            name="userThumbnail"
+            src={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${user.userThumbnailURL}${user.userThumbnailName}`}
+            alt={user.userThumbnailName}
+          />
         </S.ProfileImageWrap>
 
         <S.UserNameWrap>{user.userNickname}</S.UserNameWrap>
