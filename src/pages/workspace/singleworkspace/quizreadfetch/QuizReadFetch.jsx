@@ -1,5 +1,5 @@
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import S from './style';
 import QuizRead from '../quizread/QuizRead';
@@ -12,12 +12,14 @@ const QuizReadFetch = () => {
     const [quizs, setQuizs] = useState([]);
     const [quiz, setQuiz] = useState({});
     const [loading, setLoading] = useState(false);
+    const [solved, setSolved] = useState(0);
+    const [userCode, setUserCode] = useState("");
 
     const [requesting, setRequesting] = useState(new Set());
     const [bookmarkId, setBookmarkId] = useState();
     const getUser = useSelector(state => state.user)
     const currentUser = getUser.currentUser
-    const userId = currentUser.id
+    const userId = currentUser?.id
 
     useEffect(() => {
         const fetchQuizListAndCurrent = async () => {
@@ -55,6 +57,8 @@ const QuizReadFetch = () => {
     const prevQuiz = quizs[currentIndex - 1];
     const nextQuiz = quizs[currentIndex + 1];
     useEffect(() => {
+        if(!userId || userId === 0) return;
+
         const readQuiz = async () => {
             setLoading(true)
             try {
@@ -71,6 +75,8 @@ const QuizReadFetch = () => {
                 if (!response.ok) throw new Error("퀴즈 요청 실패")
                 const data = await response.json()
                 setQuiz(data.data)
+                setSolved(data.data.isSolved)
+                setUserCode(data.data.userCode)
             } catch (err) {
                 console.error(err)
             } finally {
@@ -78,7 +84,7 @@ const QuizReadFetch = () => {
             }
         }
         readQuiz()
-    }, [quizid])
+    }, [quizid, userId])
 
     if (loading || !quiz.id) {
         return (
@@ -98,6 +104,8 @@ const QuizReadFetch = () => {
             loading={loading}
             bookmarkId={bookmarkId}
             requesting={requesting}
+            solved={solved}
+            userCode={userCode}
         />
 
     );
