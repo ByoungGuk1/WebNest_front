@@ -8,9 +8,12 @@ S.DropContainer = styled.div`
     display: flex;
     gap: 12px;
     padding: 46px 0 34px 0;
+    position: relative;
+    z-index: 100;
     `
 S.ButtonWrap = styled.div`
     position: relative;
+    z-index: 100;
 `
 
 S.DropDownButton = styled.button`
@@ -28,6 +31,8 @@ S.DropDownButton = styled.button`
     color: ${({ selected }) => selected ? "#FFFFFF" : "000000"};
     font-size: 15.5px;
     font-weight: 600;
+    cursor: pointer;
+    z-index: 100;
     `
 S.DropDownIconWrap = styled.svg`
     position: absolute;
@@ -55,7 +60,7 @@ S.DropDownIcon = () => (
 );
 
 S.DropDownMenuWrap = styled.div`
-    display: ${({ $isDropped }) => $isDropped ? "flex" : "none"};
+    display: ${({ isDropped }) => isDropped ? "flex" : "none"};
     flex-direction: column;
     gap: 10px;
     padding: 10px 0px 10px 8px;
@@ -66,6 +71,8 @@ S.DropDownMenuWrap = styled.div`
     width: 102px;
     height: fit-content;
     top: 45px;
+    z-index: 101;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 `
 S.DropDownMenu = styled.span`
     width: 78px;

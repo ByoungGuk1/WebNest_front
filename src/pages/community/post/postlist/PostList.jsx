@@ -237,7 +237,7 @@ const PostList = ({ posts = [], loading = false, linkTo = "/post" }) => {
                       />
                       {authorName && (
                         <>
-                          <span>{authorName}</span>
+                          <S.AuthorName>{authorName}</S.AuthorName>
                           <b>·</b>
                         </>
                       )}
