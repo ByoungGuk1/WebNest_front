@@ -170,12 +170,12 @@ const RoomListContainer = () => {
             </S.LeftSection>
             <div>
               <S.RightWrap>
-                <S.SelectBoxWrap>
+                {/* <S.SelectBoxWrap>
                 <S.SelectBox $isSelected={selectedLanguage === null || selectedLanguage === 'ALL'} onClick={() => handleLanguageClick('ALL')}> ALL </S.SelectBox>
                 <S.SelectBox $isSelected={selectedLanguage === 'JAVA'} onClick={() => handleLanguageClick('JAVA')}> JAVA </S.SelectBox>
                 <S.SelectBox $isSelected={selectedLanguage === 'JS'} onClick={() => handleLanguageClick('JS')}> JS</S.SelectBox>
                 <S.SelectBox $isSelected={selectedLanguage === 'ORACLE'} onClick={() => handleLanguageClick('ORACLE')}> ORACLE </S.SelectBox>
-              </S.SelectBoxWrap>
+              </S.SelectBoxWrap> */}
                 <S.FilterWrap>
                   <S.RightArrayWrap onClick={handleSortClick} style={{ cursor: 'pointer' }}>
                       <span>{sortOrder === 'latest' ? '최신순' : '오래된순'}</span><S.IconBox><img src="/assets/icons/Symbol.svg" /></S.IconBox>

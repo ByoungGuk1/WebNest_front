@@ -46,11 +46,33 @@ const readAllNotice = async () => {
     );
     if (!res.ok) throw new Error("모두 읽음 실패");
 
-    // 성공 시 화면 비우기 (낙관적 업데이트)
-    setNotifications(prev => ({
-      ...prev,
-      data: { posts: [], comments: [], follows: [] },
-    }));
+    // 성공 시 알림은 유지하고 읽음 상태만 업데이트
+    setNotifications(prev => {
+      const data = prev?.data ?? {};
+      
+      return {
+        ...prev,
+        data: {
+          posts: (data.posts || []).map(item => ({
+            ...item,
+            postNotificationIsRead: true,
+            notificationIsRead: true,
+          })),
+          comments: (data.comments || []).map(item => ({
+            ...item,
+            commentNotificationIsRead: true,
+            notificationIsRead: true,
+          })),
+          follows: (data.follows || []).map(item => ({
+            ...item,
+            followNotificationIsRead: true,
+            notificationIsRead: true,
+          })),
+        }
+      };
+    });
+    
+    alert("알람을 모두 읽었습니다.");
   } catch (e) {
     console.error(e);
     alert("모두 읽음 처리 중 에러가 발생했습니다.");
@@ -110,7 +132,6 @@ const deleteAllNotice = async () => {
 
     if (!res.ok) throw new Error("개별 알림 읽음 처리 실패");
 
-    alert("알림을 읽었습니다.")
     setNotifications(prev => {
       const data = prev?.data ?? {};
       const removeByType = (arr=[]) => arr.filter(v => v.id !== n.id);
@@ -277,42 +298,50 @@ const notificationLists = () =>
 
     if (notice.type === "POST") {
       const tail = msgFromAction(notice.postNotificationAction);
+      {console.log(notice)}
       return (
-        <S.NotificationItems
-          key={key}
-          $isRead={isRead}
-          onClick={() => onReadOne(notice)}      // ← 객체 통째로 전달
-          style={{ cursor: "pointer" }}
-        >
-          <S.TimeText>{timeText}</S.TimeText>
-          <S.OneLine>
-            <span className="name">{notice.userNickname}</span>
-            <span className="msg">
-              님이 회원님의 게시글 「{notice.postTitle ?? ""}」에 {tail}
-            </span>
-          </S.OneLine>
-        </S.NotificationItems>
+        <Link to={`${notice.postType === "OPEN" ? "/post/": "/question/"}${notice.postId}`}
+          key={key}>
+          <S.NotificationItems
+            key={key}
+            $isRead={isRead}
+            onClick={() => onReadOne(notice)}      // ← 객체 통째로 전달
+            style={{ cursor: "pointer" }}
+          >
+            <S.TimeText>{timeText}</S.TimeText>
+            <S.OneLine>
+              <span className="name">{notice.userNickname}</span>
+              <span className="msg">
+                님이 회원님의 게시글 「{notice.postTitle ?? ""}」에 {tail}
+              </span>
+            </S.OneLine>
+          </S.NotificationItems>
+        </Link>
       );
     }
 
     // COMMENT
     const tail = msgFromAction(notice.commentNotificationAction);
+    console.log(notice)
+    console.log(notice.postType === "OPEN" ? "post" : "question")
     return (
-      <S.NotificationItems
-          key={key}
-          $isRead={isRead}
-          onClick={() => onReadOne(notice)}      // ← 객체 통째로 전달
-          style={{ cursor: "pointer" }}
-        >
-        <S.TimeText>{timeText}</S.TimeText>
-        <S.OneLine>
-          <span className="name">{notice.userNickname}</span>
-          <span className="msg">
-            님이 회원님의 댓글
-            {notice.postTitle ? ` 「${notice.postTitle}」` : ""}에 {tail}
-          </span>
-        </S.OneLine>
-      </S.NotificationItems>
+      <Link to={`${notice.postType === "OPEN" ? "/post/" : "/question/"}${notice.postId}`}
+        key={key}>
+        <S.NotificationItems
+            $isRead={isRead}
+            onClick={() => onReadOne(notice)}      // ← 객체 통째로 전달
+            style={{ cursor: "pointer" }}
+          >
+          <S.TimeText>{timeText}</S.TimeText>
+          <S.OneLine>
+            <span className="name">{notice.userNickname}</span>
+            <span className="msg">
+              님이 회원님의 댓글
+              {notice.postTitle ? ` 「${notice.postTitle}」` : ""}에 {tail}
+            </span>
+          </S.OneLine>
+        </S.NotificationItems>
+      </Link>
     );
   });
 
@@ -346,7 +375,8 @@ const notificationLists = () =>
           { isLogin ? (
             <S.right_layout>
               <S.notification_wrap>
-               <S.notification onClick={readNotice}></S.notification>
+                <img src='/assets/images/header/bell.png' alt='bell' onClick={readNotice}></img>
+               {/* <S.notification onClick={readNotice}></S.notification> */}
                {alarmCount > 0 ? (<S.notification_new></S.notification_new>) : (<></>)}
                {openNotice === true ? (
 

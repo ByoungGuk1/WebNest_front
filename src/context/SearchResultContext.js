@@ -28,11 +28,9 @@ export const SearchResultProvider = ({children}) => {
       setIsSearchUpdate: setIsSearchUpdate, 
     },
   }
-  // 데이터를 요청 후 초기값을 전달하는 것도 가능하다.
   useEffect(() => {
     const trimmedSearch = search ? search.trim() : "";
     
-    // 검색어가 없거나 빈 문자열이거나 2글자 미만이면 요청하지 않음
     if (!trimmedSearch || trimmedSearch.length < 2) {
       setOpenPost([]);
       setQuestionPosts([]);

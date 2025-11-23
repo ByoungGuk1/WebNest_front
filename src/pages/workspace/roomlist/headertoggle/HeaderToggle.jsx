@@ -113,8 +113,6 @@ const HeaderToggle = ({
 
     // 게임방 내부 모드: 게임 시작 전 버튼 표시
     if (isInGameRoom) {
-        console.log('🎮 HeaderToggle 게임방 내부 모드:', { isHost, isGameStarted, onStartGame, onReady, onInvite });
-        
         return (
             <S.GameRoomToggleWrap>
                 {isHost ? (
@@ -148,7 +146,7 @@ const HeaderToggle = ({
                 </>
             )}</S.GameRoomToggle>
             <S.GameRoomToggle onClick={goToRandomRoom}><S.IconCircle><img src="/assets/gameroom/common/flash.png" alt='빠른입장'/></S.IconCircle><S.GameRoomToggleInnerText>빠른 입장</S.GameRoomToggleInnerText></S.GameRoomToggle>
-            <S.GameRoomToggle onClick={nextLevel}><S.IconCircle><img src="/assets/gameroom/common/star.png" alt='난이도' /></S.IconCircle><S.GameRoomToggleInnerText>{currentDifficult.value}</S.GameRoomToggleInnerText></S.GameRoomToggle>
+            {/* <S.GameRoomToggle onClick={nextLevel}><S.IconCircle><img src="/assets/gameroom/common/star.png" alt='난이도' /></S.IconCircle><S.GameRoomToggleInnerText>{currentDifficult.value}</S.GameRoomToggleInnerText></S.GameRoomToggle> */}
             <S.GameRoomToggle $isSelected={teamMode !== null} onClick={handleTeamToggle}>
                 <S.IconCircle><img src="/assets/gameroom/common/human.png" alt='개인전' /></S.IconCircle>
                 <S.GameRoomToggleInnerText $isSelected={teamMode !== null}>

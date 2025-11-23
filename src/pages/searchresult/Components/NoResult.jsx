@@ -38,10 +38,10 @@ const NoResult = ({
           <div>
             <S.HelpTitleSpan>내가 직접 글쓰러 가기</S.HelpTitleSpan>
             <S.HelpToWrite>
-              <S.CleanLinkTag to={"/"}>
+              <S.CleanLinkTag to={"/question/write"}>
                 문제둥지에 글쓰러 가기
               </S.CleanLinkTag>
-              <S.CleanLinkTag to={"/"}>
+              <S.CleanLinkTag to={"/question/write"}>
                 자유둥지에 글쓰러 가기
               </S.CleanLinkTag>
             </S.HelpToWrite>

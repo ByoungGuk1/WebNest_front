@@ -7,6 +7,7 @@ import { Client } from '@stomp/stompjs';
 import S from "./style";
 import DiceContainer from "./dice/DiceContainer";
 import { getGameChannelFromPath } from "../../../utils/gameChannel";
+import GameEndModal from "./GameEndModal";
 
 const SnakePuzzleContainer = () => {
   const { roomId } = useParams();
@@ -24,6 +25,7 @@ const SnakePuzzleContainer = () => {
   const [isReady, setIsReady] = useState(false);
   const [isGameEnded, setIsGameEnded] = useState(false);
   const [winner, setWinner] = useState(null);
+  const [showGameEndModal, setShowGameEndModal] = useState(false);
   // 10x10 뷰 순서(지그재그)로 정렬된 숫자 배열 생성
   // 말판 부분 - 1이 왼쪽 하단, 100이 오른쪽 상단
   const cells = useMemo(() => {
@@ -168,7 +170,7 @@ const SnakePuzzleContainer = () => {
               
               const winnerName = winnerPlayer.userNickname || winnerPlayer.nickname || '플레이어';
               setWinner(winnerName);
-              alert(`${winnerName}님이 승리하셨습니다! 게임이 종료되었습니다.`);
+              setShowGameEndModal(true);
             }
           }
           
@@ -185,10 +187,10 @@ const SnakePuzzleContainer = () => {
                 const winnerName = winnerPlayer.userNickname || winnerPlayer.nickname || '플레이어';
                 setWinner(winnerName);
                 if (!shouldEndGame) {
-                  alert(`${winnerName}님이 승리하셨습니다! 게임이 종료되었습니다.`);
+                  setShowGameEndModal(true);
                 }
               } else {
-                alert("게임이 종료되었습니다!");
+                setShowGameEndModal(true);
               }
             }
           }
@@ -457,6 +459,7 @@ const SnakePuzzleContainer = () => {
   ];
 
   return (
+    <>
     <S.Section>
       <S.DiceArea>
         {/* 항상 주사위 굴리기 버튼만 표시 */}
@@ -608,6 +611,42 @@ const SnakePuzzleContainer = () => {
       </S.Board>
     </S.BoardWrap>
     </S.Section>
+    
+    {/* 게임 종료 모달 */}
+    <GameEndModal
+      isOpen={showGameEndModal}
+      winnerName={winner}
+      onConfirm={() => {
+        // 확인 버튼 클릭 시 게임 종료 메시지 전송
+        if (gameStompClientRef.current && gameStompClientRef.current.connected) {
+          const endGameMessage = {
+            gameRoomId: parseInt(roomId),
+            userId: userId,
+          };
+
+          try {
+            const endGameDestination = `/pub/game/${gameChannel}/end-game`;
+            console.log('📡 게임 종료 요청 경로:', endGameDestination);
+            console.log('🎮 게임 종료 요청 전송:', endGameMessage);
+            gameStompClientRef.current.publish({
+              destination: endGameDestination,
+              body: JSON.stringify(endGameMessage),
+            });
+            
+            // 모달 닫기
+            setShowGameEndModal(false);
+          } catch (err) {
+            console.error('게임 종료 요청 전송 실패:', err);
+            alert('게임 종료 처리에 실패했습니다.');
+          }
+        } else {
+          console.error('게임 서버에 연결되지 않았습니다.');
+          alert('게임 서버에 연결되지 않았습니다.');
+          setShowGameEndModal(false);
+        }
+      }}
+    />
+    </>
   );
 };
 

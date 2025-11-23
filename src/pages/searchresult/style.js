@@ -60,14 +60,12 @@ S.TextWrap = styled.div`
   & > a {
     text-decoration: none;
     color: #121212;
+    border-bottom: none !important;
   }
 
-  .border-bottom {
-    border-bottom: 1px solid #D9d9d9;
-  }
-
-  .active {
-    border-bottom: 3px solid #7255EE;
+  & > a.active,
+  & > a.border-bottom.active {
+    border-bottom: 3px solid #7255EE !important;
   }
 `
 S.LayOutWrap = styled.div`
