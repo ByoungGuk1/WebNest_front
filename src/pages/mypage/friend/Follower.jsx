@@ -63,7 +63,6 @@ const Follower = () => {
             counts[userId] = 0;
           }
         } catch (error) {
-          console.error(`팔로워 수 조회 실패 (userId: ${userId}):`, error);
           counts[userId] = 0;
         }
       });
@@ -180,7 +179,6 @@ const Follower = () => {
         refreshData();
       }
     } catch (error) {
-      console.error("팔로우 토글 오류:", error);
       // 실패 시 원래 상태로 복구
       setFollowUI(prev => ({ ...prev, [userId]: currentIsFollow }));
       alert("오류가 발생했습니다. 다시 시도해주세요.");
@@ -201,7 +199,7 @@ const Follower = () => {
       ) : (
         <>
           <S.FollowerList>
-            {currentFollowers.map((user) => {
+            {currentFollowers.map((user, index) => {
               const userId = getId(user);
               // 팔로우 상태 확인: UI 상태 > 팔로잉 목록 확인 > 기본값 false
               const isFollow = (userId in followUI) 
@@ -279,17 +277,8 @@ const Follower = () => {
 
                 const levelImageUrl = `/assets/images/test-grade/grade${level}.png`;
 
-console.log("팔로워 썸네일", {
-  followerThumbnailUrl: user.followerThumbnailUrl,
-  followerThumbnailName: user.followerThumbnailName,
-  userThumbnailUrl: user.userThumbnailUrl,
-  userThumbnailName: user.userThumbnailName,
-  profileUrl,
-});
-
-
               return (
-                <div key={userId}>
+                <div key={userId ? `${userId}-${index}` : `follower-${index}`}>
                   <S.FollowerItem>
                     <S.FollowerLeft>
                       <S.FollowerAvatar>
