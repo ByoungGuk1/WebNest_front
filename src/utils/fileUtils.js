@@ -63,3 +63,38 @@ export const getFilePath = (uuid, originalFileName, datePath = null) => {
 
   return `${path}${uuid}_${originalFileName}`;
 };
+
+/**
+ * 프로필 이미지 경로 정보 생성 (yyyy/MM/dd/ 형식 - 백엔드 실제 저장 형식)
+ * 백엔드가 실제로 yyyy/MM/dd/ 형식으로 저장하므로 이에 맞춰 경로를 생성
+ * @param {string} uuid - 파일 UUID
+ * @param {string} originalFileName - 원본 파일명
+ * @param {string} datePath - 날짜 경로 (yyyy/MM/dd/), 없으면 오늘 날짜 사용
+ * @returns {object} - { folderPath: "2025/11/24/", fileName: "uuid_filename.jpg", fullPath: "2025/11/24/uuid_filename.jpg" }
+ */
+export const getThumbnailPathInfo = (uuid, originalFileName, datePath = null) => {
+  if (!uuid || !originalFileName) {
+    return { folderPath: '', fileName: '', fullPath: '' };
+  }
+
+  let path = datePath;
+  if (!path) {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    // 백엔드 실제 저장 형식: yyyy/MM/dd/
+    path = `${year}/${month}/${day}/`;
+  }
+
+  // path 끝에 '/'가 없으면 추가
+  const normalizedPath = path.endsWith('/') ? path : `${path}/`;
+  const fileName = `${uuid}_${originalFileName}`;
+  const fullPath = `${normalizedPath}${fileName}`;
+
+  return {
+    folderPath: normalizedPath,  // "2025/11/"
+    fileName: fileName,           // "uuid_filename.jpg"
+    fullPath: fullPath            // "2025/11/uuid_filename.jpg"
+  };
+};

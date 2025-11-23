@@ -24,7 +24,12 @@ const colorOf = (lv) => {
   return COLOR.purple; // 9~10
 };
 
-const levelIconSrc = (lv) => `/assets/images/level/${lv}.svg`;
+const levelIconSrc = (lv) => {
+  if (lv === 10) {
+    return `/assets/images/level/x.svg`;
+  }
+  return `/assets/images/level/${lv}.svg`;
+};
 
 const clampLevel = (lv) => {
   const n = Number(lv) || 1;
@@ -33,13 +38,18 @@ const clampLevel = (lv) => {
 
 const GradeContainer = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
+  const fullReduxState = useSelector((state) => state);
   const myData = useOutletContext();
   const { records } = myData;
   const safeLevel = clampLevel(currentUser?.userLevel || 1);
   const userExp = currentUser?.userExp || 0;
 
-  // records는 이제 최신 기록 단일 객체입니다
-  const latestRecord = records || null;
+  // 최고 속도 기준으로 정렬된 첫 번째 기록
+  const sortedRecords = useMemo(() => {
+    if (!records || records.length === 0) return null;
+    const sorted = [...records].sort((a, b) => (b.typingRecordTypist || 0) - (a.typingRecordTypist || 0));
+    return sorted[0];
+  }, [records]);
 
   const segments = useMemo(
     () =>
@@ -55,13 +65,31 @@ const GradeContainer = () => {
     [safeLevel]
   );
 
-  // 경험치 데이터 (임시 데이터 - 실제로는 API에서 가져와야 함)
-  const expData = {
-    problem: 35,
-    answer: 5,
-    game: 10,
-    total: 50,
-  };
+  // 경험치 데이터 계산 - 리덕스의 총 exp 사용
+  const expData = useMemo(() => {
+    const quizMyPage = myData?.quizMyPage || [];
+    
+    // 문제 경험치: 푼 문제들의 quizExp 합산
+    const problemExp = quizMyPage.reduce((sum, quiz) => {
+      return sum + (quiz.quizExp || 0);
+    }, 0);
+    
+    // 답변 경험치: 채택된 답변으로 얻은 경험치
+    const answerExp = myData?.answerExp || 0;
+    
+    // 리덕스에서 총 경험치 가져오기
+    const totalUserExp = userExp || 0;
+    
+    // 게임 경험치: 리덕스의 총 exp에서 문제와 답변 exp를 뺀 값
+    const gameExp = Math.max(0, totalUserExp - problemExp - answerExp);
+    
+    return {
+      problem: problemExp,
+      answer: answerExp,
+      game: gameExp,
+      total: totalUserExp,
+    };
+  }, [myData?.quizMyPage, myData?.answerExp, userExp]);
 
   // 타자 데이터 상태
   const [typingData, setTypingData] = useState({
@@ -71,49 +99,22 @@ const GradeContainer = () => {
   });
 
   useEffect(() => {
-    setTypingData({
-      speed: latestRecord?.typingRecordTime,
-      accuracy: latestRecord?.typingRecordAccuracy,
-      maxSpeed: latestRecord?.typingRecordTypist,
-    })
-  }, [latestRecord])
+    if (sortedRecords) {
+      setTypingData({
+        speed: sortedRecords.typingRecordTypist || 0, // WPM (분당 단어 수) - 타자 속도
+        accuracy: sortedRecords.typingRecordAccuracy || 0, // 정확도 (%)
+        maxSpeed: sortedRecords.typingRecordTypist || 0, // 최고 속도 (WPM)
+      });
+    } else {
+      setTypingData({
+        speed: 0,
+        accuracy: 0,
+        maxSpeed: 0,
+      });
+    }
+  }, [sortedRecords])
 
 
-    // 문제 해결 현황 데이터 - API에서 가져온 quizMyPageLanguage 사용
-    const problemProgress = useMemo(() => {
-    const quizMyPageLanguage = myData?.quizMyPageLanguage || [];
-    
-    // 언어명 매핑 (백엔드에서 오는 언어 코드를 한글로 변환)
-    const languageMap = {
-      "JS": "자바스크립트",
-      "JAVA": "자바",
-      "ORACLE": "오라클",
-      "PYTHON": "파이썬",
-      "C": "C",
-      "CPP": "C++",
-    };
-    
-    return quizMyPageLanguage.map((item) => {
-      const languageName = languageMap[item.quizLanguage] || item.quizLanguage || "기타";
-      const solvedCount = item.solvedCount || 0;
-      
-      // 임시로 진행률 계산 (실제로는 난이도별 문제 수가 필요)
-      // 현재는 전체 푼 문제 수를 기반으로 표시
-      const totalProgress = Math.min(100, (solvedCount * 10)); // 문제당 10%씩
-      
-      return {
-        language: languageName,
-        solvedCount: solvedCount,
-        levels: {
-          beginner: totalProgress,
-          intermediate: totalProgress,
-          upperIntermediate: totalProgress,
-          advanced: totalProgress,
-          expert: totalProgress,
-        },
-      };
-    });
-  }, [myData?.quizMyPageLanguage]);
 
   // 파이 차트 계산
   // const pieChartGradient = useMemo(() => {
@@ -153,12 +154,23 @@ const GradeContainer = () => {
   //   return segments.length > 0 ? segments.join(", ") : "#E9E9EE";
   // }, [expData]);
   
-  const data = [
-    { id: 'problem', value: 40, color:"#7255EE" },
-    { id: 'answer', value: 5, color:"#9585F2" },
-    { id: 'game', value: 10, color:"#AB4BFF" },
-    { id: 'total', value: 50, color:"#C4B5FD" },
-  ];
+  // 파이 차트 데이터 - expData 기반으로 계산
+  const data = useMemo(() => {
+    // 경험치가 모두 0인 경우 기본값 설정 (차트가 보이도록)
+    if (expData.total === 0) {
+      return [
+        { id: 'problem', value: 0, color:"#7255EE" },
+        { id: 'answer', value: 0, color:"#9585F2" },
+        { id: 'game', value: 0, color:"#AB4BFF" },
+      ];
+    }
+    
+    return [
+      { id: 'problem', value: expData.problem, color:"#7255EE" },
+      { id: 'answer', value: expData.answer, color:"#9585F2" },
+      { id: 'game', value: expData.game, color:"#AB4BFF" },
+    ];
+  }, [expData]);
 
   // 1. 애니메이션을 위한 상태 추가
   const [pieAngles, setPieAngles] = useState({
@@ -291,28 +303,6 @@ const GradeContainer = () => {
           </S.TypingContent>
         </S.TypingCard>
 
-        {/* 문제 해결 현황 섹션 */}
-        <S.ProblemCard>
-          <S.SectionTitle>문제 해결 현황</S.SectionTitle>
-          <S.ProblemContent>
-            <S.ProblemHeader>
-              <S.ProblemHeaderItem>언어 유형</S.ProblemHeaderItem>
-              <S.ProblemHeaderItem>문제 진행률</S.ProblemHeaderItem>
-            </S.ProblemHeader>
-            {problemProgress.map((item, index) => (
-              <S.ProblemRow key={index}>
-                <S.LanguageName>{item.language}</S.LanguageName>
-                <S.ProgressBarContainer>
-                  <S.ProgressBarSegment $width={item.levels.beginner} $color="#3CCB7F" />
-                  <S.ProgressBarSegment $width={item.levels.intermediate} $color="#FFC24A" />
-                  <S.ProgressBarSegment $width={item.levels.upperIntermediate} $color="#A066FF" />
-                  <S.ProgressBarSegment $width={item.levels.advanced} $color="#4C73FF" />
-                  <S.ProgressBarSegment $width={item.levels.expert} $color="#FF5A5A" />
-                </S.ProgressBarContainer>
-              </S.ProblemRow>
-            ))}
-          </S.ProblemContent>
-        </S.ProblemCard>
       </S.Container>
     </S.Page>
   );
