@@ -92,7 +92,7 @@ const QuizSearchDetail = () => {
           <QuizListStyle.ListContainer>
             <QuizListStyle.Header>
               <QuizListStyle.Cell flex={0.6} align="left">#문제</QuizListStyle.Cell>
-              <QuizListStyle.Cell flex={1} $paddingLeft>난이도</QuizListStyle.Cell>
+              <QuizListStyle.Cell flex={1} paddingLeft>난이도</QuizListStyle.Cell>
               <QuizListStyle.Cell flex={1}>언어</QuizListStyle.Cell>
               <QuizListStyle.Cell flex={3.5}>제목</QuizListStyle.Cell>
               <QuizListStyle.Cell flex={2}>유형</QuizListStyle.Cell>
@@ -124,7 +124,7 @@ const QuizSearchDetail = () => {
                   </QuizListStyle.Cell>
                   <QuizListStyle.Cell flex={2}>{quizData.quizCategory || '카테고리'}</QuizListStyle.Cell>
                   <QuizListStyle.Cell flex={1}>
-                    <QuizListStyle.Status $isSolved={quizData.solve || false}>
+                    <QuizListStyle.Status isClear={quizData.solve || false}>
                       {quizData.solve ? '해결됨' : '미해결'}
                     </QuizListStyle.Status>
                   </QuizListStyle.Cell>

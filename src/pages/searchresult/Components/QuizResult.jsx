@@ -33,7 +33,7 @@ const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = []
                 </S.Cell>
                 <S.Cell flex={2}>{quizCategory}</S.Cell>
                 <S.Cell flex={1}>
-                    <S.Status $isClear={solve}>
+                     <S.Status isClear={solve}>
                         {solve ? '해결됨' : '미해결'}
                     </S.Status>
                 </S.Cell>
@@ -46,7 +46,7 @@ const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = []
         <S.ListContainer>
             <S.Header>
                 <S.Cell flex={0.6} style={{ textAlign: 'left' }}>#문제</S.Cell>
-                <S.Cell flex={1} $paddingLeft>난이도</S.Cell>
+                <S.Cell flex={1} paddingLeft>난이도</S.Cell>
                 <S.Cell flex={1}>언어</S.Cell>
                 <S.Cell flex={3.5}>제목</S.Cell>
                 <S.Cell flex={2}>유형</S.Cell>
