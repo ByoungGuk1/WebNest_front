@@ -32,6 +32,7 @@ const TypingPracticeContainer = () => {
               onClick={() => {
                 setIsShort("long");
                 navigate("long");
+
               }}
             >
               긴 글 연습
