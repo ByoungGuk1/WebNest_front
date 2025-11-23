@@ -3,6 +3,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import S from "./style";
+import {
+  getFileDisplayUrl,
+  getFileDisplayUrlFromPathAndName,
+} from "../../../../utils/fileUtils";
+
+const DEFAULT_PROFILE_IMAGE = "/assets/images/defalutpro.svg";
 
 
 /** 🔧 백엔드 연동용 상수 */
@@ -15,7 +21,7 @@ const GET_SUBCOMMENTS      = (commentId) => `${API_BASE}/subcomment/get-comments
 const GET_SUBCOMMENT_LIKE  = (id) => `${API_BASE}/subcommentLike/${id}`;
 
 const CREATE_COMMENT       = `${API_BASE}/comment/write`;      // 댓글 작성
-const UPDATE_COMMENT       = `${API_BASE}/comment/modify`;     // 댓글 수정
+const DELETE_COMMENT       = `${API_BASE}/comment/remove`;     // 댓글 삭제
 const CREATE_SUBCOMMENT    = `${API_BASE}/subcomment/write`;   // 대댓글 작성
 const DELETE_SUBCOMMENT    = `${API_BASE}/subcomment/remove`; // 대댓글 삭제
 
@@ -86,6 +92,130 @@ const toRelativeTime = (dateLike) => {
   return `${y}년`;
 };
 
+/* =========================
+   🔥 프로필 이미지 URL 빌더
+   ========================= */
+
+// ✅ 게시글 작성자 프로필 이미지 URL 만들기
+const buildAuthorProfileImg = (p) => {
+  // 1) path / name 분리된 케이스 (추천 패턴)
+  const path =
+    p.userThumbnailUrl ||        // ex: "img/" 또는 "2025/11/20/"
+    p.authorThumbnailUrl ||
+    "";
+
+  const name =
+    p.userThumbnailName ||       // ex: "1.jpg" 또는 "uuid_ara.jpg"
+    p.authorThumbnailName ||
+    "";
+
+  // 2) 예전 구조: 한 필드에 전체 경로나 파일명만 있는 경우
+  const legacyRaw =
+    p.userThumbnailUrl ||        // ex: "img/1.jpg" or "/uploads/ara.jpg"
+    p.authorProfile ||
+    "";
+
+  // (1) path/name 둘 다 없고 legacyRaw도 없으면 → 기본 이미지
+  if (
+    (!path || path === "/default" || path === "null" || path === "undefined") &&
+    !legacyRaw
+  ) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  // ✅ (1-1) path만 있고, 이름은 없고, path가 폴더처럼 끝이 '/' 인 경우 → 폴더만 아는 상태라 기본 이미지
+  if (path && !name && path.endsWith("/")) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  // (2) path + name 둘 다 있으면 → 우리가 만든 util 사용
+  if (path && name) {
+    // ex: path="img/", name="1.jpg" → "img/1.jpg" → /file/display?fileName=...
+    return (
+      getFileDisplayUrlFromPathAndName(path, name) || DEFAULT_PROFILE_IMAGE
+    );
+  }
+
+  // (3) path만 있거나 legacyRaw만 있을 때
+  const raw = legacyRaw || path;
+  if (!raw) return DEFAULT_PROFILE_IMAGE;
+
+  // 외부 URL이나 assets 경로면 그대로 사용
+  if (raw.startsWith("http") || raw.startsWith("/assets")) {
+    return raw;
+  }
+
+  // "/uploads/xxxx" 같은 경우 → "xxxx"로 잘라내기
+  let fileName = raw;
+  if (fileName.startsWith("/uploads/")) {
+    fileName = fileName.replace("/uploads/", "");
+  } else if (fileName.startsWith("uploads/")) {
+    fileName = fileName.replace("uploads/", "");
+  }
+  if (fileName.startsWith("/")) {
+    fileName = fileName.slice(1);
+  }
+
+  // 최종적으로 /file/display?fileName=... 형태로 변환
+  return getFileDisplayUrl(fileName);
+};
+
+// ✅ 댓글/대댓글 작성자 프로필 이미지 URL 만들기
+const buildCommentProfileImg = (c) => {
+  const path =
+    c.userThumbnailUrl ||
+    c.authorThumbnailUrl ||
+    "";
+
+  const name =
+    c.userThumbnailName ||
+    c.authorThumbnailName ||
+    "";
+
+  const legacyRaw =
+    c.userThumbnailUrl ||
+    c.authorProfile ||
+    c.profileImg ||
+    "";
+
+  if (
+    (!path || path === "/default" || path === "null" || path === "undefined") &&
+    !legacyRaw
+  ) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  // ✅ 폴더만 들어온 경우 방어
+  if (path && !name && path.endsWith("/")) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  if (path && name) {
+    return (
+      getFileDisplayUrlFromPathAndName(path, name) || DEFAULT_PROFILE_IMAGE
+    );
+  }
+
+  const raw = legacyRaw || path;
+  if (!raw) return DEFAULT_PROFILE_IMAGE;
+
+  if (raw.startsWith("http") || raw.startsWith("/assets")) {
+    return raw;
+  }
+
+  let fileName = raw;
+  if (fileName.startsWith("/uploads/")) {
+    fileName = fileName.replace("/uploads/", "");
+  } else if (fileName.startsWith("uploads/")) {
+    fileName = fileName.replace("uploads/", "");
+  }
+  if (fileName.startsWith("/")) {
+    fileName = fileName.slice(1);
+  }
+
+  return getFileDisplayUrl(fileName);
+};
+
 /* ✅ 게시글 DTO → 화면용 매퍼 */
 const mapPost = (p) => ({
   id: p.id ?? p.postId,
@@ -104,8 +234,14 @@ const mapPost = (p) => ({
   postType: p.postType ?? "OPEN",
   author: {
     id: p.userId ?? p.authorId ?? null,
-    name: p.userNickname ?? p.userName ?? p.username ?? null,
-    profileImg: p.userThumbnailUrl ?? p.authorProfile ?? null,
+    name:
+      p.userNickname ??
+      p.authorNickname ??
+      p.userName ??
+      p.username ??
+      p.user_email ??
+      null,
+    profileImg: buildAuthorProfileImg(p), // ✅ 변경: util로 URL 생성
   },
 });
 
@@ -129,7 +265,7 @@ const mapComment = (c) => ({
   userId: c.userId ?? c.authorId ?? null,        // ✅ 작성자 id 저장
   user: {
     name: c.userNickname ?? c.userName ?? "user",
-    profileImg: c.userThumbnailUrl ?? "/assets/images/defalutpro.svg",
+    profileImg: buildCommentProfileImg(c), // ✅ 변경: util로 URL 생성
     level: c.userLevel ?? 1,
   },
 });
@@ -174,9 +310,8 @@ const PostReadContainer = () => {
   const [replyOpenMap, setReplyOpenMap] = useState({});  // { [commentId]: boolean }
   const [replyTextMap, setReplyTextMap] = useState({});  // { [commentId]: string }
 
-  /** ✅ 댓글 수정 UI 상태 */
-  const [editingCommentId, setEditingCommentId] = useState(null);     // 어떤 댓글을 수정 중인지
-  const [editingCommentText, setEditingCommentText] = useState("");   // 수정 내용
+  /** ✅ 댓글 삭제 상태 */
+  const [deletingCommentId, setDeletingCommentId] = useState(null);
 
   /** ✅ 대댓글 삭제 상태 */
   const [deletingSubcommentId, setDeletingSubcommentId] = useState(null);
@@ -641,67 +776,53 @@ const PostReadContainer = () => {
     }
   };
 
-  /** ✅ 댓글 수정 시작 */
-  const handleStartEditComment = (comment) => {
+  /** ✅ 댓글 삭제 */
+  const handleDeleteComment = async (commentId) => {
     if (!isLogin) {
       alert("로그인 후 이용해주세요!");
       navigate("/login");
       return;
     }
-    if (!currentUser?.id || currentUser.id !== comment.userId) {
-      alert("본인이 작성한 댓글만 수정할 수 있습니다.");
-      return;
-    }
-    setEditingCommentId(comment.id);
-    setEditingCommentText(comment.content);
-  };
 
-  /** ✅ 댓글 수정 취소 */
-  const handleCancelEditComment = () => {
-    setEditingCommentId(null);
-    setEditingCommentText("");
-  };
+    // 작성자 확인
+    const comment = comments.find((c) => c.id === commentId);
 
-  /** ✅ 댓글 수정 완료 */
-  const handleUpdateComment = async (commentId) => {
-    const text = editingCommentText.trim();
-    if (!text) {
-      alert("수정할 내용을 입력해주세요.");
+    if (!comment) {
+      alert("댓글을 찾을 수 없습니다.");
       return;
     }
-    if (!isLogin) {
-      alert("로그인 후 이용해주세요!");
-      navigate("/login");
+
+    if (currentUser?.id !== comment.userId) {
+      alert("본인이 작성한 댓글만 삭제할 수 있습니다.");
       return;
     }
+
+    if (!window.confirm("정말 이 댓글을 삭제하시겠습니까?")) {
+      return;
+    }
+
+    if (deletingCommentId === commentId) return;
+    setDeletingCommentId(commentId);
 
     try {
-      const payload = {
-        id: Number(commentId),
-        commentId: Number(commentId),
-        postId: Number(pid),
-        userId: currentUser?.id,
-        commentDescription: text,
-      };
-
-      const res = await fetch(UPDATE_COMMENT, {
-        method: "PUT",
+      const res = await fetch(DELETE_COMMENT, {
+        method: "DELETE",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(payload),
+        body: JSON.stringify(commentId),
       });
 
       if (!res.ok) {
         const t = await res.text().catch(() => "");
-        throw new Error(t || "댓글 수정 실패");
+        throw new Error(t || "댓글 삭제 실패");
       }
 
-      await loadComments();
-      setEditingCommentId(null);
-      setEditingCommentText("");
+      await loadComments(); // 목록 새로고침
     } catch (e) {
       console.error(e);
-      alert("댓글 수정 중 오류가 발생했습니다.");
+      alert("댓글 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setDeletingCommentId(null);
     }
   };
 
@@ -864,8 +985,11 @@ useEffect(() => {
           <S.PostHeader>
             <S.AuthorBox>
               <S.ProfileImg
-                src={post.author?.profileImg || "/assets/images/defalutpro.svg"}
+                src={post.author?.profileImg || DEFAULT_PROFILE_IMAGE}
                 alt={post.author?.name || "user"}
+                onError={(e) => {
+                  e.currentTarget.src = DEFAULT_PROFILE_IMAGE;
+                }}
               />
               <S.AuthorName>{post.author?.name || "user"}</S.AuthorName>
             </S.AuthorBox>
@@ -927,8 +1051,11 @@ useEffect(() => {
               <S.CommentItem key={c.id}>
                 <S.CommentLeft>
                   <S.CommentAvatar
-                    src={c.user?.profileImg || "/assets/images/defalutpro.svg"}
+                    src={c.user?.profileImg || DEFAULT_PROFILE_IMAGE}
                     alt={c.user?.name || "user"}
+                    onError={(e) => {
+                      e.currentTarget.src = DEFAULT_PROFILE_IMAGE;
+                    }}
                   />
                 </S.CommentLeft>
 
@@ -938,30 +1065,8 @@ useEffect(() => {
                     <S.CommentUserLevel>Lv.{c.user?.level ?? 1}</S.CommentUserLevel>
                   </S.CommentUserRow>
 
-                  {/* ✅ 댓글 내용/수정 UI */}
-                  {editingCommentId === c.id ? (
-                    <S.ReplyBox>
-                      <S.ReplyInput
-                        value={editingCommentText}
-                        onChange={(e) => setEditingCommentText(e.target.value)}
-                        placeholder="댓글 내용을 수정해주세요."
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault();
-                            handleUpdateComment(c.id);
-                          }
-                        }}
-                      />
-                      <S.ReplySubmit onClick={() => handleUpdateComment(c.id)}>
-                        수정 완료
-                      </S.ReplySubmit>
-                      <S.CommentAction onClick={handleCancelEditComment}>
-                        취소
-                      </S.CommentAction>
-                    </S.ReplyBox>
-                  ) : (
-                    <S.CommentContent>{c.content}</S.CommentContent>
-                  )}
+                  {/* ✅ 댓글 내용 */}
+                  <S.CommentContent>{c.content}</S.CommentContent>
 
                   <S.CommentMetaRow>
                     <span>{toRelativeTime(c.createdAt)}</span>
@@ -988,12 +1093,15 @@ useEffect(() => {
                       답글 달기
                     </S.CommentAction>
 
-                    {/* ✅ 댓글 수정 (작성자만 노출) */}
+                    {/* ✅ 댓글 삭제 (작성자만 노출) */}
                     {isLogin && currentUser?.id && currentUser.id === c.userId && (
                       <>
                         <b>·</b>
-                        <S.CommentAction onClick={() => handleStartEditComment(c)}>
-                          {editingCommentId === c.id ? "수정 중" : "수정"}
+                        <S.CommentAction
+                          onClick={() => handleDeleteComment(c.id)}
+                          disabled={deletingCommentId === c.id}
+                        >
+                          {deletingCommentId === c.id ? "삭제 중..." : "삭제"}
                         </S.CommentAction>
                       </>
                     )}
@@ -1033,8 +1141,11 @@ useEffect(() => {
                         <S.SubcommentItem key={s.id}>
                           <S.SubcommentLeft>
                             <S.SubcommentAvatar
-                              src={s.user?.profileImg || "/assets/images/defalutpro.svg"}
+                              src={s.user?.profileImg || DEFAULT_PROFILE_IMAGE}
                               alt={s.user?.name || "user"}
+                              onError={(e) => {
+                                e.currentTarget.src = DEFAULT_PROFILE_IMAGE;
+                              }}
                             />
                           </S.SubcommentLeft>
                           <S.SubcommentRight>
