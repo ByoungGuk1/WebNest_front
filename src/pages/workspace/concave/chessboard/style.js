@@ -1,5 +1,5 @@
 import styled, { css, keyframes } from "styled-components";
-import { h3Light, h3Medium, h4Light, h6Light, h9Light } from "styles/common";
+import { h3Medium, h6Light } from "styles/common";
 import theme from "styles/theme";
 
 const S = {};
@@ -154,8 +154,8 @@ S.Board = styled.div`
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: ${(p) => `repeat(${p.gridSize}, 1fr)`};
-  grid-template-rows: ${(p) => `repeat(${p.gridSize}, 1fr)`};
+  grid-template-columns: ${(p) => `repeat(${p.$gridSize}, 1fr)`};
+  grid-template-rows: ${(p) => `repeat(${p.$gridSize}, 1fr)`};
   gap: 0;
   box-sizing: border-box;
 `;
@@ -170,52 +170,19 @@ S.Cell = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
-
-/* 중앙 작은 점 */
-S.Intersection = styled.div`
+  `;
+  
+  /* 중앙 작은 점 */
+  S.Intersection = styled.div`
   position: absolute;
   width: 3px;
   height: 3px;
   border-radius: 50%;
   background: #000;
-`;
-
-
-/* 돌 */
-S.Stone = styled.div`
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  box-shadow: inset -3px -3px 8px rgba(0,0,0,0.3);
-  z-index: 1000;
-    background: ${(p) =>
-    p.color === "black"
-      ? `radial-gradient(circle at 20% 25%,
-          rgba(255,255,255,0.08) 0%,
-          rgba(255,255,255,0.03) 8%,
-          rgba(0,0,0,0.9) 45%,
-          rgba(0,0,0,0.75) 70%,
-          rgba(18,18,18,1) 100%)`
-      : `radial-gradient(circle at 30% 25%,
-          rgba(255,255,255,0.95) 0%,
-          rgba(235,255,255,0.9) 40%,
-          rgba(120,120,120,0.12) 80%,
-          rgba(120,120,120,0.16) 100%)`};
-
-  /* 내부 하이라이트/음영 느낌을 위한 inset 그림자 */
-  box-shadow: ${(p) =>
-    p.color === "black"
-      ? `inset -4px -4px 10px rgba(0,0,0,0.7), inset 3px 3px 8px rgba(255,255,255,0.03), 0 3px 8px rgba(0,0,0,0.35)`
-      : `inset -3px -3px 8px rgba(255,255,255,0.85), inset 3px 3px 8px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.12)`};
-
-  /* 테두리(이미지에서처럼 내부에 선이 있는 것처럼 보이게) */
-  border: ${(p) => (p.color === "black" ? "1px solid rgba(70,77,74,0.85)" : "1px solid rgba(70,77,74,0.35)")};
-`;
-
-
-/* 마지막 착수 표시 */
-S.LastMark = styled.div`
+  `;
+  
+  /* 마지막 착수 표시 */
+  S.LastMark = styled.div`
   position: absolute;
   width: 6px;
   height: 6px;
@@ -224,8 +191,41 @@ S.LastMark = styled.div`
   right: 8px;
   bottom: 8px;
   z-index: 3;
-`;
-
+  `;
+  /* 승리 돌 펄스 애니메이션 */
+  const pulse = keyframes`
+    0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,215,0,0); }
+    50% { transform: scale(1.08); box-shadow: 0 0 5px rgb(102, 49, 248); }
+    100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,215,0,0); }
+  `;
+  
+  S.Stone = styled.div`
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    box-shadow: inset -3px -3px 8px rgba(0,0,0,0.3);
+    z-index: 1000;
+    background: ${(p) =>
+      p.color === "black"
+        ? `radial-gradient(circle at 20% 25%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 8%, rgba(0,0,0,0.9) 45%, rgba(0,0,0,0.75) 70%, rgba(18,18,18,1) 100%)`
+        : `radial-gradient(circle at 30% 25%, rgba(255,255,255,0.95) 0%, rgba(235,255,255,0.9) 40%, rgba(120,120,120,0.12) 80%, rgba(120,120,120,0.16) 100%)`};
+  
+    box-shadow: ${(p) =>
+      p.color === "black"
+        ? `inset -4px -4px 10px rgba(0,0,0,0.7), inset 3px 3px 8px rgba(255,255,255,0.03), 0 3px 8px rgba(0,0,0,0.35)`
+        : `inset -3px -3px 8px rgba(255,255,255,0.85), inset 3px 3px 8px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.12)`};
+  
+    border: ${(p) => (p.color === "black" ? "1px solid rgba(70,77,74,0.85)" : "1px solid rgba(70,77,74,0.35)")};
+  
+    /* 승리 돌이면 펄스 추가 */
+    ${(p) =>
+      p.$isWin &&
+      css`
+        animation: ${pulse} 900ms ease-in-out infinite;
+        transform-origin: center;
+        z-index: 1300;
+      `}
+  `;
 
 S.WinSvg = styled.svg`
   position: absolute;
@@ -235,7 +235,7 @@ S.WinSvg = styled.svg`
   height: 100%;
   pointer-events: none;
   overflow: visible;
-  z-index: 1200;
+  
 `;
 
 /* 폴리라인 대시 애니메이션 */
@@ -249,44 +249,10 @@ S.WinPolyline = styled.polyline`
   stroke-dasharray: 1000;
   stroke-dashoffset: 1000;
   animation: ${dash} 900ms ease forwards;
+  z-index: 1500;
   filter: drop-shadow(0 6px 14px rgba(0,0,0,0.25));
 `;
 
-/* 승리 돌 펄스 애니메이션 */
-const pulse = keyframes`
-  0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,215,0,0); }
-  50% { transform: scale(1.08); box-shadow: 0 0 5px rgb(102, 49, 248); }
-  100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,215,0,0); }
-`;
-
-/* 기존 S.Stone에 isWin prop 기반 애니메이션 추가 */
-S.Stone = styled.div`
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  box-shadow: inset -3px -3px 8px rgba(0,0,0,0.3);
-  z-index: 1000;
-  background: ${(p) =>
-    p.color === "black"
-      ? `radial-gradient(circle at 20% 25%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 8%, rgba(0,0,0,0.9) 45%, rgba(0,0,0,0.75) 70%, rgba(18,18,18,1) 100%)`
-      : `radial-gradient(circle at 30% 25%, rgba(255,255,255,0.95) 0%, rgba(235,255,255,0.9) 40%, rgba(120,120,120,0.12) 80%, rgba(120,120,120,0.16) 100%)`};
-
-  box-shadow: ${(p) =>
-    p.color === "black"
-      ? `inset -4px -4px 10px rgba(0,0,0,0.7), inset 3px 3px 8px rgba(255,255,255,0.03), 0 3px 8px rgba(0,0,0,0.35)`
-      : `inset -3px -3px 8px rgba(255,255,255,0.85), inset 3px 3px 8px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.12)`};
-
-  border: ${(p) => (p.color === "black" ? "1px solid rgba(70,77,74,0.85)" : "1px solid rgba(70,77,74,0.35)")};
-
-  /* 승리 돌이면 펄스 추가 */
-  ${(p) =>
-    p.isWin &&
-    css`
-      animation: ${pulse} 900ms ease-in-out infinite;
-      transform-origin: center;
-      z-index: 1300;
-    `}
-`;
 
 
 export default S;

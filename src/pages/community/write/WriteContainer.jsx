@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import S from "./style";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const WriteContainer = () => {
@@ -11,6 +11,9 @@ const WriteContainer = () => {
   const user = useSelector((state) => state.user)
   const {currentUser, isLogin } = user;
   const { id } = currentUser
+  const location = useLocation();
+  const quizLanguage = location.state?.quizLanguage || "";
+  const quizTitle = location.state?.quizTitle || "";
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) {
@@ -77,7 +80,7 @@ const WriteContainer = () => {
         {/* 카테고리 선택 */}
         <S.CategoryWrap>
           <S.Select>
-            <select value={category1} onChange={(e) => setCategory1(e.target.value)}>
+            <select defaultValue={quizLanguage} onChange={(e) => setCategory1(e.target.value)}>
               <option value="">주제 선택</option>
               <option value="JS">JS</option>
               <option value="JAVA">JAVA</option>
