@@ -17,7 +17,7 @@ S.QuizReadWrap = styled.div`
     justify-content: space-between;
 `
 S.QuizLeftWrap = styled.div`
-    flex: ${({ flex }) => flex || 1};
+    flex: ${({ $flex }) => $flex || 1};
     display: flex;
     flex-direction: column;
 `
@@ -54,18 +54,18 @@ S.QuizLeftMiddleWrap = styled.div`
     flex-direction: column;
 `
 S.QuizLeftMiddleHeader = styled.div`
-    flex: ${({ flex }) => flex || 1};
+    flex: ${({ $flex }) => $flex || 1};
     ${h4Bold}
     padding: 20px 24px;
     
 `
 S.QuizLeftMiddleDescription = styled.div`
-    flex: ${({ flex }) => flex || 1};
+    flex: ${({ $flex }) => $flex || 1};
     ${h5Medium}
     padding: 0px 24px;
 `
 S.QuizExpectationWrap = styled.div`
-    flex: ${({ flex }) => flex || 1};
+    flex: ${({ $flex }) => $flex || 1};
     padding: 0px 24px;
 `
 
@@ -125,14 +125,14 @@ S.Difficulty = styled.div`
     border-radius: 12px;
     font-weight: ${theme.FONT_WEIGHT.bold};
     font-size: ${theme.FONT_SIZE.h7};
-    background-color: ${({ level }) => difficultyColors[level] || "#e0e0e0"};
+    background-color: ${({ $level }) => difficultyColors[$level] || "#e0e0e0"};
     color: #fff;
     display: inline-block;
     text-align: center;
 `;
 // 오른쪽
 S.quizRightWrap = styled.div`
-    flex: ${({ flex }) => flex || 1};
+    flex: ${({ $flex }) => $flex || 1};
     display: flex;
     flex-direction: column;
 `

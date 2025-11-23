@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { h6Medium } from "../../../../styles/common";
 import theme from "../../../../styles/theme";
-import { Editor, useMonaco } from "@monaco-editor/react";
+import { Editor } from "@monaco-editor/react";
 
 
 const S = {};
@@ -58,6 +58,16 @@ S.RunButton = styled.button`
     &:hover {
         background-color: ${theme.PALETTE.neutral.gray.light};
     }
+    &:disabled {
+    background: #666;   /* 더 진한 회색 */
+    color: #ccc;        /* 글자도 흐리게 */
+    cursor: not-allowed; /* 마우스 호버 불가 */
+    
+    &:hover {
+      background: #666; /* hover 효과 제거 */
+    }
+}
+
 `;
 
 

@@ -9,6 +9,8 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser, setUserStatus } from 'modules/user';
 import { TypingProvider } from 'context/TypingContext';
+import { GameResultProvider } from 'context/GameResultContext';
+import QuizEndModal from 'pages/workspace/singleworkspace/quizmodal/QuizEndModal';
 
 function App() {
 
@@ -16,9 +18,9 @@ function App() {
   const dispatch = useDispatch()
   const accessToken = localStorage.getItem("accessToken")
   const reduxData = useSelector((state) => state.user)
-  
+
   useEffect(() => {
-    if(accessToken){
+    if (accessToken) {
       const getProfile = async () => {
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/private/users/me`, {
           headers: {
@@ -28,7 +30,7 @@ function App() {
           method: "GET"
         })
 
-        if(!response.ok) throw new Error(`getProfile Authorization Error`)
+        if (!response.ok) throw new Error(`getProfile Authorization Error`)
         const datas = await response.json()
         const profile = await datas.data
         dispatch(setUser(profile))
@@ -40,16 +42,19 @@ function App() {
           console.log("토큰 만료 로직 추후 작성")
         })
     }
-    
+
   }, [accessToken])
-  
+
   return (
     <>
       <ThemeProvider theme={theme}>
         <TypingProvider>
           <SearchResultProvider>
-          <GlobalStyle />
-          <RouterProvider router={router}/>
+            <GameResultProvider>
+              <GlobalStyle />
+              <RouterProvider router={router} />
+              <QuizEndModal />
+            </GameResultProvider>
           </SearchResultProvider>
         </TypingProvider>
       </ThemeProvider>

@@ -20,7 +20,7 @@ const OmokEndModal = ({ isOpen, onClose, winner, finishTime, formatTime }) => {
                             <S.ResultValue>{winner === 1 ? "흑돌" : "백돌"}</S.ResultValue>
                         </S.ResultItem>
                         <S.ResultItem>
-                            <S.ResultLabel>완료 시간:</S.ResultLabel>
+                            <S.ResultLabel>흭득 경험치:</S.ResultLabel>
                             <S.ResultValue>+ 50 EXP</S.ResultValue>
                         </S.ResultItem>
                     </S.ResultInfo>

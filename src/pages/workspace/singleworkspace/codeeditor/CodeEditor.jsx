@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import S from './style';
 import { useSelector } from 'react-redux';
+import { useGameResult } from 'context/GameResultContext';
 
-const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
+const CodeEditor = ({ quizLanguage, quizId, quizExpectation, quizExp, quizTitle, solved, userCode }) => {
 
+    const { openModal } = useGameResult();
     const getUsers = useSelector((state) => state.user);
     const currentUser = getUsers.currentUser
     const { id } = currentUser
+    const [isSolve, setIsSolve] = useState(0);
 
     const addEditorLanguage = (lang) => {
         switch (lang?.toUpperCase()) {
@@ -30,12 +33,13 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
         "    } \n" +
         "}"
     const [result, setResult] = useState(null)
+    const [resultCode, setResultCode] = useState("")
     const [quizSubmitCode, setQuizSubmitCode] = useState(() => {
         return quizLanguage === "JAVA" ? defaultClassValue : "";
     }); // 코드입력칸
     const [output, setOutput] = useState('');
 
-    // 자바스크립티티코드 핸들러
+    // 자바스크립트 코드 핸들러
     function jsHandleRun(quizSubmitCode) {
         let logs = [];
         setQuizSubmitCode(quizSubmitCode)
@@ -55,10 +59,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
     }
     // 자바스크립트 채점
     async function jsCompleteHandleRun() {
-        console.log("채점부분", quizSubmitCode)
-        // code = console.log("hello".length)
-        // result = 5
-        if(result != quizExpectation){
+        if(result !== quizExpectation){
             alert("기댓값과 일치하지 않습니다!")
             setResult("")
             setOutput("기댓값과 일치하지 않습니다.")
@@ -80,10 +81,12 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
                 })
                 if(!response.ok) throw new Error("서버 오류 ")
                 const jsData = await response.json();
-                setOutput("문제풀이 성공")
-                alert(jsData.message)
+                setOutput(jsData.message)
+                openModal({ quizTitle: quizTitle, quizExp: quizExp})
+                setIsSolve(jsData.data.isSolved)
+                setResultCode(jsData.data.userCode)
             } catch (err) {
-                setOutput("실행 실패" + err.message || "알 수 없는 오류")
+                setOutput("실행 실패 " + err.message || "알 수 없는 오류")
             }
         }
     }
@@ -133,14 +136,16 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
                     "userId": id
                 })
             })
-            const getExp = await response.json();
+            const jvData = await response.json();
             if (!response.ok) {
-                const resMessage = getExp.message || `서버 오류 : ${response.status}`
+                const resMessage = jvData.message || `서버 오류 : ${response.status}`
                 setOutput(resMessage);
                 return;
             }
             setOutput("문제풀이 성공")
-            alert(getExp.message)
+            openModal({ quizTitle: quizTitle, quizExp: quizExp})
+            setIsSolve(jvData.data.isSolved);
+            setResultCode(jvData.data.userCode);
         } catch (err) {
             setOutput("실행 실패: " + err.message || "알 수 없는 오류")
         }
@@ -185,14 +190,16 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
                     "userId": id
                 })
             })
-            const getExp = await response.json();
+            const sqlData = await response.json();
             if (!response.ok) {
-                const resMessage = getExp.message || `서버 오류: ${response.status}`
+                const resMessage = sqlData.message || `서버 오류: ${response.status}`
                 setOutput(resMessage);
                 return;
             }
             setOutput("문제풀이 성공")
-            alert(getExp.message)
+            setIsSolve(sqlData.data.isSolved);
+            setResultCode(sqlData.data.userCode);
+            openModal({ quizTitle: quizTitle, quizExp: quizExp})
         } catch (err) {
             setOutput("서버 오류 : " + err.message || "알 수 없는 오류")
         }
@@ -238,8 +245,12 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
             <S.StyledEditor
                 height="600px"
                 defaultLanguage={editorLanguage}
-                value={quizSubmitCode}
-                onChange={(value) => setQuizSubmitCode(value)}
+                value={isSolve === 1 || solved === 1 ? userCode : quizSubmitCode}
+                onChange={(value) => {
+                    if(isSolve !== 1 && solved !== 1){
+                        setQuizSubmitCode(value)
+                    }
+                }}
                 theme='vs-dark'
                 options={{
                     fontSize: 18,
@@ -247,6 +258,7 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
                     minimap: { enabled: false },
                     wordWrap: 'on',
                     scrollBeyondLastLine: false,
+                    readOnly: isSolve === 1 || solved === 1,
                 }}
             />
             {/* 조건에따라 맞는 이벤트함수 실행 -> 코드실행 버튼 클릭시 스위치문으로 해당 문제의 언어 전달 
@@ -256,9 +268,9 @@ const CodeEditor = ({ quizLanguage, quizId, quizExpectation }) => {
                 <S.OutputTitle>실행 결과</S.OutputTitle>
                 <S.OutputContent>{output}</S.OutputContent>
                 <S.ButtonWrap>
-                    <S.RunButton onClick={addReset}>초기화</S.RunButton>
-                    <S.RunButton onClick={() => handleRun(quizSubmitCode, quizLanguage)}>코드실행</S.RunButton>
-                    <S.RunButton onClick={() => successHandleRun(quizSubmitCode, quizLanguage)}>제출하기</S.RunButton>
+                    <S.RunButton disabled={isSolve === 1 || solved === 1} onClick={addReset}>초기화</S.RunButton>
+                    <S.RunButton disabled={isSolve === 1 || solved === 1} onClick={() => handleRun(quizSubmitCode, quizLanguage)}>코드실행</S.RunButton>
+                    <S.RunButton disabled={isSolve === 1 || solved === 1} onClick={() => successHandleRun(quizSubmitCode, quizLanguage)}>제출하기</S.RunButton>
                 </S.ButtonWrap>
             </S.OutputBox>
 

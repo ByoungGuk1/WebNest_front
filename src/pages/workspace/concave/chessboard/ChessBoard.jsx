@@ -1,15 +1,9 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import S from "./style";
-import GameContext from "context/GameContext";
-import SockJS from "sockjs-client";
-import { Client } from "@stomp/stompjs";
 import OmokEndModal from "../omokmodal/OmokEndModal";
 
 const ChessBoard = (props) => {
 
-    const context = useContext(GameContext)
-    const { roomId, userSenderId } = context;
-    const myUserId = userSenderId;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [winner, setWinner] = useState(null);
     const [finishTime, setFinishTime] = useState(0);
@@ -286,7 +280,7 @@ const ChessBoard = (props) => {
                     <div>
                         <S.BoardImg src="/assets/gameroom/concaveboard.png" />
                         <S.BoardOuter>
-                            <S.Board gridSize={boardSize}>
+                            <S.Board $gridSize={boardSize}>
                                 {chessBoard.map((row, rowIdx) =>
                                     row.map((cell, columIdx) => {
                                         const isWinCell = winLine.some(line => line.row === rowIdx && line.col === columIdx);
@@ -294,7 +288,7 @@ const ChessBoard = (props) => {
                                         return (
                                             <S.Cell key={`${rowIdx}-${columIdx}`}>
                                                 <S.Intersection />
-                                                {cell !== 0 && <S.Stone color={cell === 1 ? "black" : "white"} isWin={isWinCell} />}
+                                                {cell !== 0 && <S.Stone color={cell === 1 ? "black" : "white"} $isWin={isWinCell} />}
                                                 {isLast && <S.LastMark />}
                                             </S.Cell>
                                         );
