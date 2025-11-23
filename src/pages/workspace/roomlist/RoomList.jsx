@@ -57,6 +57,7 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
     if (upper === 'SNAKE') return 'snakepuzzle';
     if (upper === 'OMOK') return 'concave';
     if (upper === 'WORD') return 'lastword';
+    if (upper === 'CARD') return 'cardflip';
     return (t || '').toString().toLowerCase();
   };
 
