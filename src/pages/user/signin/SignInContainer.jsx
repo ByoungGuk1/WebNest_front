@@ -26,7 +26,7 @@ const SignInContainer = () => {
 
   const handleSumbmitForm = handleSubmit(async (data) => {
     const { ...member } = data;
-    
+
     try {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}/auth/login`,
@@ -144,13 +144,16 @@ const SignInContainer = () => {
         <S.OAuthLinkContainer>
           <p>sns 계정으로 간편하게 시작하기</p>
           <S.OAuthLinkWrapper>
-            <S.OAuthLink to="http://localhost:10000/oauth2/authorization/google">
+            <S.OAuthLink
+              to={`${process.env.REACT_APP_BACKEND_URL}/oauth2/authorization/google`}>
               <img src="/assets/icons/googleicon.png" />
             </S.OAuthLink>
-            <S.OAuthLink to="http://localhost:10000/oauth2/authorization/kakao">
+            <S.OAuthLink
+              to={`${process.env.REACT_APP_BACKEND_URL}/oauth2/authorization/kakao`}>
               <img src="/assets/icons/kakaoicon.png" />
             </S.OAuthLink>
-            <S.OAuthLink to="http://localhost:10000/oauth2/authorization/naver">
+            <S.OAuthLink
+              to={`${process.env.REACT_APP_BACKEND_URL}/oauth2/authorization/naver`}>
               <img src="/assets/icons/navericon.png" />
             </S.OAuthLink>
           </S.OAuthLinkWrapper>
