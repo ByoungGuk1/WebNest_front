@@ -178,7 +178,7 @@ S.Cell = styled.div`
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    padding-left: ${({ paddingLeft}) => (paddingLeft ? '8px' : 0)};
+    padding-left: ${({ $paddingLeft}) => ($paddingLeft ? '8px' : 0)};
 
 `;
 
@@ -194,7 +194,7 @@ S.TitleLink = styled(Link)`
 
 S.Status = styled.div`
     font-weight: bold;
-    color: ${({ isClear }) => (isClear ? "#2e7d32" : "#d32f2f")};
+    color: ${({ $isClear }) => ($isClear ? "#2e7d32" : "#d32f2f")};
 `;
 
 S.Difficulty = styled.div`

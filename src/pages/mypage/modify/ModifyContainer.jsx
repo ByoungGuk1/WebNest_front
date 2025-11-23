@@ -161,7 +161,6 @@ useEffect(() => {
         setPasswordError('현재 비밀번호와 일치하지 않습니다.');
       }
     } catch (error) {
-      console.error('비밀번호 검증 오류:', error);
       setIsPasswordVerified(false);
       setPasswordError('비밀번호 검증 중 오류가 발생했습니다.');
     }
@@ -291,7 +290,6 @@ useEffect(() => {
       );
 
       const result = await response.json();
-      console.log('Modify API 응답:', result);
 
       if (!response.ok) {
         // 현재 비밀번호가 일치하지 않는 경우
@@ -316,15 +314,12 @@ useEffect(() => {
 
       // modify API 응답에서 업데이트된 사용자 정보 가져오기 (썸네일 포함)
       const updatedUserData = result?.data ?? result;
-      console.log('업데이트된 사용자 데이터:', updatedUserData);
       
       if (updatedUserData && updatedUserData.id != null) {
         // 백엔드에서 반환한 업데이트된 사용자 정보(썸네일 포함)를 Redux에 저장
         dispatch(setUser(updatedUserData));
-        console.log('Redux 업데이트 완료');
       } else {
         // 응답에 데이터가 없는 경우 /users/me로 다시 가져오기
-        console.log('응답에 데이터가 없어 /users/me로 재요청');
         const userResponse = await fetch(
           `${process.env.REACT_APP_BACKEND_URL}/private/users/me`,
           {
@@ -338,10 +333,8 @@ useEffect(() => {
         if (userResponse.ok) {
           const userResult = await userResponse.json();
           const userData = userResult?.data ?? userResult;
-          console.log('재요청한 사용자 데이터:', userData);
           if (userData && userData.id != null) {
             dispatch(setUser(userData));
-            console.log('Redux 업데이트 완료 (재요청)');
           }
         }
       }
@@ -357,7 +350,6 @@ useEffect(() => {
       setPasswordError('');
       setIsPasswordVerified(false);
     } catch (error) {
-      console.error('정보 수정 오류:', error);
       alert('정보 수정 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);

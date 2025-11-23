@@ -33,20 +33,13 @@ const clampLevel = (lv) => {
 
 const GradeContainer = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
-  const fullReduxState = useSelector((state) => state);
   const myData = useOutletContext();
   const { records } = myData;
-  console.log(myData)
   const safeLevel = clampLevel(currentUser?.userLevel || 1);
   const userExp = currentUser?.userExp || 0;
 
-  const sortedRecords = records?.sort((a, b) => b.typingRecordTypist - a.typingRecordTypist)[0]
-  console.log("sortedRecords", sortedRecords)
-
-  // 리덕스 상태 콘솔 출력
-  useEffect(() => {
-    console.log("=== currentUser 정보 ===", currentUser);
-  }, [fullReduxState, currentUser]);
+  // records는 이제 최신 기록 단일 객체입니다
+  const latestRecord = records || null;
 
   const segments = useMemo(
     () =>
@@ -79,11 +72,11 @@ const GradeContainer = () => {
 
   useEffect(() => {
     setTypingData({
-      speed: sortedRecords?.typingRecordTime,
-      accuracy: sortedRecords?.typingRecordAccuracy,
-      maxSpeed: sortedRecords?.typingRecordTypist,
+      speed: latestRecord?.typingRecordTime,
+      accuracy: latestRecord?.typingRecordAccuracy,
+      maxSpeed: latestRecord?.typingRecordTypist,
     })
-  }, [sortedRecords])
+  }, [latestRecord])
 
 
     // 문제 해결 현황 데이터 - API에서 가져온 quizMyPageLanguage 사용
