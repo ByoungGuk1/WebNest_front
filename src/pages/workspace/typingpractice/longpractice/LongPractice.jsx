@@ -8,12 +8,19 @@ const LongPractice = () => {
     // const { typingList, currentTypingId } = state;
     const { typingList, currentTypingId, language, isShort } = state;
 
+    // const { 
+    //   setIsTypingStart, 
+    //   setIsShowModal, 
+    //   setTotalTypedCount, 
+    //   setCorrectTypedCount 
+    // } = actions;
     const { 
       setIsTypingStart, 
       setIsShowModal, 
       setTotalTypedCount, 
-      setCorrectTypedCount 
+      setTotalCorrectCount 
     } = actions;
+
   
     // 현재 타이핑 데이터
     const currentTyping = typingList[currentTypingId];
@@ -38,7 +45,8 @@ const LongPractice = () => {
       setCurrentIndex(0);
       setInputValue("");
       setTotalTypedCount(0);
-      setCorrectTypedCount(0);
+      // setCorrectTypedCount(0);
+      setTotalCorrectCount(0);
     }, [currentTypingId]);
   
     // 입력 처리
@@ -67,7 +75,9 @@ const LongPractice = () => {
         }
   
         setTotalTypedCount((p) => p + addedLength);
-        setCorrectTypedCount((p) => p + correctCount);
+        // setCorrectTypedCount((p) => p + correctCount);
+        setTotalCorrectCount((p) => p + correctCount);
+
       } else {
         // 삭제된 글자
         const deletedLength = old.length - value.length;
@@ -83,7 +93,8 @@ const LongPractice = () => {
         }
   
         setTotalTypedCount((p) => Math.max(0, p - deletedLength));
-        setCorrectTypedCount((p) => Math.max(0, p - correctCount));
+        // setCorrectTypedCount((p) => Math.max(0, p - correctCount));
+        setTotalCorrectCount((p) => Math.max(0, p - correctCount));
       }
   
       setInputValue(value);
