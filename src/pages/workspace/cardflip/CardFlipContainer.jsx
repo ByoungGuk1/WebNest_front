@@ -2,6 +2,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 import S from "./style";
 import GameEndModal from "./GameEndModal";
 
@@ -103,8 +105,9 @@ const createInitialCards = () => {
     });
   });
 
-  // 카드 섞기
-  return cards.sort(() => Math.random() - 0.5);
+  // 카드 섞기 (주석 처리 - 랜덤 비활성화)
+  // return cards.sort(() => Math.random() - 0.5);
+  return cards;
 };
 
 const CardFlipContainer = () => {
@@ -130,7 +133,41 @@ const CardFlipContainer = () => {
   const [finishTime, setFinishTime] = useState(null);
   
   const timerIntervalRef = useRef(null);
-  const intervalRef = useRef(null);
+  const gameStompClientRef = useRef(null);
+
+  // WebSocket 연결 및 게임 시작 이벤트 구독
+  useEffect(() => {
+    if (!gameRoomId) return;
+
+    const socket = new SockJS(`${process.env.REACT_APP_BACKEND_URL}/ws`);
+    const client = new Client({
+      webSocketFactory: () => socket,
+      reconnectDelay: 5000,
+      onConnect: () => {
+        // 게임 시작 이벤트 구독
+        const subscribePath = `/sub/game/card-flip/room/${gameRoomId}`;
+        client.subscribe(subscribePath, (message) => {
+          const body = JSON.parse(message.body);
+
+          if (body.type === 'GAME_STARTED') {
+            setIsGameStarted(true);
+            setGameStartTime(Date.now());
+            setStartTime(Date.now());
+            setElapsedTime(0);
+          }
+        });
+      },
+    });
+
+    client.activate();
+    gameStompClientRef.current = client;
+
+    return () => {
+      if (gameStompClientRef.current && gameStompClientRef.current.connected) {
+        gameStompClientRef.current.deactivate();
+      }
+    };
+  }, [gameRoomId]);
 
   // 타이머 시작
   useEffect(() => {
@@ -153,22 +190,6 @@ const CardFlipContainer = () => {
     };
   }, [isGameStarted, isGameFinished, startTime]);
 
-  // 게임 시작 (첫 카드 클릭 시)
-  const handleGameStart = () => {
-    if (!isGameStarted && !isGameFinished) {
-      setIsGameStarted(true);
-      setStartTime(Date.now());
-    }
-  };
-
-  // 게임 완료 처리
-  const handleGameFinish = () => {
-    if (isGameFinished) return;
-
-    setIsGameFinished(true);
-    const finalTime = elapsedTime;
-    setFinishTime(finalTime);
-  };
 
   // 게임 결과 모달
   const [showResultModal, setShowResultModal] = useState(false);
@@ -179,53 +200,35 @@ const CardFlipContainer = () => {
     setDisableDeck(false);
   };
 
-  // 게임 시작 시간 측정 (첫 카드 클릭 시)
-  useEffect(() => {
-    if (isGameStarted && gameStartTime && !isGameCompleted) {
-      intervalRef.current = setInterval(() => {
-        const now = Date.now();
-        const elapsed = Math.floor((now - gameStartTime) / 1000);
-        setElapsedTime(elapsed);
-      }, 1000);
-
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current);
-        }
-      };
-    }
-  }, [isGameStarted, gameStartTime, isGameCompleted]);
 
   // 게임 완료 감지 및 모달 표시
   useEffect(() => {
-    if (matchedPairs === 10 && !isGameCompleted && userId && gameRoomId && gameStartTime) {
+    if (matchedPairs === 10 && !isGameCompleted && userId && gameRoomId && isGameStarted && startTime) {
       setIsGameCompleted(true);
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
       }
       
       // 완료 시간 계산
-      const finishTime = Math.floor((Date.now() - gameStartTime) / 1000);
+      const finishTime = Math.floor((Date.now() - startTime) / 1000);
       setElapsedTime(finishTime);
       
       // 게임 종료 모달 표시 (모달 내부에서 API 호출 처리)
       setShowResultModal(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchedPairs, isGameCompleted, userId, gameRoomId, gameStartTime]);
+  }, [matchedPairs, isGameCompleted, userId, gameRoomId, isGameStarted, startTime]);
 
   const handleCardClick = (index) => {
     if (disableDeck || isGameCompleted) return;
 
+    // 게임이 시작되지 않았으면 카드를 뒤집을 수 없음
+    if (!isGameStarted) {
+      return;
+    }
+
     const clicked = cards[index];
     if (clicked.isFlipped || clicked.isMatched) return;
-
-    // 첫 카드 클릭 시 게임 시작
-    if (!isGameStarted) {
-      setIsGameStarted(true);
-      setGameStartTime(Date.now());
-      setElapsedTime(0);
-    }
 
     // 클릭한 카드 뒤집기
     setCards((prev) =>

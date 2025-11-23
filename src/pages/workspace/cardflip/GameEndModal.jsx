@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import S from "./style";
-import { getFileDisplayUrl } from "../../../utils/fileUtils";
+import { getFileDisplayUrl, getFileDisplayUrlFromPathAndName } from "../../../utils/fileUtils";
 
 const DEFAULT_PROFILE_IMAGE = "/assets/images/defalutpro.svg";
 const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
@@ -89,16 +89,31 @@ const GameEndModal = ({
   };
 
   // 프로필 이미지 URL 변환 함수
-  const getProfileImageUrl = (thumbnailUrl) => {
-    if (!thumbnailUrl || thumbnailUrl === '' || thumbnailUrl === '/default' || thumbnailUrl === 'null' || thumbnailUrl === 'undefined') {
+  const getProfileImageUrl = (result) => {
+    const thumbnailUrl = result?.userThumbnailUrl;
+    const thumbnailName = result?.userThumbnailName;
+    
+    // path/name 둘 다 없으면 기본 이미지
+    if ((!thumbnailUrl || thumbnailUrl === '' || thumbnailUrl === '/default' || thumbnailUrl === 'null' || thumbnailUrl === 'undefined') && !thumbnailName) {
       return DEFAULT_PROFILE_IMAGE;
     }
+    
+    // path + name 둘 다 있으면 getFileDisplayUrlFromPathAndName 사용
+    if (thumbnailUrl && thumbnailName) {
+      return getFileDisplayUrlFromPathAndName(thumbnailUrl, thumbnailName) || DEFAULT_PROFILE_IMAGE;
+    }
+    
     // 외부 URL이거나 assets 경로인 경우 그대로 사용
-    if (thumbnailUrl.startsWith('http') || thumbnailUrl.startsWith('/assets')) {
+    if (thumbnailUrl && (thumbnailUrl.startsWith('http') || thumbnailUrl.startsWith('/assets'))) {
       return thumbnailUrl;
     }
-    // 파일 경로인 경우 display URL로 변환
-    return getFileDisplayUrl(thumbnailUrl);
+    
+    // 기존 형식 호환성 유지 (thumbnailUrl만 있는 경우)
+    if (thumbnailUrl) {
+      return getFileDisplayUrl(thumbnailUrl) || DEFAULT_PROFILE_IMAGE;
+    }
+    
+    return DEFAULT_PROFILE_IMAGE;
   };
 
   if (!isOpen) return null;
@@ -117,20 +132,35 @@ const GameEndModal = ({
           <>
             {gameResult && (
               <S.MyResult>
-                <S.ResultTitle>내 결과</S.ResultTitle>
+                <S.MyResultHeader>
+                  <S.MyResultThumbnail
+                    src={getProfileImageUrl(gameResult)}
+                    alt={gameResult.userNickname || "내 프로필"}
+                    onError={(e) => {
+                      e.target.src = DEFAULT_PROFILE_IMAGE;
+                    }}
+                  />
+                  <S.ResultTitle>내 결과</S.ResultTitle>
+                </S.MyResultHeader>
                 <S.ResultInfo>
                   <S.ResultItem>
                     <S.ResultLabel>완료 시간:</S.ResultLabel>
-                    <S.ResultValue>{formatTime(gameResult.finishTime)}</S.ResultValue>
+                    <S.ResultValue>{formatTime(gameResult.cardFlipResultFinishTime || finishTime)}</S.ResultValue>
                   </S.ResultItem>
                   <S.ResultItem>
                     <S.ResultLabel>순위:</S.ResultLabel>
-                    <S.ResultValue>{gameResult.rankInRoom || "계산 중..."}위</S.ResultValue>
+                    <S.ResultValue>
+                      {gameResult.gameRoomMaxPlayer && gameResult.cardFlipResultRankInRoom
+                        ? `전체 ${gameResult.gameRoomMaxPlayer}명 중 ${gameResult.cardFlipResultRankInRoom}위`
+                        : gameResult.cardFlipResultRankInRoom
+                        ? `${gameResult.cardFlipResultRankInRoom}위`
+                        : "계산 중..."}
+                    </S.ResultValue>
                   </S.ResultItem>
                   <S.ResultItem>
                     <S.ResultLabel>획득 경험치:</S.ResultLabel>
                     <S.ResultValue>
-                      +{getExpGain(gameResult.rankInRoom)} EXP
+                      +{getExpGain(gameResult.cardFlipResultRankInRoom)} EXP
                     </S.ResultValue>
                   </S.ResultItem>
                 </S.ResultInfo>
@@ -139,13 +169,22 @@ const GameEndModal = ({
 
             {results && results.length > 0 && (
               <S.ResultsList>
-                <S.ResultsTitle>순위표</S.ResultsTitle>
+                <S.ResultsTitle>
+                  순위표
+                  {results[0]?.gameRoomMaxPlayer && (
+                    <S.TotalPlayersInfo> (전체 {results[0].gameRoomMaxPlayer}명)</S.TotalPlayersInfo>
+                  )}
+                </S.ResultsTitle>
                 {results.map((result, index) => (
                   <S.ResultRow key={result.id} $isMe={result.userId === userId}>
-                    <S.Rank>{result.rankInRoom || index + 1}</S.Rank>
+                    <S.Rank>
+                      {result.gameRoomMaxPlayer && result.cardFlipResultRankInRoom
+                        ? `${result.cardFlipResultRankInRoom}/${result.gameRoomMaxPlayer}`
+                        : result.cardFlipResultRankInRoom || index + 1}
+                    </S.Rank>
                     <S.UserInfo>
                       <S.UserThumbnail
-                        src={getProfileImageUrl(result.userThumbnailUrl)}
+                        src={getProfileImageUrl(result)}
                         alt={result.userNickname}
                         onError={(e) => {
                           e.target.src = DEFAULT_PROFILE_IMAGE;
@@ -156,8 +195,8 @@ const GameEndModal = ({
                         <S.UserLevel>Lv.{result.userLevel}</S.UserLevel>
                       )}
                     </S.UserInfo>
-                    <S.ResultTime>{formatTime(result.finishTime)}</S.ResultTime>
-                    <S.ResultExp>+{getExpGain(result.rankInRoom)} EXP</S.ResultExp>
+                    <S.ResultTime>{formatTime(result.cardFlipResultFinishTime)}</S.ResultTime>
+                    <S.ResultExp>+{getExpGain(result.cardFlipResultRankInRoom)} EXP</S.ResultExp>
                   </S.ResultRow>
                 ))}
               </S.ResultsList>

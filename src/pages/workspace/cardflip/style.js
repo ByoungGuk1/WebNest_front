@@ -317,10 +317,25 @@ S.MyResult = styled.div`
   color: white;
 `;
 
+S.MyResultHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+`;
+
+S.MyResultThumbnail = styled.img`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+`;
+
 S.ResultTitle = styled.h3`
   font-size: 20px;
   font-weight: bold;
-  margin-bottom: 16px;
+  margin: 0;
   color: white;
 `;
 
@@ -356,6 +371,15 @@ S.ResultsTitle = styled.h3`
   font-weight: bold;
   margin-bottom: 16px;
   color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+S.TotalPlayersInfo = styled.span`
+  font-size: 16px;
+  font-weight: 500;
+  color: #999;
 `;
 
 S.ResultRow = styled.div`
