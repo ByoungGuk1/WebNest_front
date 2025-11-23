@@ -54,32 +54,35 @@ useEffect(() => {
       userPhone: currentUser.userPhone || '',
     });
 
-    const thumbnailUrl = currentUser.userThumbnailUrl;
-    const thumbnailName = currentUser.userThumbnailName;
+    // profileImage가 없을 때만 리덕스의 썸네일 정보로 미리보기 업데이트
+    if (!profileImage) {
+      const thumbnailUrl = currentUser.userThumbnailUrl;
+      const thumbnailName = currentUser.userThumbnailName;
 
-    // 기본 이미지
-    if (!thumbnailUrl || thumbnailUrl === '/default') {
+      // 기본 이미지
+      if (!thumbnailUrl || thumbnailUrl === '/default') {
+        setProfilePreview('/assets/images/defalutpro.svg');
+        return;
+      }
+
+      // 외부 URL / assets 경로
+      if (thumbnailUrl.startsWith('http') || thumbnailUrl.startsWith('/assets')) {
+        setProfilePreview(thumbnailUrl);
+        return;
+      }
+
+      // 폴더 + 파일명 조합
+      if (thumbnailUrl && thumbnailName) {
+        setProfilePreview(
+          getFileDisplayUrlFromPathAndName(thumbnailUrl, thumbnailName)
+        );
+        return;
+      }
+
       setProfilePreview('/assets/images/defalutpro.svg');
-      return;
     }
-
-    // 외부 URL / assets 경로
-    if (thumbnailUrl.startsWith('http') || thumbnailUrl.startsWith('/assets')) {
-      setProfilePreview(thumbnailUrl);
-      return;
-    }
-
-    // 폴더 + 파일명 조합
-    if (thumbnailUrl && thumbnailName) {
-      setProfilePreview(
-        getFileDisplayUrlFromPathAndName(thumbnailUrl, thumbnailName)
-      );
-      return;
-    }
-
-    setProfilePreview('/assets/images/defalutpro.svg');
   }
-}, [currentUser]);
+}, [currentUser, profileImage]);
 
 
   // 입력 필드 변경 핸들러
@@ -246,21 +249,27 @@ useEffect(() => {
         userPhone: formData.userPhone || null,
       };
 
-      // 프로필 이미지가 변경된 경우 파일 업로드
+      // 프로필 이미지 처리
       if (profileImage) {
+        // 새 이미지 업로드
+        const uuids = await uploadFiles([profileImage]);
 
-        const filePaths = await uploadFiles([profileImage]);
-
-
-        if (filePaths && filePaths.length > 0) {
-          const filePath = filePaths[0];
-          const lastSlashIndex = filePath.lastIndexOf('/');
-          // 폴더 경로 (뒤에 / 포함)
-           const folderPath = filePath.substring(0, lastSlashIndex + 1); // "2025/11/18/"
-          // 파일 이름
-          const fileName = filePath.substring(lastSlashIndex + 1);      // "uuid_ara.jpg"
-            updateData.userThumbnailUrl = folderPath; // ✅ 폴더만
-            updateData.userThumbnailName = fileName;  // ✅ 파일명만
+        if (uuids && uuids.length > 0) {
+          const uuid = uuids[0];
+          const originalFileName = profileImage.name;
+          
+          // 날짜 경로 생성 (yyyy/MM/dd/)
+          const today = new Date();
+          const year = today.getFullYear();
+          const month = String(today.getMonth() + 1).padStart(2, '0');
+          const day = String(today.getDate()).padStart(2, '0');
+          const folderPath = `${year}/${month}/${day}/`;
+          
+          // 파일명 생성 (uuid_원본파일명)
+          const fileName = `${uuid}_${originalFileName}`;
+          
+          updateData.userThumbnailUrl = folderPath;
+          updateData.userThumbnailName = fileName;
         } else {
           alert('프로필 이미지 업로드에 실패했습니다.');
           setIsLoading(false);
@@ -270,6 +279,12 @@ useEffect(() => {
         // 기본 이미지로 변경하는 경우
         updateData.userThumbnailName = 'default.jpg';
         updateData.userThumbnailUrl = '/default';
+      } else {
+        // 이미지를 변경하지 않은 경우 현재 값 유지
+        if (currentUser && currentUser.userThumbnailUrl && currentUser.userThumbnailName) {
+          updateData.userThumbnailUrl = currentUser.userThumbnailUrl;
+          updateData.userThumbnailName = currentUser.userThumbnailName;
+        }
       }
 
       // 비밀번호 변경이 있는 경우 추가
@@ -318,6 +333,22 @@ useEffect(() => {
       if (updatedUserData && updatedUserData.id != null) {
         // 백엔드에서 반환한 업데이트된 사용자 정보(썸네일 포함)를 Redux에 저장
         dispatch(setUser(updatedUserData));
+        
+        // 리덕스 업데이트 후 이미지 미리보기 업데이트
+        const thumbnailUrl = updatedUserData.userThumbnailUrl;
+        const thumbnailName = updatedUserData.userThumbnailName;
+        
+        if (thumbnailUrl && thumbnailName && thumbnailUrl !== '/default') {
+          if (thumbnailUrl.startsWith('http') || thumbnailUrl.startsWith('/assets')) {
+            setProfilePreview(thumbnailUrl);
+          } else {
+            setProfilePreview(
+              getFileDisplayUrlFromPathAndName(thumbnailUrl, thumbnailName)
+            );
+          }
+        } else {
+          setProfilePreview('/assets/images/defalutpro.svg');
+        }
       } else {
         // 응답에 데이터가 없는 경우 /users/me로 다시 가져오기
         const userResponse = await fetch(
@@ -335,12 +366,31 @@ useEffect(() => {
           const userData = userResult?.data ?? userResult;
           if (userData && userData.id != null) {
             dispatch(setUser(userData));
+            
+            // 리덕스 업데이트 후 이미지 미리보기 업데이트
+            const thumbnailUrl = userData.userThumbnailUrl;
+            const thumbnailName = userData.userThumbnailName;
+            
+            if (thumbnailUrl && thumbnailName && thumbnailUrl !== '/default') {
+              if (thumbnailUrl.startsWith('http') || thumbnailUrl.startsWith('/assets')) {
+                setProfilePreview(thumbnailUrl);
+              } else {
+                setProfilePreview(
+                  getFileDisplayUrlFromPathAndName(thumbnailUrl, thumbnailName)
+                );
+              }
+            } else {
+              setProfilePreview('/assets/images/defalutpro.svg');
+            }
           }
         }
       }
 
       alert('정보가 성공적으로 수정되었습니다.');
 
+      // 이미지 수정 후 상태 초기화 (리덕스 업데이트 후)
+      setProfileImage(null);
+      
       // 비밀번호 필드 초기화
       setPasswordData({
         currentPassword: '',
