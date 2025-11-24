@@ -133,7 +133,7 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
                 return (
                   <S.ProfileImgWrap key={user.id || user.userId}>
                     {isHost && <S.CrownIcon src="/assets/gameroom/common/crown.png" alt="host" />}
-                    <S.ProfileImg src={user.userThumbnailURL || user.userThumbnailUrl} alt='userProfile'></S.ProfileImg>
+                    <S.ProfileImg src={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${user.userThumbnailURL}${user.userThumbnailName}`} alt='userProfile'></S.ProfileImg>
                   </S.ProfileImgWrap>
                 )
               })}
