@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import S from './style';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser, setUserStatus } from 'modules/user';
+import { getFileDisplayUrlFromPathAndName } from 'utils/fileUtils';
 
 const Header = () => {
   const [ notifications, setNotifications ] = useState([])
@@ -272,6 +273,30 @@ const arrangeDisplay = [...sortedUnread, ...sortedRead];
 const msgFromAction = (action) =>
   action === "New Like" ? "좋아요를 남겼어요" : "새 댓글을 남겼어요";
 
+// 프로필 이미지 URL 계산
+const profileImageUrl = useMemo(() => {
+  const DEFAULT_PROFILE_IMAGE = "/assets/images/defalutpro.svg";
+  const thumbnailUrl = currentUser?.userThumbnailUrl;
+  const thumbnailName = currentUser?.userThumbnailName;
+  
+  // 사진이 없거나 빈 값인 경우 기본 프로필 사진 반환
+  if (!thumbnailUrl || thumbnailUrl === '' || thumbnailUrl === '/default' || thumbnailUrl === 'null' || thumbnailUrl === 'undefined') {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+  // 외부 URL이거나 assets 경로인 경우 그대로 사용
+  if (thumbnailUrl.startsWith('http') || thumbnailUrl.startsWith('/assets')) {
+    return thumbnailUrl;
+  }
+  
+  // userThumbnailUrl과 userThumbnailName이 모두 있는 경우 새로운 형식 사용
+  if (thumbnailUrl && thumbnailName) {
+    return getFileDisplayUrlFromPathAndName(thumbnailUrl, thumbnailName) || DEFAULT_PROFILE_IMAGE;
+  }
+  
+  // 기존 형식 호환성 유지
+  return DEFAULT_PROFILE_IMAGE;
+}, [currentUser?.userThumbnailUrl, currentUser?.userThumbnailName]);
+
 // 리스트 렌더 (레이아웃만)
 const notificationLists = () =>
   (arrangeDisplay ?? []).map((notice, i) => {
@@ -398,12 +423,11 @@ const notificationLists = () =>
               ) : <></>}
               </S.notification_wrap>
               <S.profileLayout>
-                <S.profileImage>
-                  {/* <img src={profileURL} ></img> */}
-                  <Link to={"/my-page"}>
-                    <img src='/assets/images/chicken.png'></img>
-                  </Link>
-                </S.profileImage>
+                <Link to={"/my-page"}>
+                  <S.profileImage>
+                    <img src={profileImageUrl} alt="프로필 이미지"></img>
+                  </S.profileImage>
+                </Link>
                 <S.log_out onClick={onLogout}>로그아웃</S.log_out>
               </S.profileLayout>
             </S.right_layout>
