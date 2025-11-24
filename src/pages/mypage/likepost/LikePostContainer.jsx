@@ -2,6 +2,8 @@ import React, { useMemo, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import S from "../mypost/style";
 import PostListStyle from "../../../pages/community/post/postlist/style";
+import { getFileDisplayUrlFromPathAndName } from "../../../../src/utils/fileUtils";
+const DEFAULT_PROFILE_IMAGE = "/assets/images/defalutpro.svg";
 
 /* 날짜 → 상대시간 */
 const toRelativeTime = (dateLike) => {
@@ -20,6 +22,21 @@ const toRelativeTime = (dateLike) => {
   if (mon < 12) return `${mon}개월 전`;
   const y = Math.floor(mon / 12);
   return `${y}년 전`;
+};
+
+/* 프로필 이미지 URL 만들기 - 단순한 버전 */
+const getProfileImageUrl = (p) => {
+  // userThumbnailUrl은 실제로 path(폴더 경로), userThumbnailName은 파일명
+  const path = p.userThumbnailUrl;
+  const name = p.userThumbnailName;
+  
+  // path와 name 둘 다 있으면 합쳐서 URL 만들기
+  if (path && name) {
+    return getFileDisplayUrlFromPathAndName(path, name);
+  }
+  
+  // 없으면 기본 이미지
+  return DEFAULT_PROFILE_IMAGE;
 };
 
 /* 백엔드 → 프런트 표준 구조로 매핑 */
@@ -45,7 +62,7 @@ const mapPost = (p) => ({
       p.userName ??
       p.username ??
       null,
-    profileImg: p.userThumbnailUrl ?? p.authorProfile ?? null,
+    profileImg: getProfileImageUrl(p),
   },
 });
 
