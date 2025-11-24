@@ -56,11 +56,10 @@ const Follow = ({ follow = [] }) => {
 
       <S.FollowFooterWrap>
         <S.FooterItems >
-          <img src='/assets/gameroom/menu.png'alt='menu'></img>
-          <S.FooterText>친구목록 [ {follow.length} 명]</S.FooterText>
+          <S.MenuFont><img src='/assets/gameroom/menu.png'alt='menu'></img></S.MenuFont><S.FooterText>친구목록 [ {follow.length} 명]</S.FooterText>
         </S.FooterItems>
         <S.FooterItems >
-          <img src='/assets/gameroom/arrange.png' alt='arrange'></img><S.FooterText>등급 순</S.FooterText>
+          <img src='assets/gameroom/arrange.png' alt='arrange'></img><S.FooterText>등급 순</S.FooterText>
         </S.FooterItems>
       </S.FollowFooterWrap>
     </S.FollowWrap>

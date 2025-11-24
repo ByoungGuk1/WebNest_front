@@ -71,14 +71,7 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
     return '뱀 주사위 놀이'; // 기본값
   };
 
-  // 플레이어가 0명인 방은 필터링
-  const filteredRooms = rooms.filter((room) => {
-    const currentPlayer = room.gameRoomCurrentPlayer || 0;
-    const playersCount = (room.players && Array.isArray(room.players)) ? room.players.length : 0;
-    return currentPlayer > 0 || playersCount > 0;
-  });
-
-  const roomList = filteredRooms.map(({gameRoomCreateAt, gameRoomCurrentPlayer, gameRoomIsOpen, gameRoomIsStart, gameRoomIsTeam, gameRoomMaxPlayer, gameRoomPassKey, gameRoomTitle, gameRoomType, gameRoomLanguage, id, players}, i) => {
+  const roomList = rooms.map(({gameRoomCreateAt, gameRoomCurrentPlayer, gameRoomIsOpen, gameRoomIsStart, gameRoomIsTeam, gameRoomMaxPlayer, gameRoomPassKey, gameRoomTitle, gameRoomType, gameRoomLanguage, id, players}, i) => {
     const isFull = gameRoomCurrentPlayer >= gameRoomMaxPlayer;
     const isDisabled = !gameRoomIsOpen || isFull;
     const averageLevel = calculateAverageLevel(players);
