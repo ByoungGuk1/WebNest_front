@@ -4,6 +4,21 @@ import { TypingContext } from "context/TypingContext";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+// 🔥 프로필 이미지 URL 생성 함수
+const getProfileUrl = (path, name) => {
+  if (!name) return "/assets/images/chicken.png";
+
+  const cleanPath = (path || "/img/")
+    .replace(/^\//, "")
+    .replace(/\/$/, "");
+
+  const cleanName = name.replace(/^\//, "");
+
+  return `${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${cleanPath}/${cleanName}`;
+};
+
+
+
 const ResultModal = () => {
   const { state, actions } = useContext(TypingContext);
   const { finalResult, currentTypingId } = state;
@@ -42,7 +57,15 @@ const ResultModal = () => {
   return (
     <S.ModalOverlay>
       <S.ModalBox>
-        <S.ModalImage src="/assets/images/chicken.png" alt="캐릭터" />
+        {/* <S.ModalImage src="/assets/images/chicken.png" alt="캐릭터" /> */}
+        <S.ModalImage
+          src={getProfileUrl(currentUser?.userThumbnailUrl, currentUser?.userThumbnailName)}
+          alt="프로필 이미지"
+          onError={(e) => {
+            e.currentTarget.src = "/assets/images/chicken.png";
+          }}
+        />
+
 
         <S.Title>타자 결과</S.Title>
 
