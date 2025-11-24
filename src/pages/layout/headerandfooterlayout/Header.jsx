@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import S from './style';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser, setUserStatus } from 'modules/user';

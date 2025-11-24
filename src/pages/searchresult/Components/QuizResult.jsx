@@ -33,7 +33,7 @@ const QuizList = ({ quizs = [], loading = false, toggleBookmark, bookMarkId = []
                 </S.Cell>
                 <S.Cell flex={2}>{quizCategory}</S.Cell>
                 <S.Cell flex={1}>
-                    <S.Status isClear={solve}>
+                     <S.Status isClear={solve}>
                         {solve ? '해결됨' : '미해결'}
                     </S.Status>
                 </S.Cell>

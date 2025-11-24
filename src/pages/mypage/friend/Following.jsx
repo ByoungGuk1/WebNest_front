@@ -57,7 +57,6 @@ const Following = () => {
             counts[userId] = 0;
           }
         } catch (error) {
-          console.error(`팔로워 수 조회 실패 (userId: ${userId}):`, error);
           counts[userId] = 0;
         }
       });
@@ -169,7 +168,6 @@ const Following = () => {
         refreshData();
       }
     } catch (error) {
-      console.error("팔로우 토글 오류:", error);
       // 실패 시 원래 상태로 복구
       setFollowUI(prev => ({ ...prev, [userId]: currentIsFollow }));
       alert("오류가 발생했습니다. 다시 시도해주세요.");
@@ -190,12 +188,7 @@ const Following = () => {
       ) : (
         <>
           <S.FollowerList>
-            {currentFollowing.map((user) => {
-    
-
-
-
-
+            {currentFollowing.map((user, index) => {
               const userId = getId(user);
               // 팔로우 상태 확인: UI 상태 > 기본값 true (팔로잉 목록이므로 이미 팔로우한 상태)
               const isFollow = (userId in followUI) 
@@ -263,7 +256,7 @@ const Following = () => {
               const levelImageUrl = `/assets/images/test-grade/grade${level}.png`;
 
               return (
-                <div key={userId}>
+                <div key={userId ? `${userId}-${index}` : `following-${index}`}>
                   <S.FollowerItem>
                     <S.FollowerLeft>
                       <S.FollowerAvatar>
@@ -294,7 +287,11 @@ const Following = () => {
                       <S.FollowingButton
                         as="button"
                         type="button"
-                        onClick={() => toggleFollow(user, isFollow)}
+                        onClick={() => {
+                          if (window.confirm("팔로우를 취소하시겠습니까?")) {
+                            toggleFollow(user, isFollow);
+                          }
+                        }}
                       >
                         <span>팔로잉</span>
                       </S.FollowingButton>

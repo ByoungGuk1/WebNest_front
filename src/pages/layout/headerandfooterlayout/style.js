@@ -90,11 +90,17 @@ const S = {}
       padding: 0px;
     }
   `
-  S.profileLayout = styled.div`
+  S.yarn = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
+  `
+  S.profileLayout = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
   `
   S.profileImage = styled.div`
     /* margin-left: 49px; */

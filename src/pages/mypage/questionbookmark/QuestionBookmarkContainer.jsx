@@ -108,7 +108,6 @@ const QuestionBookmarkContainer = () => {
         return next;
       });
     } catch (err) {
-      console.error('북마크 토글 실패:', err);
       // 에러 발생 시 롤백
       setBookMarkId(prev => prev.includes(quizId) ? prev.filter(i => i !== quizId) : [...prev, quizId]);
     } finally {
@@ -130,7 +129,7 @@ const QuestionBookmarkContainer = () => {
         <QuizListStyle.ListContainer>
           <QuizListStyle.Header>
             <QuizListStyle.Cell flex={0.6} style={{ textAlign: 'left' }}>#문제</QuizListStyle.Cell>
-            <QuizListStyle.Cell flex={1} paddingLeft>난이도</QuizListStyle.Cell>
+            <QuizListStyle.Cell flex={1} $paddingLeft>난이도</QuizListStyle.Cell>
             <QuizListStyle.Cell flex={1}>언어</QuizListStyle.Cell>
             <QuizListStyle.Cell flex={3.5}>제목</QuizListStyle.Cell>
             <QuizListStyle.Cell flex={2}>유형</QuizListStyle.Cell>
@@ -148,7 +147,6 @@ const QuestionBookmarkContainer = () => {
               
               // quizId가 없으면 표시하지 않음 (백엔드 쿼리 수정 필요)
               if (!rawId) {
-                console.warn('quizId가 없습니다. 백엔드 쿼리에 QUIZ_ID를 추가해야 합니다.', quiz);
                 return null;
               }
 
@@ -185,7 +183,7 @@ const QuestionBookmarkContainer = () => {
                   </QuizListStyle.Cell>
                   <QuizListStyle.Cell flex={2}>{quizCategory?.trim() || '카테고리'}</QuizListStyle.Cell>
                   <QuizListStyle.Cell flex={1}>
-                    <QuizListStyle.Status isSolved={isSolved} isClear={!isSolved}>
+                    <QuizListStyle.Status $isSolved={isSolved}>
                       {isSolved ? '해결됨' : '미해결'}
                     </QuizListStyle.Status>
                   </QuizListStyle.Cell>
