@@ -15,7 +15,6 @@ const UserResult = ({datas = [], search = "", count}) => {
 
   const getId = (u) => u.userId ?? u.id ?? u.userSeq ?? u.userNo ?? u.userNickname;
 
-  console.log(datas)
   const top3 = useMemo(() => {
     return [...datas]
     .sort((a, b) => (b.followerCount ?? b.followerCount ?? 0) - (a.followerCount ?? a.followerCount ?? 0))
@@ -23,15 +22,13 @@ const UserResult = ({datas = [], search = "", count}) => {
   }, [datas]);
 
   const changeTags = top3.map((user)=>{
+    console.log(user)
     const id = getId(user);
         const isFollow = (id in followUI) ? followUI[id] : !!user.isFollow;
-    console.log(user)
     let nickname = user.userNickname;
     let level = user.userLever;
     let followCount = user.followerCount;
-    let profileUrl = user.userProfile;
     let levelImageUrl = "/assets/images/test-grade/grade" + level+".png"
-    // let isFollow = user.isFollow;
     return(
       <>
       <div>
@@ -39,7 +36,7 @@ const UserResult = ({datas = [], search = "", count}) => {
         <S.UserLeftWrap>
           <S.UserProfile>
             <img 
-              srcsrc={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${user.userThumbnailUrl}${user.userThumbnailName}`}
+              src={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${user.userThumbnailUrl}${user.userThumbnailName}`}
               alt="" 
             />
             <S.UserLevelCard className='lv'>
