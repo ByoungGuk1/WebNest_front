@@ -144,12 +144,18 @@ const S = {}
     width: 16px;
     height: 18px;
     background-image: url('/assets/images/header/bell.png');
+    z-index: -1;
   `
   S.notification_wrap = styled.div`
     width: 16px;
     height: 18px;
     position: relative;
     z-index: 10000;
+    & img {
+      :hover {
+        cursor: pointer;
+      }
+    }
   `
   S.notification_new = styled.div`
     width: 8px;

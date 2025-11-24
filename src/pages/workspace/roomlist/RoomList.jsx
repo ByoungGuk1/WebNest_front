@@ -61,12 +61,23 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
     return (t || '').toString().toLowerCase();
   };
 
+  // 경로 형식을 한글 라벨로 매핑
+  const mapRouteToLabel = (route) => {
+    const routeLower = (route || '').toString().toLowerCase();
+    if (routeLower === 'snakepuzzle') return '뱀 주사위 놀이';
+    if (routeLower === 'concave') return '오목';
+    if (routeLower === 'lastword') return '끝말잇기';
+    if (routeLower === 'cardflip') return '카드 뒤집기 놀이';
+    return '뱀 주사위 놀이'; // 기본값
+  };
+
   const roomList = rooms.map(({gameRoomCreateAt, gameRoomCurrentPlayer, gameRoomIsOpen, gameRoomIsStart, gameRoomIsTeam, gameRoomMaxPlayer, gameRoomPassKey, gameRoomTitle, gameRoomType, gameRoomLanguage, id, players}, i) => {
     const isFull = gameRoomCurrentPlayer >= gameRoomMaxPlayer;
     const isDisabled = !gameRoomIsOpen || isFull;
     const averageLevel = calculateAverageLevel(players);
     const levelColor = getLevelColor(averageLevel);
     const routePath = mapTypeToRoute(gameRoomType);
+    const gameTypeLabel = mapRouteToLabel(routePath);
     
     const handleEnter = () => {
       if (isDisabled) return;
@@ -99,8 +110,9 @@ const RoomList = ({ rooms = [], isLoading = false }) => {
           <img src='/assets/gameroom/common/group.svg' alt='flag' className='flag'></img>
           <S.RoomTitleWrapper>
             <p>{gameRoomTitle}</p>
-            <span> ｢ {gameRoomLanguage && <S.RoomLanguage>{gameRoomLanguage} ｣</S.RoomLanguage>} 
-              {gameRoomType.toLowerCase === "lastword" ? "끝말 잇기" : gameRoomType.toLowerCase === "cardflip" ? "카드 뒤집기" : gameRoomType.toLowerCase === "concave" ? "오목" : gameRoomType.toLowerCase === "lastword" ? "끝말잇기" : "뱀 주사위 놀이"}</span>
+            <span> 
+              {gameTypeLabel}
+            </span>
           </S.RoomTitleWrapper>
         </S.RoomLeft>
         

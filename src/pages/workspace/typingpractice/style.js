@@ -227,12 +227,15 @@ S.MyCharacter = styled.div`
   img {
     width: 100px;
     height: 100px;
+
+    border-radius: 50%;   /* 🔥 동그라미로 만들어주는 핵심 코드 */
+    object-fit: cover;    /* 🔥 사진 비율 깨지지 않도록 */
   }
 `;
 
 S.CharacterName = styled.div`
   ${h5Medium}
-  margin-top: 10px;
+  margin-top: 30px;
 `;
 
 S.ProgressTitle = styled.div`

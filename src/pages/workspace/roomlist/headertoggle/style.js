@@ -40,7 +40,7 @@ S.GameRoomToggle = styled.div`
     gap: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    z-index: 1;
+    /* z-index: -1; */
     
     &::before {
         content: "";

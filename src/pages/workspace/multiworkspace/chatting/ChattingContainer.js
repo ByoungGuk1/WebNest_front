@@ -155,21 +155,17 @@ const ChattingContainer = () => {
         stompClientRef.current.deactivate();
       }
     };
-  }, [roomId, userSenderId, userNickname]); // userTeamColor 제거 - 변경 시 재연결 방지
+  }, [roomId, userSenderId, userNickname]);
 
-  // 엔터키 입력 시 메시지 전송
   const [isComposing, setIsComposing] = useState(false);
 
   const handleKeyDown = (e) => {
-    // 한글 입력 조합 중이면 무시
     if (isComposing) return;
 
-    // 일부 브라우저: nativeEvent.isComposing 도 같이 방어
     if (e.nativeEvent?.isComposing) return;
 
-    // Enter 키이고 메시지가 있을 때
     if (e.key === 'Enter' && message.trim() !== '') {
-      e.preventDefault(); // 기본 동작(줄바꿈) 방지
+      e.preventDefault();
       
       const chatData = {
         gameRoomId: roomId,
@@ -179,7 +175,6 @@ const ChattingContainer = () => {
         chatMessageType: 'MESSAGE',
       };
 
-      // 연결 체크(가끔 연결 직후 안전장치)
       if (stompClientRef.current?.connected) {
         stompClientRef.current.publish({
           destination: '/pub/chats/send',
