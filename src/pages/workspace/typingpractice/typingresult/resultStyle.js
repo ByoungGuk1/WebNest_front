@@ -32,6 +32,8 @@ S.ModalImage = styled.img`
   object-fit: contain;
   margin: 0 auto;
   display: block;
+  border-radius: 50%;   /* 둥글게 */
+  object-fit: cover;    /* 이미지 꽉 차게 */
 `;
 
 S.Title = styled.div`

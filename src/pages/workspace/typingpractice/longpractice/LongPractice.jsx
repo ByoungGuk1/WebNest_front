@@ -113,9 +113,14 @@ const LongPractice = () => {
         setIsTypingStart(false);
   
         // 2) finalResult 저장
+        // 🔥 여기에 있는 setFinalResult 내용만 바꾸면 된다!!
         actions.setFinalResult({
           wpm: ((state.wordCount / state.runningTime.totalSeconds) * 60).toFixed(1),
-          accuracy: ((state.correctTypedCount / state.totalTypedCount) * 100).toFixed(1),
+          accuracy: (
+            state.totalTypedCount > 0
+              ? (state.totalCorrectCount / state.totalTypedCount) * 100
+              : 100
+          ).toFixed(1),
           time: state.runningTime.totalSeconds.toFixed(1)
         });
   

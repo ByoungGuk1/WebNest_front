@@ -3,6 +3,21 @@ import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import S from "./style";
 import { useSelector } from "react-redux";
 
+
+// 🔥 프로필 이미지 URL 생성 함수
+const getProfileUrl = (path, name) => {
+  if (!name) return "/assets/images/defalutpro.svg";
+
+  const cleanPath = (path || "/img/")
+    .replace(/^\//, "")
+    .replace(/\/$/, "");
+
+  const cleanName = name.replace(/^\//, "");
+
+  return `${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${cleanPath}/${cleanName}`;
+};
+
+
 /** 🔧 백엔드 연동용 상수 */
 const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
 const GET_POST = (id, userId) => `${API_BASE}/post/get-post/${id}?userId=${userId}`;
@@ -331,6 +346,33 @@ const QuestionReadContainer = () => {
   //   alert("답변이 채택되었습니다! 🎉");
   // };
 
+
+  // 댓글 다시 불러오는 함수 (채택 후에도 사용됨)
+  const loadComments = async () => {
+    try {
+      const safeUserId = currentUserId ?? 0;
+      const res = await fetch(GET_COMMENTS(questionId, safeUserId), {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error("댓글 조회 실패");
+
+      const data = await res.json();
+      const commentList = Array.isArray(data.data)
+        ? data.data
+        : Array.isArray(data)
+        ? data
+        : [];
+
+      setComments(commentList);
+    } catch (err) {
+      console.error("댓글 로드 오류:", err);
+    }
+  };
+
+
   const handleConfirmChoose = async () => {
     try {
       const res = await fetch(CHOOSE_COMMENT, {
@@ -343,11 +385,13 @@ const QuestionReadContainer = () => {
       if (!res.ok) throw new Error("채택 실패");
 
       // UI 업데이트
-      setComments((prev) =>
-        prev.map((c) =>
-          c.id === selectedCommentId ? { ...c, commentIsAccept: 1 } : c
-        )
-      );
+      // setComments((prev) =>
+      //   prev.map((c) =>
+      //     c.id === selectedCommentId ? { ...c, commentIsAccept: 1 } : c
+      //   )
+      // );
+      await loadComments();  // 서버에서 최신 댓글 다시 불러오기
+
 
       setIsChooseModalOpen(false);
       alert("답변이 채택되었습니다!");
@@ -525,6 +569,14 @@ const QuestionReadContainer = () => {
   const acceptedComment = comments.filter((comment) => {return comment.commentIsAccept})
   const unAcceptedComment = comments.filter((comment) => {return !comment.commentIsAccept})
   const display = [ ...acceptedComment ,...unAcceptedComment ]
+
+
+    // 게시글 작성자 프로필 URL 생성
+  const profilePath = currentPost.userThumbnailUrl;
+  const profileName = currentPost.userThumbnailName;
+  const profileImgSrc = getProfileUrl(profilePath, profileName);
+
+
   return (
     <>
       {/* 배너 */}
@@ -547,10 +599,18 @@ const QuestionReadContainer = () => {
 
           <S.QuestionerInfo>
             <S.LeftBox>
-              <S.ProfileImg
+              {/* <S.ProfileImg
                 src={"/assets/images/defalutpro.svg"}
                 alt={userNickname || "익명"}
+              /> */}
+              <S.ProfileImg
+                src={profileImgSrc}
+                alt={userNickname || "익명"}
+                onError={(e) => {
+                  e.currentTarget.src = "/assets/images/defalutpro.svg";
+                }}
               />
+
               <span>{userNickname || "익명"}</span>
             </S.LeftBox>
             <S.FollowButton>팔로우</S.FollowButton>
@@ -610,94 +670,83 @@ const QuestionReadContainer = () => {
         {/* 백엔드 댓글 매핑 */}
         {display && display.length > 0 ? (
           <S.AnswerSection>
-            {display.map((ans) => (
-              <S.AnswerCard key={ans.id}>
-                <S.AnswerTop $commentIsAccept={ans.commentIsAccept === 1 || ans.commentIsAccept === true}>
-                  <S.UserInfo>
-                    <S.AnswerProfile
-                      src={ans.userThumbnailUrl}
-                      alt={ans.userNickname || "익명"}
-                    />
-                    <S.AnswerInnerBox>
-                      <S.AnswerUser>
-                        <span>{ans.userNickname || "익명"}</span>
-                      </S.AnswerUser>
-                      <S.AnswerMeta>
-                        <span>Level</span>
-                        <span>{ans.userLevel}</span>
-                      </S.AnswerMeta>
-                    </S.AnswerInnerBox>
-                    <span>
-                      {ans.isAccepted ? "채택된 댓글입니다." : ""}
-                    </span>
-                  </S.UserInfo>
+            {display.map((ans) => {
+              // 🔥 댓글 프로필 이미지 만들기
+              const ansProfilePath = ans.userThumbnailUrl;
+              const ansProfileName = ans.userThumbnailName;
+              const ansProfileImgSrc = getProfileUrl(ansProfilePath, ansProfileName);
 
-                  {/* <S.ChooseAnswer onClick={handleChooseClick}>
-                    <span>채택</span>
-                  </S.ChooseAnswer> */}
-                  {currentUserId === currentPost.userId && !ans.commentIsAccept && (
-                    <S.ChooseAnswer onClick={() => handleChooseClick(ans.id)}>
-                      채택
-                    </S.ChooseAnswer>
+              return (
+                <S.AnswerCard key={ans.id}>
+                  {/* <S.AnswerTop $commentIsAccept={ans.commentIsAccept === 1}> */}
+                  <S.AnswerTop $accept={Number(ans.commentIsAccept)}>
+
+
+                    <S.UserInfo>
+
+                      <S.AnswerProfile
+                        src={ansProfileImgSrc}
+                        alt={ans.userNickname || "익명"}
+                        onError={(e) => {
+                          e.currentTarget.src = "/assets/images/defalutpro.svg";
+                        }}
+                      />
+
+                      <S.AnswerInnerBox>
+                        <S.AnswerUser>
+                          <span>{ans.userNickname || "익명"}</span>
+                        </S.AnswerUser>
+                        <S.AnswerMeta>
+                          <span>Level</span>
+                          <span>{ans.userLevel}</span>
+                        </S.AnswerMeta>
+                      </S.AnswerInnerBox>
+
+                    </S.UserInfo>
+
+
+                    {currentUserId === currentPost.userId && !ans.commentIsAccept && (
+                      <S.ChooseAnswer onClick={() => handleChooseClick(ans.id)}>
+                        채택
+                      </S.ChooseAnswer>
+                    )}
+                  </S.AnswerTop>
+
+                  <S.AnswerContent>{ans.commentDescription}</S.AnswerContent>
+
+                  <S.AnswerDate>
+                    <span>{toRelativeTime(ans.commentCreateAt)}</span>
+                    <b>·</b>
+
+                    <S.AnswerLikeBox onClick={() => handleAnswerLike(ans.id, ans.postId)}>
+                      <S.AnswerLikeImg
+                        src={
+                          likedAnswers[ans.id]
+                            ? "/assets/icons/heartfull.svg"
+                            : "/assets/icons/greyheart.svg"
+                        }
+                        alt="좋아요"
+                      />
+                      <S.AnswerLikeNum $liked={likedAnswers[ans.id]}>
+                        {answerLikeCounts[ans.id] || 0}
+                      </S.AnswerLikeNum>
+                    </S.AnswerLikeBox>
+
+                    <b>·</b>
+                    <span onClick={() => handleReportClick("answer", ans.id)}>신고</span>
+                  </S.AnswerDate>
+
+                  {openMenuId === ans.id && currentUserId === ans.userId && (
+                    <S.AnswerMenu>
+                      <li onClick={() => handleEdit(ans)}>수정하기</li>
+                      <li onClick={() => handleDelete(ans.id)}>삭제하기</li>
+                    </S.AnswerMenu>
                   )}
 
-                </S.AnswerTop>
+                </S.AnswerCard>
+              );
+            })}
 
-                <S.AnswerContent>{ans.commentDescription}</S.AnswerContent>
-
-                <S.AnswerDate>
-                  <span>{toRelativeTime(ans.commentCreateAt)}</span>
-                  <b>·</b>
-                  
-
-                  {/* 답글 좋아요 버튼 */}
-                <S.AnswerLikeBox onClick={() => handleAnswerLike(ans.id, ans.postId)}>
-                  <S.AnswerLikeImg
-                    src={
-                      likedAnswers[ans.id]
-                        ? "/assets/icons/heartfull.svg"
-                        : "/assets/icons/greyheart.svg"
-                    }
-                    alt="좋아요"
-                  />
-
-                  <S.AnswerLikeNum $liked={likedAnswers[ans.id]}>
-                    {answerLikeCounts[ans.id] || 0}
-                  </S.AnswerLikeNum>
-                </S.AnswerLikeBox>
-
-
-                  <b>·</b>
-                  <span onClick={() => handleReportClick("answer", ans.id)}>신고</span>
-                </S.AnswerDate>
-
-                {/* <S.HamburgerButton onClick={() => toggleMenu(ans.id)}>
-                  <img src="/assets/icons/hamburgerbutton.svg" alt="메뉴" />
-                </S.HamburgerButton> */}
-                {currentUserId === ans.userId && (
-                  <S.HamburgerButton onClick={() => toggleMenu(ans.id)}>
-                    <img src="/assets/icons/hamburgerbutton.svg" alt="메뉴" />
-                  </S.HamburgerButton>
-                )}
-
-
-                {/* {openMenuId === ans.id && (
-                  <S.AnswerMenu>
-                    <li onClick={() => handleEdit(ans)}>수정하기</li>
-                    <li onClick={() => handleDelete(ans.id)}>삭제하기</li>
-                  </S.AnswerMenu>
-                )} */}
-
-                {openMenuId === ans.id && currentUserId === ans.userId && (
-                  <S.AnswerMenu>
-                    <li onClick={() => handleEdit(ans)}>수정하기</li>
-                    <li onClick={() => handleDelete(ans.id)}>삭제하기</li>
-                  </S.AnswerMenu>
-                )}
-
-
-              </S.AnswerCard>
-            ))}
           </S.AnswerSection>
         ) : (
           <S.NoAnswer>아직 답변이 없습니다 😥</S.NoAnswer>
