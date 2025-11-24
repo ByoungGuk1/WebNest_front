@@ -13,6 +13,7 @@ const SearchResultContainer = () => {
   const searchKeyword = searchParams.get("search")
   const [keyword, setKeyword] = useState("")
   const navigate = useNavigate()
+  const location = useLocation()
   const totalCount = openPosts.length + questionPosts.length + quizzes.length + users.length
 
   const handleSearch = (e) => setKeyword(e.target.value)
@@ -39,7 +40,11 @@ const SearchResultContainer = () => {
         <img src="/assets/images/header/search.png" alt="" />
       </S.InputWrap>
       <S.TextWrap>
-        <NavLink className={"border-bottom"} to={`/search?search=${searchKeyword}`}>
+        <NavLink 
+          className={({ isActive }) => isActive ? "active" : ""} 
+          to={`/search?search=${searchKeyword}`}
+          end
+        >
           <S.Text 
             className="select" 
             id="1"
@@ -47,25 +52,25 @@ const SearchResultContainer = () => {
               전체 &nbsp;<span>{totalCount}</span>
           </S.Text>
         </NavLink>
-        <NavLink className={"border-bottom"} to={`/search/question-post?search=${searchKeyword}`}>
+        <NavLink className={({ isActive }) => isActive ? "active" : ""} to={`/search/question-post?search=${searchKeyword}`}>
           <S.Text 
             className="select" 
             id="2" 
           >문제둥지<span>{questionPosts.length}</span> </S.Text>
         </NavLink>
-        <NavLink className={"border-bottom"} to={`/search/quiz?search=${searchKeyword}`}>
+        <NavLink className={({ isActive }) => isActive ? "active" : ""} to={`/search/quiz?search=${searchKeyword}`}>
           <S.Text 
             className="select" 
             id="3"
           >훈련장 &nbsp;<span>{quizzes.length}</span></S.Text>
         </NavLink>
-        <NavLink className={"border-bottom"} to={`/search/open-post?search=${searchKeyword}`}>
+        <NavLink className={({ isActive }) => isActive ? "active" : ""} to={`/search/open-post?search=${searchKeyword}`}>
           <S.Text 
             className="select"
             id="4"
           >열린둥지&nbsp;<span>{openPosts.length}</span> </S.Text>
         </NavLink>
-        <NavLink className={"border-bottom"} to={`/search/follow?search=${searchKeyword}`}>
+        <NavLink className={({ isActive }) => isActive ? "active" : ""} to={`/search/follow?search=${searchKeyword}`}>
           <S.Text 
             className="select"
             id="5"

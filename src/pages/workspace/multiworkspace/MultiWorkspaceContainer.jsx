@@ -38,7 +38,6 @@ const MultiWorkspaceRoomContainer = () => {
 
         // 게임 상태 API 사용 (더 정확한 정보) - 게임 타입별 경로
         const gameStateUrl = `${process.env.REACT_APP_BACKEND_URL}/private/game-rooms/${roomId}/game-state?gameType=${gameChannel}`;
-        console.log('📡 게임 상태 조회 요청 경로:', gameStateUrl);
         const gameStateResponse = await fetch(
           gameStateUrl,
           {
@@ -53,7 +52,6 @@ const MultiWorkspaceRoomContainer = () => {
         if (gameStateResponse.ok) {
           const gameStateData = await gameStateResponse.json();
           const gameState = gameStateData?.data || gameStateData;
-          console.log('🎮 게임 상태 조회 응답:', gameState);
 
           if (Array.isArray(gameState)) {
             const currentPlayer = gameState.find(p => {
@@ -61,27 +59,18 @@ const MultiWorkspaceRoomContainer = () => {
               return String(playerId) === String(userSenderId);
             });
 
-            console.log('🎮 현재 플레이어 정보:', currentPlayer);
-
             if (currentPlayer) {
               const isHostPlayer = currentPlayer.gameJoinIsHost === true ||
                 currentPlayer.gameJoinIsHost === 1 ||
                 currentPlayer.isHost === true ||
                 currentPlayer.isHost === 1;
-              console.log('🎮 방장 여부:', isHostPlayer, {
-                gameJoinIsHost: currentPlayer.gameJoinIsHost,
-                isHost: currentPlayer.isHost
-              });
               setIsHost(isHostPlayer);
-            } else {
-              console.warn('🎮 현재 플레이어를 찾을 수 없습니다.');
             }
           }
         }
 
         // 게임방 정보 조회 (게임 시작 여부 확인) - private API 사용
         const roomUrl = `${process.env.REACT_APP_BACKEND_URL}/private/game-rooms/${roomId}`;
-        console.log('📡 게임방 정보 조회 요청 경로:', roomUrl);
         const roomResponse = await fetch(
           roomUrl,
           {
@@ -96,7 +85,6 @@ const MultiWorkspaceRoomContainer = () => {
         if (roomResponse.ok) {
           const roomData = await roomResponse.json();
           const roomInfo = roomData?.data || roomData;
-          console.log('🎮 게임방 정보 조회 응답:', roomInfo);
 
           // 게임 시작 여부 확인
           if (roomInfo.gameRoomIsStart !== undefined) {
@@ -104,7 +92,6 @@ const MultiWorkspaceRoomContainer = () => {
           }
         } else {
           const errorText = await roomResponse.text().catch(() => '');
-          console.error(`❌ 게임방 정보 조회 실패 (${roomResponse.status}):`, errorText);
         }
       } catch (error) {
         console.error('게임방 상태 조회 중 오류:', error);
@@ -120,7 +107,6 @@ const MultiWorkspaceRoomContainer = () => {
       reconnectDelay: 5000,
       onConnect: () => {
         const subscribePath = `/sub/game/${gameChannel}/room/${roomId}`;
-        console.log('📡 게임 상태 구독 경로:', subscribePath);
         client.subscribe(subscribePath, (message) => {
           const body = JSON.parse(message.body);
           if (body.type === 'GAME_STARTED') {
@@ -157,14 +143,11 @@ const MultiWorkspaceRoomContainer = () => {
 
     try {
       const startDestination = `/pub/game/${gameChannel}/start`;
-      console.log('📡 게임 시작 요청 경로:', startDestination);
-      console.log('🎮 게임 시작 요청 전송:', startGameMessage);
       gameStompClientRef.current.publish({
         destination: startDestination,
         body: JSON.stringify(startGameMessage),
       });
     } catch (err) {
-      console.error('게임 시작 요청 전송 실패:', err);
       alert('게임 시작에 실패했습니다.');
     }
   };
@@ -183,8 +166,6 @@ const MultiWorkspaceRoomContainer = () => {
     };
     try {
       const readyDestination = `/pub/game/${gameChannel}/ready`;
-      console.log('📡 준비하기 요청 경로:', readyDestination);
-      console.log('🎮 준비하기 요청 전송:', readyMessage);
       gameStompClientRef.current.publish({
         destination: readyDestination,
         body: JSON.stringify(readyMessage),
@@ -202,9 +183,6 @@ const MultiWorkspaceRoomContainer = () => {
 
   // 친구 초대 처리
   const handleInviteRooms = (selectedFollowerIds) => {
-    console.log('초대할 친구 IDs:', selectedFollowerIds);
-    // TODO: 선택된 친구들에게 게임방 초대 알림 전송
-    // 예: 알림 API 호출 또는 STOMP 메시지 전송
     alert(`${selectedFollowerIds.length}명의 친구에게 초대되었습니다.`);
   };
 

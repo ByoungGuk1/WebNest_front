@@ -24,7 +24,7 @@ const Modal = ({ toggleModal }) => {
       gameRoomMaxPlayer: 8,
       gameRoomTitle: "",
       gameRoomPassKey: "",
-      gameRoomIsTeam: 0, // 0: 개인전, 1: 팀전
+      gameRoomIsTeam: 1, // 0: 개인전, 1: 팀전
     },
   });
   // watch hookform의 상태 변경 감지

@@ -15,12 +15,10 @@ const HeaderToggle = ({
     onReady,
     onInvite
 }) => {
-    // const [defficultOpen, defficultRef, defficultHandler] = useDropDown();
     const [difficult, setDifficult] = useState(0);
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // 입장 가능 방: 시작 안 함 + 공개 (rooms가 있을 때만)
     const entrancableRooms = rooms && Array.isArray(rooms) 
         ? rooms.filter((list) => !list.gameRoomIsStart).filter((room) => room.gameRoomIsOpen)
         : [];
@@ -113,8 +111,6 @@ const HeaderToggle = ({
 
     // 게임방 내부 모드: 게임 시작 전 버튼 표시
     if (isInGameRoom) {
-        console.log('🎮 HeaderToggle 게임방 내부 모드:', { isHost, isGameStarted, onStartGame, onReady, onInvite });
-        
         return (
             <S.GameRoomToggleWrap>
                 {isHost ? (
@@ -138,7 +134,6 @@ const HeaderToggle = ({
         );
     }
 
-    // 방 목록 모드: 기존 버튼들
     return (
         <S.GameRoomToggleWrap>
             <S.GameRoomToggle><S.IconCircle><img src="/assets/gameroom/common/gamepad.png" alt='방만들기' /></S.IconCircle><S.GameRoomToggleInnerText onClick={toggleModal}>방 만들기</S.GameRoomToggleInnerText>{isModalOpen && (
@@ -148,7 +143,7 @@ const HeaderToggle = ({
                 </>
             )}</S.GameRoomToggle>
             <S.GameRoomToggle onClick={goToRandomRoom}><S.IconCircle><img src="/assets/gameroom/common/flash.png" alt='빠른입장'/></S.IconCircle><S.GameRoomToggleInnerText>빠른 입장</S.GameRoomToggleInnerText></S.GameRoomToggle>
-            <S.GameRoomToggle onClick={nextLevel}><S.IconCircle><img src="/assets/gameroom/common/star.png" alt='난이도' /></S.IconCircle><S.GameRoomToggleInnerText>{currentDifficult.value}</S.GameRoomToggleInnerText></S.GameRoomToggle>
+            {/* <S.GameRoomToggle onClick={nextLevel}><S.IconCircle><img src="/assets/gameroom/common/star.png" alt='난이도' /></S.IconCircle><S.GameRoomToggleInnerText>{currentDifficult.value}</S.GameRoomToggleInnerText></S.GameRoomToggle> */}
             <S.GameRoomToggle $isSelected={teamMode !== null} onClick={handleTeamToggle}>
                 <S.IconCircle><img src="/assets/gameroom/common/human.png" alt='개인전' /></S.IconCircle>
                 <S.GameRoomToggleInnerText $isSelected={teamMode !== null}>

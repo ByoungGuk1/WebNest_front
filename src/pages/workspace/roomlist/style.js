@@ -176,8 +176,7 @@ S.RoomTitleWrapper = styled.div`
     flex-direction: column;
     ${h5Bold}
     line-height: 12px;
-    margin-top: 12px;
-    gap: 4px;
+    gap: 8px;
 `
 
 S.RoomLanguage = styled.span`

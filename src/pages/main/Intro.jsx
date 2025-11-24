@@ -103,7 +103,7 @@ const Intro = () => {
                 </Link>
               </div>
             </S.TextWrap>
-          <img src="assets/images/main-page/step1Img.png" alt="" />
+          <img src="assets/images/main-page/step1Img.png" alt="banner" />
         </S.StepWrap>
         <S.StepWrap style={stepSlideStyle(1)}>
           <S.TextWrap>
@@ -121,7 +121,7 @@ const Intro = () => {
               </Link>
             </div>
           </S.TextWrap>
-          <img src="assets/images/main-page/step1Img.png" alt="" />
+          <img src="assets/images/main-page/banner-blue.png" alt="banner" />
         </S.StepWrap>
         <S.StepWrap style={stepSlideStyle(2)}>
           <S.TextWrap>
@@ -141,7 +141,7 @@ const Intro = () => {
               </Link>
             </div>
           </S.TextWrap>
-          <img src="assets/images/main-page/step1Img.png" alt="" />
+          <img src="assets/images/main-page/banner-red.png" alt="" />
         </S.StepWrap>
       </S.IntroStepWrap>
       {/* -----=  level 레이아웃  =----- */}

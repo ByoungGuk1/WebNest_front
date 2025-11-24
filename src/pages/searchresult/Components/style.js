@@ -407,7 +407,7 @@ S.EmptyCard = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  /* width: 100%; */
   min-height: 220px;
   border-top: 1px solid ${LINE};
   border-bottom: 1px solid ${LINE};
@@ -468,7 +468,7 @@ S.HelpToWrite = styled.div`
   gap: 24px;
 `
 
-S.CleanLinkTag = styled.a`
+S.CleanLinkTag =  styled(Link)`
   color: inherit;
   text-decoration: none;
   justify-content: center;
