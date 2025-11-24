@@ -29,7 +29,6 @@ const MyPageContainer = () => {
 
         if(!response.ok) {
           const errorText = await response.text();
-          console.error(`getUserPage error: ${response.status}`, errorText);
           setMyData({});
           setPageUser(null);
           return;
@@ -42,7 +41,6 @@ const MyPageContainer = () => {
           setPageUser(datas.data);
         }
       } catch (err) {
-        console.error(`getUserPage ${err}`);
         setMyData({});
         setPageUser(null);
       }
@@ -51,7 +49,6 @@ const MyPageContainer = () => {
 
     // 내 페이지 조회 (기존 로직)
     if (!accessToken) {
-      console.error("accessToken이 없습니다. 로그인이 필요합니다.");
       setMyData({});
       setPageUser(null);
       return;
@@ -68,12 +65,6 @@ const MyPageContainer = () => {
 
       if(!response.ok) {
         const errorText = await response.text();
-        console.error(`getMyDatas error: ${response.status}`, errorText);
-        
-        if (response.status === 401) {
-          console.error("인증 실패 - 토큰이 유효하지 않거나 만료되었습니다.");
-        }
-        
         throw new Error(`${response.status} getMyDatas error: ${errorText}`);
       }
       
@@ -81,7 +72,6 @@ const MyPageContainer = () => {
       setMyData(datas.data || {});
       setPageUser(null); // 내 페이지이므로 pageUser는 null
     } catch (err) {
-      console.error(`getMyDatas ${err}`);
       setMyData({}); // 빈 객체로 설정하여 에러 발생 시에도 기본값 제공
       setPageUser(null);
     }

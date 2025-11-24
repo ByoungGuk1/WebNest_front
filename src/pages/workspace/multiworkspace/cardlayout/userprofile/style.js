@@ -64,13 +64,14 @@ S.ProfileImageWrap = styled.div`
   border-radius: 50%;
   width: 48px;
   height: 48px;
-  flex-flow: hidden;
+  overflow: hidden;
   background-color: ${theme.PALETTE.neutral.gray.light};
   position: relative;
 
   & > [name="userThumbnail"] {
     width: 100%;
     height: 100%;
+    object-fit: cover;
     border-radius: 50%;
   }
 `;

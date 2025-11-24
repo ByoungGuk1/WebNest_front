@@ -11,9 +11,9 @@ const ITEMS = [
 ];
 
 /* DOM 경고 방지용 */
-const NoDomSelectButton = forwardRef(({ select, ...rest }, ref) => <button ref={ref} {...rest} />);
+const NoDomSelectButton = forwardRef(({ select, selected, ...rest }, ref) => <button ref={ref} {...rest} />);
 NoDomSelectButton.displayName = "NoDomSelectButton";
-const NoDomDroppedDiv = forwardRef(({ isDropped, ...rest }, ref) => <div ref={ref} {...rest} />);
+const NoDomDroppedDiv = forwardRef(({ $isDropped, ...rest }, ref) => <div ref={ref} {...rest} />);
 NoDomDroppedDiv.displayName = "NoDomDroppedDiv";
 
 /* color 객체 정규화 */
@@ -85,7 +85,7 @@ const ThreeDropDown = ({ value = "latest", onChange, color }) => {
           as={NoDomSelectButton}
           type="button"
           onClick={handler}
-          select={!!selected}
+          selected={!!selected}
           aria-haspopup="listbox"
           aria-expanded={open}
           style={buttonStyle}
@@ -100,7 +100,7 @@ const ThreeDropDown = ({ value = "latest", onChange, color }) => {
 
         <S.DropDownMenuWrap
           as={NoDomDroppedDiv}
-          isDropped={open}
+          $isDropped={open}
           role="listbox"
           style={menuWrapStyle}
         >
