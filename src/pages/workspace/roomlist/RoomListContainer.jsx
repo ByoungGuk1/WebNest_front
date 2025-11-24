@@ -118,7 +118,7 @@ const RoomListContainer = () => {
       const bEnterable = isEnterable(b);
       
       if (aEnterable !== bEnterable) {
-        return aEnterable ? -1 : 1; // 입장 가능한 방이 위로 (aEnterable이 true면 a가 위로)
+        return aEnterable ? -1 : 1;
       }
 
       if (searchQuery.trim()) {
@@ -170,12 +170,6 @@ const RoomListContainer = () => {
             </S.LeftSection>
             <div>
               <S.RightWrap>
-                {/* <S.SelectBoxWrap>
-                <S.SelectBox $isSelected={selectedLanguage === null || selectedLanguage === 'ALL'} onClick={() => handleLanguageClick('ALL')}> ALL </S.SelectBox>
-                <S.SelectBox $isSelected={selectedLanguage === 'JAVA'} onClick={() => handleLanguageClick('JAVA')}> JAVA </S.SelectBox>
-                <S.SelectBox $isSelected={selectedLanguage === 'JS'} onClick={() => handleLanguageClick('JS')}> JS</S.SelectBox>
-                <S.SelectBox $isSelected={selectedLanguage === 'ORACLE'} onClick={() => handleLanguageClick('ORACLE')}> ORACLE </S.SelectBox>
-              </S.SelectBoxWrap> */}
                 <S.FilterWrap>
                   <S.RightArrayWrap onClick={handleSortClick} style={{ cursor: 'pointer' }}>
                       <span>{sortOrder === 'latest' ? '최신순' : '오래된순'}</span><S.IconBox><img src="/assets/icons/Symbol.svg" /></S.IconBox>

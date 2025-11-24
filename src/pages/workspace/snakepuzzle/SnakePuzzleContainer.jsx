@@ -397,10 +397,8 @@ const SnakePuzzleContainer = () => {
     // 3D 주사위 굴리기 (결과는 onDiceResult 콜백에서 받아서 백엔드로 전송)
     setTimeout(() => {
       if (window.throwDice3D) {
-        console.log('🎲 Calling throwDice3D from handleRollDice');
         window.throwDice3D();
       } else {
-        console.warn('🎲 throwDice3D not found');
         setIsRolling(false);
       }
     }, 100);
@@ -491,7 +489,6 @@ const SnakePuzzleContainer = () => {
       <S.Board>
           <S.Dice3DContainer>
             <DiceContainer onDiceResult={(results) => {
-              console.log('🎲 3D 주사위 결과:', results);
               setDiceResult(results);
               if (results && results.length === 2) {
                 const dice1 = results[0];
@@ -510,8 +507,6 @@ const SnakePuzzleContainer = () => {
                   
                   try {
                     const rollDiceDestination = `/pub/game/${gameChannel}/roll-dice`;
-                    console.log('📡 주사위 굴리기 요청 경로:', rollDiceDestination);
-                    console.log('🎲 주사위 결과 백엔드 전송:', rollDiceMessage);
                     gameStompClientRef.current.publish({
                       destination: rollDiceDestination,
                       body: JSON.stringify(rollDiceMessage),
