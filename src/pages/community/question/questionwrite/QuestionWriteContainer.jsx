@@ -3,6 +3,19 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import S from "./style";
 import { useSelector } from "react-redux";
 
+const getProfileUrl = (path, name) => {
+  if (!name) return "/assets/images/defalutpro.svg";
+
+  const cleanPath = (path || "/img/")
+    .replace(/^\//, "")
+    .replace(/\/$/, "");
+
+  const cleanName = name.replace(/^\//, "");
+
+  return `${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${cleanPath}/${cleanName}`;
+};
+
+
 /** 🔧 백엔드 연동용 상수 */
 const API_BASE = (process.env.REACT_APP_BACKEND_URL || "http://localhost:10000").replace(/\/+$/, "");
 const GET_POST_NO_VIEW = (id, userId) => `${API_BASE}/post/get-post-no-view/${id}?userId=${userId}`;
@@ -164,12 +177,18 @@ const QuestionWriteContainer = () => {
           <S.QuestionTitle>{postTitle}</S.QuestionTitle>
           <S.QuestionerInfo>
             <S.LeftBox>
-              <S.ProfileImgA
+              {/* <S.ProfileImgA
                 src={
                   currentUser.userThumbnailUrl || "/assets/images/defalutpro.svg"
                 }
                 alt={currentUser.userNickname || "익명"}
+              /> */}
+              <S.ProfileImgA
+                src={getProfileUrl(currentUser.userThumbnailUrl, currentUser.userThumbnailName)}
+                alt={currentUser.userNickname || "익명"}
+                onError={(e) => { e.currentTarget.src = "/assets/images/defalutpro.svg"; }}
               />
+
               <span>{currentUser.userNickname || "익명"}</span>
             </S.LeftBox>
           </S.QuestionerInfo>
@@ -191,13 +210,19 @@ const QuestionWriteContainer = () => {
           <S.ResponseCard>
             <S.InfoAndWrite>
               <S.ResponseBanner>
-                <S.ProfileImg
+                {/* <S.ProfileImg
                   src={
                     currentUser.userThumbnailUrl ||
                     "/assets/images/defalutpro.svg"
                   }
                   alt="프로필"
+                /> */}
+                <S.ProfileImg
+                  src={getProfileUrl(currentUser.userThumbnailUrl, currentUser.userThumbnailName)}
+                  alt="프로필"
+                  onError={(e) => { e.currentTarget.src = "/assets/images/defalutpro.svg"; }}
                 />
+
                 <S.ResponserInfo>
                   <div>{currentUser.userNickname || "익명"}님,</div>
                   <div>정보를 공유해 주세요.</div>

@@ -12,6 +12,7 @@ import {
 } from "../../../../utils/fileUtils";
 /* 최신순 드롭다운 */
 import ThreeDropDown from "../../../../components/dropdown/ThreeDropDown";
+import Postpopulars from "./Postpopulars";
 
 /* =========================
    🔧 백엔드 연동용 상수

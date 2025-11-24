@@ -5,8 +5,23 @@ import "swiper/css";
 import "swiper/css/navigation";
 import S from "./style";
 
+
+// 🔥 프로필 이미지 URL 생성 함수
+const getProfileUrl = (path, name) => {
+  if (!name) return "/assets/images/defalutpro.svg";
+
+  const cleanPath = (path || "/img/")
+    .replace(/^\//, "")
+    .replace(/\/$/, "");
+
+  const cleanName = name.replace(/^\//, "");
+
+  return `${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${cleanPath}/${cleanName}`;
+};
+
+
 const PopularQuestionSwiper = ({ popularPosts = [] }) => {
-  // ✅ Swiper와 네비게이션 버튼 ref를 내부에서 관리
+  // Swiper Navigation 설정용 Ref
   const swiperRef = useRef(null);
   const prevRef = useRef(null);
   const nextRef = useRef(null);
@@ -44,31 +59,46 @@ const PopularQuestionSwiper = ({ popularPosts = [] }) => {
           className="popularSwiper"
         >
           {popularPosts.length > 0 ? (
-            popularPosts.map((post) => (
-              <SwiperSlide key={post.id}>
-                <S.Link to={`/question/${post.id}`}>
-                  <S.PopularCard>
-                    <S.PopularTitle>{post.postTitle}</S.PopularTitle>
-                    <S.PopularPreview>{post.postContent}</S.PopularPreview>
-                    <S.Info>
-                      <S.MetaWrap>
-                        <S.ProfileImg
-                          src="/assets/images/defalutpro.svg"
-                          alt="익명"
-                        />
-                        <span>사용자 #{post.userId}</span>
-                        <b>·</b>
-                        <span>조회 {post.postViewCount || 0}</span>
-                      </S.MetaWrap>
-                      <S.Response>
-                        <img src="/assets/icons/talktalk.svg" alt="댓글" />
-                        {post.commentCount || 0}
-                      </S.Response>
-                    </S.Info>
-                  </S.PopularCard>
-                </S.Link>
-              </SwiperSlide>
-            ))
+            popularPosts.map((post) => {
+              // 🔥 DB에서 받아온 path + name
+              const profilePath = post.userThumbnailUrl;   // "/img/"
+              const profileName = post.userThumbnailName;  // "5.jpg"
+
+              // 🔥 최종 이미지 URL 생성
+              const profileImgSrc = getProfileUrl(profilePath, profileName);
+
+              return (
+                <SwiperSlide key={post.id}>
+                  <S.Link to={`/question/${post.id}`}>
+                    <S.PopularCard>
+                      <S.PopularTitle>{post.postTitle}</S.PopularTitle>
+                      <S.PopularPreview>{post.postContent}</S.PopularPreview>
+
+                      <S.Info>
+                        <S.MetaWrap>
+                          <S.ProfileImg
+                            src={profileImgSrc}
+                            alt={post.userNickname || "익명"}
+                            onError={(e) => {
+                              e.currentTarget.src = "/assets/images/defalutpro.svg";
+                            }}
+                          />
+
+                          <span>{post.userNickname}</span>
+                          <b>·</b>
+                          <span>조회 {post.postViewCount || 0}</span>
+                        </S.MetaWrap>
+
+                        <S.Response>
+                          <img src="/assets/icons/talktalk.svg" alt="댓글" />
+                          {post.commentCount || 0}
+                        </S.Response>
+                      </S.Info>
+                    </S.PopularCard>
+                  </S.Link>
+                </SwiperSlide>
+              );
+            })
           ) : (
             <SwiperSlide>
               <S.PopularCard>
@@ -78,6 +108,7 @@ const PopularQuestionSwiper = ({ popularPosts = [] }) => {
             </SwiperSlide>
           )}
         </Swiper>
+
         <S.GradientRight />
       </S.PopularWrap>
 
