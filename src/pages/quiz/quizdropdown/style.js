@@ -28,7 +28,7 @@ S.DropDownButton = styled.button`
     height: 40px;
     white-space: nowrap;
     background-color: ${({ selected }) => selected ? "#924EFF" : "white"};
-    color: ${({ selected }) => selected ? "#FFFFFF" : "000000"};
+    color: ${({ selected }) => selected ? "#FFFFFF" : "#000000"};
     font-size: 15.5px;
     font-weight: 600;
     cursor: pointer;
