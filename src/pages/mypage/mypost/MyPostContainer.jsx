@@ -17,7 +17,7 @@ const toRelativeTime = (dateLike) => {
   if (m < 60) return `${m}분 전`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h}시간 전`;
-  const day = Math.floor(h / 24);
+  const day = Math.floor(h / 24); 
   if (day < 7) return `${day}일 전`;
   const mon = Math.floor(day / 30);
   if (mon < 12) return `${mon}개월 전`;
