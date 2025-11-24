@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import S from './style';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser, setUserStatus } from 'modules/user';
-import { getFileDisplayUrlFromPathAndName } from 'utils/fileUtils';
 
 const Header = () => {
   const [ notifications, setNotifications ] = useState([])
@@ -369,18 +368,12 @@ const notificationLists = () =>
               ) : <></>}
               </S.notification_wrap>
               <S.profileLayout>
-                <Link to={"/my-page"}>
-                  <S.profileImage>
-                    <img 
-                      src={
-                        currentUser.userThumbnailUrl && currentUser.userThumbnailName
-                          ? getFileDisplayUrlFromPathAndName(currentUser.userThumbnailUrl, currentUser.userThumbnailName)
-                          : '/assets/images/chicken.png'
-                      }
-                      alt="프로필"
-                    />
-                  </S.profileImage>
-                </Link>
+                <S.profileImage>
+                  {/* <img src={profileURL} ></img> */}
+                  <Link to={"/my-page"}>
+                    <img src='/assets/images/chicken.png'></img>
+                  </Link>
+                </S.profileImage>
                 <S.log_out onClick={onLogout}>로그아웃</S.log_out>
               </S.profileLayout>
             </S.right_layout>
