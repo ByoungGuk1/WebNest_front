@@ -313,6 +313,7 @@ S.FollowingButton = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
   & span{
     ${h7Bold}
     color : #fff;

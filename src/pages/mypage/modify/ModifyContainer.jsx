@@ -249,19 +249,25 @@ useEffect(() => {
 
       // 프로필 이미지가 변경된 경우 파일 업로드
       if (profileImage) {
+        const uuids = await uploadFiles([profileImage]);
 
-        const filePaths = await uploadFiles([profileImage]);
-
-
-        if (filePaths && filePaths.length > 0) {
-          const filePath = filePaths[0];
-          const lastSlashIndex = filePath.lastIndexOf('/');
-          // 폴더 경로 (뒤에 / 포함)
-           const folderPath = filePath.substring(0, lastSlashIndex + 1); // "2025/11/18/"
-          // 파일 이름
-          const fileName = filePath.substring(lastSlashIndex + 1);      // "uuid_ara.jpg"
-            updateData.userThumbnailUrl = folderPath; // ✅ 폴더만
-            updateData.userThumbnailName = fileName;  // ✅ 파일명만
+        if (uuids && uuids.length > 0) {
+          const uuid = uuids[0];
+          const originalFileName = profileImage.name;
+          
+          // 백엔드 형식에 맞춰 날짜 경로 생성 (yyyy/MM/dd/)
+          const today = new Date();
+          const year = today.getFullYear();
+          const month = String(today.getMonth() + 1).padStart(2, '0');
+          const day = String(today.getDate()).padStart(2, '0');
+          const folderPath = `${year}/${month}/${day}/`; // "2025/11/24/"
+          
+          // 파일명 생성 (UUID_원본파일명)
+          const fileName = `${uuid}_${originalFileName}`; // "uuid_originalFileName.jpg"
+          
+          // 폴더 경로와 파일명을 분리해서 저장
+          updateData.userThumbnailUrl = folderPath; // "2025/11/" (경로만)
+          updateData.userThumbnailName = fileName;  // "uuid_originalFileName.jpg" (파일명만)
         } else {
           alert('프로필 이미지 업로드에 실패했습니다.');
           setIsLoading(false);
