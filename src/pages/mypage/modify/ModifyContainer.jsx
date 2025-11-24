@@ -276,7 +276,7 @@ useEffect(() => {
       } else if (profilePreview === '/assets/images/defalutpro.svg') {
         // 기본 이미지로 변경하는 경우
         updateData.userThumbnailName = 'default.jpg';
-        updateData.userThumbnailUrl = '/default';
+        updateData.userThumbnailUrl = '/default/';
       }
 
       // 비밀번호 변경이 있는 경우 추가
