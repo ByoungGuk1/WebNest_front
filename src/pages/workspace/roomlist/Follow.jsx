@@ -30,12 +30,11 @@ const Follow = ({ follow = [] }) => {
     <S.FollowWrap>
       <S.FollowListWarp>
         {follow.map((item) => {
-          const { userId, userNickname, presenceStatus, userLevel, userThumbnailUrl, profileUrl } = item || {};
-          const profileImg = userThumbnailUrl || profileUrl || '/assets/images/chicken.png';
+          const { userId, userNickname, presenceStatus, userLevel, userThumbnailUrl, userThumbnailName } = item || {};
           return (
             <S.Followlist key={userId}>
               <S.FollowLeftWrap>
-                <S.FollowImg src={profileImg} alt={userNickname || 'user'} />
+                <S.FollowImg src={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${userThumbnailUrl}${userThumbnailName}`} alt={userNickname || 'user'} />
                   <S.FollowNameWrap>
                     <S.LevelWrap>
                       <S.LevelImg src={getLevelIcon(userLevel || 1)} alt={`Lv${userLevel || 1}`} />
