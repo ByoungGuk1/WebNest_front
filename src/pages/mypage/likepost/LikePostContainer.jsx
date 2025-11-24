@@ -2,6 +2,12 @@ import React, { useMemo, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import S from "../mypost/style";
 import PostListStyle from "../../../pages/community/post/postlist/style";
+import {
+  getFileDisplayUrl,
+  getFileDisplayUrlFromPathAndName,
+} from "../../../utils/fileUtils";
+
+const DEFAULT_PROFILE_IMAGE = "/assets/images/defalutpro.svg";
 
 /* 날짜 → 상대시간 */
 const toRelativeTime = (dateLike) => {
@@ -20,6 +26,74 @@ const toRelativeTime = (dateLike) => {
   if (mon < 12) return `${mon}개월 전`;
   const y = Math.floor(mon / 12);
   return `${y}년 전`;
+};
+
+/* =========================
+   🔥 프로필 이미지 URL 빌더
+   ========================= */
+
+// ✅ 게시글 작성자 프로필 이미지 URL 만들기
+const buildAuthorProfileImg = (p) => {
+  // 1) path / name 분리된 케이스 (추천 패턴)
+  const path =
+    p.userThumbnailUrl ||        // ex: "img/" 또는 "2025/11/20/"
+    p.authorThumbnailUrl ||
+    "";
+
+  const name =
+    p.userThumbnailName ||       // ex: "1.jpg" 또는 "uuid_ara.jpg"
+    p.authorThumbnailName ||
+    "";
+
+  // 2) 예전 구조: 한 필드에 전체 경로나 파일명만 있는 경우
+  const legacyRaw =
+    p.userThumbnailUrl ||        // ex: "img/1.jpg" or "/uploads/ara.jpg"
+    p.authorProfile ||
+    "";
+
+  // (1) path/name 둘 다 없고 legacyRaw도 없으면 → 기본 이미지
+  if (
+    (!path || path === "/default" || path === "null" || path === "undefined") &&
+    !legacyRaw
+  ) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  // ✅ (1-1) path만 있고, 이름은 없고, path가 폴더처럼 끝이 '/' 인 경우 → 폴더만 아는 상태라 기본 이미지
+  if (path && !name && path.endsWith("/")) {
+    return DEFAULT_PROFILE_IMAGE;
+  }
+
+  // (2) path + name 둘 다 있으면 → 우리가 만든 util 사용
+  if (path && name) {
+    // ex: path="img/", name="1.jpg" → "img/1.jpg" → /file/display?fileName=...
+    return (
+      getFileDisplayUrlFromPathAndName(path, name) || DEFAULT_PROFILE_IMAGE
+    );
+  }
+
+  // (3) path만 있거나 legacyRaw만 있을 때
+  const raw = legacyRaw || path;
+  if (!raw) return DEFAULT_PROFILE_IMAGE;
+
+  // 외부 URL이나 assets 경로면 그대로 사용
+  if (raw.startsWith("http") || raw.startsWith("/assets")) {
+    return raw;
+  }
+
+  // "/uploads/xxxx" 같은 경우 → "xxxx"로 잘라내기
+  let fileName = raw;
+  if (fileName.startsWith("/uploads/")) {
+    fileName = fileName.replace("/uploads/", "");
+  } else if (fileName.startsWith("uploads/")) {
+    fileName = fileName.replace("uploads/", "");
+  }
+  if (fileName.startsWith("/")) {
+    fileName = fileName.slice(1);
+  }
+
+  // 최종적으로 /file/display?fileName=... 형태로 변환
+  return getFileDisplayUrl(fileName);
 };
 
 /* 백엔드 → 프런트 표준 구조로 매핑 */
@@ -45,7 +119,7 @@ const mapPost = (p) => ({
       p.userName ??
       p.username ??
       null,
-    profileImg: p.userThumbnailUrl ?? p.authorProfile ?? null,
+    profileImg: buildAuthorProfileImg(p), // ✅ 변경: util로 URL 생성
   },
 });
 
