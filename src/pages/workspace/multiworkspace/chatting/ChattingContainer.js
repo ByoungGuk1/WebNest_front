@@ -23,18 +23,26 @@ const ChattingContainer = () => {
     // 0. 게임방 정보 조회하여 사용자 팀 컬러 가져오기
     const fetchGameRoomInfo = async () => {
       try {
+        const accessToken = localStorage.getItem("accessToken");
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/game-room/${roomId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/private/game-rooms/${roomId}`,
           {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
+              ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
             },
+            credentials: 'include',
           }
         );
         
         if (response.ok) {
-          const data = await response.json();
+          const responseData = await response.json();
+          const data = responseData?.data || responseData; // ApiResponseDTO 구조 대응
+          // 게임방 제목 설정 (메시지보다 우선)
+          if (data.gameRoomTitle) {
+            setGameRoomTitle(data.gameRoomTitle);
+          }
           // 플레이어 리스트에서 현재 사용자의 팀 컬러 찾기
           if (data.players && Array.isArray(data.players)) {
             const currentPlayer = data.players.find(p => String(p.userId) === String(userSenderId));
@@ -49,7 +57,8 @@ const ChattingContainer = () => {
           }
         } else {
           // 500 에러 등 실패 시 기본값 유지
-          console.warn(`게임방 정보 조회 실패 (${response.status}): 팀 컬러 기본값 "black" 사용`);
+          const errorText = await response.text().catch(() => '');
+          console.warn(`게임방 정보 조회 실패 (${response.status}):`, errorText, '팀 컬러 기본값 "black" 사용');
         }
       } catch (error) {
         console.error('게임방 정보 조회 중 오류:', error);
@@ -65,13 +74,7 @@ const ChattingContainer = () => {
       if (!response.ok) return;
       const datas = await response.json();
       setChatList(datas);
-      // 초기 메시지에서 gameRoomTitle 추출 (모든 메시지에서 확인)
-      if (datas && datas.length > 0) {
-        const titleFromData = datas.find(item => item?.gameRoomTitle)?.gameRoomTitle;
-        if (titleFromData) {
-          setGameRoomTitle(titleFromData);
-        }
-      }
+      // 메시지에서 타이틀을 가져오지 않음 - fetchGameRoomInfo에서 이미 설정됨
     };
 
     if (roomId && userSenderId) {
@@ -85,8 +88,6 @@ const ChattingContainer = () => {
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
       onConnect: () => {
-        console.log('연결 성공');
-
         // 입장 메시지
         const joinMessage = {
           gameRoomId: roomId,
@@ -107,10 +108,8 @@ const ChattingContainer = () => {
           const body = JSON.parse(message.body);
           setChatList((prev) => {
             const newList = [...prev, body];
-            // gameRoomTitle이 포함되어 있으면 업데이트
-            if (body?.gameRoomTitle) {
-              setGameRoomTitle(body.gameRoomTitle);
-            }
+            // 메시지에서 타이틀을 업데이트하지 않음 - 게임방 정보에서 가져온 타이틀 유지
+            // (메시지 본문이 타이틀로 바뀌는 것을 방지)
             return newList;
           });
         });
@@ -173,6 +172,7 @@ const ChattingContainer = () => {
         userReceiverId: null,
         chatMessageContent: message.trim(),
         chatMessageType: 'MESSAGE',
+        userSenderTeamcolor: userTeamColor || "black", // 팀 컬러 포함
       };
 
       if (stompClientRef.current?.connected) {
@@ -181,6 +181,8 @@ const ChattingContainer = () => {
           body: JSON.stringify(chatData),
         });
         setMessage('');
+      } else {
+        alert('채팅 서버에 연결되지 않았습니다.');
       }
     }
   };
@@ -225,7 +227,10 @@ const ChattingContainer = () => {
               </S.MyChatWrap>
             ) : (
               <S.OthersChatWrap key={idx}>
-                <S.Avatar src="/assets/avatar.png" alt="프사" />
+                <S.Avatar 
+                  src={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${chat.userThumbnailUrl}${chat.userThumbnailName}`}
+                  alt="프사" 
+                />
                 <S.OnlyCol>
                   {chat?.senderNickname}
                   <S.OthersChatLyaout>{chat?.chatMessageContent}</S.OthersChatLyaout>
@@ -246,7 +251,12 @@ const ChattingContainer = () => {
             onCompositionStart={() => setIsComposing(true)}
             onCompositionEnd={() => setIsComposing(false)}
           />
-        <img src='/assets/images/chat/airplane.png' alt='전송이미지' className='airplane'></img>
+        <img 
+        src='/assets/images/chat/airplane.png' 
+        alt='전송이미지' 
+        className='airplane'
+        >
+        </img>
         </S.InputBox>
       </S.RowWrap>
     </S.ChatWrap>
