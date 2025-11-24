@@ -327,10 +327,10 @@ const CardFlipContainer = () => {
 
   // 경험치 계산
   const getExpGain = (rank) => {
-    if (rank === 1) return 200;
-    if (rank === 2) return 150;
-    if (rank === 3) return 100;
-    return 50;
+    if (rank === 1) return 20;
+    if (rank === 2) return 15;
+    if (rank === 3) return 10;
+    return 0;
   };
 
   return (
