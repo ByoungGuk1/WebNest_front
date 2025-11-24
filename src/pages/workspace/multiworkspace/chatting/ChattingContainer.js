@@ -39,7 +39,10 @@ const ChattingContainer = () => {
         if (response.ok) {
           const responseData = await response.json();
           const data = responseData?.data || responseData; // ApiResponseDTO 구조 대응
-          
+          // 게임방 제목 설정 (메시지보다 우선)
+          if (data.gameRoomTitle) {
+            setGameRoomTitle(data.gameRoomTitle);
+          }
           // 플레이어 리스트에서 현재 사용자의 팀 컬러 찾기
           if (data.players && Array.isArray(data.players)) {
             const currentPlayer = data.players.find(p => String(p.userId) === String(userSenderId));
@@ -71,13 +74,7 @@ const ChattingContainer = () => {
       if (!response.ok) return;
       const datas = await response.json();
       setChatList(datas);
-      // 초기 메시지에서 gameRoomTitle 추출 (모든 메시지에서 확인)
-      if (datas && datas.length > 0) {
-        const titleFromData = datas.find(item => item?.gameRoomTitle)?.gameRoomTitle;
-        if (titleFromData) {
-          setGameRoomTitle(titleFromData);
-        }
-      }
+      // 메시지에서 타이틀을 가져오지 않음 - fetchGameRoomInfo에서 이미 설정됨
     };
 
     if (roomId && userSenderId) {
@@ -111,10 +108,8 @@ const ChattingContainer = () => {
           const body = JSON.parse(message.body);
           setChatList((prev) => {
             const newList = [...prev, body];
-            // gameRoomTitle이 포함되어 있으면 업데이트
-            if (body?.gameRoomTitle) {
-              setGameRoomTitle(body.gameRoomTitle);
-            }
+            // 메시지에서 타이틀을 업데이트하지 않음 - 게임방 정보에서 가져온 타이틀 유지
+            // (메시지 본문이 타이틀로 바뀌는 것을 방지)
             return newList;
           });
         });
