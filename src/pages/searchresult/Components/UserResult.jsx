@@ -38,7 +38,10 @@ const UserResult = ({datas = [], search = "", count}) => {
       <S.UserCard>
         <S.UserLeftWrap>
           <S.UserProfile>
-            <img src={profileUrl} alt="" />
+            <img 
+              srcsrc={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${user.userThumbnailUrl}${user.userThumbnailName}`}
+              alt="" 
+            />
             <S.UserLevelCard className='lv'>
               <img src={levelImageUrl} className='lvImg'></img>
               <span >Lv {level === 10 ? "X" : level}</span>

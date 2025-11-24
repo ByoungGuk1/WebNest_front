@@ -98,14 +98,17 @@ const FriendListContainer = ({ onCancel }) => {
         <S.FollowWrap>
           <S.FollowListWarp>
             {sortedFriends.map((item) => {
-              const { _key, userId, userNickname, presenceStatus, userLevel, userThumbnailUrl } = item;
+              const { _key, userId, userNickname, presenceStatus, userLevel, userThumbnailUrl , userThumbnailName } = item;
               const levelColor = getLevelColor(userLevel);
               const isSelected = selectedFriends.includes(userId);
               return (
                 <S.Followlist key={_key} onClick={() => toggleSelect(userId)}>
                   <S.FollowLeftWrap>
                     <S.Checkbox $selected={isSelected}>{isSelected && <S.Checkmark>✓</S.Checkmark>}</S.Checkbox>
-                    <S.FollowImg src={userThumbnailUrl} alt={userNickname || 'user'} />
+                    <S.FollowImg 
+                      src={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${userThumbnailUrl}${userThumbnailName}`}
+                      alt={userNickname || 'user'} 
+                    />
                     <S.FollowNameWrap>
                       <S.LevelWrap>
                         <S.LevelImg src={getLevelIcon(userLevel)} alt={`Lv${userLevel}`} />

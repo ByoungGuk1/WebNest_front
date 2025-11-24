@@ -23,18 +23,23 @@ const ChattingContainer = () => {
     // 0. 게임방 정보 조회하여 사용자 팀 컬러 가져오기
     const fetchGameRoomInfo = async () => {
       try {
+        const accessToken = localStorage.getItem("accessToken");
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/game-room/${roomId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/private/game-rooms/${roomId}`,
           {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
+              ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
             },
+            credentials: 'include',
           }
         );
         
         if (response.ok) {
-          const data = await response.json();
+          const responseData = await response.json();
+          const data = responseData?.data || responseData; // ApiResponseDTO 구조 대응
+          
           // 플레이어 리스트에서 현재 사용자의 팀 컬러 찾기
           if (data.players && Array.isArray(data.players)) {
             const currentPlayer = data.players.find(p => String(p.userId) === String(userSenderId));
@@ -49,7 +54,8 @@ const ChattingContainer = () => {
           }
         } else {
           // 500 에러 등 실패 시 기본값 유지
-          console.warn(`게임방 정보 조회 실패 (${response.status}): 팀 컬러 기본값 "black" 사용`);
+          const errorText = await response.text().catch(() => '');
+          console.warn(`게임방 정보 조회 실패 (${response.status}):`, errorText, '팀 컬러 기본값 "black" 사용');
         }
       } catch (error) {
         console.error('게임방 정보 조회 중 오류:', error);
@@ -85,8 +91,6 @@ const ChattingContainer = () => {
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
       onConnect: () => {
-        console.log('연결 성공');
-
         // 입장 메시지
         const joinMessage = {
           gameRoomId: roomId,
@@ -173,6 +177,7 @@ const ChattingContainer = () => {
         userReceiverId: null,
         chatMessageContent: message.trim(),
         chatMessageType: 'MESSAGE',
+        userSenderTeamcolor: userTeamColor || "black", // 팀 컬러 포함
       };
 
       if (stompClientRef.current?.connected) {
@@ -181,6 +186,8 @@ const ChattingContainer = () => {
           body: JSON.stringify(chatData),
         });
         setMessage('');
+      } else {
+        alert('채팅 서버에 연결되지 않았습니다.');
       }
     }
   };
@@ -225,7 +232,10 @@ const ChattingContainer = () => {
               </S.MyChatWrap>
             ) : (
               <S.OthersChatWrap key={idx}>
-                <S.Avatar src="/assets/avatar.png" alt="프사" />
+                <S.Avatar 
+                  src={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${chat.userThumbnailUrl}${chat.userThumbnailName}`}
+                  alt="프사" 
+                />
                 <S.OnlyCol>
                   {chat?.senderNickname}
                   <S.OthersChatLyaout>{chat?.chatMessageContent}</S.OthersChatLyaout>
@@ -246,7 +256,12 @@ const ChattingContainer = () => {
             onCompositionStart={() => setIsComposing(true)}
             onCompositionEnd={() => setIsComposing(false)}
           />
-        <img src='/assets/images/chat/airplane.png' alt='전송이미지' className='airplane'></img>
+        <img 
+        src='/assets/images/chat/airplane.png' 
+        alt='전송이미지' 
+        className='airplane'
+        >
+        </img>
         </S.InputBox>
       </S.RowWrap>
     </S.ChatWrap>

@@ -73,18 +73,23 @@ const SnakePuzzleContainer = () => {
 
     const fetchGameRoomStatus = async () => {
       try {
+        const accessToken = localStorage.getItem("accessToken");
         const response = await fetch(
-          `${process.env.REACT_APP_BACKEND_URL}/game-room/${roomId}`,
+          `${process.env.REACT_APP_BACKEND_URL}/private/game-rooms/${roomId}`,
           {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
+              ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
             },
+            credentials: 'include',
           }
         );
         
         if (response.ok) {
-          const data = await response.json();
+          const responseData = await response.json();
+          const data = responseData?.data || responseData; // ApiResponseDTO 구조 대응
+          
           // gameRoomIsStart 필드 확인
           if (data.gameRoomIsStart !== undefined) {
             setIsGameStarted(data.gameRoomIsStart === true || data.gameRoomIsStart === 1);
@@ -135,7 +140,6 @@ const SnakePuzzleContainer = () => {
           gameRoomId: parseInt(roomId),
         };
         const stateDestination = `/pub/game/${gameChannel}/state`;
-        console.log('📡 게임 상태 조회 요청 경로:', stateDestination);
         client.publish({
           destination: stateDestination,
           body: JSON.stringify(getGameStateMessage),
@@ -143,10 +147,8 @@ const SnakePuzzleContainer = () => {
 
         // 게임 상태 구독
         const subscribePath = `/sub/game/${gameChannel}/room/${roomId}`;
-        console.log('📡 게임 상태 구독 경로:', subscribePath);
         client.subscribe(subscribePath, (message) => {
           const body = JSON.parse(message.body);
-          console.log('🎮 게임 상태 수신:', body);
 
           if (body.type === 'GAME_STARTED') {
             setIsGameStarted(true);
@@ -351,8 +353,6 @@ const SnakePuzzleContainer = () => {
 
     try {
       const startDestination = `/pub/game/${gameChannel}/start`;
-      console.log('📡 게임 시작 요청 경로:', startDestination);
-      console.log('🎮 게임 시작 요청 전송:', startGameMessage);
       gameStompClientRef.current.publish({
         destination: startDestination,
         body: JSON.stringify(startGameMessage),
@@ -621,8 +621,6 @@ const SnakePuzzleContainer = () => {
 
           try {
             const endGameDestination = `/pub/game/${gameChannel}/end-game`;
-            console.log('📡 게임 종료 요청 경로:', endGameDestination);
-            console.log('🎮 게임 종료 요청 전송:', endGameMessage);
             gameStompClientRef.current.publish({
               destination: endGameDestination,
               body: JSON.stringify(endGameMessage),
