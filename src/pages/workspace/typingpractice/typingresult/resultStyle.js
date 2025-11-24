@@ -13,7 +13,7 @@ S.ModalOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 99999;
 `;
 
 S.ModalBox = styled.div`
@@ -32,6 +32,8 @@ S.ModalImage = styled.img`
   object-fit: contain;
   margin: 0 auto;
   display: block;
+  border-radius: 50%;   /* 둥글게 */
+  object-fit: cover;    /* 이미지 꽉 차게 */
 `;
 
 S.Title = styled.div`
