@@ -29,9 +29,9 @@ const Modal = ({ toggleModal }) => {
   });
   // watch hookform의 상태 변경 감지
   const roomType = watch("myChatRoomType");
-  const gameType = watch("gameType"); // 게임 유형: 게임 이름
-  const gameRoomIsTeam = watch("gameRoomIsTeam"); // 팀전 여부
-  const gameRoomMaxPlayer = watch("gameRoomMaxPlayer"); // 플레이어 수
+  const gameType = watch("gameType");
+  const gameRoomIsTeam = watch("gameRoomIsTeam");
+  const gameRoomMaxPlayer = watch("gameRoomMaxPlayer");
 
   // 드롭다운 열림/닫힘 상태
   const [isGameTypeOpen, setIsGameTypeOpen] = useState(false);
@@ -51,8 +51,6 @@ const Modal = ({ toggleModal }) => {
   const handleGameTypeSelect = (value) => {
     setValue("gameType", value);
     setIsGameTypeOpen(false);
-    // 오목 또는 카드 뒤집기 선택 시 플레이어 수 2명으로 고정 및 팀전 비활성화
-    // 다른 게임 유형으로 변경되면 기본값(8명)으로 복원
     if (value === "concave" || value === "cardflip") {
       setValue("gameRoomMaxPlayer", 2);
       setValue("gameRoomIsTeam", 0); // 팀전 불가
@@ -72,7 +70,6 @@ const Modal = ({ toggleModal }) => {
     setValue("gameRoomMaxPlayer", newValue);
   };
 
-  // 팀전 가능 여부 확인 (오목, 카드 게임은 팀전 불가)
   const isTeamModeAvailable = gameType !== "concave" && gameType !== "cardflip";
 
   const handleSumbmitForm = handleSubmit(async (data) => {
@@ -91,9 +88,6 @@ const Modal = ({ toggleModal }) => {
       return;
     }
 
-    // 백엔드 API 형식에 맞게 데이터 변환
-    // userId는 Authentication에서 자동으로 가져오므로 request body에 포함하지 않음
-    // gameType을 백엔드 형식으로 변환 (대문자)
     const gameTypeToBackend = {
       snakepuzzle: "SNAKE",
       concave: "OMOK",
@@ -104,25 +98,20 @@ const Modal = ({ toggleModal }) => {
     
     const gameRoomVO = {
       gameRoomTitle: data.gameRoomTitle.trim(),
-      gameRoomIsTeam: data.gameRoomIsTeam || 0, // 0: 개인전, 1: 팀전
-      gameRoomType: backendGameType, // SNAKE, OMOK, CARD, WORD
-      gameRoomIsOpen: 1, // 기본값: 공개
+      gameRoomIsTeam: data.gameRoomIsTeam || 0, 
+      gameRoomType: backendGameType, 
+      gameRoomIsOpen: 1, 
       gameRoomMaxPlayer: parseInt(data.gameRoomMaxPlayer) || 8,
-      gameRoomIsStart: 0, // 기본값: 시작 전
+      gameRoomIsStart: 0,
     };
 
-    // 비밀번호가 있으면 추가 (빈 문자열이면 제외)
     if (data.gameRoomPassKey && data.gameRoomPassKey.trim()) {
       gameRoomVO.gameRoomPassKey = data.gameRoomPassKey.trim();
     }
 
-    // 백엔드 API 형식: { "gameRoomVO": {...} }
     const requestData = {
       gameRoomVO: gameRoomVO,
     };
-
-    console.log("📤 방 만들기 요청 데이터:", requestData);
-    console.log("📤 실제 전송할 JSON:", JSON.stringify(requestData, null, 2));
 
     try {
       const accessToken = localStorage.getItem("accessToken");
@@ -146,7 +135,7 @@ const Modal = ({ toggleModal }) => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("❌ 방 만들기 실패:", {
+        console.error("방 만들기 실패:", {
           status: response.status,
           statusText: response.statusText,
           error: errorText,
@@ -167,16 +156,13 @@ const Modal = ({ toggleModal }) => {
       }
 
       const result = await response.json();
-      console.log("📥 방 만들기 응답:", result);
 
       if (result.data) {
         const createdRoomId = result.data.id;
         toggleModal();
 
-        // gameType이 이미 라우터 경로 형식이므로 그대로 사용
         const routePath = data.gameType;
 
-        // 게임방으로 이동 (gameRoomType에 따라 경로 변경)
         naviagate(`/workspace/rooms/${createdRoomId}/${routePath}`);
       } else {
         alert(result.message || "방 만들기에 실패했습니다.");

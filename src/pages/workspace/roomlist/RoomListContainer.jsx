@@ -94,13 +94,6 @@ const RoomListContainer = () => {
       });
     }
 
-    if (selectedLanguage) {
-      filtered = filtered.filter(room => {
-        const roomLang = (room.gameRoomLanguage || '').toUpperCase();
-        return roomLang === selectedLanguage.toUpperCase();
-      });
-    }
-
     if (teamMode !== null) {
       filtered = filtered.filter(room => {
         const isTeam = room.gameRoomIsTeam === true || room.gameRoomIsTeam === 1;

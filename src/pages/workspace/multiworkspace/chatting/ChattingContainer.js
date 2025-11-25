@@ -93,7 +93,6 @@ const ChattingContainer = () => {
           gameRoomId: roomId,
           userSenderId: userSenderId,
           userReceiverId: null,
-          chatMessageContent: `${userNickname}님이 입장하셨습니다.`,
           chatMessageType: 'JOIN',
           userSenderTeamcolor: userTeamColor || "black", // 팀 컬러 포함
         };
@@ -229,7 +228,7 @@ const ChattingContainer = () => {
               <S.OthersChatWrap key={idx}>
                 <S.Avatar 
                   src={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${chat.userThumbnailUrl}${chat.userThumbnailName}`}
-                  alt="프사" 
+                  alt="profile" 
                 />
                 <S.OnlyCol>
                   {chat?.senderNickname}

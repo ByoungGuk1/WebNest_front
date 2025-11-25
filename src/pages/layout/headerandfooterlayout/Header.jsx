@@ -49,22 +49,22 @@ const readAllNotice = async () => {
 
     // 성공 시 알림은 유지하고 읽음 상태만 업데이트
     setNotifications(prev => {
-      const data = prev?.data ?? {};
+      const data = prev?.data;
       
       return {
         ...prev,
         data: {
-          posts: (data.posts || []).map(item => ({
+          posts: (data.posts).map(item => ({
             ...item,
             postNotificationIsRead: true,
             notificationIsRead: true,
           })),
-          comments: (data.comments || []).map(item => ({
+          comments: (data.comments).map(item => ({
             ...item,
             commentNotificationIsRead: true,
             notificationIsRead: true,
           })),
-          follows: (data.follows || []).map(item => ({
+          follows: (data.follows).map(item => ({
             ...item,
             followNotificationIsRead: true,
             notificationIsRead: true,
@@ -331,7 +331,6 @@ const notificationLists = () =>
             key={key}
             $isRead={isRead}
             onClick={() => onReadOne(notice)}      // ← 객체 통째로 전달
-            style={{ cursor: "pointer" }}
           >
             <S.TimeText>{timeText}</S.TimeText>
             <S.OneLine>
