@@ -103,7 +103,7 @@ const Intro = () => {
                 </Link>
               </div>
             </S.TextWrap>
-          <img src="assets/images/main-page/step1Img.png" alt="banner" />
+          <img src="/assets/images/main-page/step1Img.png" alt="banner" />
         </S.StepWrap>
         <S.StepWrap style={stepSlideStyle(1)}>
           <S.TextWrap>
@@ -121,7 +121,7 @@ const Intro = () => {
               </Link>
             </div>
           </S.TextWrap>
-          <img src="assets/images/main-page/banner-blue.png" alt="banner" />
+          <img src="/assets/images/main-page/banner-blue.png" alt="banner" />
         </S.StepWrap>
         <S.StepWrap style={stepSlideStyle(2)}>
           <S.TextWrap>
@@ -141,7 +141,7 @@ const Intro = () => {
               </Link>
             </div>
           </S.TextWrap>
-          <img src="assets/images/main-page/banner-red.png" alt="" />
+          <img src="/assets/images/main-page/banner-red.png" alt="" />
         </S.StepWrap>
       </S.IntroStepWrap>
       {/* -----=  level 레이아웃  =----- */}
@@ -157,7 +157,7 @@ const Intro = () => {
           {/* 1 */}
           <S.lvWrap style={barStyle(0)}>
             <div>
-              <img src='assets/images/main-page/levels/Lv1.svg' style={eggStyle(0)}></img>
+              <img src='/assets/images/main-page/levels/Lv1.svg' style={eggStyle(0)}></img>
             </div>
             <S.Lv1Box>
               <span>Lv 1</span>
@@ -175,7 +175,7 @@ const Intro = () => {
           {/* 3 */}
           <S.lvWrap style={barStyle(2)}>
             <div>
-              <img src='assets/images/main-page/levels/Lv3.png' style={eggStyle(2)}></img>
+              <img src='/assets/images/main-page/levels/Lv3.png' style={eggStyle(2)}></img>
             </div>
             <S.Lv3Box> <span>Lv 3</span></S.Lv3Box>
           </S.lvWrap>
@@ -207,7 +207,7 @@ const Intro = () => {
           {/* 7 */}
           <S.lvWrap style={barStyle(6)}>
             <div>
-              <img src='assets/images/main-page/levels/Lv7.png' style={eggStyle(6)}></img>
+              <img src='/assets/images/main-page/levels/Lv7.png' style={eggStyle(6)}></img>
             </div>
             <S.Lv7Box> <span>Lv 7</span></S.Lv7Box>
           </S.lvWrap>
@@ -223,7 +223,7 @@ const Intro = () => {
           {/* 9 */}
           <S.lvWrap style={barStyle(8)}>
             <div className="position">
-              <img src='assets/images/main-page/levels/Lv9.png' className="lv9" style={eggStyle(8)}></img>
+              <img src='/assets/images/main-page/levels/Lv9.png' className="lv9" style={eggStyle(8)}></img>
             </div>
             <S.Lv9Box> <span>Lv 9</span></S.Lv9Box>
           </S.lvWrap>
@@ -231,7 +231,7 @@ const Intro = () => {
           {/* 10 */}
           <S.lvWrap style={barStyle(9)}>
             <div className="position">
-              <img src='assets/images/main-page/levels/Lv10.png' className="lv10" style={eggStyle(9)}></img>
+              <img src='/assets/images/main-page/levels/Lv10.png' className="lv10" style={eggStyle(9)}></img>
             </div>
             <S.Lv10Box> <span>Lv X</span></S.Lv10Box>
           </S.lvWrap>
