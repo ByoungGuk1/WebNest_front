@@ -55,7 +55,7 @@ const MultiWorkspaceRoomContainer = () => {
 
           if (Array.isArray(gameState)) {
             const currentPlayer = gameState.find(p => {
-              const playerId = p.userId || p.id || p.userSenderId;
+              const playerId = p.userId;
               return String(playerId) === String(userSenderId);
             });
 

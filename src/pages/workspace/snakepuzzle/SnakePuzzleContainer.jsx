@@ -105,18 +105,16 @@ const SnakePuzzleContainer = () => {
                                    currentPlayer.isHost === true || 
                                    currentPlayer.isHost === 1;
               setIsHost(isHostPlayer);
-              console.log('🎮 초기 방장 여부:', { userId, isHostPlayer, gameJoinIsHost: currentPlayer.gameJoinIsHost, isHost: currentPlayer.isHost });
             }
           }
           
-          console.log('🎮 게임방 상태 조회:', data);
         } else {
           // 500 에러 등 실패 시 로그 출력
           const errorText = await response.text().catch(() => '');
-          console.error(`❌ 게임방 상태 조회 실패 (${response.status}):`, errorText);
+          console.error(`게임방 상태 조회 실패 (${response.status}):`, errorText);
         }
       } catch (error) {
-        console.error('❌ 게임방 상태 조회 중 오류:', error);
+        console.error('게임방 상태 조회 중 오류:', error);
       }
     };
 
@@ -133,7 +131,6 @@ const SnakePuzzleContainer = () => {
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
       onConnect: () => {
-        console.log('🎮 게임 WebSocket 연결 성공');
 
         // 게임 상태 조회 요청
         const getGameStateMessage = {
@@ -228,17 +225,9 @@ const SnakePuzzleContainer = () => {
                                      currentPlayer.isHost === true || 
                                      currentPlayer.isHost === 1;
                 setIsHost(isHostPlayer);
-                console.log('🎮 방장 여부 업데이트:', { userId, isHostPlayer, gameJoinIsHost: currentPlayer.gameJoinIsHost, isHost: currentPlayer.isHost });
-                
                 // 내 턴 여부 확인 (gameJoinMyturn 필드 사용)
                 const myTurn = currentPlayer.gameJoinMyturn === true || currentPlayer.gameJoinMyturn === 1 || 
                                currentPlayer.isTurn === true || currentPlayer.isTurn === 1;
-                console.log('🎲 현재 플레이어 턴 정보:', {
-                  userId: currentPlayer.userId,
-                  gameJoinMyturn: currentPlayer.gameJoinMyturn,
-                  isTurn: currentPlayer.isTurn,
-                  myTurn: myTurn
-                });
                 setIsMyTurn(myTurn);
                 
                 // 준비 상태 확인 (필드명은 백엔드에 따라 다를 수 있음)
