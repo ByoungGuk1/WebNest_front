@@ -211,7 +211,7 @@ const ChattingContainer = () => {
   if (showFriendList) {
     return <FriendListContainer onCancel={handleFriendListCancel} />;
   }
-
+  console.log(chatList)
   return (
     <S.ChatWrap>
       <S.ChatHeader>
@@ -227,7 +227,7 @@ const ChattingContainer = () => {
             ) : (
               <S.OthersChatWrap key={idx}>
                 <S.Avatar 
-                  src={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${chat.userThumbnailUrl}${chat.userThumbnailName}`}
+                  src={`${process.env.REACT_APP_BACKEND_URL}/file/display?fileName=${chat.senderThumbnailUrl}${chat.senderThumbnailName}`}
                   alt="profile" 
                 />
                 <S.OnlyCol>
