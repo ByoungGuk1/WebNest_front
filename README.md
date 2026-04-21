@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+## 프로젝트 #1
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+WebNest - 10대를 대상으로, 프로그래밍을 처음 접하는 학생들도 부담 없이 들어올 수 있는 서비스
 
-## Available Scripts
+### 사용 기술
 
-In the project directory, you can run:
+- Language : Java(JDK17), HTML, CSS, JavaScript <br />
+- Server, Cloud : Apache Tomcat 9.0 <br />
+- Framework : Spring Boot 3.2.x, React 18.x <br />
+- DB : Oracle 21C, Redis 8.x <br />
+- IDE : IntelliJ IDEA 2025.2.3, Visual Studio Code <br />
+- API, Library : STOMP(WebSocket), Swagger, coolSMS, OpenAI, Monaco Editor, Swiper API, Stream API,OAuth2, Spring Security, JWT <br />
+- DevOps, Tools : Git, GitHub, Docker, Figma, ERDCloud <br />
 
-### `yarn start`
+### 내 역할 (팀장)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. 로그인, 회원가입 구현 <br />
+2. OAuth2 소셜로그인 구현 <br />
+3. JWT 인증 <br />
+4. Redis refresh token 관리<br />
+5. OpenAI API 연동<br />
+6. WebSocket/STOMP 끝말잇기<br />
+   <br />
+   <img src="https://raw.githubusercontent.com/ByoungGuk1/ByoungGuk1/main/images/webnest/메인.png" alt="webnest_프로젝트_메인화면" width="600" />
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 핵심 기능
 
-### `yarn test`
+멀티게임 - LLM을 활용한 끝말잇기
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 트러블슈팅 #1
 
-### `yarn build`
+- 상황
+  LLM 사용 시 데이터를 가져오지 못했는데에도 다음 코드가 실행되는상황
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- 해결 방법
+  Map을 통한 Cashe 변수를 생성하여 값을 저장했습니다.
+  최대 3번까지 요청하며, 필요한 값인 단어와 설명 부분을 Cashe에 저장합니다.값을 정확하게 가지고 왔다면 설명을 바로 리턴해주고,
+  값을 가져오지 못한 경우 확인을 위해 문자열 메세지를 바로 응답해 주었습니다.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- 해당 경험을 통해 알게된 점
+  API 사용 시 정해진 요청 경로에 정해진 요청 값을 정해진 타입으로요청해야 하고, 응답을 받는 경우에도 정해진 이름과 타입으로 응답을받아야 한다는 것을 알았습니다.
+  이전 OAuth2.0의 경우와 마찬가지로 값이 응답되기 전에 다음 로직을실행시켜버리는 비동기 문제가 발생 할 수 있기에 그 부분도 유의하며로직을 작성해야했습니다.
+  따라서 API를 사용할 경우, 요청을 위한 객체와 응답을 위한 객체, 두가지가 필요하다는 것을 알게 되었습니다.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 트러블슈팅 #2
 
-### `yarn eject`
+- 상황
+  소셜 회원 가입 시 기본 입력값이 정확하게 VO로 전달되지 않는 상황
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- 해결방법
+  OAuth2.0를 통해 들어오는 값을 데이터베이스에 저장하기 위해 만든 VO에 저장할 때,
+  닉네임 또는 Provider 이름을 사용하여 중복되지 않는 임의의 값을 저장해두었습니다.
+  그 후 데이터베이스에 사용자 등록을 마친 다음 바로 로그인이 적용되도록 해주었습니다.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- 해당 경험을 통해 알게된 점
+  OAuth2.0의 경우 모든 사이트의 값이 동일한 값으로 전달되는 것이 아닌, 각 사이트에 정해진 이름으로 값을 전달해 주었습니다.
+  또한, 값을 전달받는 즉시 이름을 바꿔 저장하는 경우,비동기 문제가 발생하여 값이 제대로 저장되지 않을 수 있다는 것을 알게 되었습니다.
+  이를 통해 추후 값을 요청하고 응답하는 경우, 해당 로직이 동기적인지 비동기적인지 한차례 더 생각하게 되는 계기가 되었습니다.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 간략 시스템 구성도
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+<br />
+<img src="https://raw.githubusercontent.com/ByoungGuk1/ByoungGuk1/main/images/webnest/서비스설계.png" alt="webnest_서비스설계" width="600" />
 
-## Learn More
+### 끝말잇기
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+<img src="https://raw.githubusercontent.com/ByoungGuk1/ByoungGuk1/main/images/webnest/끝말잇기.png" alt="webnest_끝말잇기" width="600" />
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 로그인 화면
 
-### Code Splitting
+<img src="https://raw.githubusercontent.com/ByoungGuk1/ByoungGuk1/main/images/webnest/로그인.png" alt="webnest_로그인" width="600" />
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### ID/PW 찾기
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+<img src="https://raw.githubusercontent.com/ByoungGuk1/ByoungGuk1/main/images/webnest/IDPW찾기.png" alt="webnest_ID_PW_찾기" width="600" />
